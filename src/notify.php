@@ -1,0 +1,93 @@
+<?php
+    require  "assets/php/db.php";
+    
+    if(!isset($_COOKIE['id'])){
+        header("Location: index.php");
+    }
+    
+    $sql = "SELECT * FROM users WHERE id='" . $_COOKIE['id'] . "'";
+    $found_user = $conn->query($sql);
+    $user = $found_user->fetch_assoc();
+    
+    $sql = "SELECT * FROM notifys WHERE toid = $user[id] AND readed = 0";
+    $founded_notify = $conn->query($sql);
+    $notify_number = mysqli_num_rows($founded_notify);
+?>
+<!DOCTYPE html>
+<html lang="hu">
+   <head>
+       <title>Értesítések</title>
+       <meta charset='UTF-8'>
+       <meta name='description' content='Iskolai jegyzeteket megosztó oldal'>
+       <meta name='keywords' content='iskola, jegyzet, megosztás, tanulás'>
+       <meta name='author' content='Csontos Kincső, Szekeres Levente'>
+       <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+       <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+       <link rel="stylesheet" href="assets/css/styles.aurora.css">
+	   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	   <script src="assets/js/script.js"></script>
+   </head>
+   <body>
+        <?php
+            include 'assets/php/navbar.php';
+
+            if(isset($_POST['del-notifs-btn'])){
+                $conn->query("DELETE FROM notifys WHERE toid = $user[id]");
+                header("Location: notify.php");
+                exit;
+            }
+
+            $sql = "SELECT * FROM notifys WHERE toid = $user[id] ORDER BY id DESC";
+            $founded_notifys = $conn->query($sql);
+        ?>
+        
+        <div class="main">
+            <h1>Értesítések</h1>
+            
+            <?php if($founded_notifys && $founded_notifys->num_rows > 0): ?>
+                <div class="content-grid">
+                    <?php while($ertesites = $founded_notifys->fetch_assoc()): 
+                        $from = $ertesites['fromid'];  
+                        $sql = "SELECT * FROM users WHERE id=$from";
+                        $founded_notifyer = $conn->query($sql);
+                        $notifyer = $founded_notifyer->fetch_assoc();
+                    ?>
+                        <article class="card">
+                            <?php if($ertesites['notifytype'] == "friend"): ?>
+                                <h4 class="entry-title">Barátjelölés</h4>
+                                <p><a class="uploader-name" href="profile.php?userid=<?= $notifyer['id'] ?>"><?= htmlspecialchars($notifyer['username']) ?></a> barátnak jelölt!</p>
+                                
+                                <?php 
+                                $check = $conn->query("SELECT * FROM friends WHERE fromid = $notifyer[id] AND toid = $user[id] AND status = 0");
+                                if ($check->num_rows > 0): ?>
+                                    <form method='post' action='assets/php/accept_friend.php'>
+                                        <input type='hidden' name='fromid' value='<?= $notifyer['id'] ?>'>
+                                        <button type='submit' class="btn-cta">Elfogadás</button>
+                                    </form>
+                                <?php else: ?>
+                                    <p class="entry-meta">Már feldolgozott barátjelölés.</p>
+                                <?php endif; ?>
+                                
+                            <?php elseif($ertesites['notifytype'] == 'comment'): ?>
+                                <h4 class="entry-title">Új hozzászólás</h4>
+                                <p><a class="uploader-name" href="profile.php?userid=<?= $notifyer['id'] ?>"><?= htmlspecialchars($notifyer['username']) ?></a> hozzászólt egy posztodhoz!</p>
+                            <?php endif; ?>
+                        </article>
+                    <?php endwhile; ?>
+                </div>
+                
+                <form method='post' style='margin-top: 24px;'>
+                    <button type='submit' name='del-notifs-btn' class='btn-ghost'>Összes értesítés törlése</button>
+                </form>
+            <?php else: ?>
+                <div class="card">
+                    <p>Nincs új értesítésed.</p>
+                </div>
+            <?php endif; ?>
+            
+            <?php $conn->query("UPDATE notifys SET readed = 1 WHERE toid = $user[id]"); ?>
+        </div>
+        
+        <?php include 'assets/php/footer.php'; ?>
+   </body>
+</html>

@@ -1,7 +1,9 @@
 # Jegyzetár – Fejlesztői dokumentáció
 
 > Online jegyzetmegosztó platform diákoknak.
-> Frontend + Backend projekt React (???) és PHP alapokon.
+
+## Áttekintés  
+A **Jegyzetár** egy webalapú platform, amely lehetővé teszi a felhasználók számára jegyzetek megosztását és letöltését. A projekt célja, hogy egyszerű és hatékony eszközt biztosítson a tanulók és szakemberek számára a tudásmegosztáshoz. 
 
 ---
 
@@ -17,25 +19,11 @@
 
 ---
 
-## Fejlesztői környezet beállítása
+## Telepítés és Használat  
+A részletes telepítési és használati útmutató megtalálható a projekt dokumentációjában.  
 
-### 1. Klónozás
-
-```bash
-git clone https://github.com/doomhyena/jegyzetar.git
-cd jegyzetar
-```
-
-## Fejlesztési javaslatok
-
-* Majd később
-
----
-
-## Licenc
-
-Ez a projekt oktatási célból készült.
-Szabadon másolható, fork-olható és továbbfejleszthető.
+## Licenc  
+Ez a projekt saját projektmunkás licensz alatt áll. A forráskód és a dokumentáció kizárólag oktatási célokra használható fel, kereskedelmi felhasználása nem engedélyezett.
 
 ---
 
