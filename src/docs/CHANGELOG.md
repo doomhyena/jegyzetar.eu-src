@@ -45,6 +45,36 @@ Changelog by: Neved
 
 ---
 
+## [1.0.1] - 2025-11-02
+
+### Added
+- note.php
+- -->jegyzet neve
+- -->jegyzet megtekintes/letoltes
+- -->kommenteles
+- -->ertekeles
+- -->stb
+
+- ugrás a jegyzetre gomb a keresési eredményekben (letöltés helyett)
+- közvetlen navigáció jegyzet oldalakra (/Jegyzetar/note.php?id={file_id})
+
+- css bővítés
+- -->.search-card
+- -->.note-link
+- -->.comments-section
+- -->.comment`
+- -->.comment-form
+
+### Changed
+- Letöltés gomb helyett Ugrás a jegyzetre gomb lett
+
+### Fixed
+- index.php kidob a reglog.php-ba ha nincs bejelentkezve a felhasznalo
+
+Changelog by: Norbi
+
+---
+
 ## [1.0.0] - 2025-10-01
 
 ### Added

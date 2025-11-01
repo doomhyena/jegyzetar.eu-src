@@ -41,16 +41,19 @@
 	$sqlFiles = "SELECT * FROM files $whereClause";
 	$resultFiles = $conn->query($sqlFiles);
 
-	// Talált fájlok kilistázása, letöltési lehetőséggel
+	// norbi: letöltés -> ugráss jegyzegre
+	// Talált fájlok kilistázása, jegyzetre ugrás lehetőséggel
 	while ($file = $resultFiles->fetch_assoc()) {
-		// Fájl neve és letöltési link megjelenítése
 echo '
 <div class="search-card">
     <div class="search-content">
         <p>' . htmlspecialchars($file['name']) . '</p>
     </div>
-    <a class="download-icon" href="assets/php/download.php?id=' . (int)$file['id'] . '" title="Letöltés">
-        <img src="assets/img/download-icon.png" alt="Letöltés" />
+    <a class="note-link" href="/Jegyzetar/note.php?id=' . (int)$file['id'] . '" title="Ugrás a jegyzetre">
+        <svg class="icon icon-external" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Ugrás a jegyzetre
     </a>
 </div>';
 	}

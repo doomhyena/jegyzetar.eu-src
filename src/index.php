@@ -1,6 +1,12 @@
 <?php
     require "assets/php/db.php";
 
+    //norbi: engem az index.phpra dob errorokkal szval ezt itt hagyom
+    if(!isset($_COOKIE['id'])){
+        header("Location: reglog.php");
+    }
+
+
     $sql = "SELECT * FROM users WHERE id='" . $conn->real_escape_string($_COOKIE['id']) . "'";
     $found_user = $conn->query($sql);
     $user = $found_user ? $found_user->fetch_assoc() : null;
@@ -130,7 +136,8 @@
                         $user_dir = "users/" . ($uploader['username'] ?? '') . "/";
                         $safe_path = $user_dir . $file['file_name'];
                         ?>
-                        <article class="card note-card">
+                        <!--norbi: egyedi fileid a hrefhez -->
+                        <article class="card note-card" id="file-<?= $file_id ?>">
                             <header class="card-head">
                                 <h4 class="entry-title"><?= $file_name ?></h4>
                                 <a class="entry-download-btn" href="assets/php/download.php?id=<?= $file_id ?>">
