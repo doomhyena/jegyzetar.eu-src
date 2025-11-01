@@ -67,8 +67,9 @@ Szekeres Levente<br>
     - 8.7. [Asztali Alkalmazás](#87-asztali-alkalmazás)
 
 9. [Ki mit készített?](#9-ki-mit-készített?)
-    - 10.1. [Csontos Kincső](#91-csontos-kincső)
-    - 10.2. [Szekeres Levente](#92-szekeres-levente)
+    - 9.1. [Baranyai Norbert](#91-baranyai-norbert)
+    - 9.2. [Csontos Kincső Anasztázia](#92-csontos-kincső-anasztázia)
+    - 9.2. [Szekeres Levente](#92-szekeres-levente)
 
 10. [Licensz](#10-licensz)
 
@@ -522,18 +523,14 @@ Ezek a fejlesztések jelentősen növelnék a NoteShare elérhetőségét és fe
 
 ## 9. Ki mit készített?
 
-### 9.1. Csontos Kincső
+### 9.1. Baranyai Norbert
 
-- **Backend Fejlesztés**: Backend logika, adatbázis kapcsolat.
-- **Adatbázis Tervezés**: Adatbázis struktúra és SQL szkriptek.
-- **Dokumentáció**: Projekt dokumentáció elkészítése.
-- **Tesztelés**: Funkcionális tesztek végrehajtása.
 
-### 9.2. Szekeres Levente
+### 9.2. Csontos Kincső Anasztázia
 
-- **Backend Fejlesztés**: Backend logika, adatbázis kapcsolat.
-- **Frontend Fejlesztés**: Felhasználói felület tervezése és reszponzív dizájn
-- **Tesztelés**: Funkcionális tesztek végrehajtása.
+
+### 9.3. Szekeres Levente
+
 
 <div style="page-break-before: always;"></div>
 
