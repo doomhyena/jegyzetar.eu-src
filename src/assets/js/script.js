@@ -73,18 +73,6 @@ $('form.message-form').submit(function (e) {
         }, 3000);
     });
 });
-function showForm(form) {
-    const regForm = document.getElementById('reg');
-    const loginForm = document.getElementById('login');
-    
-    if (form === 'reg') {
-        regForm.style.display = 'block';
-        loginForm.style.display = 'none';
-    } else {
-        loginForm.style.display = 'block';
-        regForm.style.display = 'none';
-    }
-}
 
 document.addEventListener('DOMContentLoaded', function () {
     const navbarToggler = document.querySelector('.navbar-toggler');
@@ -166,11 +154,32 @@ document.addEventListener('DOMContentLoaded', function(){
             showForm(targetForm);
         });
     });
-
+});
+document.addEventListener('DOMContentLoaded', () => {
     const regForm = document.getElementById('reg');
     const loginForm = document.getElementById('login');
-    if (regForm && loginForm) {
-        loginForm.style.display = 'block';
-        regForm.style.display = 'none';
+
+    function setView(which) {
+        if (which === 'reg') {
+            regForm.style.display = 'block';
+            loginForm.style.display = 'none';
+            document.title = 'Regisztráció';
+            history.replaceState(null, '', '?form=reg');
+        } else {
+            regForm.style.display = 'none';
+            loginForm.style.display = 'block';
+            document.title = 'Bejelentkezés';
+            history.replaceState(null, '', '?form=login');
+        }
     }
+
+    const urlForm = new URLSearchParams(location.search).get('form');
+    setView(urlForm === 'reg' ? 'reg' : 'login');
+
+    document.querySelectorAll('.switcher').forEach(a => {
+        a.addEventListener('click', e => {
+            e.preventDefault();
+            setView(a.getAttribute('data-switch') === 'reg' ? 'reg' : 'login');
+        });
+    });
 });
