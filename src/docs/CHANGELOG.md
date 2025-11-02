@@ -45,6 +45,17 @@ Changelog by: Neved
 
 ---
 
+## [1.0.3] - 2025-10-02
+
+### Fixed
+#### • Születésnapi profil keret
+- A keret mostmár nem a profilkép alatt van, hanem rajta mint egy keret, külön animációval
+- A hozzá tartozó születésnapi szöveg színe megváltozott, az olvashatóság érdekében
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [1.0.2] - 2025-10-02
 
 
