@@ -45,6 +45,32 @@ Changelog by: Neved
 
 ---
 
+## [1.1.0] - 2025-10-02
+
+### Added
+#### •
+-
+
+### Changed
+#### • Reglog title
+- A regisztráció és bejelentkezés oldalak címei megváltoztak
+
+### Fixed
+#### •
+-
+
+### Removed
+#### •
+-
+
+### Security
+#### •
+-
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [1.0.3] - 2025-10-02
 
 ### Fixed
