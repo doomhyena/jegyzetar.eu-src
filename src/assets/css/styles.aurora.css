@@ -1188,3 +1188,67 @@ footer {
     min-height: 80px;
     font-family: inherit;
 }
+
+.bday-banner{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin:14px auto 0;
+    padding:12px 14px;
+    border-radius:14px;
+    border:1px solid var(--stroke);
+    background:
+            linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05)) padding-box,
+            linear-gradient(90deg, var(--accent), var(--primary)) border-box;
+    box-shadow: 0 10px 24px rgba(0,0,0,.25);
+}
+
+.bday-emoji{
+    display:inline-grid;
+    place-items:center;
+    width:36px; height:36px;
+    border-radius:999px;
+    background: radial-gradient(ellipse at 30% 30%, #fff8 0, #fff3 60%, transparent 65%),
+    linear-gradient(135deg, #ff6ec7, #6ee7ff);
+    border: 2px solid #ffffff33;
+    font-size:18px;
+}
+
+.bday-text{
+    color: var(--text);
+    font-weight: 600;
+    line-height: 1.25;
+}
+
+@media (max-width:520px){
+    .bday-banner{ padding:10px 12px; }
+    .bday-emoji{ width:32px; height:32px; font-size:16px; }
+}
+
+.note-desc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    background: var(--surface);
+    border: 1px solid var(--stroke);
+    color: var(--text);
+    transition: all .15s ease;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.note-desc-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-text);
+    transform: translateY(-1px);
+}
+
+.note-desc-btn:active {
+    transform: translateY(0);
+    opacity: .9;
+}

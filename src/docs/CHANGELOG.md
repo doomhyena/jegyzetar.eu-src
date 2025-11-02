@@ -45,6 +45,64 @@ Changelog by: Neved
 
 ---
 
+## [1.0.2] - 2025-10-02
+
+
+### Added
+#### • "Részletek" gomb a fájlkártyákhoz
+- Új "Részletek" CTA gomb került a jegyzetkártyákra
+- A gomb a `note.php?id=` oldalra navigál, ahol teljes fájlinfó, kommentek és értékelések láthatók
+- Illeszkedik az Aurora UI stílusához
+
+### Changed
+#### • Kritikus helyi módosítások biztonságba helyezése
+- A korábban *lokálisan ragadt, majdnem elveszett* fontos fejlesztések végre fel lettek pusholva
+- Verziókezelési workflow javítva, hogy ilyen ne forduljon elő még egyszer
+
+### Fixed
+#### • Jegyzet részletek elérhetősége
+- Az egyedi jegyzetek (`note.php`) most már stabilan elérhetők ID alapján
+- A részletek gomb hibátlanul átadja a fájl azonosítót
+
+### Security
+#### • Biztonságosabb munkafolyamat
+- Külső adatvesztési rizikó minimalizálva
+- Projekt snapshot mentések bevezetve
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
+## [1.0.1] - 2025-11-02
+
+### Added
+- note.php
+- -->jegyzet neve
+- -->jegyzet megtekintes/letoltes
+- -->kommenteles
+- -->ertekeles
+- -->stb
+
+- ugrás a jegyzetre gomb a keresési eredményekben (letöltés helyett)
+- közvetlen navigáció jegyzet oldalakra (/Jegyzetar/note.php?id={file_id})
+
+- css bővítés
+- -->.search-card
+- -->.note-link
+- -->.comments-section
+- -->.comment`
+- -->.comment-form
+
+### Changed
+- Letöltés gomb helyett Ugrás a jegyzetre gomb lett
+
+### Fixed
+- index.php kidob a reglog.php-ba ha nincs bejelentkezve a felhasznalo
+
+Changelog by: Norbi
+
+---
+
 ## [1.0.1] - 2025-11-02
 
 ### Added
@@ -119,7 +177,7 @@ Changelog by: Norbi
     - **$profile** = megtekintett felhasználó adatai
     - **$viewer** = belépett felhasználó
 
-Ezzel megszűntek a „mindig saját profilt látom” hibák.
+Ezzel megszűntek a "mindig saját profilt látom" hibák.
 
 #### • Értékelés javítása
 - Az értékelés feltöltödik az adatbázisba

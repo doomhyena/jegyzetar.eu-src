@@ -2,14 +2,14 @@
     require "assets/php/db.php";
 
     if(!isset($_COOKIE['id'])){
-        header("Location: index.php");
+        header("Location: reglog.php");
     }
 
     $sql = "SELECT * FROM users WHERE id='" . $conn->real_escape_string($_COOKIE['id']) . "'";
     $found_user = $conn->query($sql);
     $current_user = $found_user->fetch_assoc();
     if (!$current_user) {
-        header("Location: index.php");
+        header("Location: reglog.php");
     }
 
     $sql = "SELECT * FROM users WHERE id='" . $_COOKIE['id'] . "'";
@@ -24,7 +24,7 @@
        <meta charset='UTF-8'>
        <meta name='description' content='Iskolai jegyzeteket megosztó oldal'>
        <meta name='keywords' content='iskola, jegyzet, megosztás, tanulás'>
-       <meta name='author' content='Csontos Kincső, Szekeres Levente'>
+       <meta name='author' content='Baranyai Norbert, Csontos Kincső, Szekeres Levente'>
        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
        <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
        <link rel="stylesheet" href="assets/css/styles.aurora.css">
@@ -45,7 +45,7 @@
 
         if ($current_user['admin'] != 1) {  
             echo "<div class='main'>";
-            echo "<div class='card'><h2>⛔ Nincs jogosultságod az admin felület megtekintéséhez.</h2></div>";
+            echo "<div class='card'><h2>Nincs jogosultságod az admin felület megtekintéséhez.</h2></div>";
             echo "</div>";
             include 'assets/php/footer.php';
             echo '</body></html>';
@@ -87,7 +87,7 @@
     ?>
     
     <div class="main">
-        <h1>🛡️ Admin Panel</h1>
+        <h1>Admin Panel</h1>
         
         <section class="card">
             <h2>Felhasználók kezelése</h2>

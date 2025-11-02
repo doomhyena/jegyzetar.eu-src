@@ -2,7 +2,7 @@
     require  "assets/php/db.php";
 
     if(!isset($_COOKIE['id'])){
-        header("Location: index.php");
+        header("Location: reglog.php");
     }
 
     $userid = $_COOKIE['id'];

@@ -1,90 +1,95 @@
 <?php
-// norbi: note.php (sok részt a index.php-bol emeltem at)
-// -->jegyzet neve
-// -->jegyzet megtekintes/letoltes
-// -->kommenteles
-// -->ertekeles
+    // norbi: note.php (sok részt a index.php-bol emeltem at)
+    // -->jegyzet neve
+    // -->jegyzet megtekintes/letoltes
+    // -->kommenteles
+    // -->ertekeles
+    require "assets/php/db.php";
 
-require "assets/php/db.php";
+    if(!isset($_COOKIE['id'])){
+        header("Location: reglog.php");
+    }
 
-if (!isset($_COOKIE['id'])) {
-    header("Location: index.php");
-    exit;
-}
+    $sql = "SELECT * FROM users WHERE id='" . $_COOKIE['id'] . "'";
+    $found_user = $conn->query($sql);
+    $user = $found_user->fetch_assoc();
 
-$sql = "SELECT * FROM users WHERE id='" . $_COOKIE['id'] . "'";
-$found_user = $conn->query($sql);
-$user = $found_user->fetch_assoc();
+    $sql = "SELECT * FROM notifys WHERE toid = $user[id] AND readed = 0";
+    $founded_notify = $conn->query($sql);
+    $notify_number = mysqli_num_rows($founded_notify);
+    $note_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-$sql = "SELECT * FROM notifys WHERE toid = $user[id] AND readed = 0";
-$founded_notify = $conn->query($sql);
-$notify_number = mysqli_num_rows($founded_notify);
+    if ($note_id <= 0) {
+        http_response_code(400);
+        $note = null;
+    } else {
+        $stmt = $conn->prepare("SELECT * FROM files WHERE id = ? LIMIT 1");
+        $stmt->bind_param("i", $note_id);
+        $stmt->execute();
+        $note = $stmt->get_result()->fetch_assoc() ?: null;
+        $stmt->close();
+    }
 
-if (isset($_POST['comment-btn'])) {
-    if (isset($_POST['post_id'])) {
-        $postid = (int)$_POST['post_id'];
-        $text = $conn->real_escape_string($_POST['comment-text']);
-        $conn->query("INSERT INTO comments (userid, postid, text) VALUES ('{$user['id']}', '{$postid}', '{$text}')");
 
-        if (isset($_GET['uploader'])) {
-            $uploader = (int)$_GET['uploader'];
-            $conn->query("INSERT INTO notifys (fromid, toid, notifytype, readed) VALUES ('{$user['id']}', '{$uploader}', 'comment', 0)");
+    if (isset($_POST['comment-btn'])) {
+        if (isset($_POST['post_id'])) {
+            $postid = (int)$_POST['post_id'];
+            $text = $conn->real_escape_string($_POST['comment-text']);
+            $conn->query("INSERT INTO comments (userid, postid, text) VALUES ('{$user['id']}', '{$postid}', '{$text}')");
+
+            if (isset($_GET['uploader'])) {
+                $uploader = (int)$_GET['uploader'];
+                $conn->query("INSERT INTO notifys (fromid, toid, notifytype, readed) VALUES ('{$user['id']}', '{$uploader}', 'comment', 0)");
+            }
+            header("Location: " . $_SERVER['REQUEST_URI']);
+            exit;
+        } else {
+            echo "<script>alert('Hiba történt a komment írásakor!');</script>";
         }
-        header("Location: " . $_SERVER['REQUEST_URI']);
+    }
+
+    if (isset($_POST['rate-btn']) && isset($_POST['rate_file_id']) && isset($_POST['rating'])) {
+        $file_id = (int)$_POST['rate_file_id'];
+        $rating  = (int)$_POST['rating'];
+        $user_id = (int)$user['id'];
+
+        $check_sql = "SELECT id FROM ratings WHERE file_id = $file_id AND user_id = $user_id";
+        $check_result = $conn->query($check_sql);
+        if ($check_result && $check_result->num_rows > 0) {
+            $conn->query("UPDATE ratings SET rating = $rating WHERE file_id = $file_id AND user_id = $user_id");
+        } else {
+            $conn->query("INSERT INTO ratings (file_id, user_id, rating) VALUES ($file_id, $user_id, $rating)");
+        }
+
+        echo "<meta http-equiv='refresh' content='0'>";
         exit;
-    } else {
-        echo "<script>alert('Hiba történt a komment írásakor!');</script>";
-    }
-}
-
-if (isset($_POST['rate-btn']) && isset($_POST['rate_file_id']) && isset($_POST['rating'])) {
-    $file_id = (int)$_POST['rate_file_id'];
-    $rating  = (int)$_POST['rating'];
-    $user_id = (int)$user['id'];
-
-    $check_sql = "SELECT id FROM ratings WHERE file_id = $file_id AND user_id = $user_id";
-    $check_result = $conn->query($check_sql);
-    if ($check_result && $check_result->num_rows > 0) {
-        $conn->query("UPDATE ratings SET rating = $rating WHERE file_id = $file_id AND user_id = $user_id");
-    } else {
-        $conn->query("INSERT INTO ratings (file_id, user_id, rating) VALUES ($file_id, $user_id, $rating)");
     }
 
-    echo "<meta http-equiv='refresh' content='0'>";
-    exit;
-}
+    if ($note_id > 0) {
+        $sql = "SELECT * FROM files WHERE id = $note_id";
+        $result = $conn->query($sql);
 
-$note_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
-if ($note_id > 0) {
-    $sql = "SELECT * FROM files WHERE id = $note_id";
-    $result = $conn->query($sql);
-
-    if ($result && $result->num_rows > 0) {
-        $note = $result->fetch_assoc();
+        if ($result && $result->num_rows > 0) {
+            $note = $result->fetch_assoc();
+        } else {
+            $note = null;
+        }
     } else {
         $note = null;
     }
-} else {
-    $note = null;
-}
 ?>
 <!DOCTYPE html>
 <html lang="hu">
-
 <head>
     <title>Jegyzet</title>
-    <meta charset='UTF-8'>
-    <meta name='description' content='Iskolai jegyzeteket megosztó oldal'>
-    <meta name='keywords' content='iskola, jegyzet, megosztás, tanulás'>
-    <meta name='author' content='Csontos Kincső, Szekeres Levente'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <meta charset="UTF-8">
+    <meta name="description" content="Iskolai jegyzeteket megosztó oldal">
+    <meta name="keywords" content="iskola, jegyzet, megosztás, tanulás">
+    <meta name="author" content="Baranyai Norbert, Csontos Kincső, Szekeres Levente">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.aurora.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="assets/js/script.js"></script>
 </head>
-
 <body>
     <?php include 'assets/php/navbar.php'; ?>
     <div class="main">
@@ -100,7 +105,7 @@ if ($note_id > 0) {
             $uploader = $uploader_q ? $uploader_q->fetch_assoc() : ['username' => 'ismeretlen'];
             $username = htmlspecialchars($uploader['username'] ?? 'ismeretlen');
 
-            // értékelések lekérése 
+            // értékelések lekérése
             $avg_q = $conn->query("SELECT IFNULL(AVG(rating),0) as avg_rating, COUNT(id) as rating_count FROM ratings WHERE file_id = $file_id");
             $avg_data = $avg_q ? $avg_q->fetch_assoc() : ['avg_rating' => 0, 'rating_count' => 0];
             $avg = number_format((float)$avg_data['avg_rating'], 2, '.', '');
@@ -162,14 +167,14 @@ if ($note_id > 0) {
                     <h3>Kommentek</h3>
                     <?php
                     $comments_sql = "SELECT c.*, u.username FROM comments c 
-                                   JOIN users u ON c.userid = u.id 
-                                   WHERE c.postid = $file_id 
-                                   ORDER BY c.id DESC";
+                                       JOIN users u ON c.userid = u.id 
+                                       WHERE c.postid = $file_id 
+                                       ORDER BY c.id DESC";
                     $comments_result = $conn->query($comments_sql);
 
                     if ($comments_result && $comments_result->num_rows > 0):
                         while ($comment = $comments_result->fetch_assoc()):
-                    ?>
+                            ?>
                             <div class="comment">
                                 <strong><?= htmlspecialchars($comment['username']) ?>:</strong>
                                 <p><?= htmlspecialchars($comment['text']) ?></p>
@@ -203,5 +208,4 @@ if ($note_id > 0) {
     </div>
     <?php include 'assets/php/footer.php'; ?>
 </body>
-
 </html>
