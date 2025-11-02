@@ -1,83 +1,83 @@
 <?php
-require "assets/php/db.php";
+    require "assets/php/db.php";
 
-$security_questions = [
-        "Mi a kedvenc könyved?",
-        "Mi volt az első háziállatod neve?",
-        "Mi az édesanyád leánykori neve?",
-        "Mi a születési városod?",
-        "Mi a kedvenc ételed?"
-];
+    $security_questions = [
+            "Mi a kedvenc könyved?",
+            "Mi volt az első háziállatod neve?",
+            "Mi az édesanyád leánykori neve?",
+            "Mi a születési városod?",
+            "Mi a kedvenc ételed?"
+    ];
 
-$selected_question = $security_questions[array_rand($security_questions)];
+    $selected_question = $security_questions[array_rand($security_questions)];
 
-if (isset($_POST['reg-btn'])) {
-    $lastname = $_POST['lastname'];
-    $firstname = $_POST['firstname'];
-    $username = $_POST['username'];
-    $birthdate = $_POST['birthdate'];
-    $gender = $_POST['gender'];
-    $email = $_POST['email'];
-    $password = $_POST['password1'];
-    $passwordtwo = $_POST['password2'];
-    $registration_date = date('Y-m-d H:i:s');
-    $security_question = $_POST['security_question'];
-    $security_answer = $_POST['security_answer'];
+    if (isset($_POST['reg-btn'])) {
+        $lastname = $_POST['lastname'];
+        $firstname = $_POST['firstname'];
+        $username = $_POST['username'];
+        $birthdate = $_POST['birthdate'];
+        $gender = $_POST['gender'];
+        $email = $_POST['email'];
+        $password = $_POST['password1'];
+        $passwordtwo = $_POST['password2'];
+        $registration_date = date('Y-m-d H:i:s');
+        $security_question = $_POST['security_question'];
+        $security_answer = $_POST['security_answer'];
 
-    $sql = "SELECT * FROM users WHERE username='$username'";
-    $found_user = $conn->query($sql);
+        $sql = "SELECT * FROM users WHERE username='$username'";
+        $found_user = $conn->query($sql);
 
-    if (mysqli_num_rows($found_user) == 0) {
-        $sql = "SELECT * FROM users WHERE email='$email'";
-        $found_email = $conn->query($sql);
+        if (mysqli_num_rows($found_user) == 0) {
+            $sql = "SELECT * FROM users WHERE email='$email'";
+            $found_email = $conn->query($sql);
 
-        if (mysqli_num_rows($found_email) == 0) {
-            if ($password == $passwordtwo) {
-                $titkositott_jelszo = password_hash($password, PASSWORD_DEFAULT);
-                $sql = $conn->query("INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date) VALUES ('$lastname', '$firstname', '$username', '$birthdate', '$gender', '$email', '$titkositott_jelszo', '$security_question', '$security_answer', '$registration_date')");
+            if (mysqli_num_rows($found_email) == 0) {
+                if ($password == $passwordtwo) {
+                    $titkositott_jelszo = password_hash($password, PASSWORD_DEFAULT);
+                    $sql = $conn->query("INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date) VALUES ('$lastname', '$firstname', '$username', '$birthdate', '$gender', '$email', '$titkositott_jelszo', '$security_question', '$security_answer', '$registration_date')");
 
-                $folder = getcwd();
-                $path = $folder . DIRECTORY_SEPARATOR . "users" . DIRECTORY_SEPARATOR . $username;
-                if (!is_dir($path) && mkdir($path, 0777, true)) {
-                    echo "<script>alert('Tárhely sikeresen létrehozva!')</script>";
+                    $folder = getcwd();
+                    $path = $folder . DIRECTORY_SEPARATOR . "users" . DIRECTORY_SEPARATOR . $username;
+                    if (!is_dir($path) && mkdir($path, 0777, true)) {
+                        echo "<script>alert('Tárhely sikeresen létrehozva!')</script>";
+                    } else {
+                        echo "<script>alert('Nem sikerült létrehozni a tárhelyet!')</script>";
+                    }
                 } else {
-                    echo "<script>alert('Nem sikerült létrehozni a tárhelyet!')</script>";
+                    echo "<script>alert('A jelszavak nem egyeznek!')</script>";
                 }
             } else {
-                echo "<script>alert('A jelszavak nem egyeznek!')</script>";
+                echo "<script>alert('Már létezik ilyen email cím!')</script>";
             }
         } else {
-            echo "<script>alert('Már létezik ilyen email cím!')</script>";
+            echo "<script>alert('Már létezik ilyen felhasználó!')</script>";
         }
-    } else {
-        echo "<script>alert('Már létezik ilyen felhasználó!')</script>";
     }
-}
 
-if (isset($_POST['login-btn'])) {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $sql = "SELECT * FROM users WHERE username='$username'";
-    $found_user = $conn->query($sql);
+    if (isset($_POST['login-btn'])) {
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $sql = "SELECT * FROM users WHERE username='$username'";
+        $found_user = $conn->query($sql);
 
-    if (mysqli_num_rows($found_user) > 0) {
-        $user = $found_user->fetch_assoc();
-        if (password_verify($password, $user['password'])) {
-            setcookie("id", $user['id'], time() + 3600, "/");
-            header("Location: index.php");
-            exit;
+        if (mysqli_num_rows($found_user) > 0) {
+            $user = $found_user->fetch_assoc();
+            if (password_verify($password, $user['password'])) {
+                setcookie("id", $user['id'], time() + 3600, "/");
+                header("Location: index.php");
+                exit;
+            } else {
+                echo "<script>alert('Hibás jelszó!')</script>";
+            }
         } else {
-            echo "<script>alert('Hibás jelszó!')</script>";
+            echo "<script>alert('Nincs ilyen felhasználó!')</script>";
         }
-    } else {
-        echo "<script>alert('Nincs ilyen felhasználó!')</script>";
     }
-}
 ?>
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-    <title>Regisztráció / Bejelentkezés</title>
+    <title>Bejelentkezés</title>
     <meta charset="UTF-8">
     <meta name="description" content="Iskolai jegyzeteket megosztó oldal">
     <meta name="keywords" content="iskola, jegyzet, megosztás, tanulás">
@@ -95,9 +95,8 @@ if (isset($_POST['login-btn'])) {
             <h1>Üdvözlünk a Jegyzetár rendszerében! </h1>
             <p class="auth-note">Jelentkezz be vagy hozz létre új fiókot az induláshoz.</p>
         </div>
-        
         <div class="auth-grid">
-            <form class="auth-card" id="login" method="post">
+            <form class="auth-card" id="login" method="post" style="<?= $currentForm==='login'?'':'display:none;' ?>">
                 <h1>Bejelentkezés</h1>
                 <label for="login_username">Felhasználónév</label>
                 <input class="input" type="text" name="username" id="login_username" required>
@@ -109,9 +108,7 @@ if (isset($_POST['login-btn'])) {
                 </div>
                 <p class="auth-note" style="margin-top:16px;">Még nincs fiókod? <a class="switcher" href="#" data-switch="reg">Regisztrálj!</a></p>
             </form>
-
-            <!-- REGISZTRÁCIÓ FORM -->
-            <form class="auth-card" id="reg" method="post" style="display:none;">
+            <form class="auth-card" id="reg" method="post" style="<?= $currentForm==='reg'?'':'display:none;' ?>">
                 <h1>Regisztráció</h1>
                 <label for="lastname">Vezetéknév</label>
                 <input class="input" type="text" name="lastname" id="lastname" required>
@@ -142,10 +139,13 @@ if (isset($_POST['login-btn'])) {
                 </div>
                 <p class="auth-note" style="margin-top:16px;">Már van fiókod? <a class="switcher" href="#" data-switch="login">Lépj be!</a></p>
             </form>
+            <div class="auth-actions" style="margin-top:12px;">
+                <a class="btn-ghost" href="/oauth/google-login.php">Folytatás Google-lel</a>
+                <a class="btn-ghost" href="/oauth/discord-login.php">Folytatás Discorddal</a>
+            </div>
         </div>
     </div>
 </div>
-
 <script src="assets/js/script.js"></script>
 <?php include 'assets/php/footer.php'; ?>
 </body>
