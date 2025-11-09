@@ -45,6 +45,21 @@ Changelog by: Neved
 
 ---
 
+## [1.1.0] - 2025-11-09
+
+### Added
+#### • Discord login button
+- Discord bejelentkezés gomb
+- Hozzájuk tartozó fájlok 
+
+### Removed
+#### • Google login button
+- Az idő haladtával törlésre került, bonyolultabb mint a dc login
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [1.0.3] - 2025-10-02
 
 ### Fixed
