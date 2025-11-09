@@ -140,7 +140,6 @@
                 <p class="auth-note" style="margin-top:16px;">Már van fiókod? <a class="switcher" href="#" data-switch="login">Lépj be!</a></p>
             </form>
             <div class="auth-actions" style="margin-top:12px;">
-                <a class="btn-ghost" href="/oauth/google-login.php">Folytatás Google-lel</a>
                 <a class="btn-ghost" href="/oauth/discord-login.php">Folytatás Discorddal</a>
             </div>
         </div>
