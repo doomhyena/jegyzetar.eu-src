@@ -45,27 +45,16 @@ Changelog by: Neved
 
 ---
 
-## [1.1.0] - 2025-10-02
+## [1.1.0] - 2025-11-09
 
 ### Added
-#### •
--
-
-### Changed
-#### • Reglog title
-- A regisztráció és bejelentkezés oldalak címei megváltoztak
-
-### Fixed
-#### •
--
+#### • Discord login button
+- Discord bejelentkezés gomb
+- Hozzájuk tartozó fájlok 
 
 ### Removed
-#### •
--
-
-### Security
-#### •
--
+#### • Google login button
+- Az idő haladtával törlésre került, bonyolultabb mint a dc login
 
 Changelog by: Csontos Kincső Anasztázia
 
