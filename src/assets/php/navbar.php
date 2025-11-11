@@ -4,7 +4,7 @@
     $notify_number = 0;
 
     if ($isLoggedIn) {
-        $userid = (int)$_COOKIE['id'];
+        $userid = $_COOKIE['id'];
         $sql = "SELECT * FROM users WHERE id='" . $conn->real_escape_string($userid) . "'";
         $found_user = $conn->query($sql);
 
@@ -13,14 +13,14 @@
 
             $sql = "SELECT * FROM notifys WHERE toid = $userid AND readed = 0";
             $founded_notify = $conn->query($sql);
-            $notify_number = $founded_notify ? (int)$founded_notify->num_rows : 0;
+            $notify_number = $founded_notify ? $founded_notify->num_rows : 0;
         } else {
             $isLoggedIn = false;
             setcookie("id", "", time() - 3600, "/");
         }
     }
 
-    $currentUserId = (int)($user['id'] ?? 0);
+    $currentUserId = ($user['id'] ?? 0);
 
 ?>
 
