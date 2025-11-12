@@ -32,6 +32,28 @@
 
     $latest_result = $conn->query("SELECT * FROM files ORDER BY id DESC LIMIT 12");
 
+    // norbi: kedvencezés kezelése
+    if (isset($_POST['favorite-btn'])) {
+        if (!$isLoggedIn) {
+            header("Location: reglog.php");
+            exit;
+        }
+
+        $file_id = (int)$_POST['favorite_file_id'];
+
+        $check_sql = "SELECT id FROM favorites WHERE file_id = $file_id AND user_id = $currentUserId";
+        $check_result = $conn->query($check_sql);
+        
+        if ($check_result && $check_result->num_rows > 0) {
+            $conn->query("DELETE FROM favorites WHERE file_id = $file_id AND user_id = $currentUserId");
+        } else {
+            $conn->query("INSERT INTO favorites (file_id, user_id) VALUES ($file_id, $currentUserId)");
+        }
+
+        header("Location: index.php#file-$file_id");
+        exit;
+    }
+
     // értékelés kezelése
     if (isset($_POST['rate-btn'])) {
         if (!$isLoggedIn) {
@@ -117,14 +139,38 @@
                             $cnt = (int)$d['c'];
                         }
 
+                        // norbi: kedvenc státusz ellenőrzése
+                        $is_favorite = false;
+                        if ($isLoggedIn) {
+                            $fav_check = $conn->query("SELECT id FROM favorites WHERE file_id = $file_id AND user_id = $currentUserId");
+                            if ($fav_check && $fav_check->num_rows > 0) {
+                                $is_favorite = true;
+                            }
+                        }
+
                         $safe_path = "users/$username/".$file['file_name'];
                         ?>
 
                         <article class="card note-card" id="file-<?= $file_id ?>">
                             <header class="card-head">
                                 <h4 class="entry-title"><?= $name ?></h4>
-                                <a class="note-desc-btn" href="note.php?id=<?= (int)$file['id'] ?>">Részletek</a>
-                                <a class="entry-download-btn" href="assets/php/download.php?id=<?= $file_id ?>">Letöltés</a>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <!-- norbi: kedvencezési gomb index.php kártyáihoz, nem muszaj itt lennie btw -->
+                                    <form method="post" style="display: inline;">
+                                        <input type="hidden" name="favorite_file_id" value="<?= $file_id ?>">
+                                        <button type="submit" name="favorite-btn" class="favorite-btn <?= $is_favorite ? 'favorited' : '' ?>" <?= !$isLoggedIn ? 'disabled' : '' ?>>
+                                            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                                                <?php if ($is_favorite): ?>
+                                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+                                                <?php else: ?>
+                                                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2"/>
+                                                <?php endif; ?>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    <a class="note-desc-btn" href="note.php?id=<?= (int)$file['id'] ?>">Részletek</a>
+                                    <a class="entry-download-btn" href="assets/php/download.php?id=<?= $file_id ?>">Letöltés</a>
+                                </div>
                             </header>
                             <?php if ($ext=="mp4"): ?>
                                 <video controls class="file-preview">
@@ -157,12 +203,14 @@
                                     }
                                     ?>
                                 </div>
-
+                                <!--norbi: átlag értékelés megjelenitéshez kell a értékelés küldés gomb???
+                                + nem müködik (nekem)
                                 <?php if ($isLoggedIn): ?>
+                                    
                                     <button type="submit" name="rate-btn">Küldés</button>
                                 <?php else: ?>
-                                    <button disabled>Belépés az értékeléshez</button>
-                                <?php endif; ?>
+                         <button disabled>Belépés az értékeléshez</button>
+                                <?php endif; ?>  -->
                             </form>
                         </article>
 

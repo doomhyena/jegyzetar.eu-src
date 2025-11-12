@@ -4,6 +4,7 @@
     // -->jegyzet megtekintes/letoltes
     // -->kommenteles
     // -->ertekeles
+    // -->egységes stilus a tobbi oldallal
     require "assets/php/db.php";
 
     if(!isset($_COOKIE['id'])){
@@ -30,6 +31,26 @@
         $stmt->close();
     }
 
+
+    // norbi: kedvencezés
+    if (isset($_POST['favorite-btn'])) {
+        if (isset($_POST['favorite_file_id'])) {
+            $file_id = (int)$_POST['favorite_file_id'];
+            $user_id = (int)$user['id'];
+
+            $check_sql = "SELECT id FROM favorites WHERE file_id = $file_id AND user_id = $user_id";
+            $check_result = $conn->query($check_sql);
+            
+            if ($check_result && $check_result->num_rows > 0) {
+                $conn->query("DELETE FROM favorites WHERE file_id = $file_id AND user_id = $user_id");
+            } else {
+                $conn->query("INSERT INTO favorites (file_id, user_id) VALUES ($file_id, $user_id)");
+            }
+
+            header("Location: " . $_SERVER['REQUEST_URI']);
+            exit;
+        }
+    }
 
     if (isset($_POST['comment-btn'])) {
         if (isset($_POST['post_id'])) {
@@ -111,6 +132,13 @@
             $avg = number_format((float)$avg_data['avg_rating'], 2, '.', '');
             $cnt = (int)$avg_data['rating_count'];
 
+            // norbi: kedvenc státusz ellenőrzése
+            $is_favorite = false;
+            $fav_check = $conn->query("SELECT id FROM favorites WHERE file_id = $file_id AND user_id = " . (int)$user['id']);
+            if ($fav_check && $fav_check->num_rows > 0) {
+                $is_favorite = true;
+            }
+
             $user_dir = "users/" . ($uploader['username'] ?? '') . "/";
             $safe_path = $user_dir . $note['file_name'];
             ?>
@@ -119,12 +147,28 @@
             <article class="card note-card">
                 <header class="card-head">
                     <h1 class="entry-title"><?= $file_name ?></h1>
-                    <a class="entry-download-btn" href="assets/php/download.php?id=<?= $file_id ?>">
-                        <svg class="icon icon-download" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M12 3v10m0 0l-4-4m4 4l4-4M4 17v3h16v-3"></path>
-                        </svg>
-                        Letöltés
-                    </a>
+                    <div style="display: flex; gap: 8px;">
+                        <!-- norbi: kedvencezési gomb -->
+                        <form method="post" style="display: inline;">
+                            <input type="hidden" name="favorite_file_id" value="<?= $file_id ?>">
+                            <button type="submit" name="favorite-btn" class="favorite-btn <?= $is_favorite ? 'favorited' : '' ?>">
+                                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <?php if ($is_favorite): ?>
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+                                    <?php else: ?>
+                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2"/>
+                                    <?php endif; ?>
+                                </svg>
+                                <span><?= $is_favorite ? 'Kedvencek' : 'Kedvencezés' ?></span>
+                            </button>
+                        </form>
+                        <a class="entry-download-btn" href="assets/php/download.php?id=<?= $file_id ?>">
+                            <svg class="icon icon-download" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 3v10m0 0l-4-4m4 4l4-4M4 17v3h16v-3"></path>
+                            </svg>
+                            Letöltés
+                        </a>
+                    </div>
                 </header>
 
                 <?php if ($ext === 'docx'): ?>
@@ -141,27 +185,37 @@
                 <p>Feltöltötte:
                     <a class="uploader-name" href="profile.php?userid=<?= (int)$note['uploaded_by'] ?>"><?= $username ?></a>
                 </p>
-                <p><b>Átlag értékelés:</b> <?= $avg ?> (<?= $cnt ?> értékelés)</p>
-
-                <form method="post" action="" class="rating">
-                    <input type="hidden" name="rate_file_id" value="<?= $file_id ?>">
-                    <div class="star-rating" aria-label="Értékelés 1–5">
-                        <?php
-                        $usr_rate = 0;
-                        $rs = $conn->query("SELECT rating FROM ratings WHERE file_id = $file_id AND user_id = " . (int)$user['id']);
-                        if ($rs && $rs->num_rows > 0) {
-                            $usr_rate = (int)$rs->fetch_assoc()['rating'];
-                        }
-                        for ($i = 5; $i >= 1; $i--) {
-                            $checked = ($usr_rate === $i) ? 'checked' : '';
-                            $input_id = "star{$i}_note_{$file_id}";
-                            echo '<input type="radio" id="' . $input_id . '" name="rating" value="' . $i . '" ' . $checked . '>';
-                            echo '<label for="' . $input_id . '" title="' . $i . ' csillag">★</label>';
-                        }
-                        ?>
-                    </div>
-                    <button type="submit" name="rate-btn" class="rate-btn">Küldés</button>
-                </form>
+                <!-- norbi: átlag értékelés és értékelési forma egységesítése-->
+                <div class="rating-section">
+                    <h3>Értékelés</h3>
+                    <p><b>Átlag értékelés:</b> <?= $avg ?> (<?= $cnt ?> értékelés)</p>
+                    
+                    <form method="post" action="" class="rating-form filters-inner">
+                        <input type="hidden" name="rate_file_id" value="<?= $file_id ?>">
+                        <div class="star-rating" aria-label="Értékelés 1–5">
+                            <?php
+                            $usr_rate = 0;
+                            $rs = $conn->query("SELECT rating FROM ratings WHERE file_id = $file_id AND user_id = " . (int)$user['id']);
+                            if ($rs && $rs->num_rows > 0) {
+                                $usr_rate = (int)$rs->fetch_assoc()['rating'];
+                            }
+                            for ($i = 5; $i >= 1; $i--) {
+                                $checked = ($usr_rate === $i) ? 'checked' : '';
+                                $input_id = "star{$i}_note_{$file_id}";
+                                echo '<input type="radio" id="' . $input_id . '" name="rating" value="' . $i . '" ' . $checked . '>';
+                                echo '<label for="' . $input_id . '" title="' . $i . ' csillag">★</label>';
+                            }
+                            ?>
+                        </div>
+                        <!-- norbi: rating stilus illeszkedése a többiekhez -->
+                        <button type="submit" name="rate-btn" class="rate-btn">
+                            <svg class="icon icon-star" viewBox="0 0 24 24" aria-hidden="true">
+                                <polygon points="12,2 15,8 22,9 17,14 18,21 12,18 6,21 7,14 2,9 9,8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>Értékelés küldése</span>
+                        </button>
+                    </form>
+                </div>
 
                 <div class="comments-section">
                     <h3>Kommentek</h3>

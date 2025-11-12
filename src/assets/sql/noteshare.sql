@@ -448,6 +448,19 @@ CREATE TABLE `notifys` (
   `readed` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
+
+CREATE TABLE `favorites` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `file_id` int(11) NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `ratings`
 --
 
@@ -489,6 +502,11 @@ CREATE TABLE `users` (
 --
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `favorites`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `user_file_unique` (`user_id`, `file_id`),
+  ADD KEY `file_id` (`file_id`);
 
 --
 -- A tábla indexei `files`
@@ -542,6 +560,12 @@ ALTER TABLE `comments`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
+-- AUTO_INCREMENT a táblához `favorites`
+--
+ALTER TABLE `favorites`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT a táblához `files`
 --
 ALTER TABLE `files`
@@ -580,6 +604,13 @@ ALTER TABLE `users`
 --
 -- Megkötések a kiírt táblákhoz
 --
+
+--
+-- Megkötések a táblához `favorites`
+--
+ALTER TABLE `favorites`
+  ADD CONSTRAINT `favorites_user_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `favorites_file_fk` FOREIGN KEY (`file_id`) REFERENCES `files` (`id`) ON DELETE CASCADE;
 
 --
 -- Megkötések a táblához `friends`

@@ -45,6 +45,26 @@ Changelog by: Neved
 
 ---
 
+## [1.1.1] - 2025-11-12
+
+### Added
+#### •Uj tábla: favorites
+#### •Kedvencezés funkció KEZDETLEGES
+-Adatbázisban tárolja hogy ki mit szivecskézett be
+-Egyelőre kezdetleges, majd folyatatom (!!!)
+
+### Changed
+#### •Értékelés témájának egységesitése
+
+
+### Removed
+#### •Index.php-n nem müködö értékelés küldése kikommentelve
+- nem merem eltávolitani de sztem fölös átlag értékelésnél
+
+Changelog by: Norbi
+
+---
+
 ## [1.1.0] - 2025-11-09
 
 ### Added
