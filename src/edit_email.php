@@ -53,8 +53,8 @@
                         $userid = intval($_GET['userid']);
 
                         if ($_POST['email1'] == $_POST['email2']) {
-                            $sql = "SELECT * FROM users WHERE id=$userid"; /
-                            $found_user = $conn->query($sql); /
+                            $sql = "SELECT * FROM users WHERE id=$userid";
+                            $found_user = $conn->query($sql);
                             $user = $found_user->fetch_assoc();
 
                             if ($_POST['email1'] != $user['email']) {
