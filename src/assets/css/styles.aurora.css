@@ -598,6 +598,12 @@ footer {
     transform: translateY(-1px);
 }
 
+.disabled {
+    pointer-events: none;
+    cursor: default;
+    opacity: 0.5;
+}
+
 .btn-ghost {
     display: inline-flex;
     justify-content: center;
