@@ -72,8 +72,10 @@
         }
 
         header("Location: index.php#file-$file_id");
-        exit;
     }
+
+    require "assets/php/lang.php";
+
 ?>
 <!DOCTYPE html>
 <html lang="hu">
