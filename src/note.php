@@ -98,6 +98,8 @@
     } else {
         $note = null;
     }
+
+    require "assets/php/lang.php";
 ?>
 <!DOCTYPE html>
 <html lang="hu">

@@ -15,10 +15,10 @@
         }
     }
 
-    $q      = trim($_GET['q']      ?? '');
-    $scope  = strtolower($_GET['scope'] ?? 'all');
-    $type   = strtolower($_GET['type']  ?? 'all');
-    $sort   = strtolower($_GET['sort']  ?? 'new');
+    $q = trim($_GET['q'] ?? '');
+    $scope = strtolower($_GET['scope'] ?? 'all');
+    $type = strtolower($_GET['type']  ?? 'all');
+    $sort = strtolower($_GET['sort']  ?? 'new');
 
     if (!in_array($scope, ['files','users','all'], true)) $scope = 'all';
     if (!in_array($type,  ['all','pdf','mp4','docx'], true)) $type = 'all';
@@ -40,11 +40,11 @@
             $where[] = "LOWER(f.file_name) LIKE '%.{$ext}'";
         }
 
-        $whereSql    = $where ? ('WHERE '.implode(' AND ', $where)) : '';
+        $whereSql = $where ? ('WHERE '.implode(' AND ', $where)) : '';
         $joinRatings = '';
         $selectExtra = '';
-        $groupSql    = '';
-        $orderSql    = 'ORDER BY f.id DESC';
+        $groupSql = '';
+        $orderSql = 'ORDER BY f.id DESC';
 
         if ($sort === 'old') {
             $orderSql = 'ORDER BY f.id ASC';
@@ -104,6 +104,8 @@
         ";
         $userResult = $conn->query($sqlUsers);
     }
+
+    require "assets/php/lang.php";
 ?>
 <!DOCTYPE html>
 <html lang="hu">

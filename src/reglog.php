@@ -73,6 +73,8 @@
             echo "<script>alert('Nincs ilyen felhasználó!')</script>";
         }
     }
+
+    require "assets/php/lang.php";
 ?>
 <!DOCTYPE html>
 <html lang="hu">

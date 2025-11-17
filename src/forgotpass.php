@@ -15,6 +15,7 @@
    <body>
         <?php 
             require "assets/php/db.php";
+            require "assets/php/lang.php";
         ?>
         
         <div class="main" style="max-width: 600px;">

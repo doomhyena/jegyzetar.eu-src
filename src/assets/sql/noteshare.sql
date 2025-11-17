@@ -494,12 +494,18 @@ CREATE TABLE `users` (
   `registration_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- Indexek a kiírt táblákhoz
---
+CREATE TABLE translations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    t_key VARCHAR(100) NOT NULL,
+    lang_code VARCHAR(5) NOT NULL,
+    text VARCHAR(255) NOT NULL,
+    UNIQUE KEY key_lang (t_key, lang_code),
+    FOREIGN KEY (lang_code) REFERENCES languages(code)
+);
 
---
--- A tábla indexei `comments`
---
+ALTER TABLE users
+    ADD COLUMN language VARCHAR(5) NOT NULL DEFAULT 'hu'
+
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`id`);
 

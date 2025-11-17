@@ -69,7 +69,7 @@
     $notify_number = 0;
     $nf = $conn->query("SELECT id FROM notifys WHERE toid={$profile['id']} AND readed=0");
     if ($nf) { $notify_number = (int)$nf->num_rows; }
-
+    require "assets/php/lang.php";
 ?>
 <!DOCTYPE html>
 <html lang="hu">
