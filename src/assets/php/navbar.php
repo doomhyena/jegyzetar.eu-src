@@ -29,7 +29,7 @@
         <button class="navbar-toggler" type="button">
             <span class="hamburger"></span>
         </button>
-
+        <div class="brand"><span>Jegyzetár</span><span class="brand-badge">beta</span></div>
         <ul class="nav-links">
             <li><a href="index.php">Főoldal</a></li>
             <li><a href="upload.php">Feltöltés</a></li>
@@ -47,6 +47,20 @@
             <?php else: ?>
                 <li><a href="reglog.php?mode=login">Bejelentkezés</a></li>
             <?php endif; ?>
+
+            <form method="get" style="display:inline;">
+                <select name="lang" onchange="this.form.submit()" class="select">
+                    <option value="hu" <?= $lang === 'hu' ? 'selected' : '' ?>>HU</option>
+                    <option value="en" <?= $lang === 'en' ? 'selected' : '' ?>>EN</option>
+                    <option value="de" <?= $lang === 'de' ? 'selected' : '' ?>>DE</option>
+                </select>
+                <?php
+                foreach ($_GET as $k => $v) {
+                    if ($k === 'lang') continue;
+                    echo '<input type="hidden" name="'.htmlspecialchars($k).'" value="'.htmlspecialchars($v).'">';
+                }
+                ?>
+            </form>
         </ul>
     </div>
 </nav>
