@@ -102,9 +102,9 @@
             <div class="hero-body">
                 <div class="hero-text">
                     <h1 class="hero-title">
-                        Szia, <?= htmlspecialchars($user['firstname'] ?? 'Vendég') ?>!
+                        <?= t('hero_greeting') ." ". $user['username']  ?? t('guest') ?>!
                     </h1>
-                    <p class="hero-sub">Mai névnap: <strong><?= htmlspecialchars($nameday) ?></strong></p>
+                    <p class="hero-sub"><?= t('hero_nameday') ?> <strong><?= $nameday ?></strong></p>
                 </div>
 
                 <div class="hero-actions">
@@ -114,16 +114,13 @@
                 </div>
             </div>
         </section>
-
         <section class="content-main">
             <div class="section-titlebar">
                 <h3>Új feltöltések</h3>
                 <a class="link-more" href="search.php?sort=new">Összes →</a>
             </div>
-
             <?php if ($latest_result && $latest_result->num_rows > 0): ?>
                 <div class="content-grid grid-large">
-
                     <?php while ($file = $latest_result->fetch_assoc()):
                         $uploader_q = $conn->query("SELECT username FROM users WHERE id=".(int)$file['uploaded_by']);
                         $uploader = $uploader_q ? $uploader_q->fetch_assoc() : ['username'=>'ismeretlen'];
