@@ -31,21 +31,21 @@
         </button>
         <div class="brand"><span>Jegyzetár</span><span class="brand-badge">beta</span></div>
         <ul class="nav-links">
-            <li><a href="index.php">Főoldal</a></li>
-            <li><a href="upload.php">Feltöltés</a></li>
-            <li><a href="profile.php?userid=<?= $currentUserId ?>">Profilom</a></li>
-            <li><a href="search.php">Keresés</a></li>
-            <li><a href="notify.php">Értesítések (<?= $notify_number ?>)</a></li>
-            <li><a href="messages.php">Üzenetek</a></li>
+            <li><a href="index.php"><?= t('nav_home') ?></a></li>
+            <li><a href="upload.php"><?= t('nav_upload') ?></a></li>
+            <li><a href="profile.php?userid=<?= $currentUserId ?>"><?= t('nav_profil') ?></a></li>
+            <li><a href="search.php"><?= t('nav_search') ?></a></li>
+            <li><a href="notify.php"><?= t('nav_notify') ?> (<?= $notify_number ?>)</a></li>
+            <li><a href="messages.php"><?= t('nav_messages') ?></a></li>
 
             <?php if (!empty($user['admin']) && $user['admin'] == 1): ?>
-                <li><a href="admin_panel.php">Admin Panel</a></li>
+                <li><a href="admin_panel.php"><?= t('nav_admin') ?></a></li>
             <?php endif; ?>
 
             <?php if ($isLoggedIn): ?>
-                <li><a href="assets/php/logout.php">Kijelentkezés</a></li>
+                <li><a href="assets/php/logout.php"><?= t('nav_logout') ?></a></li>
             <?php else: ?>
-                <li><a href="reglog.php?mode=login">Bejelentkezés</a></li>
+                <li><a href="reglog.php?mode=login"><?= t('nav_login') ?></a></li>
             <?php endif; ?>
 
             <form method="get" style="display:inline;">
@@ -57,7 +57,7 @@
                 <?php
                 foreach ($_GET as $k => $v) {
                     if ($k === 'lang') continue;
-                    echo '<input type="hidden" name="'.htmlspecialchars($k).'" value="'.htmlspecialchars($v).'">';
+                    echo '<input type="hidden" name="'.$k.'" value="'.$v.'">';
                 }
                 ?>
             </form>
