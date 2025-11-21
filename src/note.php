@@ -24,11 +24,7 @@
         http_response_code(400);
         $note = null;
     } else {
-        $stmt = $conn->prepare("SELECT * FROM files WHERE id = ? LIMIT 1");
-        $stmt->bind_param("i", $note_id);
-        $stmt->execute();
-        $note = $stmt->get_result()->fetch_assoc() ?: null;
-        $stmt->close();
+        $sql = $conn->query("SELECT * FROM files WHERE id = $note_id LIMIT 1");
     }
 
 
@@ -83,7 +79,6 @@
         }
 
         echo "<meta http-equiv='refresh' content='0'>";
-        exit;
     }
 
     if ($note_id > 0) {
@@ -102,12 +97,12 @@
     require "assets/php/lang.php";
 ?>
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="<?= $lang ?>">
 <head>
     <title>Jegyzet</title>
     <meta charset="UTF-8">
-    <meta name="description" content="Iskolai jegyzeteket megosztó oldal">
-    <meta name="keywords" content="iskola, jegyzet, megosztás, tanulás">
+    <meta name="description" content="<?= t('meta_description_home') ?>">
+    <meta name="keywords" content="<?= t('meta_keywords_home') ?>">
     <meta name="author" content="Baranyai Norbert, Csontos Kincső, Szekeres Levente">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
@@ -144,8 +139,6 @@
             $user_dir = "users/" . ($uploader['username'] ?? '') . "/";
             $safe_path = $user_dir . $note['file_name'];
             ?>
-
-
             <article class="card note-card">
                 <header class="card-head">
                     <h1 class="entry-title"><?= $file_name ?></h1>

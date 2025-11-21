@@ -1,19 +1,20 @@
 <?php
     require "assets/php/db.php";
+    $notify_number = 0;
+    require "assets/php/lang.php";
 
     if (!isset($_COOKIE['id'])) {
         header("Location: reglog.php");
-        exit;
     }
 
     $profileId = isset($_GET['userid']) ? (int)$_GET['userid'] : 0;
     if ($profileId <= 0) {
-        exit("Érvénytelen profil azonosító.");
+        exit(t('msg_invalid_profile_id'));
     }
 
     $res = $conn->query("SELECT * FROM users WHERE id={$profileId} LIMIT 1");
     if (!$res || $res->num_rows === 0) {
-        exit("A keresett profil nem található.");
+        exit(t('msg_profile_not_found'));
     }
     $profile = $res->fetch_assoc();
 
@@ -57,7 +58,7 @@
             header("Location: profile.php?userid=".$viewerId);
             exit;
         } else {
-            echo "<script>alert('Hiba történt a fájl feltöltésekor.');</script>";
+            echo "<script>alert('".t('msg_file_upload_error')."');</script>";
         }
     }
 
@@ -69,33 +70,34 @@
     $notify_number = 0;
     $nf = $conn->query("SELECT id FROM notifys WHERE toid={$profile['id']} AND readed=0");
     if ($nf) { $notify_number = (int)$nf->num_rows; }
-    require "assets/php/lang.php";
+
 ?>
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="<?= $lang ?>">
 <head>
-    <title>Profil</title>
+    <title><?= t('profile_title') ?></title>
     <meta charset="UTF-8">
-    <meta name="description" content="Iskolai jegyzeteket megosztó oldal">
-    <meta name="keywords" content="iskola, jegyzet, megosztás, tanulás">
+    <meta name="description" content="<?= t('meta_description_home') ?>">
+    <meta name="keywords" content="<?= t('meta_keywords_home') ?>">
     <meta name='author' content='Baranyai Norbert, Csontos Kincső, Szekeres Levente'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.aurora.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="assets/js/script.js"></script>
+    <script src="assets/js/script.js" defer></script>
 </head>
 <body>
 <?php include 'assets/php/navbar.php'; ?>
-
 <div class="main">
-    <h1><?= htmlspecialchars($profile['firstname']) ?> profilja</h1>
+    <h1><?= htmlspecialchars($profile['firstname']) . ' ' . t('profile_of') ?></h1>
     <div class="home-grid">
         <aside class="content-aside">
             <div class="card profile-center">
                 <div class="avatar-wrap <?= $is_birthday ? 'is-birthday' : '' ?>" style="--avatar-size:180px">
                     <div class="avatar-box">
-                        <img class="profile-picture" src="<?= htmlspecialchars($profile_picture_path) ?>" alt="Profilkép">
+                        <img class="profile-picture"
+                             src="<?= htmlspecialchars($profile_picture_path) ?>"
+                             alt="<?= t('profile_picture_alt') ?>">
                         <?php if ($is_birthday): ?>
                             <svg class="avatar-ring" viewBox="0 0 200 200" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet">
                                 <defs>
@@ -119,43 +121,43 @@
                         <?php endif; ?>
                     </div>
                 </div>
-
                 <?php if ($is_birthday && $isOwner): ?>
                     <div class="bday-banner" role="status" aria-live="polite">
                         <span class="bday-emoji" aria-hidden="true">🎂</span>
                         <div class="bday-text">
-                            <strong>Boldog születésnapot, <?= htmlspecialchars($profile['firstname']) ?>!</strong>
-                            Kívánunk sok sikert és rengeteg kreatív ötletet!
+                            <strong><?= t('bday_title') ?> <?= htmlspecialchars($profile['firstname']) ?>!</strong>
+                            <?= t('bday_message') ?>
                         </div>
                     </div>
                 <?php endif; ?>
-
                 <h2 class="profile-name"><?= htmlspecialchars($profile['lastname'] . ' ' . $profile['firstname']) ?></h2>
                 <p class="entry-meta profile-username">@<?= htmlspecialchars($profile['username']) ?></p>
-
                 <?php if ($isOwner): ?>
                     <div class="profile-actions">
                         <form method="POST" enctype="multipart/form-data">
-                            <label for="profile_picture" class="btn-ghost">Profilkép feltöltése</label>
+                            <label for="profile_picture" class="btn-ghost"><?= t('btn_upload_profile_pic') ?></label>
                             <input type="file" name="profile_picture" id="profile_picture" accept="image/*" style="display:none" onchange="this.form.submit()">
                             <input type="hidden" name="pfp-btn" value="1">
                         </form>
                         <form method="POST">
-                            <button type="submit" name="edit-email-btn" class="btn-ghost">Email szerkesztése</button>
+                            <button type="submit" name="edit-email-btn" class="btn-ghost">
+                                <?= t('btn_edit_email') ?>
+                            </button>
                         </form>
                     </div>
                 <?php endif; ?>
             </div>
-
             <div class="card">
-                <h3>Profil adatok</h3>
+                <h3><?= t('profile_data') ?></h3>
                 <div class="profile-info-card">
                     <div class="profile-info-item">
-                        <div class="profile-info-label">Teljes név</div>
-                        <div class="profile-info-value"><?= htmlspecialchars($profile['lastname'] . ' ' . $profile['firstname']) ?></div>
+                        <div class="profile-info-label"><?= t('profile_fullname') ?></div>
+                        <div class="profile-info-value">
+                            <?= htmlspecialchars($profile['lastname'] . ' ' . $profile['firstname']) ?>
+                        </div>
                     </div>
                     <div class="profile-info-item">
-                        <div class="profile-info-label">Felhasználónév</div>
+                        <div class="profile-info-label"><?= t('profile_username') ?></div>
                         <div class="profile-info-value">@<?= htmlspecialchars($profile['username']) ?></div>
                     </div>
                     <?php if ($isOwner): ?>
@@ -164,13 +166,12 @@
                             <div class="profile-info-value"><?= htmlspecialchars($profile['email']) ?></div>
                         </div>
                         <div class="profile-info-item">
-                            <div class="profile-info-label">Regisztráció</div>
+                            <div class="profile-info-label"><?= t('profile_registration') ?></div>
                             <div class="profile-info-value"><?= htmlspecialchars($profile['registration_date']) ?></div>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
-
             <?php if (!$isOwner):
                 $frq = $conn->query(
                         "SELECT * FROM friends 
@@ -180,33 +181,32 @@
                 );
                 ?>
                 <div class="card">
-                    <h3>Barátság</h3>
+                    <h3><?= t('profile_friendship') ?></h3>
                     <?php if ($frq && $frq->num_rows > 0):
                         $friendship = $frq->fetch_assoc(); ?>
                         <p class="entry-meta">
                             <?php
                             if ((int)$friendship['status'] === 1) {
-                                echo "Ti már barátok vagytok!";
+                                echo t('friend_status_friends');
                             } elseif ((int)$friendship['fromid'] === $viewerId) {
-                                echo "Te küldted a barátfelkérést.";
+                                echo t('friend_status_sent_by_you');
                             } else {
-                                echo "A felhasználó küldött neked barátfelkérést.";
+                                echo t('friend_status_sent_to_you');
                             }
                             ?>
                         </p>
                     <?php else: ?>
                         <form method="post" action="assets/php/add_friend.php">
                             <input type="hidden" name="toid" value="<?= $profileId ?>">
-                            <button type="submit" class="btn-cta">Barátnak jelölés</button>
+                            <button type="submit" class="btn-cta"><?= t('btn_add_friend') ?></button>
                         </form>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
         </aside>
-
         <section class="content-main">
             <div class="section-titlebar">
-                <h3>Feltöltött anyagok</h3>
+                <h3><?= t('profile_uploaded_files') ?></h3>
             </div>
             <?php
             $files = $conn->query("SELECT * FROM files WHERE uploaded_by={$profile['id']} ORDER BY id DESC");
@@ -220,50 +220,60 @@
                         <article class="card">
                             <header class="card-head">
                                 <h4 class="entry-title"><?= htmlspecialchars($file['name']) ?></h4>
-                                <a class="note-desc-btn" href="note.php?id=<?= (int)$file['id'] ?>">Részletek</a>
+                                <a class="note-desc-btn" href="note.php?id=<?= (int)$file['id'] ?>">
+                                    <?= t('btn_details') ?>
+                                </a>
                                 <a class="entry-download-btn" href="assets/php/download.php?id=<?= (int)$file['id'] ?>">
                                     <svg class="icon icon-download" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path d="M12 3v10m0 0l-4-4m4 4l4-4M4 17v3h16v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M12 3v10m0 0l-4-4m4 4l4-4M4 17v3h16v-3"
+                                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                     </svg>
-                                    Letöltés
+                                    <?= t('btn_download') ?>
                                 </a>
                             </header>
-
                             <?php if (!empty($file['subject'])): ?>
-                                <p class="entry-meta">Tárgy: <strong><?= htmlspecialchars($file['subject']) ?></strong></p>
+                                <p class="entry-meta">
+                                    <?= t('label_subject') ?>
+                                    <strong><?= htmlspecialchars($file['subject']) ?></strong>
+                                </p>
                             <?php endif; ?>
                             <p><?= htmlspecialchars($file['description'] ?? '') ?></p>
-
                             <?php
                             $safe_path = "users/".htmlspecialchars($uploader['username'])."/".htmlspecialchars($file['file_name']);
                             if ($ext === 'docx'): ?>
-                                <p><b>Ez egy .docx fájl. A megtekintéshez töltsd le és nyisd meg Microsoft Word-ben.</b></p>
+                                <p><b><?= t('docx_warning') ?></b></p>
                             <?php elseif ($ext === 'mp4'): ?>
-                                <video controls class="file-preview"><source src="<?= $safe_path ?>" type="video/mp4"></video>
+                                <video controls class="file-preview">
+                                    <source src="<?= $safe_path ?>" type="video/mp4">
+                                </video>
                             <?php elseif ($ext === 'pdf'): ?>
                                 <iframe src="<?= $safe_path ?>" width="100%" height="500"></iframe>
                             <?php endif; ?>
-
                             <?php if (!empty($file['tags'])): ?>
-                                <p class="entry-meta">Címkék: <?= htmlspecialchars($file['tags']) ?></p>
+                                <p class="entry-meta">
+                                    <?= t('label_tags') ?>
+                                    <?= htmlspecialchars($file['tags']) ?>
+                                </p>
                             <?php endif; ?>
-
                             <?php if ($isOwner && (int)$file['uploaded_by'] === $viewerId): ?>
                                 <form method="POST" action="assets/php/delete.php">
                                     <input type="hidden" name="file_id" value="<?= (int)$file['id'] ?>">
-                                    <button type="submit" class="btn-ghost btn-delete">Törlés</button>
+                                    <button type="submit" class="entry-download-btn">
+                                        <?= t('btn_delete_file') ?>
+                                    </button>
                                 </form>
                             <?php endif; ?>
                         </article>
                     <?php endwhile; ?>
                 </div>
             <?php else: ?>
-                <div class="card"><p>Még nincsenek feltöltött fájlok.</p></div>
+                <div class="card">
+                    <p><?= t('empty_no_files') ?></p>
+                </div>
             <?php endif; ?>
         </section>
     </div>
 </div>
-
 <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>
