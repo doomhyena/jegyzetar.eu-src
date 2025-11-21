@@ -45,6 +45,39 @@ Changelog by: Neved
 
 ---
 
+## [1.2.0] - 2025-11-21
+
+### Added
+#### • Multilanguage
+- Mostantól az oldal 3 nyelven érhető el, az alapértelmezett nyelv a magyar.
+  - Magyar
+  - Angol
+  - Német
+  - Új fájl hozzáadva: `lang.php`, ez kezeli at oldal nyelvét
+
+#### • Adatbázis
+- Új adatbázisnév: `jegyzetar`
+- `languages` tábla hozzáadva
+- `translations` tábla hozzáadva
+
+### Changed
+#### • Több fájl is változott
+- edit_email.php
+- forgotpass.php
+- index.php
+- messages.php
+- note.php
+- notify.php
+- profile.php
+- reglog.php
+- search.php
+- upload.php
+  - rendes szövegek helyett mostmár az adatbázisból kéri le az oldal a szövegeket, az adott nyelven
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [1.1.1] - 2025-11-12
 
 ### Added

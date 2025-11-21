@@ -1,19 +1,18 @@
-<!DOCTYPE html>
-<html lang="hu">
-   <head>
-   <link rel="stylesheet" href="assets/css/styles.css">
-</head>
-   <body>
 <?php
-
-    echo '
-	<footer>
-		<div class="footer-inner">
-            <p>Fejlesztők: Baranyai Norbert, Csontos Kincső, Szekeres Levente</p>
-            <a href="https://github.com/doomhyena/jegyzetar.eu">GitHub</a>
-            <p>&copy; 2025 Jegyzetár</p>
-		</div>
-	</footer>
-    ';
-
+    require __DIR__ . "/lang.php";
 ?>
+
+<footer>
+    <div class="footer-inner">
+        <p>
+            <?= t('footer_developers_label') ?>:
+            Baranyai Norbert, Csontos Kincső, Szekeres Levente
+        </p>
+        <a href="https://github.com/doomhyena/jegyzetar.eu"
+           target="_blank"
+           rel="noopener noreferrer">
+            <?= t('footer_github_link') ?>
+        </a>
+        <p><?= t('footer_rights') ?></p>
+    </div>
+</footer>
