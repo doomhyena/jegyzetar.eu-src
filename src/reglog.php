@@ -2,6 +2,8 @@
     require "assets/php/db.php";
     require_once "assets/php/lang.php";
 
+    include 'assets/php/navbar.php';
+
     $security_questions = [
             t('sec_q_favorite_book'),
             t('sec_q_first_pet_name'),
@@ -52,18 +54,23 @@
                     $regdate_esc  = $conn->real_escape_string($registration_date);
                     $password_esc = $conn->real_escape_string($titkositott_jelszo);
 
+                    // norbi: admin mező hozzáadása (0 = nem admin), 
+                    //sql-be kivan véve az auto increment (???)
+                    //hogy akarunk igy egyedi id-t?
                     $sql = "
                             INSERT INTO users
-                                (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date)
+                                (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin)
                             VALUES
                                 ('{$lastname_esc}', '{$firstname_esc}', '{$username_esc}', '{$birthdate_esc}', '{$gender_esc}',
-                                 '{$email_esc}', '{$password_esc}', '{$sec_q_esc}', '{$sec_a_esc}', '{$regdate_esc}')
+                                 '{$email_esc}', '{$password_esc}', '{$sec_q_esc}', '{$sec_a_esc}', '{$regdate_esc}', 0)
                         ";
                     if ($conn->query($sql)) {
                         $folder = getcwd();
                         $path = $folder . DIRECTORY_SEPARATOR . "users" . DIRECTORY_SEPARATOR . $username;
                         if (!is_dir($path) && mkdir($path, 0777, true)) {
                             echo "<script>alert('".t('msg_storage_created')."');</script>";
+                            header("Location: reglog.php");
+                            exit;
                         } else {
                             echo "<script>alert('".t('msg_storage_failed')."');</script>";
                         }

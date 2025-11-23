@@ -45,6 +45,35 @@ Changelog by: Neved
 
 ---
 
+## [1.2.1] - 2025-11-23
+
+### Added
+#### •favorites.php
+-üres favorite.php oldal hozzáadva
+#### profle.php
+-kedvencek gomb ami átvezet a favorites.php-ra
+#### •reglog.php
+-navbar-t beraktam
+
+### Changed
+#### •reglog.php
+-sikeres regisztáció után átvezet a reglog.php-ra
+
+### Fixed
+#### •jegyzetar.sql
+-5. sor-ban varchar helyett archar volt irva...
+-user táblában az id-nál nem volt engedélyezve az auto_increment (hogy akarunk igy egyedi userid-t???)
+-files táblában az id-nál nem volt engedélyezve az auto_increment
+-favorites táblában az id-nál nem volt engedélyezve az auto_increment
+-favorites táblába kivettem a created_at mezőt.
+#### upload.php
+-visszaraktam a hiányzó feltöltési logikát de ezt még átkell nézni
+
+
+Changelog by: Norbi
+
+---
+
 ## [1.2.0] - 2025-11-21
 
 ### Added
