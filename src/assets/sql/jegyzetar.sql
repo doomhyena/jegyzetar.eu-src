@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 23, 2025 at 10:21 AM
+-- Generation Time: Nov 23, 2025 at 11:02 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -31,7 +31,7 @@ CREATE TABLE `comments` (
   `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
   `postid` int(11) NOT NULL,
-  `text` varchar(1000) NOT NULL --archar -> varchar, de ez hogy maradhatott bent igy? xd --
+  `text` varchar(1000) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -45,6 +45,14 @@ CREATE TABLE `favorites` (
   `user_id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- Dumping data for table `favorites`
+--
+
+INSERT INTO `favorites` (`id`, `user_id`, `file_id`) VALUES
+(3, 6, 4),
+(5, 5, 5);
 
 -- --------------------------------------------------------
 
@@ -63,6 +71,14 @@ CREATE TABLE `files` (
   `tags` varchar(255) NOT NULL,
   `tn_name` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- Dumping data for table `files`
+--
+
+INSERT INTO `files` (`id`, `uploaded_by`, `name`, `file_name`, `description`, `file_path`, `subject`, `tags`, `tn_name`) VALUES
+(4, 6, 'test', '8. Webshop portfólió feladat.pdf', 'test', 'C:xampphtdocsjegyzetar.eu-srcsrc/users/valaki1/8. Webshop portfólió feladat.pdf', 'test', 'test', NULL),
+(5, 6, 'test2', '3. Jegyértékesítő oldal.pdf', 'test2', 'C:xampphtdocsjegyzetar.eu-srcsrc/users/valaki1/3. Jegyértékesítő oldal.pdf', 'test2', 'test2', NULL);
 
 -- --------------------------------------------------------
 
@@ -1473,6 +1489,14 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 --
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `lastname`, `firstname`, `username`, `birthdate`, `gender`, `email`, `profile_picture`, `password`, `security_question`, `security_answer`, `admin`, `registration_date`, `language`, `oauth_provider`, `oauth_sub`, `email_verified`) VALUES
+(5, 'valaki', 'valaki', 'valaki', '2025-10-28', 'male', 'valaki@gmail.com', NULL, '$2y$10$gBY/EIljW0wJAHBRWtnl0OG66GQoHTqX8U7o4TIBf1ZVIP9I9iaqW', 'Mi a születési városod?', 'valaki', 0, '2025-11-23 10:25:00', 'hu', NULL, NULL, 0),
+(6, 'valaki', 'valaki', 'valaki1', '2025-10-16', 'male', 'valaki2@gmail.com', NULL, '$2y$10$kJZLwf6eO8L2Cg8ZBvOxeO2Tjon5sLlrjj1hjhWL5ZBNBSeg7lhvG', 'Mi volt az első háziállatod neve?', 'valaki', 0, '2025-11-23 10:28:31', 'hu', NULL, NULL, 0);
+
+--
 -- Indexes for dumped tables
 --
 
@@ -1502,19 +1526,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `files`
 --
 ALTER TABLE `files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -45,6 +45,20 @@ Changelog by: Neved
 
 ---
 
+## [1.2.2] - 2025-11-23
+
+### Added
+#### •favorites.php
+-megjelennek a felhasználó kedvenc jegyzetei, részletek és letöltés gombbal
+
+### Changed
+#### footer.php
+-elvolt irva a nevem (Baranyai -> Baranyi)
+
+Changelog by: Norbi
+
+---
+
 ## [1.2.1] - 2025-11-23
 
 ### Added
