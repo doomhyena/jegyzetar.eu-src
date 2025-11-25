@@ -45,6 +45,27 @@ Changelog by: Neved
 
 ---
 
+
+## [1.3.0]  - 2025-11-25
+
+### Added
+#### • vendor mappa
+- A szükséges fájlokat tartalmazza a discord loginhoz
+#### • .env
+- A `.env` fájl nem került felöltésre révén, hogy érzékeny adatokat tartalmaz.
+
+### Changed
+#### • Discord login button
+- A gomb újra elérhető
+
+### Fixed
+#### • reglog.php
+- A discord fiókkal való bejelentkezés és regisztráció elérhető.
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [1.2.2] - 2025-11-23
 
 ### Added

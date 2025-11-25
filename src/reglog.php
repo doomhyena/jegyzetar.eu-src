@@ -1,38 +1,57 @@
 <?php
+    session_start();
+
     require "assets/php/db.php";
     require_once "assets/php/lang.php";
 
     include 'assets/php/navbar.php';
 
+    $prefillUsername = '';
+    $prefillEmail = '';
+
+    if (!empty($_SESSION['discord_prefill']) && is_array($_SESSION['discord_prefill'])) {
+        $prefillUsername = $_SESSION['discord_prefill']['username'] ?? '';
+        $prefillEmail    = $_SESSION['discord_prefill']['email'] ?? '';
+        unset($_SESSION['discord_prefill']);
+    }
+
     $security_questions = [
-            t('sec_q_favorite_book'),
-            t('sec_q_first_pet_name'),
-            t('sec_q_mother_maiden_name'),
-            t('sec_q_birth_city'),
-            t('sec_q_favorite_food')
+        t('sec_q_favorite_book'),
+        t('sec_q_first_pet_name'),
+        t('sec_q_mother_maiden_name'),
+        t('sec_q_birth_city'),
+        t('sec_q_favorite_food')
     ];
 
     $selected_question = $security_questions[array_rand($security_questions)];
-    $currentForm = 'login';
+
+    $currentForm = ($prefillUsername || $prefillEmail) ? 'reg' : 'login';
 
     if (isset($_POST['reg-btn'])) {
-        $lastname = $_POST['lastname']   ?? '';
-        $firstname = $_POST['firstname']  ?? '';
-        $username= $_POST['username']   ?? '';
-        $birthdate = $_POST['birthdate']  ?? '';
-        $gender = $_POST['gender']     ?? '';
-        $email = $_POST['email']      ?? '';
+        $currentForm = 'reg';
+    }
+
+    if (isset($_POST['login-btn'])) {
+        $currentForm = 'login';
+    }
+
+    if (isset($_POST['reg-btn'])) {
+        $lastname = $_POST['lastname'] ?? '';
+        $firstname = $_POST['firstname'] ?? '';
+        $username = $_POST['username'] ?? '';
+        $birthdate = $_POST['birthdate'] ?? '';
+        $gender = $_POST['gender'] ?? '';
+        $email = $_POST['email'] ?? '';
         $password = $_POST['password1']  ?? '';
-        $passwordtwo= $_POST['password2']  ?? '';
+        $passwordtwo = $_POST['password2'] ?? '';
         $registration_date = date('Y-m-d H:i:s');
         $security_question = $_POST['security_question'] ?? '';
-        $security_answer = $_POST['security_answer']   ?? '';
+        $security_answer = $_POST['security_answer'] ?? '';
 
         $currentForm = 'reg';
 
-        // nagyon basic sanitize – élesben prepared statement kéne
         $username_esc = $conn->real_escape_string($username);
-        $email_esc = $conn->real_escape_string($email);
+        $email_esc    = $conn->real_escape_string($email);
 
         $sql = "SELECT * FROM users WHERE username='{$username_esc}'";
         $found_user = $conn->query($sql);
@@ -45,28 +64,26 @@
                 if ($password === $passwordtwo) {
                     $titkositott_jelszo = password_hash($password, PASSWORD_DEFAULT);
 
-                    $lastname_esc = $conn->real_escape_string($lastname);
+                    $lastname_esc  = $conn->real_escape_string($lastname);
                     $firstname_esc = $conn->real_escape_string($firstname);
                     $birthdate_esc = $conn->real_escape_string($birthdate);
                     $gender_esc = $conn->real_escape_string($gender);
                     $sec_q_esc = $conn->real_escape_string($security_question);
                     $sec_a_esc = $conn->real_escape_string($security_answer);
-                    $regdate_esc  = $conn->real_escape_string($registration_date);
+                    $regdate_esx  = $conn->real_escape_string($registration_date);
                     $password_esc = $conn->real_escape_string($titkositott_jelszo);
 
-                    // norbi: admin mező hozzáadása (0 = nem admin), 
-                    //sql-be kivan véve az auto increment (???)
-                    //hogy akarunk igy egyedi id-t?
                     $sql = "
-                            INSERT INTO users
-                                (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin)
-                            VALUES
-                                ('{$lastname_esc}', '{$firstname_esc}', '{$username_esc}', '{$birthdate_esc}', '{$gender_esc}',
-                                 '{$email_esc}', '{$password_esc}', '{$sec_q_esc}', '{$sec_a_esc}', '{$regdate_esc}', 0)
-                        ";
+                        INSERT INTO users
+                            (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin)
+                        VALUES
+                            ('{$lastname_esc}', '{$firstname_esc}', '{$username_esc}', '{$birthdate_esc}', '{$gender_esc}',
+                             '{$email_esc}', '{$password_esc}', '{$sec_q_esc}', '{$sec_a_esc}', '{$regdate_esc}', 0)
+                    ";
+
                     if ($conn->query($sql)) {
                         $folder = getcwd();
-                        $path = $folder . DIRECTORY_SEPARATOR . "users" . DIRECTORY_SEPARATOR . $username;
+                        $path   = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
                         if (!is_dir($path) && mkdir($path, 0777, true)) {
                             echo "<script>alert('".t('msg_storage_created')."');</script>";
                             header("Location: reglog.php");
@@ -156,7 +173,14 @@
                 <label for="firstname"><?= t('label_firstname') ?></label>
                 <input class="input" type="text" name="firstname" id="firstname" required>
                 <label for="username"><?= t('label_username') ?></label>
-                <input class="input" type="text" name="username" id="username" required>
+                <input
+                    class="input"
+                    type="text"
+                    name="username"
+                    id="username"
+                    value="<?= htmlspecialchars($prefillUsername, ENT_QUOTES, 'UTF-8') ?>"
+                    required
+                >
                 <label for="birthdate"><?= t('label_birthdate') ?></label>
                 <input class="input" type="date" name="birthdate" id="birthdate" required>
                 <label for="gender"><?= t('label_gender') ?></label>
@@ -166,7 +190,14 @@
                     <option value="other"><?= t('gender_other') ?></option>
                 </select>
                 <label for="email"><?= t('label_email') ?></label>
-                <input class="input" type="email" name="email" id="email" required>
+                <input
+                    class="input"
+                    type="email"
+                    name="email"
+                    id="email"
+                    value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>"
+                    required
+                >
                 <label for="password1"><?= t('label_password') ?></label>
                 <input class="input" type="password" name="password1" id="password1" required>
                 <label for="password2"><?= t('label_password_again') ?></label>
@@ -187,7 +218,7 @@
                 </p>
             </form>
             <div class="auth-actions" style="margin-top:12px;">
-                <a class="btn-ghost disabled" href="oauth/discord-login.php">
+                <a class="btn-ghost" href="assets/oauth/discord-login.php">
                     <?= t('auth_continue_with_discord') ?>
                 </a>
             </div>
