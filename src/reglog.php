@@ -1,5 +1,15 @@
 <?php
+    session_start();
     require "assets/php/db.php";
+
+    $prefillUsername = '';
+    $prefillEmail    = '';
+
+    if (!empty($_SESSION['discord_prefill']) && is_array($_SESSION['discord_prefill'])) {
+        $prefillUsername = $_SESSION['discord_prefill']['username'] ?? '';
+        $prefillEmail    = $_SESSION['discord_prefill']['email'] ?? '';
+        unset($_SESSION['discord_prefill']);
+    }
 
     $security_questions = [
             "Mi a kedvenc könyved?",
@@ -11,6 +21,17 @@
 
     $selected_question = $security_questions[array_rand($security_questions)];
 
+    $currentForm = 'login';
+    if ($prefillUsername || $prefillEmail) {
+        $currentForm = 'reg';
+    }
+    if (isset($_POST['reg-btn'])) {
+        $currentForm = 'reg';
+    }
+    if (isset($_POST['login-btn'])) {
+        $currentForm = 'login';
+    }
+
     if (isset($_POST['reg-btn'])) {
         $lastname = $_POST['lastname'];
         $firstname = $_POST['firstname'];
@@ -18,10 +39,10 @@
         $birthdate = $_POST['birthdate'];
         $gender = $_POST['gender'];
         $email = $_POST['email'];
-        $password = $_POST['password1'];
+        $password  = $_POST['password1'];
         $passwordtwo = $_POST['password2'];
-        $registration_date = date('Y-m-d H:i:s');
-        $security_question = $_POST['security_question'];
+        $registration_date  = date('Y-m-d H:i:s');
+        $security_question  = $_POST['security_question'];
         $security_answer = $_POST['security_answer'];
 
         $sql = "SELECT * FROM users WHERE username='$username'";
@@ -34,7 +55,10 @@
             if (mysqli_num_rows($found_email) == 0) {
                 if ($password == $passwordtwo) {
                     $titkositott_jelszo = password_hash($password, PASSWORD_DEFAULT);
-                    $sql = $conn->query("INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date) VALUES ('$lastname', '$firstname', '$username', '$birthdate', '$gender', '$email', '$titkositott_jelszo', '$security_question', '$security_answer', '$registration_date')");
+                    $sql = $conn->query("INSERT INTO 
+                    users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date)  
+                    VALUES  ('$lastname', '$firstname', '$username', '$birthdate', '$gender', '$email', '$titkositott_jelszo', '$security_question', 
+                             '$security_answer', '$registration_date')");
 
                     $folder = getcwd();
                     $path = $folder . DIRECTORY_SEPARATOR . "users" . DIRECTORY_SEPARATOR . $username;
@@ -115,7 +139,8 @@
                 <label for="firstname">Keresztnév</label>
                 <input class="input" type="text" name="firstname" id="firstname" required>
                 <label for="username">Felhasználónév</label>
-                <input class="input" type="text" name="username" id="username" required>
+                <input class="input" type="text" name="username" id="username"
+                       value="<?= htmlspecialchars($prefillUsername, ENT_QUOTES, 'UTF-8') ?>" required>
                 <label for="birthdate">Születési dátum</label>
                 <input class="input" type="date" name="birthdate" id="birthdate" required>
                 <label for="gender">Nem</label>
@@ -125,7 +150,8 @@
                     <option value="other">Egyéb</option>
                 </select>
                 <label for="email">Email</label>
-                <input class="input" type="email" name="email" id="email" required>
+                <input class="input" type="email" name="email" id="email"
+                       value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>" required>
                 <label for="password1">Jelszó</label>
                 <input class="input" type="password" name="password1" id="password1" required>
                 <label for="password2">Jelszó újra</label>
@@ -139,8 +165,8 @@
                 </div>
                 <p class="auth-note" style="margin-top:16px;">Már van fiókod? <a class="switcher" href="#" data-switch="login">Lépj be!</a></p>
             </form>
-            <div class="auth-actions" style="margin-top:12px;">
-                <a class="btn-ghost" href="oauth/discord-login.php">Folytatás Discorddal</a>
+            <div style="margin-top:12px; text-align: center;">
+                <a class="btn-ghost" href="assets/oauth/discord-login.php">Folytatás Discorddal</a>
             </div>
         </div>
     </div>
