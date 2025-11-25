@@ -67,7 +67,7 @@ Szekeres Levente<br>
     - 8.7. [Asztali Alkalmazás](#87-asztali-alkalmazás)
 
 9. [Ki mit készített?](#9-ki-mit-készített?)
-    - 9.1. [Baranyai Norbert](#91-baranyai-norbert)
+    - 9.1. [Baranyi Norbert](#91-baranyi-norbert)
     - 9.2. [Csontos Kincső Anasztázia](#92-csontos-kincső-anasztázia)
     - 9.2. [Szekeres Levente](#92-szekeres-levente)
 
@@ -106,7 +106,7 @@ Diákok, tanárok és oktatók, akik megosztanák egymással az oktatási anyago
 
 ### 1.2. Főbb Funkciók
 
-A NoteShare rendszer az alábbi kulcsfunkciókat biztosítja:
+A Jegyzetár rendszer az alábbi kulcsfunkciókat biztosítja:
 
 ### Fájlfeltöltés és -kezelés
 
@@ -133,7 +133,7 @@ A NoteShare rendszer az alábbi kulcsfunkciókat biztosítja:
 
 ### 1.3. Technológiai Stack
 
-A NoteShare fejlesztése során a következő technológiákat és eszközöket használtuk:
+A Jegyzetár fejlesztése során a következő technológiákat és eszközöket használtuk:
 
 ### Frontend
 - **HTML5, CSS3, JavaScript**: Az alapvető webes technológiák a felhasználói felület kialakításához.
@@ -159,7 +159,7 @@ A NoteShare fejlesztése során a következő technológiákat és eszközöket 
 ## 2. Rendszerarchitektúra
 
 ### 2.1. Magas Szintű Architektúra
-A NoteShare egy háromrétegű architektúrát követ:
+A Jegyzetár egy háromrétegű architektúrát követ:
 1. **Prezentációs réteg**: A felhasználói felület, amely a frontend technológiákra épül.
 2. **Alkalmazásréteg**: A backend logika, amely PHP segítségével valósul meg.
 3. **Adatbázis réteg**: A MySQL adatbázis, amely az összes adatot tárolja.
@@ -229,7 +229,7 @@ A NoteShare egy háromrétegű architektúrát követ:
 ## 3. Frontend Architektúra
 
 ### 3.1. UI/UX Design
-A NoteShare felhasználói felülete egyszerű és intuitív, a következő szempontokat figyelembe véve:
+A Jegyzetár felhasználói felülete egyszerű és intuitív, a következő szempontokat figyelembe véve:
 - **Reszponzív dizájn**: A platform minden eszközön jól használható.
 - **Egyszerű navigáció**: Könnyen elérhető funkciók és tiszta menürendszer.
 - **Konzisztens stílus**: Azonos színpaletta és tipográfia az egész alkalmazásban.
@@ -274,14 +274,14 @@ A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját hasz
     - Egy webböngésző.
 
 ```bash
-1. Klónozd le a projekt fájljait (pl. `git clone https://github.com/doomhyena/NoteShare-Dev.git`) a helyi szerver gyökérkönyvtárába (pl. `c:/xampp/htdocs/NoteShare-Dev`).
+1. Klónozd le a projekt fájljait (pl. `git clone https://github.com/doomhyena/jegyzetar.eu-src.git`) a helyi szerver gyökérkönyvtárába (pl. `c:/xampp/htdocs/Jegyzetár-Dev`).
 2. Importáld az adatbázist:
 - Nyisd meg a phpMyAdmin-t.
-- Importáld a `noteshare.sql` fájlt az `assets/sql/` mappából.
+- Importáld a `jegyzetar.sql` fájlt az `assets/sql/` mappából.
 3. Konfiguráld az adatbázis kapcsolatot:
 - Nyisd meg a `db.php` fájlt.
 - Győződj meg róla, hogy az adatbázis hitelesítési adatok megfelelnek a helyi szerver beállításainak.
-4. Indítsd el a helyi szervert, és navigálj a `http://localhost/NoteShare/` címre a böngésződben.
+4. Indítsd el a helyi szervert, és navigálj a `http://localhost/jegyzetar.eu-src/src`  címre a böngésződben.
 ```
 
 #### 6.2. Használat 
@@ -354,14 +354,14 @@ A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját hasz
 
 ### 7.1. Fejlesztői Környezet Beállítása
 ```bash
-1. Klónozd le a projekt fájljait (pl. `git clone https://github.com/doomhyena/NoteShare-Dev.git`) a helyi szerver gyökérkönyvtárába (pl. `c:/xampp/htdocs/NoteShare-Dev`).
+1. Klónozd le a projekt fájljait (pl. `git clone https://github.com/doomhyena/Jegyzetár-Dev.git`) a helyi szerver gyökérkönyvtárába (pl. `c:/xampp/htdocs/Jegyzetár-Dev`).
 2. Importáld az adatbázist:
 - Nyisd meg a phpMyAdmin-t.
-- Importáld a `noteshare.sql` fájlt az `assets/sql/` mappából.
+- Importáld a `Jegyzetár.sql` fájlt az `assets/sql/` mappából.
 3. Konfiguráld az adatbázis kapcsolatot:
 - Nyisd meg a `db.php` fájlt.
 - Győződj meg róla, hogy az adatbázis hitelesítési adatok megfelelnek a helyi szerver beállításainak.
-4. Indítsd el a helyi szervert, és navigálj a `http://localhost/NoteShare/` címre a böngésződben.
+4. Indítsd el a helyi szervert, és navigálj a `http://localhost/Jegyzetár/` címre a böngésződben.
 ```
 ### 7.2. Verziókezelési Stratégia
 - **Main branch**: Stabil, éles verzió.
@@ -371,7 +371,7 @@ A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját hasz
 
 ```bash
 
-NoteShare-Dev/
+Jegyzetár-Dev/
 │   ├──/assets
 │   │
 │   ├── /css
@@ -395,7 +395,7 @@ NoteShare-Dev/
 │   │   ├── logout.php                      # Kijelentkezést kezelő fájl
 │   │   └── navbar.php                      # navbar-t megjelenítő fájé
 │   ├── /sql
-│   │   └── noteshare.sql                   # Az oldal adatbázisa
+│   │   └── Jegyzetár.sql                   # Az oldal adatbázisa
 ├── users/                                  # Felhasználók tárhelyét tartalmazó mappa
 ├── edit_email.php                          # Az email cím módosításáért felelős fájl
 ├── Év végi feladat.pdf                     # A feladatot leíró dokumentum
@@ -415,7 +415,7 @@ NoteShare-Dev/
 ## 8. Jövőbeli Tervek
 #### 8.1. Felhasználói fiók bővítések
 
-A NoteShare egyik jövőbeli fejlesztési iránya a felhasználói profilok bővítése és személyre szabása. A cél, hogy a felhasználók saját igényeik szerint alakíthassák profiljukat, ezzel is növelve a közösségi élményt és az elköteleződést.
+A Jegyzetár egyik jövőbeli fejlesztési iránya a felhasználói profilok bővítése és személyre szabása. A cél, hogy a felhasználók saját igényeik szerint alakíthassák profiljukat, ezzel is növelve a közösségi élményt és az elköteleződést.
 
 **Főbb lehetőségek:**
 - **Profilkép feltöltése és módosítása:** A felhasználók egyéni profilképet állíthatnak be, amely megjelenik a hozzászólásoknál, feltöltéseknél és a profiloldalon.
@@ -430,7 +430,7 @@ A NoteShare egyik jövőbeli fejlesztési iránya a felhasználói profilok bőv
 
 #### 8.2. Nyelvi lokalizáció
 
-A NoteShare célja, hogy minél szélesebb körben elérhető legyen, ezért a felület több nyelven is használhatóvá válik. A lokalizáció lehetővé teszi, hogy a felhasználók a számukra legkényelmesebb nyelven használják az alkalmazást.
+A Jegyzetár célja, hogy minél szélesebb körben elérhető legyen, ezért a felület több nyelven is használhatóvá válik. A lokalizáció lehetővé teszi, hogy a felhasználók a számukra legkényelmesebb nyelven használják az alkalmazást.
 
 **Főbb funkciók:**
 - **Többnyelvű felület:** A rendszer magyar és angol nyelven is elérhető lesz, később további nyelvekkel bővíthető.
@@ -445,7 +445,7 @@ A NoteShare célja, hogy minél szélesebb körben elérhető legyen, ezért a f
 
 #### 8.3. Kétlépcsős hitelesítés
 
-A biztonság növelése érdekében a NoteShare támogatni fogja a kétlépcsős hitelesítést (2FA), amely jelentősen csökkenti a jogosulatlan hozzáférés kockázatát.
+A biztonság növelése érdekében a Jegyzetár támogatni fogja a kétlépcsős hitelesítést (2FA), amely jelentősen csökkenti a jogosulatlan hozzáférés kockázatát.
 
 **Főbb funkciók:**
 - **Másodlagos azonosítás:** Bejelentkezéskor a felhasználónak egy egyszer használatos kódot is meg kell adnia, amelyet SMS-ben vagy e-mailben kap meg.
@@ -460,7 +460,7 @@ A biztonság növelése érdekében a NoteShare támogatni fogja a kétlépcsős
 
 #### 8.4. AI-alapú keresés és javaslatok
 
-A NoteShare fejlesztése során gépi tanulási és mesterséges intelligencia (AI) megoldások is bevezetésre kerülnek, hogy a felhasználók gyorsabban és hatékonyabban találják meg a számukra releváns tartalmakat.
+A Jegyzetár fejlesztése során gépi tanulási és mesterséges intelligencia (AI) megoldások is bevezetésre kerülnek, hogy a felhasználók gyorsabban és hatékonyabban találják meg a számukra releváns tartalmakat.
 
 **Főbb funkciók:**
 - **Személyre szabott ajánlások:** Az AI elemzi a felhasználó korábbi kereséseit, letöltéseit és érdeklődési köreit, majd ezek alapján ajánl új jegyzeteket vagy segédanyagokat.
@@ -475,7 +475,7 @@ A NoteShare fejlesztése során gépi tanulási és mesterséges intelligencia (
 
 #### 8.5. Gamifikáció
 
-A felhasználói aktivitás ösztönzése érdekében a NoteShare gamifikációs elemeket vezet be, amelyek játékosabbá és motiválóbbá teszik a platform használatát.
+A felhasználói aktivitás ösztönzése érdekében a Jegyzetár gamifikációs elemeket vezet be, amelyek játékosabbá és motiválóbbá teszik a platform használatát.
 
 **Főbb funkciók:**
 - **Pontgyűjtés:** A felhasználók pontokat szerezhetnek különböző tevékenységekért, például regisztrációért, jegyzetfeltöltésért, hozzászólásért vagy értékelésért.
@@ -490,7 +490,7 @@ A felhasználói aktivitás ösztönzése érdekében a NoteShare gamifikációs
 
 #### 8.6. Mobil Applikáció
 
-A NoteShare jövőbeli fejlesztési tervei között szerepel egy natív mobilalkalmazás elkészítése Android és iOS platformokra. A mobil app célja, hogy a felhasználók még kényelmesebben érhessék el a jegyzeteket, tölthessenek fel fájlokat, és kommunikálhassanak egymással útközben is.
+A Jegyzetár jövőbeli fejlesztési tervei között szerepel egy natív mobilalkalmazás elkészítése Android és iOS platformokra. A mobil app célja, hogy a felhasználók még kényelmesebben érhessék el a jegyzeteket, tölthessenek fel fájlokat, és kommunikálhassanak egymással útközben is.
 
 **Főbb funkciók:**
 - Jegyzetek böngészése, letöltése és feltöltése közvetlenül a mobilról
@@ -519,11 +519,11 @@ A platform funkcionalitásának bővítése érdekében egy asztali alkalmazás 
 - REST API vagy WebSocket kapcsolat a szerverrel
 - Integráció a rendszer értesítési szolgáltatásaival
 
-Ezek a fejlesztések jelentősen növelnék a NoteShare elérhetőségét és felhasználói élményét minden platformon.
+Ezek a fejlesztések jelentősen növelnék a Jegyzetár elérhetőségét és felhasználói élményét minden platformon.
 
 ## 9. Ki mit készített?
 
-### 9.1. Baranyai Norbert
+### 9.1. Baranyi Norbert
 
 
 ### 9.2. Csontos Kincső Anasztázia
