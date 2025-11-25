@@ -45,7 +45,6 @@ Changelog by: Neved
 
 ---
 
-### Formátum útmutató
 
 ## [1.3.0]  - 2025-11-25
 
@@ -64,6 +63,104 @@ Changelog by: Neved
 - A discord fiókkal való bejelentkezés és regisztráció elérhető.
 
 Changelog by: Csontos Kincső Anasztázia
+
+---
+
+## [1.2.2] - 2025-11-23
+
+### Added
+#### •favorites.php
+-megjelennek a felhasználó kedvenc jegyzetei, részletek és letöltés gombbal
+
+### Changed
+#### footer.php
+-elvolt irva a nevem (Baranyai -> Baranyi)
+
+Changelog by: Norbi
+
+---
+
+## [1.2.1] - 2025-11-23
+
+### Added
+#### •favorites.php
+-üres favorite.php oldal hozzáadva
+#### profle.php
+-kedvencek gomb ami átvezet a favorites.php-ra
+#### •reglog.php
+-navbar-t beraktam
+
+### Changed
+#### •reglog.php
+-sikeres regisztáció után átvezet a reglog.php-ra
+
+### Fixed
+#### •jegyzetar.sql
+-5. sor-ban varchar helyett archar volt irva...
+-user táblában az id-nál nem volt engedélyezve az auto_increment (hogy akarunk igy egyedi userid-t???)
+-files táblában az id-nál nem volt engedélyezve az auto_increment
+-favorites táblában az id-nál nem volt engedélyezve az auto_increment
+-favorites táblába kivettem a created_at mezőt.
+#### upload.php
+-visszaraktam a hiányzó feltöltési logikát de ezt még átkell nézni
+
+
+Changelog by: Norbi
+
+---
+
+## [1.2.0] - 2025-11-21
+
+### Added
+#### • Multilanguage
+- Mostantól az oldal 3 nyelven érhető el, az alapértelmezett nyelv a magyar.
+  - Magyar
+  - Angol
+  - Német
+  - Új fájl hozzáadva: `lang.php`, ez kezeli at oldal nyelvét
+
+#### • Adatbázis
+- Új adatbázisnév: `jegyzetar`
+- `languages` tábla hozzáadva
+- `translations` tábla hozzáadva
+
+### Changed
+#### • Több fájl is változott
+- edit_email.php
+- forgotpass.php
+- index.php
+- messages.php
+- note.php
+- notify.php
+- profile.php
+- reglog.php
+- search.php
+- upload.php
+  - rendes szövegek helyett mostmár az adatbázisból kéri le az oldal a szövegeket, az adott nyelven
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
+## [1.1.1] - 2025-11-12
+
+### Added
+#### •Uj tábla: favorites
+#### •Kedvencezés funkció KEZDETLEGES
+-Adatbázisban tárolja hogy ki mit szivecskézett be
+-Egyelőre kezdetleges, majd folyatatom (!!!)
+
+### Changed
+#### •Értékelés témájának egységesitése
+
+
+### Removed
+#### •Index.php-n nem müködö értékelés küldése kikommentelve
+- nem merem eltávolitani de sztem fölös átlag értékelésnél
+
+Changelog by: Norbi
+
+---
 
 ## [1.1.0] - 2025-11-09
 
