@@ -1,5 +1,4 @@
 <?php
-
     $conn = new mysqli("localhost", "root", "", "jegyzetar");
 
     if($conn->connect_error){
