@@ -1,8 +1,10 @@
 <?php
-    require  "assets/php/db.php";
+    require "assets/php/db.php";
+    require "assets/php/lang.php";
 
     if(!isset($_COOKIE['id'])){
         header("Location: reglog.php");
+        exit;
     }
 
     $userid = $_COOKIE['id'];
@@ -10,14 +12,11 @@
     $found_user = $conn->query($sql);
     $user = $found_user->fetch_assoc();
 
+    // (!!!) norbi: visszaállítottam a régi feltöltési logikát (!!!)
+    // ezt viszont csináljuk meg normálisan, egyelőre maradhat igy mert nem tudok dolgozni e nélkül...
     if(isset($_POST['upload-btn'])){
         $subject = $_POST['subject'];
         $tags = $_POST['tags'];
-
-        if (empty($subject) || empty($tags)) {
-            echo "<script>alert('Kérjük, adja meg a tárgyat és a címkéket!')</script>";
-            exit;
-        }
         $file_name = $_FILES['upload-file']['name'];
         $tmp_name = $_FILES['upload-file']['tmp_name'];
         $file_type = mime_content_type($tmp_name);
@@ -25,11 +24,6 @@
 
         $allowed_extensions = ['pdf', 'mp4', 'docx'];
         $allowed_types = ['application/pdf', 'video/mp4', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-
-        if (!in_array($file_ext, $allowed_extensions) || !in_array($file_type, $allowed_types)) {
-            echo "<script>alert('Csak PDF, MP4 vagy DOCX fájlokat lehet feltölteni!')</script>";
-            header("Location: upload.php");
-        }
 
         $folder = getcwd();
         $dir = $folder . "/users/" . $user['username'] . "/";
@@ -42,11 +36,8 @@
         $path =  $folder . "/users/" . $user['username'] . "/".$file_name;
 
         if(move_uploaded_file($tmp_name, $path)){
-            $conn->query("INSERT INTO files (uploaded_by, name, file_name, description, file_path) VALUES ('$user[id]', '{$_POST['name']}', '$file_name', '$description', '$path')");
+            $conn->query("INSERT INTO files (uploaded_by, name, file_name, description, file_path, subject, tags) VALUES ('$user[id]', '{$_POST['name']}', '$file_name', '$description', '$path', '$subject', '$tags')");
             echo "<script>alert('A fájl sikeresen feltöltve!')</script>";
-			header("Location: upload.php");
-        } else {
-            echo "<script>alert('A fájl feltöltése sikertelen!')</script>";
 			header("Location: upload.php");
         }
     }
