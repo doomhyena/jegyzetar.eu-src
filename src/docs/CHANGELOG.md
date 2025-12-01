@@ -45,8 +45,60 @@ Changelog by: Neved
 
 ---
 
+## [1.3.2] - 2025-12-01
 
-## [1.3.1]  - 2025-01-12
+### Added
+#### • Új SQL táblák
+- `badges` tábla
+  - A kítűzőknek külön tábla
+- `user_badges` tábla
+  - Ha a felhasználó kap egy kítűzőt ide fog elmentődni
+- `user_custom_css_archive` tábla
+  - archivált css profil kinézetek jönnek ide
+- `user_custom_css_requests` tábla
+  - az egyedi profil css-k ide érkeznek, ez a tábla az admin panelen fog látsznai és ott is lehet kezelni
+
+### Changed
+#### • Az összes oldal
+- a 3 behívott fájl sorrendisége változott a megfelelő működés érdekében
+  -> (functions.php, db.php, lang.php)
+#### • Profil.php
+- Új funkciók:
+  - előre beállított témák közül lehet válogatni
+  - az adatok kezdetleges változtatására való lehetőség
+  - Bemutatkozás írása, mely meg is jelenik
+  - Egyedi CSS írás a profil oldalhoz, melyet előszőr egy admin fog elfogadni
+  - Segítség a css-hez
+  - Egyedi css visszavonása
+  - A kítűző megjelenik a profilon
+
+### Fixed
+#### • CHANGELOG.md
+- `[1.3.1] - 2025-01-12` helyett `[1.3.1] - 2025-12-1`
+
+### Removed
+#### • User mappák
+- felesleges user mappák törlésre kerültek
+#### • Adatbázis
+- A szükséges INSERT-ken kívűl nincs benne semmi
+
+### Security
+#### `db_prepared()` helper függvény
+
+- Bevezetésre került egy segédfüggvényt, ami **biztonságosan futtat előkészített SQL lekérdezéseket** (prepared statement).
+- A függvény:
+  * előkészíti a lekérdezést (`prepare`)
+  * hozzáköti a paramétereket (`bind_param`)
+  * lefuttatja a lekérdezést (`execute`)
+  * hibánál kivételt dob, hogy ne legyen csendes fail
+
+**Mi az a prepared statement?**
+Olyan SQL-lekérdezés, ahol a változókat *nem* simán belefűzzük a stringbe, hanem külön adjuk át. Ez gyorsabb és extra biztonságot ad SQL injection ellen.
+Magyarul: *"nem hagyjuk, hogy a user bemászza a query-be"*.
+
+Changelog by: Csontos Kincső Anasztázia
+
+## [1.3.1] - 2025-12-1
 
 ### Added
 #### • mail-2fa.php

@@ -43,7 +43,7 @@ while($sor = $talalt_sorok->fetch_assoc()){
     <meta charset="UTF-8">
     <meta name="description" content="<?= t('meta_description_home') ?>">
     <meta name="keywords" content="<?= t('meta_keywords_home') ?>">
-    <meta name="author" content="Baranyai Norbert, Csontos Kincső, Szekeres Levente">
+    <meta name='author' content='Baranyi Norbert, Csontos Kincső, Szekeres Levente'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
