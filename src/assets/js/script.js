@@ -20,6 +20,34 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+    const themeSelect = document.getElementById('profile-theme-select');
+    if (!themeSelect) return;
+
+    const THEMES = ['default', 'pastel', 'forest', 'light', 'dark'];
+
+    function applyTheme(theme) {
+        const body = document.body;
+        THEMES.forEach(t => body.classList.remove('theme-' + t));
+        if (theme && THEMES.includes(theme)) {
+            body.classList.add('theme-' + theme);
+        } else {
+            body.classList.add('theme-default');
+        }
+        themeSelect.setAttribute('data-theme', theme || 'default');
+        try { themeSelect.value = theme || 'default'; } catch (err) { /* ignoráljuk */ }
+    }
+
+    const initial = themeSelect.value || themeSelect.dataset.theme || 'default';
+    applyTheme(initial);
+    window.applyTheme = applyTheme;
+
+    themeSelect.addEventListener('change', function (e) {
+        const newTheme = e.target.value;
+        applyTheme(newTheme);
+    });
+});
+
 function checkNewMessages() {
     if (!friendId) return;
     $.get("assets/php/loadmessages.php?friendid=" + encodeURIComponent(friendId) + "&countonly=1", function (newCount) {
@@ -155,31 +183,80 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     });
 });
-document.addEventListener('DOMContentLoaded', () => {
-    const regForm = document.getElementById('reg');
-    const loginForm = document.getElementById('login');
 
-    function setView(which) {
-        if (which === 'reg') {
-            regForm.style.display = 'block';
-            loginForm.style.display = 'none';
-            document.title = 'Regisztráció';
-            history.replaceState(null, '', '?form=reg');
-        } else {
-            regForm.style.display = 'none';
-            loginForm.style.display = 'block';
-            document.title = 'Bejelentkezés';
-            history.replaceState(null, '', '?form=login');
+document.addEventListener('DOMContentLoaded', () => {
+    const details  = document.getElementById('css-tutorial');
+    const textarea = document.getElementById('profile-custom-css-input');
+
+    if (details) {
+        function updateCssHelpState() {
+            document.body.classList.toggle('css-help-open', details.open);
+        }
+
+        details.addEventListener('toggle', updateCssHelpState);
+
+        if (details.open) {
+            updateCssHelpState();
         }
     }
 
-    const urlForm = new URLSearchParams(location.search).get('form');
-    setView(urlForm === 'reg' ? 'reg' : 'login');
+    if (textarea) {
+        const cssForm = textarea.closest('form');
+        if (cssForm) {
+            cssForm.addEventListener('submit', (e) => {
+                const submitter = e.submitter;
+                if (submitter && submitter.name === 'reset-custom-css') {
+                    return; 
+                }
 
-    document.querySelectorAll('.switcher').forEach(a => {
-        a.addEventListener('click', e => {
-            e.preventDefault();
-            setView(a.getAttribute('data-switch') === 'reg' ? 'reg' : 'login');
+                const val = textarea.value.trim();
+                if (val.length === 0) {
+                    e.preventDefault();
+
+                    if (details && details.open) {
+                        details.open = false;
+                    }
+
+                    const main = document.querySelector('.main');
+                    if (main) {
+                        const toast = document.createElement('div');
+                        toast.className = 'toast toast-error';
+
+                        const cssTa = document.getElementById('profile-custom-css-input');
+                        const msg = (cssTa && cssTa.dataset && cssTa.dataset.i18nCssEmpty)
+                            ? cssTa.dataset.i18nCssEmpty
+                            : 'A CSS mező üres — visszaállítva.';
+
+                        toast.textContent = msg;
+                        main.insertBefore(toast, main.firstChild);
+
+                        setTimeout(() => {
+                            try { toast.remove(); } catch (err) {} 
+                        }, 3000);
+                    }
+                }
+            });
+        }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const staticBlock = document.getElementById('basic-profile-static');
+    const formBlock = document.getElementById('basic-profile-form');
+    const editBtn = document.getElementById('edit-basic-profile-btn');
+    const cancelBtn = document.getElementById('cancel-basic-profile-edit');
+
+    if (editBtn && staticBlock && formBlock) {
+        editBtn.addEventListener('click', function () {
+            staticBlock.style.display = 'none';
+            formBlock.style.display = 'grid';
         });
-    });
+    }
+
+    if (cancelBtn && staticBlock && formBlock) {
+        cancelBtn.addEventListener('click', function () {
+            formBlock.style.display = 'none';
+            staticBlock.style.display = '';
+        });
+    }
 });

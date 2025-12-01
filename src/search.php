@@ -1,112 +1,114 @@
 <?php
-require "assets/php/db.php";
+    require_once "assets/php/db.php";
+    require_once "assets/php/lang.php";
+    require_once 'assets/php/functions.php';
 
-$isLoggedIn = isset($_COOKIE['id']);
-$user = null;
-$notify_number = 0;
+    $isLoggedIn = isset($_COOKIE['id']);
+    $user = null;
+    $notify_number = 0;
 
-if ($isLoggedIn) {
-    $uid = (int)$_COOKIE['id'];
-    // username-t is kérjük le, hogy navbar/hero tudja használni
-    if ($res = $conn->query("SELECT id, username, firstname FROM users WHERE id = $uid LIMIT 1")) {
-        $user = $res->fetch_assoc();
-    }
-    if ($nf = $conn->query("SELECT id FROM notifys WHERE toid = $uid AND readed = 0")) {
-        $notify_number = $nf->num_rows;
-    }
-}
-
-$q     = trim($_GET['q'] ?? '');
-$scope = strtolower($_GET['scope'] ?? 'all');
-$type  = strtolower($_GET['type']  ?? 'all');
-$sort  = strtolower($_GET['sort']  ?? 'new');
-
-if (!in_array($scope, ['files','users','all'], true)) $scope = 'all';
-if (!in_array($type,  ['all','pdf','mp4','docx'], true)) $type = 'all';
-if (!in_array($sort,  ['new','old','top'], true)) $sort = 'new';
-
-function esc($conn, $s)  { return $conn->real_escape_string($s); }
-function like($conn, $s) { return '%'. $conn->real_escape_string($s) .'%'; }
-
-$fileResult = null;
-if ($scope !== 'users') {
-    $where = [];
-
-    if ($q !== '') {
-        $like = like($conn, $q);
-        $where[] = "(f.name LIKE '$like' OR f.description LIKE '$like' OR f.subject LIKE '$like' OR f.file_name LIKE '$like')";
-    }
-    if ($type !== 'all') {
-        $ext = esc($conn, $type);
-        $where[] = "LOWER(f.file_name) LIKE '%.{$ext}'";
+    if ($isLoggedIn) {
+        $uid = (int)$_COOKIE['id'];
+        // username-t is kérjük le, hogy navbar/hero tudja használni
+        if ($res = $conn->query("SELECT id, username, firstname FROM users WHERE id = $uid LIMIT 1")) {
+            $user = $res->fetch_assoc();
+        }
+        if ($nf = $conn->query("SELECT id FROM notifys WHERE toid = $uid AND readed = 0")) {
+            $notify_number = $nf->num_rows;
+        }
     }
 
-    $whereSql    = $where ? ('WHERE '.implode(' AND ', $where)) : '';
-    $joinRatings = '';
-    $selectExtra = '';
-    $groupSql    = '';
-    $orderSql    = 'ORDER BY f.id DESC';
+    $q = trim($_GET['q'] ?? '');
+    $scope = strtolower($_GET['scope'] ?? 'all');
+    $type = strtolower($_GET['type']  ?? 'all');
+    $sort = strtolower($_GET['sort']  ?? 'new');
 
-    if ($sort === 'old') {
-        $orderSql = 'ORDER BY f.id ASC';
-    } elseif ($sort === 'top') {
-        $joinRatings = "LEFT JOIN ratings r ON f.id = r.file_id";
-        $selectExtra = ", IFNULL(AVG(r.rating),0) AS avg_rating, COUNT(r.id) AS rating_count";
-        $groupSql    = "GROUP BY f.id";
-        $orderSql    = "ORDER BY avg_rating DESC, rating_count DESC, f.id DESC";
-    }
+    if (!in_array($scope, ['files','users','all'], true)) $scope = 'all';
+    if (!in_array($type,  ['all','pdf','mp4','docx'], true)) $type = 'all';
+    if (!in_array($sort,  ['new','old','top'], true)) $sort = 'new';
 
-    $sqlFiles = "
-            SELECT f.* $selectExtra
-            FROM files f
-            $joinRatings
-            $whereSql
-            $groupSql
-            $orderSql
-            LIMIT 60
-        ";
-    $fileResult = $conn->query($sqlFiles);
-}
+    function esc($conn, $s)  { return $conn->real_escape_string($s); }
+    function like($conn, $s) { return '%'. $conn->real_escape_string($s) .'%'; }
 
-$userResult = null;
-if ($scope !== 'files') {
-    $userWhere  = '';
-    $orderUsers = 'ORDER BY u.username ASC';
+    $fileResult = null;
+    if ($scope !== 'users') {
+        $where = [];
 
-    if ($q !== '') {
-        $like  = like($conn, $q);
-        $start = esc($conn, $q) . '%';
-        $userWhere = "
-                WHERE
-                    u.username  LIKE '$like'
-                    OR u.firstname LIKE '$like'
-                    OR u.lastname  LIKE '$like'
-                    OR CONCAT(u.lastname,  ' ', u.firstname) LIKE '$like'
-                    OR CONCAT(u.firstname, ' ', u.lastname)  LIKE '$like'
+        if ($q !== '') {
+            $like = like($conn, $q);
+            $where[] = "(f.name LIKE '$like' OR f.description LIKE '$like' OR f.subject LIKE '$like' OR f.file_name LIKE '$like')";
+        }
+        if ($type !== 'all') {
+            $ext = esc($conn, $type);
+            $where[] = "LOWER(f.file_name) LIKE '%.{$ext}'";
+        }
+
+        $whereSql = $where ? ('WHERE '.implode(' AND ', $where)) : '';
+        $joinRatings = '';
+        $selectExtra = '';
+        $groupSql = '';
+        $orderSql = 'ORDER BY f.id DESC';
+
+        if ($sort === 'old') {
+            $orderSql = 'ORDER BY f.id ASC';
+        } elseif ($sort === 'top') {
+            $joinRatings = "LEFT JOIN ratings r ON f.id = r.file_id";
+            $selectExtra = ", IFNULL(AVG(r.rating),0) AS avg_rating, COUNT(r.id) AS rating_count";
+            $groupSql = "GROUP BY f.id";
+            $orderSql = "ORDER BY avg_rating DESC, rating_count DESC, f.id DESC";
+        }
+
+        $sqlFiles = "
+                SELECT f.* $selectExtra
+                FROM files f
+                $joinRatings
+                $whereSql
+                $groupSql
+                $orderSql
+                LIMIT 60
             ";
-        $orderUsers = "
-                ORDER BY
-                    (CASE
-                        WHEN u.username  LIKE '$start' THEN 0
-                        WHEN u.firstname LIKE '$start' THEN 1
-                        WHEN u.lastname  LIKE '$start' THEN 2
-                        ELSE 3
-                     END),
-                    u.username ASC
-            ";
+        $fileResult = $conn->query($sqlFiles);
     }
 
-    $sqlUsers = "
-            SELECT u.id, u.firstname, u.lastname, u.username, u.profile_picture
-            FROM users u
-            $userWhere
-            $orderUsers
-            LIMIT 50
-        ";
-    $userResult = $conn->query($sqlUsers);
-}
+    $userResult = null;
+    if ($scope !== 'files') {
+        $userWhere  = '';
+        $orderUsers = 'ORDER BY u.username ASC';
 
-require "assets/php/lang.php";
+        if ($q !== '') {
+            $like  = like($conn, $q);
+            $start = esc($conn, $q) . '%';
+            $userWhere = "
+                    WHERE
+                        u.username  LIKE '$like'
+                        OR u.firstname LIKE '$like'
+                        OR u.lastname  LIKE '$like'
+                        OR CONCAT(u.lastname,  ' ', u.firstname) LIKE '$like'
+                        OR CONCAT(u.firstname, ' ', u.lastname)  LIKE '$like'
+                ";
+            $orderUsers = "
+                    ORDER BY
+                        (CASE
+                            WHEN u.username  LIKE '$start' THEN 0
+                            WHEN u.firstname LIKE '$start' THEN 1
+                            WHEN u.lastname  LIKE '$start' THEN 2
+                            ELSE 3
+                        END),
+                        u.username ASC
+                ";
+        }
+
+        $sqlUsers = "
+                SELECT u.id, u.firstname, u.lastname, u.username, u.profile_picture
+                FROM users u
+                $userWhere
+                $orderUsers
+                LIMIT 50
+            ";
+        $userResult = $conn->query($sqlUsers);
+    }
+
+    require "assets/php/lang.php";
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">
@@ -118,7 +120,7 @@ require "assets/php/lang.php";
     <meta name="author" content="Baranyai Norbert, Csontos Kincső, Szekeres Levente">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
-    <link rel="stylesheet" href="assets/css/styles.aurora.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js" defer></script>
 </head>
@@ -251,7 +253,7 @@ require "assets/php/lang.php";
                 }
                 $username  = htmlspecialchars($usernameRaw);
 
-                $ext       = strtolower(pathinfo($f['file_name'], PATHINFO_EXTENSION));
+                $ext = strtolower(pathinfo($f['file_name'], PATHINFO_EXTENSION));
                 $user_dir  = "users/" . ($uploader['username'] ?? '') . "/";
                 $safe_path = $user_dir . $f['file_name'];
                 ?>

@@ -1,38 +1,52 @@
 <?php
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
     $supported_langs = ['hu', 'en', 'de'];
 
     if (isset($_GET['lang']) && in_array($_GET['lang'], $supported_langs, true)) {
-        $_SESSION['lang'] = $_GET['lang'];
+        $lang = $_GET['lang'];
+        $_SESSION['lang'] = $lang;
         if (!headers_sent()) {
-            setcookie('lang', $_GET['lang'], time() + 60*60*24*30, '/');
+            setcookie('lang', $lang, time() + 60*60*24*30, '/');
+        }
+    } else {
+        if (isset($_SESSION['lang']) && in_array($_SESSION['lang'], $supported_langs, true)) {
+            $lang = $_SESSION['lang'];
+        } elseif (isset($_COOKIE['lang']) && in_array($_COOKIE['lang'], $supported_langs, true)) {
+            $lang = $_COOKIE['lang'];
+        } else {
+            $lang = 'hu';
         }
     }
 
-    $lang = $_SESSION['lang'] ?? ($_COOKIE['lang'] ?? 'hu');
     if (!in_array($lang, $supported_langs, true)) {
         $lang = 'hu';
     }
 
-    if (isset($user['language']) && in_array($user['language'], $supported_langs, true)) {
-        $lang = $user['language'];
-    }
-
     $translations = [];
 
-    $sql = $conn->query(
-        "SELECT t_key, text FROM translations WHERE lang_code = '" .
-        $conn->real_escape_string($lang) . "'"
-    );
-    while ($row = $sql->fetch_assoc()) {
-        $translations[$row['t_key']] = $row['text'];
+    if (!isset($conn)) {
+        return;
+    }
+
+    if ($stmt = $conn->prepare("SELECT t_key, text FROM translations WHERE lang_code = ?")) {
+        $stmt->bind_param('s', $lang);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            $translations[$row['t_key']] = $row['text'];
+        }
+
+        $stmt->close();
     }
 
     if (!function_exists('t')) {
-        function t(string $key, string $fallback = ''): string {
+        function t(string $key): string
+        {
             global $translations;
-            if (isset($translations[$key])) {
-                return $translations[$key];
-            }
-            return $fallback !== '' ? $fallback : $key;
+            return $translations[$key] ?? $key;
         }
     }

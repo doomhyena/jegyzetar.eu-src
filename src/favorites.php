@@ -1,7 +1,8 @@
 <?php
 // norbi: kedvenc jegyzetek megjelenítése
-require "assets/php/db.php";
-require "assets/php/lang.php";
+require_once "assets/php/db.php";
+require_once "assets/php/lang.php";
+require_once 'assets/php/functions.php';
 
 if (!isset($_COOKIE['id'])) {
     header("Location: reglog.php");
@@ -45,7 +46,7 @@ while($sor = $talalt_sorok->fetch_assoc()){
     <meta name="author" content="Baranyai Norbert, Csontos Kincső, Szekeres Levente">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
-    <link rel="stylesheet" href="assets/css/styles.aurora.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js" defer></script>
 </head>
