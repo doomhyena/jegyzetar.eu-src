@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 23, 2025 at 11:02 AM
+-- Generation Time: Dec 01, 2025 at 02:26 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,28 @@ SET time_zone = "+00:00";
 --
 -- Database: `jegyzetar`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `2fa_codes`
+--
+
+CREATE TABLE `2fa_codes` (
+  `id` int(11) NOT NULL,
+  `userid` int(11) NOT NULL,
+  `code` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+
+--
+-- Dumping data for table `2fa_codes`
+--
+
+INSERT INTO `2fa_codes` (`id`, `userid`, `code`) VALUES
+(1, 5, 16126),
+(6, 7, 93182),
+(8, 7, 28093),
+(9, 7, 95939);
 
 -- --------------------------------------------------------
 
@@ -1494,11 +1516,18 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `lastname`, `firstname`, `username`, `birthdate`, `gender`, `email`, `profile_picture`, `password`, `security_question`, `security_answer`, `admin`, `registration_date`, `language`, `oauth_provider`, `oauth_sub`, `email_verified`) VALUES
 (5, 'valaki', 'valaki', 'valaki', '2025-10-28', 'male', 'valaki@gmail.com', NULL, '$2y$10$gBY/EIljW0wJAHBRWtnl0OG66GQoHTqX8U7o4TIBf1ZVIP9I9iaqW', 'Mi a születési városod?', 'valaki', 0, '2025-11-23 10:25:00', 'hu', NULL, NULL, 0),
-(6, 'valaki', 'valaki', 'valaki1', '2025-10-16', 'male', 'valaki2@gmail.com', NULL, '$2y$10$kJZLwf6eO8L2Cg8ZBvOxeO2Tjon5sLlrjj1hjhWL5ZBNBSeg7lhvG', 'Mi volt az első háziállatod neve?', 'valaki', 0, '2025-11-23 10:28:31', 'hu', NULL, NULL, 0);
+(6, 'valaki', 'valaki', 'valaki1', '2025-10-16', 'male', 'valaki2@gmail.com', NULL, '$2y$10$kJZLwf6eO8L2Cg8ZBvOxeO2Tjon5sLlrjj1hjhWL5ZBNBSeg7lhvG', 'Mi volt az első háziállatod neve?', 'valaki', 0, '2025-11-23 10:28:31', 'hu', NULL, NULL, 0),
+(7, 'ceci', 'ceci', 'ceci', '2025-10-30', 'male', 'baranyinorbert13@gmail.com', NULL, '$2y$10$1nYRpHpSStOOtzKy4hcb3ebsfODubkGTiN.QFox2KK.uHMYePNn3S', 'Mi az édesanyád leánykori neve?', 'ceci', 0, '0000-00-00 00:00:00', 'hu', NULL, NULL, 0);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `2fa_codes`
+--
+ALTER TABLE `2fa_codes`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `favorites`
@@ -1523,10 +1552,16 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `2fa_codes`
+--
+ALTER TABLE `2fa_codes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
 -- AUTO_INCREMENT for table `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `files`
@@ -1538,7 +1573,7 @@ ALTER TABLE `files`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

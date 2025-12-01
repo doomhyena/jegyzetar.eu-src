@@ -46,6 +46,29 @@ Changelog by: Neved
 ---
 
 
+## [1.3.1]  - 2025-01-12
+
+### Added
+#### • mail-2fa.php
+- Sikeres bejelentkezés után ide vezet át,
+- Küld egy emailt a felhasználónak egy kóddal.
+- Ha ez sikeresen megtörtént akkor a 2fa.php-ra vezet át
+#### • 2fa.php
+- Input field ahova kódot kell irni
+- Sikeres kétlépcsős azonosito kód beirására után index.php-ra vezet át
+#### • jegyzetar.sql
+- uj tabla: 2fa_codes (id, userid, code)
+- itt tarolja a mail-2fa-ba generalt kodokat, userid-val egyutt
+
+### Changed
+#### • reglog.php
+- Sikeres bejelentkezes után a mail-2fa.php-ra vezet át az index.php helyett
+
+Changelog by: Norbi
+
+---
+
+
 ## [1.3.0]  - 2025-11-25
 
 ### Added
