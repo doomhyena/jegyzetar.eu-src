@@ -34,6 +34,6 @@ Ez a projekt saját projektmunkás licensz alatt áll. A forráskód és a dokum
 
 **Jegyzetár fejlesztőcsapat**
 
-- Baranyai Norbert
+- Baranyi Norbert
 - Csontos Kincső Anasztázia
 - Szekeres Levente

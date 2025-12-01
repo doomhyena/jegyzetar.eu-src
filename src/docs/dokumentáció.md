@@ -9,7 +9,7 @@
 Dokumentáció
 
 Készítette:<br>
-Barannyai Norbert <br>
+Baranyi Norbert <br>
 Csontos Kincső <br>
 Szekeres Levente<br>
 
@@ -65,6 +65,7 @@ Szekeres Levente<br>
     - 8.5. [Gamifikáció](#85-gamifikáció)
     - 8.6. [Mobil Applikáció](#86-mobil-applikáció)
     - 8.7. [Asztali Alkalmazás](#87-asztali-alkalmazás)
+    - 8.8. [Appendix](#88-appendix)
 
 9. [Ki mit készített?](#9-ki-mit-készített?)
     - 9.1. [Baranyi Norbert](#91-baranyi-norbert)
@@ -130,6 +131,16 @@ A Jegyzetár rendszer az alábbi kulcsfunkciókat biztosítja:
 
 - Admin felület a tartalmak, felhasználók és kategóriák kezeléséhez
 - Feltöltések jelentése és moderálása
+    - Admin eszközök kiterjesztése: Külön felület az egyedi profil CSS kérések kezelésére (jóváhagyás / elutasítás / archiválás), valamint a felhasználók és feltöltések részletes kezelése (törlés, szerkesztés, moderation logs).
+
+### Újabb (2025/2) funkciók és fejlesztések
+
+- Profil-onkénti egyedi CSS: A felhasználók beadhatnak egyedi CSS kérést a profiljuk vizuális testreszabására. A kért CSS a profiloldalon kliens-oldali előnézetként megtekinthető, de ténylegesen csak admin jóváhagyás után élesedik. Az előnézet ideiglenes módosításokat alkalmaz és automatikusan eltávolítja a nem engedélyezett, vagy a szerkezetet szétszedő stílusokat.
+- Admin jóváhagyási felület: Az admin felületen a beérkező egyedi CSS kérések átnézhetők, jóváhagyhatók vagy elutasíthatók. A jóváhagyás után az elfogadott CSS inline bejegyzésként kerül a profilba, a korábbi megjegyzések archiválódnak.
+- Fordítási rendszer finomhangolása: A fordítási kulcsok mostantól adatbázisban vannak tárolva, és a rendszer automatikusan létrehozza a hiányzó kulcsokat az aktív nyelvekhez, így könnyebben karbantartható a honlap nyelvi tartalma.
+- SQL import & seed workflow: Új eszközök a dump-ok és fordítások takarítására (duplikált bejegyzések eltávolítása, `ON DUPLICATE KEY` használata) — lásd a fejlesztői szekciót és a `assets/sql/scripts` mappát (pl. `clean_translations.py`, `repair_translations.sql`), melyek segítenek a hibamentes importban.
+- Biztonsági és stabilitási fejlesztések: Az SQL lekérdezések és form-kezelések jobb sanitizációja (prepared statements: `db_prepared`) és a duplikált include hibák elkerülése a `require_once` + `function_exists` kombináció gyakorlati bevezetésével.
+
 
 ### 1.3. Technológiai Stack
 
@@ -223,6 +234,51 @@ A Jegyzetár egy háromrétegű architektúrát követ:
     - `content` text NOT NULL,
     - `sent_at` date NOT NULL DEFAULT current_timestamp()
 
+7. ratings
+    - `id` (INT, PK, AUTO_INCREMENT)
+    - `file_id` (INT, FK → files.id)
+    - `user_id` (INT, FK → users.id)
+    - `rating` (TINYINT, 1-5)
+    - `created_at` (DATETIME DEFAULT current_timestamp())
+    - `updated_at` (DATETIME DEFAULT current_timestamp() ON UPDATE current_timestamp())
+
+8. favorites
+    - `id` (INT, PK, AUTO_INCREMENT)
+    - `file_id` (INT, FK → files.id)
+    - `user_id` (INT, FK → users.id)
+
+9. user_badges
+    - `id` (INT, PK, AUTO_INCREMENT)
+    - `user_id` (INT, FK → users.id)
+    - `badge_id` (INT, FK → badges.id)
+    - `granted_by` (INT, FK → users.id)
+    - `granted_at` (DATETIME)
+
+10. translations
+    - `id` (INT, PK, AUTO_INCREMENT)
+    - `t_key` (VARCHAR(100))
+    - `lang_code` (VARCHAR(5))
+    - `text` (VARCHAR(255))
+
+11. user_custom_css_requests
+    - `id` (INT, PK, AUTO_INCREMENT)
+    - `user_id` (INT, FK → users.id)
+    - `css` (MEDIUMTEXT)
+    - `status` ENUM('pending','approved','rejected')
+    - `created_at` (DATETIME DEFAULT current_timestamp())
+    - `reviewed_at` (DATETIME NULL)
+    - `reviewed_by` (INT, FK → users.id)
+
+12. user_custom_css_archive
+    - `id` (INT, PK, AUTO_INCREMENT)
+    - `original_request_id` (INT)
+    - `user_id` (INT, FK → users.id)
+    - `css` (MEDIUMTEXT)
+    - `status` (ENUM('pending','approved','rejected'))
+    - `created_at` (DATETIME)
+    - `reviewed_at` (DATETIME NULL)
+    - `reviewed_by` (INT, FK → users.id)
+
 ```
 
 
@@ -234,6 +290,12 @@ A Jegyzetár felhasználói felülete egyszerű és intuitív, a következő sze
 - **Egyszerű navigáció**: Könnyen elérhető funkciók és tiszta menürendszer.
 - **Konzisztens stílus**: Azonos színpaletta és tipográfia az egész alkalmazásban.
 
+#### Frontend kiegészítések 
+
+- A profiloldalhoz egy kliensoldali CSS előnézeti funkció került be: a felhasználó `profile.php` oldalon megadhat, és előnézhet egyedi CSS beállításokat. A preview csak kliensoldali stílus-injektálást használ és nem menti el automatikusan az adatbázisba.
+- Biztonsági frontend szabályok: a preview megakadályozza a kedvezőtlen elrendezés-befolyásolást (jobboldali oszlop eltakarása preview alatt), illetve van egy `SAFE_BG_RULE` ami megakadályozza a háttér pattern (tiling) fokozott felvillanását.
+- Üres CSS beküldésének megelőzése: kliens-oldali validáció, toast üzenet és szerveroldali fallback letakarítás, visszaállítási jelzés a felhasználó számára.
+
 ## 4. Backend Architektúra
 
 ### 4.1. Szolgáltatások
@@ -243,6 +305,8 @@ A Jegyzetár felhasználói felülete egyszerű és intuitív, a következő sze
 
 ### 4.2. Adatbázis Kapcsolat
 A PHP mysqli-t használjuk az adatbázis műveletek végrehajtására.
+
+- Security & prepared statements: A kód nagy részét átdolgoztuk, hogy a `db_prepared($conn, $sql, $types, $params)` wrapper-t használjuk, amely a mysqli prepared statements használatát biztosítja. Ezzel jelentősen csökkent a kockázata az SQL injekcióknak, és egységesebbé vált a lekérdezések kezelése.
 
 ### 4.3. Fájlkezelés
 A feltöltött fájlokat a szerveren tároljuk, és a fájlokhoz tartozó metaadatokat az adatbázisban rögzítjük.
@@ -270,14 +334,16 @@ A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját hasz
 #### 6.1. Telepítési Útmutató
 
 ##### Előfeltételek
-    - XAMPP vagy más helyi szerver PHP és MySQL támogatással.
-    - Egy webböngésző.
+- XAMPP vagy más helyi szerver PHP és MySQL támogatással.
+- Egy webböngésző.
 
 ```bash
 1. Klónozd le a projekt fájljait (pl. `git clone https://github.com/doomhyena/jegyzetar.eu-src.git`) a helyi szerver gyökérkönyvtárába (pl. `c:/xampp/htdocs/Jegyzetár-Dev`).
 2. Importáld az adatbázist:
 - Nyisd meg a phpMyAdmin-t.
-- Importáld a `jegyzetar.sql` fájlt az `assets/sql/` mappából.
+- Importáld a `jegyzetar.sql` fájlt az `assets/sql/` mappából. (Ajánlott: ha fennáll a duplikált fordítások vagy import hibák kockázata, használd a `jegyzetar_clean.sql` fájlt, amely előre tisztítja a translations INSERT blokkot, vagy futtasd előbb a `repair_translations.sql`-t, majd importáld a seed adatokat.)
+  
+    - Ha a dump nagy és összetett, akkor javasolt először importálni a séma CREATE TABLE részeket és az ALTER TABLE kulcsokat, majd a seed INSERT blokkokat, így elkerülve a `UNIQUE` index beállítása előtti duplikált sorok beszúrását.
 3. Konfiguráld az adatbázis kapcsolatot:
 - Nyisd meg a `db.php` fájlt.
 - Győződj meg róla, hogy az adatbázis hitelesítési adatok megfelelnek a helyi szerver beállításainak.
@@ -304,6 +370,12 @@ A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját hasz
 
 4. Profilkezelés
     1. Navigálj a `profile.php` oldalra.
+    2. Profil testreszabása — Egyedi CSS:
+        1. A profilbeállításoknál található egy `CSS kód` mező, ahova saját profil CSS-t adhatsz meg.
+        2. Használhatod a `preview` gombot, amely kliens oldali élő előnézetet biztosít (a böngészőbe beágyazott stílus kerül alkalmazásra, a változás csak előnézet, és nem mentődik a szerverre automatikusan).
+        3. A szerkesztett CSS beküldéséhez használd a `Egyedi CSS elküldése` gombot — ez a kérés az admin felületre kerül jóváhagyásra.
+        4. Ha üresen küldöd be (nem ajánlott), a rendszer figyelmeztet (client-side validáció), valamint szerver oldali ellenőrzés is megakadályozhatja az üres kérést, és visszaállítja az előző állapotot.
+        5. Az admin jóváhagyást követően az egyedi CSS inline jellegű bejegyzésként fog megjelenni a profilnál — a rendszer archiválja az előző kérelmeket.
     2. Tekintsd meg feltöltött fájljaidat, és tölts fel profilképet.
 
 4. Fájlok Letöltése
@@ -409,8 +481,30 @@ Jegyzetár-Dev/
 ├── reglog.php                              # Bejelentkezést és a regisztrációt kezelő fájl
 ├── search.php                              # Keresést kezelő fájl
 └── upload.php                              # Feltöltést kezelő fájl
-
 ```
+
+### 7.4. Fejlesztői eszközök, script-ek és refaktorok
+
+- `assets/php/functions.php` - Központi helyre került a `db_prepared()` segédfüggvény, ami a mysqli prepared statements használatát segíti és csökkenti az SQL injection kockázatát. A fájlban `function_exists` ellenőrzésekkel védjük a többszörös deklarációt.
+ - Include és duplikációs védelmek: Az include/require helyeken mostantól `require_once` használata ajánlott, és a központi függvényeknél `function_exists`-es feltételek alkalmazása segít elkerülni fatal hibákat többszörös include esetén.
+- `assets/php/lang.php` - Feltölti és betölti az adatbázisban tárolt fordításokat (i18n). Egy beépített rutin gondoskodik arról, hogy a hiányzó kulcsok bekerüljenek az adatbázisba a támogatott nyelvekhez, így a `t()` segédfüggvény mindig vissza tud adni fordítást a kulcshoz.
+- `assets/js/script.js` - Új kliensoldali funkciók: a profil egyedi CSS előnézete, preview bekapcsolás/letiltás, jobb oszlop rejtése preview közben, és kliens oldali validálás (pl. üres CSS megelőzése).
+ - `assets/php/functions.php` - A fejlesztés során bevezetett `Message()` segédfüggvény a felhasználói üzenetek központi kiírására szolgál; a korábbi `echo "<script>alert('...')";` szerkezeteket érdemes ezzel kiváltani a konzisztens, könnyebben tesztelhető és lokalizálható felhasználói értesítésekhez.
+
+Fejlesztői script-ek az `assets/sql/scripts/` mappában:
+
+- `clean_translations.py` — Python script, ami a nagy `translations` INSERT tömbből kiszedi a duplikált (t_key, lang_code) bejegyzéseket, és előállít egy `translations_clean.sql` fájlt, amely csak egyedi fordításokat tartalmaz.
+- `replace_translations_in_dump.py` — Segédfájl, amellyel a `jegyzetar.sql` dumpból lecseréljük a translations beszúrási blokkot a `translations_clean.sql` tartalmára, és előállítjuk a `jegyzetar_clean.sql` fájlt.
+- `repair_translations.sql` — SQL script, amely a már létező adatbázison belül végrehajtható módon:
+    1) biztonsági mentést készít a `translations` tábláról (`translations_backup`),
+    2) törli a duplikált bejegyzéseket (például megtartja a `MIN(id)` vagy `MAX(id)` bejegyzéseket),
+    3) létrehozza a `UNIQUE` indexet `t_key,lang_code` mezőkre.
+
+- Import javaslat: Ha gyakran importálnak db dump-ot, importálják először a séma CREATE TABLE részt, majd az `ALTER TABLE`-okat (kulcsokkal), és végül a seed adatokat (INSERT), vagy használják a `jegyzetar_clean.sql` fájlt amely előre eltávolítja a duplikátumokat.
+
+- A `profile.php` oldalhoz kapcsolódó fordítási kulcsok (HU/EN/DE) seeding-je `ID = 1543`-tól készült el. Amennyiben a roll-out során seed fájlokat használunk, ezek az értékek biztosítják a következetes fordítási kulcstartományt.
+
+Megjegyzés: A `db_prepared` használata erősen ajánlott az SQL lekérdezésekhez; ahol van rá lehetőség, a 2025-es refaktor során a fájlok és komponensek `db_prepared()`-et használnak.
 
 ## 8. Jövőbeli Tervek
 #### 8.1. Felhasználói fiók bővítések
@@ -520,6 +614,17 @@ A platform funkcionalitásának bővítése érdekében egy asztali alkalmazás 
 - Integráció a rendszer értesítési szolgáltatásaival
 
 Ezek a fejlesztések jelentősen növelnék a Jegyzetár elérhetőségét és felhasználói élményét minden platformon.
+
+## 8.8. Appendix
+
+Ez az Appendix összefoglalja a 2025/26-os fejlesztési munkák legfontosabb változásait, azok hatását és a hozzájuk kapcsolódó praktikus megjegyzéseket.
+
+- Profil egyedi CSS kérések: bevezetésre került a felhasználói CSS kérelmek kezelése, amely a profil felületén megadható, de csak admin jóváhagyása után érvényesül. Az előnézet a felhasználói élményt javítja és nem ment a szerverre automatikusan.
+- Admin jóváhagyási UI: Az admin panelben külön táblában listázhatók és jóváhagyhatók a CSS kérések; az elfogadott CSS archiválható és az előző állapot is visszaállítható.
+- Frontend preview & safe background rules: A preview kliens oldali (style tag injektálás), a SAFE_BG_RULE szabály megakadályozza a background képek kellemetlen ismétlődését, és a preview idején a jobboldali panel rejtésre kerül, hogy az előnézet ne rontsa el az oldalt.
+- Lokalizációs módosítások: A `t()` segédfüggvény és `lang.php` központi megoldással egy adatbázis-alapú fordítási rendszer lett bevezetve. A fordítások hiányzó kulcsait automatikusan lehet seed-elni. Fordítási kulcsok a `profiles`-hoz a 1543-as ID-tól készültek.
+- SQL dump & seed eszközök: Hozzáadtuk a `clean_translations.py`, `translations_clean.sql`, `replace_translations_in_dump.py`, `repair_translations.sql` eszközöket, amelyek a dump-ok importjának biztonságát növelik (duplikált bejegyzések eltávolítása, ON DUPLICATE használata, táblák import sorrendje). A `repair_translations.sql` script automatikus backup-ot készít, majd törli a duplikátumokat és létrehozza a megfelelő UNIQUE indexet.
+- Biztonsági javítások: A kód refaktorálásával `db_prepared()` használata javasolt a lekérdezéseknél, `require_once` és `function_exists` védelem bevezetésre került, a `Message()` segédfüggvény javítja az értesítések konzisztenciáját.
 
 ## 9. Ki mit készített?
 

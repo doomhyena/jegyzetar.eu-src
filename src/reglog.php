@@ -1,8 +1,9 @@
 <?php
     session_start();
 
-    require "assets/php/db.php";
+    require_once "assets/php/db.php";
     require_once "assets/php/lang.php";
+    require_once 'assets/php/functions.php';
 
     include 'assets/php/navbar.php';
 
@@ -70,7 +71,7 @@
                     $gender_esc = $conn->real_escape_string($gender);
                     $sec_q_esc = $conn->real_escape_string($security_question);
                     $sec_a_esc = $conn->real_escape_string($security_answer);
-                    $regdate_esx  = $conn->real_escape_string($registration_date);
+                    $regdate_esc  = $conn->real_escape_string($registration_date);
                     $password_esc = $conn->real_escape_string($titkositott_jelszo);
 
                     $sql = "
@@ -82,6 +83,12 @@
                     ";
 
                     if ($conn->query($sql)) {
+                        // If insertion succeeded, ensure we have the assigned user id
+                        $newUserId = (int)$conn->insert_id;
+                        if ($newUserId > 0) {
+                            // Optionally log the user in automatically by setting the cookie
+                            setcookie("id", $newUserId, time() + 3600, "/");
+                        }
                         $folder = getcwd();
                         $path   = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
                         if (!is_dir($path) && mkdir($path, 0777, true)) {
@@ -146,7 +153,7 @@
     <meta name='author' content='Baranyai Norbert, Csontos Kincső, Szekeres Levente'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
-    <link rel="stylesheet" href="assets/css/styles.aurora.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
