@@ -45,6 +45,60 @@ Changelog by: Neved
 
 ---
 
+## [1.3.3] – 2025-12-02
+
+### Added
+
+#### • group.php
+
+* Teljes csoportnézet implementálva: tagsági állapotok (owner / accepted / pending) kezelése.
+* Csoporton belüli jegyzetlista (elfogadott + függőben lévő) megjelenítése.
+* Tulajdonosi moderációs műveletek: csatlakozási kérelmek elfogadása / elutasítása, tagkezelés.
+* Csoportleírás, privát állapot és taglista megjelenítése.
+* Upload funkció csoportjegyzetekhez, jogosultságkezeléssel.
+
+#### • groups.php
+
+* Összes csoport listázása grid nézetben.
+* Privát / nyilvános csoport státusz badge-ek.
+* Navigáció az egyes csoportok részleteihez.
+* „Új csoport létrehozása” CTA beépítése.
+
+#### • create_group.php
+
+* Új tanulócsoport létrehozása (név + leírás + privát állapot).
+* Automatikus tulajdonosi jogosultság beállítása a létrehozó usernek.
+* Backend validáció + adatbázisba írás.
+
+#### • group_init.php
+
+* Csoportbetöltés központi inicializációja.
+* Felhasználó tagsági státuszának (pending / accepted / owner) felismerése.
+* Jogosultsági flag-ek: `$aktualis_felhasznalo_tag`, `$aktualis_felhasznalo_pending`, `$aktualis_felhasznalo_tulaj`.
+
+### Changed
+
+#### • search.php
+
+* Csoportos jegyzetek integrálása a keresési eredményekbe.
+* Privát csoport tartalmainak elrejtése nem tagok elől.
+
+#### • notify.php
+
+* Értesítési rendszer bővítése csoportos eseményekkel (csatlakozási kérelem, elfogadás).
+* Olvasatlan értesítések számának pontosabb lekérése.
+
+#### • navbar.php
+
+* Csoport funkció integrálása a navigációba.
+* Értesítési ikon frissítése a csoportműveletekhez tartozó értesítések miatt.
+* Reszponzív viselkedés javítása mobil nézetben.
+
+Changelog by: Szekeres Levente
+
+---
+
+
 ## [1.3.2] - 2025-12-01
 
 ### Added
@@ -119,7 +173,6 @@ Changelog by: Csontos Kincső Anasztázia
 Changelog by: Norbi
 
 ---
-
 
 ## [1.3.0]  - 2025-11-25
 

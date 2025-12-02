@@ -16,7 +16,6 @@
     //norbi: 2fa
     require "assets/php/db.php";
     require_once "assets/php/lang.php";
-    session_start();
 
     if (!isset($_SESSION['tries'])) {
         $_SESSION['tries'] = 0;

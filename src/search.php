@@ -1,114 +1,181 @@
 <?php
-    require_once "assets/php/db.php";
-    require_once "assets/php/lang.php";
-    require_once 'assets/php/functions.php';
+require "assets/php/db.php";
 
-    $isLoggedIn = isset($_COOKIE['id']);
-    $user = null;
-    $notify_number = 0;
+$isLoggedIn = isset($_COOKIE['id']);
+$user = null;
+$notify_number = 0;
 
-    if ($isLoggedIn) {
-        $uid = (int)$_COOKIE['id'];
-        // username-t is kérjük le, hogy navbar/hero tudja használni
-        if ($res = $conn->query("SELECT id, username, firstname FROM users WHERE id = $uid LIMIT 1")) {
-            $user = $res->fetch_assoc();
-        }
-        if ($nf = $conn->query("SELECT id FROM notifys WHERE toid = $uid AND readed = 0")) {
-            $notify_number = $nf->num_rows;
+if ($isLoggedIn) {
+    $uid = (int)$_COOKIE['id'];
+    // username-t is kérjük le, hogy navbar/hero tudja használni
+    if ($res = $conn->query("SELECT id, username, firstname FROM users WHERE id = $uid LIMIT 1")) {
+        $user = $res->fetch_assoc();
+    }
+    if ($nf = $conn->query("SELECT id FROM notifys WHERE toid = $uid AND readed = 0")) {
+        $notify_number = $nf->num_rows;
+    }
+}
+
+$en_csoportjaim = array();
+
+if ($isLoggedIn) {
+    $csoport_lekerdezes = $conn->query("
+        SELECT id, name 
+        FROM groups 
+        WHERE owner_id = $uid
+        ORDER BY name ASC
+    ");
+
+    if ($csoport_lekerdezes && $csoport_lekerdezes->num_rows > 0) {
+        while ($egy_csoport = $csoport_lekerdezes->fetch_assoc()) {
+            $en_csoportjaim[] = $egy_csoport;
         }
     }
+}
 
-    $q = trim($_GET['q'] ?? '');
-    $scope = strtolower($_GET['scope'] ?? 'all');
-    $type = strtolower($_GET['type']  ?? 'all');
-    $sort = strtolower($_GET['sort']  ?? 'new');
+if (isset($_POST['tag_felvetele']) && $isLoggedIn) {
 
-    if (!in_array($scope, ['files','users','all'], true)) $scope = 'all';
-    if (!in_array($type,  ['all','pdf','mp4','docx'], true)) $type = 'all';
-    if (!in_array($sort,  ['new','old','top'], true)) $sort = 'new';
+    $meghivott_felhasznalo_id = $_POST['felhasznalo_id'];
+    $kivalasztott_csoport_id  = $_POST['csoport_id'];
 
-    function esc($conn, $s)  { return $conn->real_escape_string($s); }
-    function like($conn, $s) { return '%'. $conn->real_escape_string($s) .'%'; }
+    if ($meghivott_felhasznalo_id <= 0 || $kivalasztott_csoport_id <= 0) {
 
-    $fileResult = null;
-    if ($scope !== 'users') {
-        $where = [];
+        echo "<script>alert('Hibás csoport vagy felhasználó.');</script>";
 
-        if ($q !== '') {
-            $like = like($conn, $q);
-            $where[] = "(f.name LIKE '$like' OR f.description LIKE '$like' OR f.subject LIKE '$like' OR f.file_name LIKE '$like')";
+    } else {
+
+        $csoport_ellenorzes = $conn->query("
+            SELECT id 
+            FROM groups 
+            WHERE id = $kivalasztott_csoport_id 
+              AND owner_id = $uid
+        ");
+
+        if (!$csoport_ellenorzes || $csoport_ellenorzes->num_rows == 0) {
+
+            echo "<script>alert('Ehhez a csoporthoz nem adhatsz hozzá tagot.');</script>";
+
+        } else {
+
+            $elozo_tagsag = $conn->query("
+                SELECT id, status 
+                FROM group_members 
+                WHERE group_id = $kivalasztott_csoport_id 
+                  AND user_id = $meghivott_felhasznalo_id
+            ");
+
+            if ($elozo_tagsag && $elozo_tagsag->num_rows > 0) {
+
+                echo "<script>alert('Ez a felhasználó már tag vagy van függőben lévő meghívója.');</script>";
+
+            } else {
+
+			$meghivo_beszur = $conn->query("
+				INSERT INTO notifys (fromid, toid, notifytype, group_id, readed)
+				VALUES ($uid, $meghivott_felhasznalo_id, 'group_invite', $kivalasztott_csoport_id, 0)
+			");
+
+                if ($meghivo_beszur) {
+                    echo "<script>alert('Meghívó elküldve a csoportba.');</script>";
+                } else {
+                    echo "<script>alert('Hiba történt a meghívó mentésekor.');</script>";
+                }
+            }
         }
-        if ($type !== 'all') {
-            $ext = esc($conn, $type);
-            $where[] = "LOWER(f.file_name) LIKE '%.{$ext}'";
-        }
+    }
+}
 
-        $whereSql = $where ? ('WHERE '.implode(' AND ', $where)) : '';
-        $joinRatings = '';
-        $selectExtra = '';
-        $groupSql = '';
-        $orderSql = 'ORDER BY f.id DESC';
+$q     = trim($_GET['q'] ?? '');
+$scope = strtolower($_GET['scope'] ?? 'all');
+$type  = strtolower($_GET['type']  ?? 'all');
+$sort  = strtolower($_GET['sort']  ?? 'new');
 
-        if ($sort === 'old') {
-            $orderSql = 'ORDER BY f.id ASC';
-        } elseif ($sort === 'top') {
-            $joinRatings = "LEFT JOIN ratings r ON f.id = r.file_id";
-            $selectExtra = ", IFNULL(AVG(r.rating),0) AS avg_rating, COUNT(r.id) AS rating_count";
-            $groupSql = "GROUP BY f.id";
-            $orderSql = "ORDER BY avg_rating DESC, rating_count DESC, f.id DESC";
-        }
+if (!in_array($scope, ['files','users','all'], true)) $scope = 'all';
+if (!in_array($type,  ['all','pdf','mp4','docx'], true)) $type = 'all';
+if (!in_array($sort,  ['new','old','top'], true)) $sort = 'new';
 
-        $sqlFiles = "
-                SELECT f.* $selectExtra
-                FROM files f
-                $joinRatings
-                $whereSql
-                $groupSql
-                $orderSql
-                LIMIT 60
+function esc($conn, $s)  { return $conn->real_escape_string($s); }
+function like($conn, $s) { return '%'. $conn->real_escape_string($s) .'%'; }
+
+$fileResult = null;
+if ($scope !== 'users') {
+    $where = [];
+
+    if ($q !== '') {
+        $like = like($conn, $q);
+        $where[] = "(f.name LIKE '$like' OR f.description LIKE '$like' OR f.subject LIKE '$like' OR f.file_name LIKE '$like')";
+    }
+    if ($type !== 'all') {
+        $ext = esc($conn, $type);
+        $where[] = "LOWER(f.file_name) LIKE '%.{$ext}'";
+    }
+
+    $whereSql    = $where ? ('WHERE '.implode(' AND ', $where)) : '';
+    $joinRatings = '';
+    $selectExtra = '';
+    $groupSql    = '';
+    $orderSql    = 'ORDER BY f.id DESC';
+
+    if ($sort === 'old') {
+        $orderSql = 'ORDER BY f.id ASC';
+    } elseif ($sort === 'top') {
+        $joinRatings = "LEFT JOIN ratings r ON f.id = r.file_id";
+        $selectExtra = ", IFNULL(AVG(r.rating),0) AS avg_rating, COUNT(r.id) AS rating_count";
+        $groupSql    = "GROUP BY f.id";
+        $orderSql    = "ORDER BY avg_rating DESC, rating_count DESC, f.id DESC";
+    }
+
+    $sqlFiles = "
+            SELECT f.* $selectExtra
+            FROM files f
+            $joinRatings
+            $whereSql
+            $groupSql
+            $orderSql
+            LIMIT 60
+        ";
+    $fileResult = $conn->query($sqlFiles);
+}
+
+$userResult = null;
+if ($scope !== 'files') {
+    $userWhere  = '';
+    $orderUsers = 'ORDER BY u.username ASC';
+
+    if ($q !== '') {
+        $like  = like($conn, $q);
+        $start = esc($conn, $q) . '%';
+        $userWhere = "
+                WHERE
+                    u.username  LIKE '$like'
+                    OR u.firstname LIKE '$like'
+                    OR u.lastname  LIKE '$like'
+                    OR CONCAT(u.lastname,  ' ', u.firstname) LIKE '$like'
+                    OR CONCAT(u.firstname, ' ', u.lastname)  LIKE '$like'
             ";
-        $fileResult = $conn->query($sqlFiles);
-    }
-
-    $userResult = null;
-    if ($scope !== 'files') {
-        $userWhere  = '';
-        $orderUsers = 'ORDER BY u.username ASC';
-
-        if ($q !== '') {
-            $like  = like($conn, $q);
-            $start = esc($conn, $q) . '%';
-            $userWhere = "
-                    WHERE
-                        u.username  LIKE '$like'
-                        OR u.firstname LIKE '$like'
-                        OR u.lastname  LIKE '$like'
-                        OR CONCAT(u.lastname,  ' ', u.firstname) LIKE '$like'
-                        OR CONCAT(u.firstname, ' ', u.lastname)  LIKE '$like'
-                ";
-            $orderUsers = "
-                    ORDER BY
-                        (CASE
-                            WHEN u.username  LIKE '$start' THEN 0
-                            WHEN u.firstname LIKE '$start' THEN 1
-                            WHEN u.lastname  LIKE '$start' THEN 2
-                            ELSE 3
-                        END),
-                        u.username ASC
-                ";
-        }
-
-        $sqlUsers = "
-                SELECT u.id, u.firstname, u.lastname, u.username, u.profile_picture
-                FROM users u
-                $userWhere
-                $orderUsers
-                LIMIT 50
+        $orderUsers = "
+                ORDER BY
+                    (CASE
+                        WHEN u.username  LIKE '$start' THEN 0
+                        WHEN u.firstname LIKE '$start' THEN 1
+                        WHEN u.lastname  LIKE '$start' THEN 2
+                        ELSE 3
+                     END),
+                    u.username ASC
             ";
-        $userResult = $conn->query($sqlUsers);
     }
 
-    require "assets/php/lang.php";
+    $sqlUsers = "
+            SELECT u.id, u.firstname, u.lastname, u.username, u.profile_picture
+            FROM users u
+            $userWhere
+            $orderUsers
+            LIMIT 50
+        ";
+    $userResult = $conn->query($sqlUsers);
+}
+
+require "assets/php/lang.php";
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">
@@ -232,6 +299,28 @@
                             <path d="M12 3v10m0 0l-4-4m4 4l4-4M4 17v3h16v-3"></path>
                         </svg>
                     </a>
+					
+					<?php
+					// bejelentkezett felhasználó ID-ja a cookie-ból
+					$bejelentkezett_id = isset($_COOKIE['id']) ? $_COOKIE['id'] : 0;
+					?>
+
+					<?php if ($isLoggedIn && count($en_csoportjaim) > 0 && $uid != $bejelentkezett_id): ?>
+						<form method="post" style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">
+						<input type="hidden" name="felhasznalo_id" value="<?= $uid ?>">
+						<select name="csoport_id" class="select" style="max-width:180px;">
+					<?php foreach ($en_csoportjaim as $egy_csoport): ?>
+						<option value="<?= $egy_csoport['id'] ?>">
+							<?= htmlspecialchars($egy_csoport['name']) ?>
+						</option>
+					<?php endforeach; ?>
+					</select>
+				<button type="submit" name="tag_felvetele" class="btn-ghost">
+					<?= t('add_to_group', 'Tag felvétele') ?>
+					</button>
+					</form>
+				<?php endif; ?>
+					
                 </article>
             <?php endwhile; ?>
         </div>
@@ -253,7 +342,7 @@
                 }
                 $username  = htmlspecialchars($usernameRaw);
 
-                $ext = strtolower(pathinfo($f['file_name'], PATHINFO_EXTENSION));
+                $ext       = strtolower(pathinfo($f['file_name'], PATHINFO_EXTENSION));
                 $user_dir  = "users/" . ($uploader['username'] ?? '') . "/";
                 $safe_path = $user_dir . $f['file_name'];
                 ?>

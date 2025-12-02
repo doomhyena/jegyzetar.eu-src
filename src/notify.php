@@ -1,8 +1,6 @@
 <?php
-    require_once "assets/php/db.php";
-    require_once "assets/php/lang.php";
-    require_once 'assets/php/functions.php';
-
+    require "assets/php/db.php";
+    require "assets/php/lang.php";
 
     if (!isset($_COOKIE['id'])) {
         header("Location: reglog.php");
@@ -16,7 +14,6 @@
     $user = $found_user ? $found_user->fetch_assoc() : null;
 
     if (!$user) {
-        // ha valami nagyon félremegy, inkább dobjunk hibát
         exit('User not found.');
     }
 
@@ -24,6 +21,60 @@
     $founded_notify = $conn->query($sql);
     $notify_number = $founded_notify ? $founded_notify->num_rows : 0;
 
+	 // ==== Csoport meghívó elfogadása ====
+    if (isset($_POST['group_invite_accept'])) {
+
+        $ertesites_id = (int)$_POST['notif_id'];
+        $csoport_id   = (int)$_POST['group_id'];
+
+        if ($csoport_id > 0) {
+
+            // létezik-e a csoport
+            $csoport_lekerdezes = $conn->query("
+                SELECT * FROM groups 
+                WHERE id = $csoport_id
+                LIMIT 1
+            ");
+
+            if ($csoport_lekerdezes && $csoport_lekerdezes->num_rows > 0) {
+
+                // benne van-e már a group_members-ben
+                $tagsag_ellenorzes = $conn->query("
+                    SELECT id 
+                    FROM group_members
+                    WHERE group_id = $csoport_id
+                      AND user_id = {$user['id']}
+                    LIMIT 1
+                ");
+
+                if (!$tagsag_ellenorzes || $tagsag_ellenorzes->num_rows == 0) {
+                    // ha még nem tag, most felvesszük
+                    $conn->query("
+                        INSERT INTO group_members (group_id, user_id, role, status)
+                        VALUES ($csoport_id, {$user['id']}, 'member', 'accepted')
+                    ");
+                }
+            }
+        }
+
+        // az értesítést töröljük
+        $conn->query("DELETE FROM notifys WHERE id = $ertesites_id");
+
+        header("Location: notify.php");
+        exit;
+    }
+
+    // ==== Csoport meghívó elutasítása ====
+    if (isset($_POST['group_invite_decline'])) {
+
+        $ertesites_id = (int)$_POST['notif_id'];
+
+        // csak töröljük az értesítést
+        $conn->query("DELETE FROM notifys WHERE id = $ertesites_id");
+
+        header("Location: notify.php");
+        exit;
+    }
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">
@@ -35,7 +86,7 @@
     <meta name='author' content='Baranyi Norbert, Csontos Kincső, Szekeres Levente'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/styles.aurora.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js"></script>
 </head>
@@ -98,6 +149,43 @@ $founded_notifys = $conn->query($sql);
                             </a>
                             <?= t('notif_comment_your_post') ?>
                         </p>
+                    <?php elseif ($ertesites['notifytype'] === 'group_invite'): ?>
+                        <?php
+                        $csoport_id = (int)$ertesites['group_id'];
+                        $csoport_adat = null;
+                        $csoport_lekerdezes = $conn->query("
+                            SELECT * FROM groups 
+                            WHERE id = $csoport_id
+                            LIMIT 1
+                        ");
+                        if ($csoport_lekerdezes && $csoport_lekerdezes->num_rows > 0) {
+                            $csoport_adat = $csoport_lekerdezes->fetch_assoc();
+                        }
+                        ?>
+                        <h4 class="entry-title">Csoport meghívó</h4>
+                        <?php if ($csoport_adat): ?>
+                            <p>
+                                <a class="uploader-name" href="profile.php?userid=<?= (int)$notifyer['id'] ?>">
+                                    <?= htmlspecialchars($notifyer['username']) ?>
+                                </a>
+                                meghívott a(z)
+                                <strong><?= htmlspecialchars($csoport_adat['name']) ?></strong>
+                                csoportba.
+                            </p>
+                            <form method="post">
+                                <input type="hidden" name="notif_id" value="<?= (int)$ertesites['id'] ?>">
+                                <input type="hidden" name="group_id" value="<?= $csoport_id ?>">
+                                <button type="submit" name="group_invite_accept" class="btn-cta">
+                                    Meghívás elfogadása
+                                </button>
+                                <button type="submit" name="group_invite_decline" class="btn-ghost">
+                                    Elutasítás
+                                </button>
+                            </form>
+                        <?php else: ?>
+                            <p>Ez a csoport már nem létezik.</p>
+                        <?php endif; ?>
+
                     <?php endif; ?>
                 </article>
             <?php endwhile; ?>

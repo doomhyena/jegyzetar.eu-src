@@ -35,6 +35,7 @@
             <li><a href="upload.php"><?= t('nav_upload') ?></a></li>
             <li><a href="profile.php?userid=<?= $currentUserId ?>"><?= t('nav_profil') ?></a></li>
             <li><a href="search.php"><?= t('nav_search') ?></a></li>
+			<li><a href="groups.php"><?= t('Csoportok') ?></a></li>
             <li><a href="notify.php"><?= t('nav_notify') ?> (<?= $notify_number ?>)</a></li>
             <li><a href="messages.php"><?= t('nav_messages') ?></a></li>
 
