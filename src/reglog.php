@@ -83,10 +83,8 @@
                     ";
 
                     if ($conn->query($sql)) {
-                        // If insertion succeeded, ensure we have the assigned user id
                         $newUserId = (int)$conn->insert_id;
                         if ($newUserId > 0) {
-                            // Optionally log the user in automatically by setting the cookie
                             setcookie("id", $newUserId, time() + 3600, "/");
                         }
                         $folder = getcwd();
