@@ -45,6 +45,134 @@ Changelog by: Neved
 
 ---
 
+## [1.3.3] – 2025-12-02
+
+### Added
+
+#### • group.php
+
+* Teljes csoportnézet implementálva: tagsági állapotok (owner / accepted / pending) kezelése.
+* Csoporton belüli jegyzetlista (elfogadott + függőben lévő) megjelenítése.
+* Tulajdonosi moderációs műveletek: csatlakozási kérelmek elfogadása / elutasítása, tagkezelés.
+* Csoportleírás, privát állapot és taglista megjelenítése.
+* Upload funkció csoportjegyzetekhez, jogosultságkezeléssel.
+
+#### • groups.php
+
+* Összes csoport listázása grid nézetben.
+* Privát / nyilvános csoport státusz badge-ek.
+* Navigáció az egyes csoportok részleteihez.
+* „Új csoport létrehozása” CTA beépítése.
+
+#### • create_group.php
+
+* Új tanulócsoport létrehozása (név + leírás + privát állapot).
+* Automatikus tulajdonosi jogosultság beállítása a létrehozó usernek.
+* Backend validáció + adatbázisba írás.
+
+#### • group_init.php
+
+* Csoportbetöltés központi inicializációja.
+* Felhasználó tagsági státuszának (pending / accepted / owner) felismerése.
+* Jogosultsági flag-ek: `$aktualis_felhasznalo_tag`, `$aktualis_felhasznalo_pending`, `$aktualis_felhasznalo_tulaj`.
+
+### Changed
+
+#### • search.php
+
+* Csoportos jegyzetek integrálása a keresési eredményekbe.
+* Privát csoport tartalmainak elrejtése nem tagok elől.
+
+#### • notify.php
+
+* Értesítési rendszer bővítése csoportos eseményekkel (csatlakozási kérelem, elfogadás).
+* Olvasatlan értesítések számának pontosabb lekérése.
+
+#### • navbar.php
+
+* Csoport funkció integrálása a navigációba.
+* Értesítési ikon frissítése a csoportműveletekhez tartozó értesítések miatt.
+* Reszponzív viselkedés javítása mobil nézetben.
+
+Changelog by: Szekeres Levente
+
+---
+
+
+## [1.3.2] - 2025-12-01
+
+### Added
+#### • Új SQL táblák
+- `badges` tábla
+  - A kítűzőknek külön tábla
+- `user_badges` tábla
+  - Ha a felhasználó kap egy kítűzőt ide fog elmentődni
+- `user_custom_css_archive` tábla
+  - archivált css profil kinézetek jönnek ide
+- `user_custom_css_requests` tábla
+  - az egyedi profil css-k ide érkeznek, ez a tábla az admin panelen fog látsznai és ott is lehet kezelni
+
+### Changed
+#### • Az összes oldal
+- a 3 behívott fájl sorrendisége változott a megfelelő működés érdekében
+  -> (functions.php, db.php, lang.php)
+#### • Profil.php
+- Új funkciók:
+  - előre beállított témák közül lehet válogatni
+  - az adatok kezdetleges változtatására való lehetőség
+  - Bemutatkozás írása, mely meg is jelenik
+  - Egyedi CSS írás a profil oldalhoz, melyet előszőr egy admin fog elfogadni
+  - Segítség a css-hez
+  - Egyedi css visszavonása
+  - A kítűző megjelenik a profilon
+
+### Fixed
+#### • CHANGELOG.md
+- `[1.3.1] - 2025-01-12` helyett `[1.3.1] - 2025-12-1`
+
+### Removed
+#### • User mappák
+- felesleges user mappák törlésre kerültek
+#### • Adatbázis
+- A szükséges INSERT-ken kívűl nincs benne semmi
+
+### Security
+#### `db_prepared()` helper függvény
+
+- Bevezetésre került egy segédfüggvényt, ami **biztonságosan futtat előkészített SQL lekérdezéseket** (prepared statement).
+- A függvény:
+  * előkészíti a lekérdezést (`prepare`)
+  * hozzáköti a paramétereket (`bind_param`)
+  * lefuttatja a lekérdezést (`execute`)
+  * hibánál kivételt dob, hogy ne legyen csendes fail
+
+**Mi az a prepared statement?**
+Olyan SQL-lekérdezés, ahol a változókat *nem* simán belefűzzük a stringbe, hanem külön adjuk át. Ez gyorsabb és extra biztonságot ad SQL injection ellen.
+Magyarul: *"nem hagyjuk, hogy a user bemászza a query-be"*.
+
+Changelog by: Csontos Kincső Anasztázia
+
+## [1.3.1] - 2025-12-1
+
+### Added
+#### • mail-2fa.php
+- Sikeres bejelentkezés után ide vezet át,
+- Küld egy emailt a felhasználónak egy kóddal.
+- Ha ez sikeresen megtörtént akkor a 2fa.php-ra vezet át
+#### • 2fa.php
+- Input field ahova kódot kell irni
+- Sikeres kétlépcsős azonosito kód beirására után index.php-ra vezet át
+#### • jegyzetar.sql
+- uj tabla: 2fa_codes (id, userid, code)
+- itt tarolja a mail-2fa-ba generalt kodokat, userid-val egyutt
+
+### Changed
+#### • reglog.php
+- Sikeres bejelentkezes után a mail-2fa.php-ra vezet át az index.php helyett
+
+Changelog by: Norbi
+
+---
 
 ## [1.3.0]  - 2025-11-25
 

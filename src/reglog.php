@@ -126,9 +126,15 @@
         if ($found_user && $found_user->num_rows > 0) {
             $user = $found_user->fetch_assoc();
             if (password_verify($password, $user['password'])) {
-                setcookie("id", $user['id'], time() + 3600, "/");
-                header("Location: index.php");
-                exit;
+                //norbi: átvezet a 2fa oldalra
+                session_start();
+				$_SESSION['id'] = $user['id'];
+				$_SESSION['email'] = $user['email'];
+				header("Location: mail-2fa.php"); 
+                
+                //setcookie("id", $user['id'], time() + 3600, "/");
+                //header("Location: index.php");
+                //exit;
             } else {
                 echo "<script>alert('".t('msg_wrong_password')."');</script>";
             }

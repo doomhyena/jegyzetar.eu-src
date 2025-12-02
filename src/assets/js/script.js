@@ -175,13 +175,78 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     });
 
+    function showForm(which) {
+        const regForm = document.getElementById('reg');
+        const loginForm = document.getElementById('login');
+        if (!regForm || !loginForm) return;
+        if (which === 'reg') {
+            // Restore server-side default ('' means use CSS / layout rules)
+            regForm.style.display = '';
+            loginForm.style.display = 'none';
+            loginForm.classList.add('is-hidden');
+            regForm.classList.remove('is-hidden');
+            loginForm.setAttribute('aria-hidden', 'true');
+            regForm.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('auth-view-reg');
+            document.body.classList.remove('auth-view-login');
+            document.title = 'Regisztráció';
+            history.replaceState(null, '', '?form=reg');
+        } else {
+            regForm.style.display = 'none';
+            regForm.classList.add('is-hidden');
+            loginForm.classList.remove('is-hidden');
+            regForm.setAttribute('aria-hidden', 'true');
+            loginForm.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('auth-view-login');
+            document.body.classList.remove('auth-view-reg');
+            loginForm.style.display = '';
+            document.title = 'Bejelentkezés';
+            history.replaceState(null, '', '?form=login');
+        }
+    }
+
     document.querySelectorAll('[data-switch]').forEach(switcher => {
         switcher.addEventListener('click', (e) => {
             e.preventDefault();
             const targetForm = switcher.getAttribute('data-switch');
+            console.info('Auth switch clicked, target:', targetForm);
             showForm(targetForm);
         });
     });
+
+    // Also support old `.switcher` anchors which may exist in templates
+    document.querySelectorAll('.switcher').forEach(a => {
+        a.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = a.getAttribute('data-switch') || (a.dataset ? a.dataset.switch : null);
+            if (target) {
+                console.info('Switcher (legacy) clicked, target:', target);
+                showForm(target);
+            }
+        });
+    });
+    // Make global so HTML onclick attributes or other scopes can call it
+    try { window.showForm = showForm; } catch (err) { /* ignore if not allowed */ }
+
+    // Apply initial view state to body class and aria attributes based on which form is visible
+    try {
+        const regForm = document.getElementById('reg');
+        const loginForm = document.getElementById('login');
+        if (regForm && loginForm) {
+            const regVisible = window.getComputedStyle(regForm).display !== 'none';
+            if (regVisible) {
+                document.body.classList.add('auth-view-reg');
+                document.body.classList.remove('auth-view-login');
+                regForm.setAttribute('aria-hidden', 'false');
+                loginForm.setAttribute('aria-hidden', 'true');
+            } else {
+                document.body.classList.add('auth-view-login');
+                document.body.classList.remove('auth-view-reg');
+                regForm.setAttribute('aria-hidden', 'true');
+                loginForm.setAttribute('aria-hidden', 'false');
+            }
+        }
+    } catch (err) { /* ignore */ }
 });
 
 document.addEventListener('DOMContentLoaded', () => {
