@@ -45,54 +45,95 @@ Changelog by: Neved
 
 ---
 
+## [1.3.4] - 2025-12-06
+
+### Added
+#### • Database helper usage
+- Egységesen bevezetésre került a `db_stmt()` és `db_query()` használata az auth, profil és keresés funkciókban, hogy mindenhol ugyanazt a prepared statement réteget használja az alkalmazás.
+- Integrálva lett a `db_log_error()` logolás a DB-hívások mögötti helper funkciókba (közvetve ezekre a nézetekre is kiterjesztve a részletes hibanaplózást).
+
+### Changed
+#### • Profile handling
+- A `profile.php` minden korábbi `db_prepared` és nyers `$conn->query()` hívása lecserélésre került `db_query()` / `db_stmt()`-re.
+- A profil frissítési, badge-lekérdezési, CSS-request és értesítés-lekérdezési logika most már egységesen prepared statementeken fut.
+
+#### • Registration & login
+- A `reglog.php` fájlban az összes SQL-lekérdezés (felhasználónév/email ellenőrzés, regisztráció, bejelentkezés) átállt a `db_query()` / `db_stmt()` használatára.
+- A regisztrációs INSERT most már paraméterezett lekérdezéssel írja az új felhasználókat az `users` táblába, a jelszó továbbra is `password_hash()`-szal kerül mentésre.
+
+#### • Search & group invites
+- A keresőoldal (search) korábbi, escape-elt string-összefűzős SQL-jei teljesen átírva prepared statement alapúra (fájl- és user-keresés, sorrendezés, rating szerinti listázás).
+- A csoportmeghívás (group invite) logikája most már a `notifys` és `group_members` táblák felé is prepared statementeket használ.
+
+### Fixed
+#### • Input handling & robustness
+- Javítva lett több helyen az ID-k (user, group) kezelése: minden numeric inputot típusosítva/intre castolva kap meg az SQL-réteg.
+- Keresés közben speciális karaktereket tartalmazó kulcsszavak már nem tudják “szétütni” a lekérdezéseket, mert nem string-összefűzéssel, hanem bindolt paraméterekkel mennek.
+
+### Removed
+#### • Direct SQL usage
+- Eltávolításra kerültek a közvetlen `$conn->query()` hívások a profil-, auth- és keresés logikából ott, ahol már `db_stmt()` / `db_query()` áll rendelkezésre.
+- Eltávolításra került a `real_escape_string()`-re épülő ad-hoc escaping ezekben a fájlokban.
+
+### Security
+#### • SQL injection hardening
+- A regisztrációs és bejelentkezési folyamat (felhasználónév/email ellenőrzés, login) most már teljesen prepared statement alapú, csökkentve az SQL injection kockázatát.
+- A keresőoldal minden dinamikus WHERE és ORDER BY feltétele paraméterezve kerül az adatbázisba, így a keresési inputok nem tudnak direktben SQL-t “befecskendezni”.
+- A csoportmeghívásoknál (`group_members`, `notifys`) megszűnt a nyers ID-beillesztés, minden user- és group-azonosító bindolt paraméterként megy tovább.
+
+Changelog by: Csontos Kincső Anasztázia
+
+
+---
+
 ## [1.3.3] – 2025-12-02
 
 ### Added
 
 #### • group.php
 
-* Teljes csoportnézet implementálva: tagsági állapotok (owner / accepted / pending) kezelése.
-* Csoporton belüli jegyzetlista (elfogadott + függőben lévő) megjelenítése.
-* Tulajdonosi moderációs műveletek: csatlakozási kérelmek elfogadása / elutasítása, tagkezelés.
-* Csoportleírás, privát állapot és taglista megjelenítése.
-* Upload funkció csoportjegyzetekhez, jogosultságkezeléssel.
+- Teljes csoportnézet implementálva: tagsági állapotok (owner / accepted / pending) kezelése.
+- Csoporton belüli jegyzetlista (elfogadott + függőben lévő) megjelenítése.
+- Tulajdonosi moderációs műveletek: csatlakozási kérelmek elfogadása / elutasítása, tagkezelés.
+- Csoportleírás, privát állapot és taglista megjelenítése.
+- Upload funkció csoportjegyzetekhez, jogosultságkezeléssel.
 
 #### • groups.php
 
-* Összes csoport listázása grid nézetben.
-* Privát / nyilvános csoport státusz badge-ek.
-* Navigáció az egyes csoportok részleteihez.
-* „Új csoport létrehozása” CTA beépítése.
+- Összes csoport listázása grid nézetben.
+- Privát / nyilvános csoport státusz badge-ek.
+- Navigáció az egyes csoportok részleteihez.
+- "Új csoport létrehozása" CTA beépítése.
 
 #### • create_group.php
 
-* Új tanulócsoport létrehozása (név + leírás + privát állapot).
-* Automatikus tulajdonosi jogosultság beállítása a létrehozó usernek.
-* Backend validáció + adatbázisba írás.
+- Új tanulócsoport létrehozása (név + leírás + privát állapot).
+- Automatikus tulajdonosi jogosultság beállítása a létrehozó usernek.
+- Backend validáció + adatbázisba írás.
 
 #### • group_init.php
 
-* Csoportbetöltés központi inicializációja.
-* Felhasználó tagsági státuszának (pending / accepted / owner) felismerése.
-* Jogosultsági flag-ek: `$aktualis_felhasznalo_tag`, `$aktualis_felhasznalo_pending`, `$aktualis_felhasznalo_tulaj`.
+- Csoportbetöltés központi inicializációja.
+- Felhasználó tagsági státuszának (pending / accepted / owner) felismerése.
+- Jogosultsági flag-ek: `$aktualis_felhasznalo_tag`, `$aktualis_felhasznalo_pending`, `$aktualis_felhasznalo_tulaj`.
 
 ### Changed
 
 #### • search.php
 
-* Csoportos jegyzetek integrálása a keresési eredményekbe.
-* Privát csoport tartalmainak elrejtése nem tagok elől.
+- Csoportos jegyzetek integrálása a keresési eredményekbe.
+- Privát csoport tartalmainak elrejtése nem tagok elől.
 
 #### • notify.php
 
-* Értesítési rendszer bővítése csoportos eseményekkel (csatlakozási kérelem, elfogadás).
-* Olvasatlan értesítések számának pontosabb lekérése.
+- Értesítési rendszer bővítése csoportos eseményekkel (csatlakozási kérelem, elfogadás).
+- Olvasatlan értesítések számának pontosabb lekérése.
 
 #### • navbar.php
 
-* Csoport funkció integrálása a navigációba.
-* Értesítési ikon frissítése a csoportműveletekhez tartozó értesítések miatt.
-* Reszponzív viselkedés javítása mobil nézetben.
+- Csoport funkció integrálása a navigációba.
+- Értesítési ikon frissítése a csoportműveletekhez tartozó értesítések miatt.
+- Reszponzív viselkedés javítása mobil nézetben.
 
 Changelog by: Szekeres Levente
 

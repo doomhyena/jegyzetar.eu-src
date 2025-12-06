@@ -1,55 +1,39 @@
 <?php
-require "assets/php/db.php";
-require "assets/php/lang.php";
+    require_once "assets/php/db.php";
+    require_once "assets/php/lang.php";
+    require_once 'assets/php/functions.php';
 
-if (!isset($_COOKIE['id'])) {
-    header("Location: reglog.php");
-    exit;
-}
-
-$bejelentkezett_felhasznalo_id = $_COOKIE['id'];
-
-if (isset($_POST['letrehozas'])) {
-
-    $csoport_nev    = $_POST['name'];
-    $csoport_leiras = $_POST['description'];
-
-    if (isset($_POST['is_private'])) {
-        $privat = 1;
-    } else {
-        $privat = 0;
+    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
+        header("Location: reglog.php");
+        exit;
     }
 
-    $tulaj_id = $bejelentkezett_felhasznalo_id;
+    $bejelentkezett_felhasznalo_id = (int)$_COOKIE['id'];
 
-    if ($csoport_nev == "") {
-        echo "<script>alert('A csoport neve kötelező!');</script>";
-    } else {
+    if (isset($_POST['letrehozas'])) {
 
-        $uj_csoport_sql = "
-            INSERT INTO groups (name, description, owner_id, is_private)
-            VALUES ('$csoport_nev', '$csoport_leiras', '$tulaj_id', '$privat')
-        ";
+        $csoport_nev    = trim($_POST['name'] ?? '');
+        $csoport_leiras = trim($_POST['description'] ?? '');
 
-        if ($conn->query($uj_csoport_sql)) {
+        $privat = isset($_POST['is_private']) ? 1 : 0;
+        $tulaj_id = $bejelentkezett_felhasznalo_id;
 
-            $uj_csoport_id = $conn->insert_id;
-
-            $uj_tulaj_sql = "
-                INSERT INTO group_members (group_id, user_id, role, status)
-                VALUES ('$uj_csoport_id', '$tulaj_id', 'owner', 'accepted')
-            ";
-            $conn->query($uj_tulaj_sql);
-
-            echo "<script>alert('Csoport sikeresen létrehozva!');</script>";
-            header("Location: group.php?id=".$uj_csoport_id);
-            exit;
-
+        if ($csoport_nev === '') {
+            echo "<script>alert('A csoport neve kötelező!');</script>";
         } else {
-            echo "<script>alert('Hiba történt a csoport létrehozásakor.');</script>";
+
+            $inserted = db_exec($conn, "INSERT INTO groups (name, description, owner_id, is_private)  VALUES (?, ?, ?, ?)", "ssii", [$csoport_nev, $csoport_leiras, $tulaj_id, $privat]);
+            if ($inserted > 0) {
+                $uj_csoport_id = $conn->insert_id;
+                db_exec($conn, "INSERT INTO group_members (group_id, user_id, role, status)  VALUES (?, ?, 'owner', 'accepted')", "ii", [$uj_csoport_id, $tulaj_id]);
+                echo "<script>alert('Csoport sikeresen létrehozva!');</script>";
+                header("Location: group.php?id=" . $uj_csoport_id);
+                exit;
+            } else {
+                echo "<script>alert('Hiba történt a csoport létrehozásakor.');</script>";
+            }
         }
     }
-}
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">
@@ -67,7 +51,6 @@ if (isset($_POST['letrehozas'])) {
 </head>
 <body>
 <?php include 'assets/php/navbar.php'; ?>
-
 <div class="main">
     <div class="section-titlebar">
         <div>
@@ -82,34 +65,18 @@ if (isset($_POST['letrehozas'])) {
             </a>
         </div>
     </div>
-
     <div class="auth-grid" style="margin-top:18px; max-width:600px;">
         <section class="auth-card compact">
             <h1>Csoport adatai</h1>
-
             <form method="post" class="form-grid" style="grid-template-columns:1fr;">
                 <div class="form-field">
                     <label for="group-name">Csoport neve</label>
-                    <input
-                        type="text"
-                        id="group-name"
-                        name="name"
-                        class="input"
-                        placeholder="Pl. C# dolgozat felkészítő"
-                    >
+                    <input type="text" id="group-name" name="name" class="input" placeholder="Pl. C# dolgozat felkészítő">
                 </div>
-
                 <div class="form-field">
                     <label for="group-description">Leírás</label>
-                    <textarea
-                        id="group-description"
-                        name="description"
-                        rows="4"
-                        class="input"
-                        placeholder="Röviden írd le, mire való a csoport, kiknek szól, mit osztotok meg itt."
-                    ></textarea>
+                    <textarea id="group-description" name="description" rows="4" class="input" placeholder="Röviden írd le, mire való a csoport, kiknek szól, mit osztotok meg itt."></textarea>
                 </div>
-
                 <div class="form-field" style="margin-top:4px;">
                     <label class="entry-meta" style="font-weight:600;">
                         <input type="checkbox" name="is_private" style="margin-right:6px;">

@@ -1,76 +1,59 @@
 <?php
     require "assets/php/db.php";
     require "assets/php/lang.php";
+    require_once "assets/php/functions.php";
 
-    if (!isset($_COOKIE['id'])) {
+    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
         header("Location: reglog.php");
         exit;
     }
 
     $uid = (int)$_COOKIE['id'];
 
-    $sql = "SELECT * FROM users WHERE id={$uid} LIMIT 1";
-    $found_user = $conn->query($sql);
+    $found_user = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$uid]);
     $user = $found_user ? $found_user->fetch_assoc() : null;
 
     if (!$user) {
-        exit('User not found.');
+        exit('A felhasználó nem található.');
     }
 
-    $sql = "SELECT * FROM notifys WHERE toid = {$user['id']} AND readed = 0";
-    $founded_notify = $conn->query($sql);
+    $founded_notify = db_query($conn, "SELECT * FROM notifys WHERE toid = ? AND readed = 0", "i", [$user['id']]);
     $notify_number = $founded_notify ? $founded_notify->num_rows : 0;
 
-	 // ==== Csoport meghívó elfogadása ====
     if (isset($_POST['group_invite_accept'])) {
 
-        $ertesites_id = (int)$_POST['notif_id'];
-        $csoport_id   = (int)$_POST['group_id'];
+        $ertesites_id = (int)($_POST['notif_id'] ?? 0);
+        $csoport_id = (int)($_POST['group_id'] ?? 0);
 
         if ($csoport_id > 0) {
-
-            // létezik-e a csoport
-            $csoport_lekerdezes = $conn->query("
-                SELECT * FROM groups 
-                WHERE id = $csoport_id
-                LIMIT 1
-            ");
+            $csoport_lekerdezes = db_query($conn, "SELECT * FROM groups WHERE id = ? LIMIT 1", "i", [$csoport_id]);
 
             if ($csoport_lekerdezes && $csoport_lekerdezes->num_rows > 0) {
 
-                // benne van-e már a group_members-ben
-                $tagsag_ellenorzes = $conn->query("
-                    SELECT id 
-                    FROM group_members
-                    WHERE group_id = $csoport_id
-                      AND user_id = {$user['id']}
-                    LIMIT 1
-                ");
+                $tagsag_ellenorzes = db_query($conn, "SELECT id FROM group_members  WHERE group_id = ? AND user_id = ? LIMIT 1", "ii", [$csoport_id, $user['id']]
+                );
 
                 if (!$tagsag_ellenorzes || $tagsag_ellenorzes->num_rows == 0) {
-                    // ha még nem tag, most felvesszük
-                    $conn->query("
-                        INSERT INTO group_members (group_id, user_id, role, status)
-                        VALUES ($csoport_id, {$user['id']}, 'member', 'accepted')
-                    ");
+                    db_exec($conn, "INSERT INTO group_members (group_id, user_id, role, status) VALUES (?, ?, 'member', 'accepted')", "ii", [$csoport_id, $user['id']]);
                 }
             }
         }
 
-        // az értesítést töröljük
-        $conn->query("DELETE FROM notifys WHERE id = $ertesites_id");
+        if ($ertesites_id > 0) {
+            db_exec($conn, "DELETE FROM notifys WHERE id = ?", "i", [$ertesites_id]);
+        }
 
         header("Location: notify.php");
         exit;
     }
 
-    // ==== Csoport meghívó elutasítása ====
     if (isset($_POST['group_invite_decline'])) {
 
-        $ertesites_id = (int)$_POST['notif_id'];
+        $ertesites_id = (int)($_POST['notif_id'] ?? 0);
 
-        // csak töröljük az értesítést
-        $conn->query("DELETE FROM notifys WHERE id = $ertesites_id");
+        if ($ertesites_id > 0) {
+            db_exec($conn, "DELETE FROM notifys WHERE id = ?","i", [$ertesites_id]);
+        }
 
         header("Location: notify.php");
         exit;
@@ -92,16 +75,15 @@
 </head>
 <body>
 <?php
-include 'assets/php/navbar.php';
+    include 'assets/php/navbar.php';
 
-if (isset($_POST['del-notifs-btn'])) {
-    $conn->query("DELETE FROM notifys WHERE toid = {$user['id']}");
-    header("Location: notify.php");
-    exit;
-}
+    if (isset($_POST['del-notifs-btn'])) {
+        db_exec($conn, "DELETE FROM notifys WHERE toid = ?", "i", [$user['id']]);
+        header("Location: notify.php");
+        exit;
+    }
 
-$sql = "SELECT * FROM notifys WHERE toid = {$user['id']} ORDER BY id DESC";
-$founded_notifys = $conn->query($sql);
+    $founded_notifys = db_query($conn, "SELECT * FROM notifys WHERE toid = ? ORDER BY id DESC", "i", [$user['id']]);
 ?>
 <div class="main">
     <h1><?= t('notify_title') ?></h1>
@@ -109,8 +91,7 @@ $founded_notifys = $conn->query($sql);
         <div class="content-grid">
             <?php while ($ertesites = $founded_notifys->fetch_assoc()):
                 $from = (int)$ertesites['fromid'];
-                $sql = "SELECT * FROM users WHERE id={$from} LIMIT 1";
-                $founded_notifyer = $conn->query($sql);
+                $founded_notifyer = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$from]);
                 $notifyer = $founded_notifyer ? $founded_notifyer->fetch_assoc() : null;
                 if (!$notifyer) continue;
                 ?>
@@ -124,13 +105,7 @@ $founded_notifys = $conn->query($sql);
                             <?= t('notif_friend_marked_you') ?>
                         </p>
                         <?php
-                        $check = $conn->query(
-                                "SELECT * FROM friends 
-                                     WHERE fromid = {$notifyer['id']} 
-                                       AND toid = {$user['id']} 
-                                       AND status = 0
-                                     LIMIT 1"
-                        );
+                        $check = db_query($conn, "SELECT * FROM friends   WHERE fromid = ?     AND toid   = ?     AND status = 0  LIMIT 1", "ii", [$notifyer['id'], $user['id']]);
                         if ($check && $check->num_rows > 0): ?>
                             <form method="post" action="assets/php/accept_friend.php">
                                 <input type="hidden" name="fromid" value="<?= (int)$notifyer['id'] ?>">
@@ -153,13 +128,11 @@ $founded_notifys = $conn->query($sql);
                         <?php
                         $csoport_id = (int)$ertesites['group_id'];
                         $csoport_adat = null;
-                        $csoport_lekerdezes = $conn->query("
-                            SELECT * FROM groups 
-                            WHERE id = $csoport_id
-                            LIMIT 1
-                        ");
-                        if ($csoport_lekerdezes && $csoport_lekerdezes->num_rows > 0) {
-                            $csoport_adat = $csoport_lekerdezes->fetch_assoc();
+                        if ($csoport_id > 0) {
+                            $csoport_lekerdezes = db_query($conn, "SELECT * FROM groups WHERE id = ? LIMIT 1", "i", [$csoport_id]);
+                            if ($csoport_lekerdezes && $csoport_lekerdezes->num_rows > 0) {
+                                $csoport_adat = $csoport_lekerdezes->fetch_assoc();
+                            }
                         }
                         ?>
                         <h4 class="entry-title">Csoport meghívó</h4>
@@ -185,7 +158,6 @@ $founded_notifys = $conn->query($sql);
                         <?php else: ?>
                             <p>Ez a csoport már nem létezik.</p>
                         <?php endif; ?>
-
                     <?php endif; ?>
                 </article>
             <?php endwhile; ?>
@@ -201,7 +173,7 @@ $founded_notifys = $conn->query($sql);
         </div>
     <?php endif; ?>
     <?php
-    $conn->query("UPDATE notifys SET readed = 1 WHERE toid = {$user['id']}");
+        db_exec($conn, "UPDATE notifys SET readed = 1 WHERE toid = ?", "i", [$user['id']]);
     ?>
 </div>
 <?php include 'assets/php/footer.php'; ?>

@@ -1,39 +1,42 @@
 <?php
-// norbi: kedvenc jegyzetek megjelenítése
-require_once "assets/php/db.php";
-require_once "assets/php/lang.php";
-require_once 'assets/php/functions.php';
+    // norbi: kedvenc jegyzetek megjelenítése
+    require_once "assets/php/db.php";
+    require_once "assets/php/lang.php";
+    require_once 'assets/php/functions.php';
 
-if (!isset($_COOKIE['id'])) {
-    header("Location: reglog.php");
-    exit;
-}
-
-$user_id = (int)$_COOKIE['id'];
-$user_result = $conn->query("SELECT * FROM users WHERE id = $user_id LIMIT 1");
-if (!$user_result || $user_result->num_rows == 0) {
-    header("Location: reglog.php");
-    exit;
-}
-$user = $user_result->fetch_assoc();
-
-$notify_number = 0;
-$nf = $conn->query("SELECT id FROM notifys WHERE toid = $user_id AND readed = 0");
-if ($nf) {
-    $notify_number = $nf->num_rows;
-}
-
-// kedvenc fájlok lekérése
-$lekerdezes = "SELECT * FROM favorites WHERE user_id = $user_id";
-$talalt_sorok = $conn->query($lekerdezes);
-$favorites = [];
-while($sor = $talalt_sorok->fetch_assoc()){
-    $file_id = (int)$sor['file_id'];
-    $file_q = $conn->query("SELECT * FROM files WHERE id = $file_id LIMIT 1");
-    if ($file_q && $file_q->num_rows > 0) {
-        $favorites[] = $file_q->fetch_assoc();
+    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
+        header("Location: reglog.php");
+        exit;
     }
-}
+
+    $user_id = (int)$_COOKIE['id'];
+
+    $user_result = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$user_id]
+    );
+    if (!$user_result || $user_result->num_rows == 0) {
+        header("Location: reglog.php");
+        exit;
+    }
+    $user = $user_result->fetch_assoc();
+    $notify_number = 0;
+
+    $nf = db_query($conn, "SELECT id FROM notifys WHERE toid = ? AND readed = 0", "i", [$user_id);
+    if ($nf) {
+        $notify_number = $nf->num_rows;
+    }
+
+    $talalt_sorok = db_query($conn, "SELECT * FROM favorites WHERE user_id = ?", "i", [$user_id]);
+
+    $favorites = [];
+    while ($sor = $talalt_sorok->fetch_assoc()) {
+        $file_id = (int)$sor['file_id'];
+
+        $file_q = db_query($conn, "SELECT * FROM files WHERE id = ? LIMIT 1", "i", [$file_id]);
+
+        if ($file_q && $file_q->num_rows > 0) {
+            $favorites[] = $file_q->fetch_assoc();
+        }
+    }
 
 ?>
 <!DOCTYPE html>
@@ -61,26 +64,28 @@ while($sor = $talalt_sorok->fetch_assoc()){
             Kedvenc jegyzeteim
         </h1>
     </div>
-
     <?php if (!empty($favorites)): ?>
         <div class="content-grid grid-large">
             <?php foreach ($favorites as $f):
-                $uploader_q = $conn->query("SELECT username FROM users WHERE id=".(int)$f['uploaded_by']." LIMIT 1");
-                $uploader   = $uploader_q ? $uploader_q->fetch_assoc() : ['username'=>'ismeretlen'];
-
-                $file_id   = (int)$f['id'];
+                $uploaderRes = db_query(
+                    $conn,
+                    "SELECT username FROM users WHERE id = ? LIMIT 1",
+                    "i",
+                    [(int)$f['uploaded_by']]
+                );
+                $uploader = $uploaderRes ? $uploaderRes->fetch_assoc() : ['username' => 'ismeretlen'];
+                $file_id = (int)$f['id'];
                 $file_name = htmlspecialchars($f['name']);
-                $username  = htmlspecialchars($uploader['username'] ?? 'ismeretlen');
-
-                $ext       = strtolower(pathinfo($f['file_name'], PATHINFO_EXTENSION));
-                $user_dir  = "users/" . ($uploader['username'] ?? '') . "/";
+                $username = htmlspecialchars($uploader['username'] ?? 'ismeretlen');
+                $ext = strtolower(pathinfo($f['file_name'], PATHINFO_EXTENSION));
+                $user_dir = "users/" . ($uploader['username'] ?? '') . "/";
                 $safe_path = $user_dir . $f['file_name'];
 
-                $avg_q = $conn->query("SELECT IFNULL(AVG(rating),0) as avg, COUNT(*) as c FROM ratings WHERE file_id=$file_id");
-                $avg = 0; 
+                $avgRes = db_query($conn, "SELECT IFNULL(AVG(rating),0) as avg, COUNT(*) as c FROM ratings WHERE file_id = ?", "i", [$file_id]);
+                $avg = 0;
                 $cnt = 0;
-                if ($avg_q && $avg_q->num_rows) {
-                    $d = $avg_q->fetch_assoc();
+                if ($avgRes && $avgRes->num_rows) {
+                    $d = $avgRes->fetch_assoc();
                     $avg = number_format((float)$d['avg'], 2);
                     $cnt = (int)$d['c'];
                 }

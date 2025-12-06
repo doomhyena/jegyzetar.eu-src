@@ -1,13 +1,14 @@
 <?php
-require "assets/php/db.php";
-require "assets/php/lang.php";
-require "assets/php/group_init.php";
-require "assets/php/group_actions.php";
+    require "assets/php/db.php";
+    require "assets/php/lang.php";
+    require_once "assets/php/functions.php";
+    require "assets/php/group_init.php";
+    require "assets/php/group_actions.php";
 
-$hiba_uzenet = "";
-if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) {
-    $hiba_uzenet = "Ez egy privát csoport. A tartalom csak tagoknak látható.";
-}
+    $hiba_uzenet = "";
+    if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) {
+        $hiba_uzenet = "Ez egy privát csoport. A tartalom csak tagoknak látható.";
+    }
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">
@@ -25,21 +26,17 @@ if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) 
 </head>
 <body>
 <?php include 'assets/php/navbar.php'; ?>
-
 <div class="main">
-    <!-- Csoport fejléc -->
-		<div class="section-titlebar">
-			<h1><?= htmlspecialchars($csoport_nev) ?></h1>
-				<span class="entry-meta">
-					<?php if ($privat == 1): ?>
-						Privát csoport
-					<?php else: ?>
-						Nyilvános csoport
-				<?php endif; ?>
-			</span>
-		</div>
-
-    <!-- Csoport leírás + csatlakozás / kilépés -->
+    <div class="section-titlebar">
+        <h1><?= htmlspecialchars($csoport_nev) ?></h1>
+            <span class="entry-meta">
+                <?php if ($privat == 1): ?>
+                    Privát csoport
+                <?php else: ?>
+                    Nyilvános csoport
+                <?php endif; ?>
+            </span>
+        </div>
     <section class="card">
         <?php if ($csoport_leiras != ""): ?>
             <p><?= nl2br(htmlspecialchars($csoport_leiras)) ?></p>
@@ -52,7 +49,6 @@ if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) 
                 <?= htmlspecialchars($hiba_uzenet) ?>
             </p>
         <?php endif; ?>
-
         <div class="profile-actions" style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap;">
             <?php if (!$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_pending): ?>
                 <form method="post">
@@ -61,13 +57,11 @@ if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) 
                     </button>
                 </form>
             <?php endif; ?>
-
             <?php if ($aktualis_felhasznalo_pending): ?>
                 <span class="entry-meta">
                     Csatlakozási kérelmed függőben van.
                 </span>
             <?php endif; ?>
-
             <?php if ($aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj): ?>
                 <form method="post">
                     <button type="submit" name="kilepes" class="btn-ghost">
@@ -77,43 +71,30 @@ if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) 
             <?php endif; ?>
         </div>
     </section>
-
-<!-- Tagok és jelentkezések -->
     <section class="card">
         <h2>Tagok</h2>
-
         <?php if ($hiba_uzenet == "" && ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj)): ?>
-
             <?php
-            $tagok_sql = "
-                SELECT group_members.*, users.username
-                FROM group_members, users
-                WHERE group_members.user_id = users.id
-                  AND group_members.group_id = '$csoport_id'
-                  AND group_members.status = 'accepted'
-            ";
-            $tagok_lekerdezes = $conn->query($tagok_sql);
+                $tagok_lekerdezes = db_query($conn, "SELECT group_members.*, users.username FROM group_members, users WHERE group_members.user_id = users.id AND group_members.group_id = ?  AND group_members.status = 'accepted'", "i", [$csoport_id]);
             ?>
-
             <?php if ($tagok_lekerdezes && $tagok_lekerdezes->num_rows > 0): ?>
                 <div class="list-compact">
                     <?php while ($egy_tag = $tagok_lekerdezes->fetch_assoc()):
-                        $tag_id     = $egy_tag['user_id'];
-                        $tag_nev    = $egy_tag['username'];
-                        $tag_szerep = $egy_tag['role'];
+                            $tag_id = $egy_tag['user_id'];
+                            $tag_nev = $egy_tag['username'];
+                            $tag_szerep = $egy_tag['role'];
 
-                        if ($tag_szerep == "owner") {
-                            $szerep_kiir = "tulajdonos";
-                        } else {
-                            $szerep_kiir = "tag";
-                        }
+                            if ($tag_szerep == "owner") {
+                                $szerep_kiir = "tulajdonos";
+                            } else {
+                                $szerep_kiir = "tag";
+                            }
                         ?>
                         <article class="mini-card">
                             <div class="mini-main">
                                 <h4 class="mini-title">@<?= htmlspecialchars($tag_nev) ?></h4>
                                 <p class="mini-meta"><?= htmlspecialchars($szerep_kiir) ?></p>
                             </div>
-
                             <?php if ($aktualis_felhasznalo_tulaj && $tag_id != $tulaj_id): ?>
                                 <form method="post">
                                     <input type="hidden" name="remove_user_id" value="<?= (int)$tag_id ?>">
@@ -128,28 +109,18 @@ if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) 
             <?php else: ?>
                 <p class="entry-meta">Még nincsenek tagok ebben a csoportban.</p>
             <?php endif; ?>
-
             <?php if ($aktualis_felhasznalo_tulaj): ?>
                 <hr style="margin:16px 0;">
                 <h3>Függőben lévő jelentkezések</h3>
-
                 <?php
-                $pending_tagok_sql = "
-                    SELECT group_members.*, users.username
-                    FROM group_members, users
-                    WHERE group_members.user_id = users.id
-                      AND group_members.group_id = '$csoport_id'
-                      AND group_members.status = 'pending'
-                ";
-                $pending_tagok_lekerdezes = $conn->query($pending_tagok_sql);
+                    $pending_tagok_lekerdezes = db_query($conn, "SELECT group_members.*, users.username FROM group_members, users WHERE group_members.user_id = users.id AND group_members.group_id = ? AND group_members.status = 'pending'", "i", [$csoport_id]);
                 ?>
-
                 <?php if ($pending_tagok_lekerdezes && $pending_tagok_lekerdezes->num_rows > 0): ?>
                     <div class="list-compact">
                         <?php while ($egy_pending = $pending_tagok_lekerdezes->fetch_assoc()):
                             $pending_tag_id  = $egy_pending['user_id'];
                             $pending_tag_nev = $egy_pending['username'];
-                            ?>
+                        ?>
                             <article class="mini-card">
                                 <div class="mini-main">
                                     <h4 class="mini-title">@<?= htmlspecialchars($pending_tag_nev) ?></h4>
@@ -176,16 +147,12 @@ if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) 
                     <p class="entry-meta">Nincsenek függőben lévő jelentkezések.</p>
                 <?php endif; ?>
             <?php endif; ?>
-
         <?php else: ?>
             <p class="entry-meta">A tagok listája csak tagok és a tulajdonos számára elérhető.</p>
         <?php endif; ?>
-
-        <!-- Csoport jegyzetek -->
         <?php if ($hiba_uzenet == "" && ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj)): ?>
         <section class="card">
             <h2>Csoport jegyzetek</h2>
-
             <?php if ($aktualis_felhasznalo_tag): ?>
                 <h3>Új jegyzet feltöltése</h3>
                 <form method="post" enctype="multipart/form-data" class="auth-card compact" style="padding:16px; margin-top:8px;">
@@ -199,12 +166,10 @@ if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) 
                             <input type="file" name="jegyzet_fajl" class="input">
                         </div>
                     </div>
-
                     <div class="form-field" style="margin-top:10px;">
                         <label>Leírás (nem kötelező)</label>
                         <textarea name="jegyzet_leiras" rows="3" class="input"></textarea>
                     </div>
-
                     <div class="auth-actions" style="margin-top:12px;">
                         <button type="submit" name="uj_jegyzet" class="btn-cta">
                             Feltöltés a csoportba
@@ -212,31 +177,20 @@ if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) 
                     </div>
                 </form>
             <?php endif; ?>
-
             <h3 style="margin-top:18px;">Feltöltött jegyzetek</h3>
             <?php
-            // CSAK ELFOGADOTT JEGYZETEK
-            $group_files_lekerdezes = $conn->query("
-                SELECT group_files.*, users.username
-                FROM group_files, users
-                WHERE group_files.uploaded_by = users.id
-                  AND group_files.group_id = '$csoport_id'
-                  AND group_files.is_approved = 1
-                ORDER BY group_files.id DESC
-            ");
+                $group_files_lekerdezes = db_query($conn, "SELECT group_files.*, users.username FROM group_files, users WHERE group_files.uploaded_by = users.id AND group_files.group_id = ? AND group_files.is_approved = 1 ORDER BY group_files.id DESC", "i", [$csoport_id]);
             ?>
-
             <?php if ($group_files_lekerdezes && $group_files_lekerdezes->num_rows > 0): ?>
                 <div class="list-compact">
                     <?php while ($egy_jegyzet = $group_files_lekerdezes->fetch_assoc()):
-                        $jegyzet_id       = $egy_jegyzet['id'];
-                        $jegyzet_nev      = $egy_jegyzet['name'];
-                        $jegyzet_leiras   = $egy_jegyzet['description'];
-                        $jegyzet_fajlnev  = $egy_jegyzet['file_name'];
+                        $jegyzet_id = $egy_jegyzet['id'];
+                        $jegyzet_nev = $egy_jegyzet['name'];
+                        $jegyzet_leiras = $egy_jegyzet['description'];
+                        $jegyzet_fajlnev = $egy_jegyzet['file_name'];
                         $jegyzet_feltolto = $egy_jegyzet['username'];
-
                         $fajl_elercim = "users/".$jegyzet_feltolto."/".$jegyzet_fajlnev;
-                        ?>
+                    ?>
                         <article class="mini-card">
                             <div class="mini-main">
                                 <h4 class="mini-title"><?= htmlspecialchars($jegyzet_nev) ?></h4>
@@ -258,31 +212,21 @@ if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) 
             <?php else: ?>
                 <p class="entry-meta">Még nincsenek elfogadott csoport jegyzetek.</p>
             <?php endif; ?>
-
             <?php if ($aktualis_felhasznalo_tulaj): ?>
                 <hr style="margin:16px 0;">
                 <h3>Elfogadásra váró jegyzetek</h3>
                 <?php
-                $varakozo_jegyzetek = $conn->query("
-                    SELECT group_files.*, users.username
-                    FROM group_files, users
-                    WHERE group_files.uploaded_by = users.id
-                      AND group_files.group_id = '$csoport_id'
-                      AND group_files.is_approved = 0
-                    ORDER BY group_files.id DESC
-                ");
+                    $varakozo_jegyzetek = db_query($conn, "SELECT group_files.*, users.username FROM group_files, users WHERE group_files.uploaded_by = users.id AND group_files.group_id = ? AND group_files.is_approved = 0 ORDER BY group_files.id DESC", "i", [$csoport_id]);
                 ?>
-
                 <?php if ($varakozo_jegyzetek && $varakozo_jegyzetek->num_rows > 0): ?>
                     <div class="list-compact">
                         <?php while ($egy_varakozo = $varakozo_jegyzetek->fetch_assoc()):
-                            $v_jegyzet_id       = $egy_varakozo['id'];
-                            $v_jegyzet_nev      = $egy_varakozo['name'];
-                            $v_jegyzet_leiras   = $egy_varakozo['description'];
-                            $v_jegyzet_fajlnev  = $egy_varakozo['file_name'];
-                            $v_jegyzet_feltolto = $egy_varakozo['username'];
-
-                            $v_fajl_elercim = "users/".$v_jegyzet_feltolto."/".$v_jegyzet_fajlnev;
+                                $v_jegyzet_id = $egy_varakozo['id'];
+                                $v_jegyzet_nev = $egy_varakozo['name'];
+                                $v_jegyzet_leiras = $egy_varakozo['description'];
+                                $v_jegyzet_fajlnev = $egy_varakozo['file_name'];
+                                $v_jegyzet_feltolto = $egy_varakozo['username'];
+                                $v_fajl_elercim = "users/".$v_jegyzet_feltolto."/".$v_jegyzet_fajlnev;
                             ?>
                             <article class="mini-card">
                                 <div class="mini-main">
@@ -320,26 +264,20 @@ if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) 
                     <p class="entry-meta">Nincs elfogadásra váró jegyzet.</p>
                 <?php endif; ?>
             <?php endif; ?>
-
         </section>
         <?php endif; ?>
     </section>
-
     <div style="margin-top:16px;">
         <a href="groups.php" class="btn-ghost">Vissza a csoportokhoz</a>
     </div>
-	
-	<?php if ($aktualis_felhasznalo_tulaj): ?>
+    <?php if ($aktualis_felhasznalo_tulaj): ?>
     <form method="post" onsubmit="return confirm('Biztosan törölni szeretnéd a csoportot? Ez a művelet nem visszavonható.');">
         <button type="submit" name="csoport_torles" class="btn-ghost">
             Csoport törlése
         </button>
     </form>
-	
-<?php endif; ?>
-
+    <?php endif; ?>
 </div>
-
 <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>

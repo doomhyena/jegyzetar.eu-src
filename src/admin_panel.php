@@ -1,21 +1,24 @@
 <?php
-    require "assets/php/db.php";
+    require_once "assets/php/db.php";
+    require_once "assets/php/lang.php";
+    require_once "assets/php/functions.php";
 
-    if(!isset($_COOKIE['id'])){
+    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
         header("Location: reglog.php");
+        exit();
     }
 
-    $sql = "SELECT * FROM users WHERE id='" . $conn->real_escape_string($_COOKIE['id']) . "'";
-    $found_user = $conn->query($sql);
-    $current_user = $found_user->fetch_assoc();
+    $userId = (int)$_COOKIE['id'];
+
+    $result = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$userId]);
+    $current_user = $result->fetch_assoc();
+
     if (!$current_user) {
         header("Location: reglog.php");
+        exit();
     }
 
-    $sql = "SELECT * FROM users WHERE id='" . $_COOKIE['id'] . "'";
-    $found_user = $conn->query($sql);
-    $user = $found_user->fetch_assoc();
-    require "assets/php/lang.php";
+    $user = $current_user;
 ?>
 <!DOCTYPE html>
 <html lang="hu">
@@ -45,7 +48,7 @@
 
     if ($current_user['admin'] != 1) {
         echo "<div class='main'>";
-        echo "<div class='card'><h2>Nincs jogosultságod az admin felület megtekintéséhez.</h2></div>";
+            echo "<div class='card'><h2>Nincs jogosultságod az admin felület megtekintéséhez.</h2></div>";
         echo "</div>";
         include 'assets/php/footer.php';
         echo '</body></html>';
@@ -58,12 +61,10 @@
         $adminId  = intval($current_user['id']);
 
         if ($user_id > 0 && $badge_id > 0) {
-            $checkSql = "SELECT id FROM user_badges WHERE user_id={$user_id} AND badge_id={$badge_id} LIMIT 1";
-            $exists = $conn->query($checkSql);
+            $exists = db_query($conn, "SELECT id FROM user_badges WHERE user_id = ? AND badge_id = ? LIMIT 1", "ii", [$user_id, $badge_id]);
+
             if ($exists && $exists->num_rows == 0) {
-                $insertSql = "INSERT INTO user_badges (user_id, badge_id, granted_by) 
-                              VALUES ({$user_id}, {$badge_id}, {$adminId})";
-                $conn->query($insertSql);
+                db_exec($conn, "INSERT INTO user_badges (user_id, badge_id, granted_by)  VALUES (?, ?, ?)", "iii", [$user_id, $badge_id, $adminId]);
             }
         }
 
@@ -79,36 +80,21 @@
         $description = isset($_POST['description']) ? trim($_POST['description']) : '';
         $icon = isset($_POST['icon']) ? trim($_POST['icon']) : '';
 
-        $nameEsc = $conn->real_escape_string($name);
-        $slugEsc = $conn->real_escape_string($slug);
-        $descEsc = $conn->real_escape_string($description);
-        $iconEsc = $conn->real_escape_string($icon);
-
         if ($action === 'create') {
             if ($name !== '' && $slug !== '') {
-                $sql = "
-                    INSERT INTO badges (name, slug, description, icon)
-                    VALUES ('{$nameEsc}', '{$slugEsc}', " .
-                        ($description !== '' ? "'{$descEsc}'" : "NULL") . ", " .
-                        ($icon !== '' ? "'{$iconEsc}'" : "NULL") .
-                    ")
-                ";
-                $conn->query($sql);
+                $descParam = ($description !== '') ? $description : null;
+                $iconParam = ($icon !== '') ? $icon : null;
+
+                db_exec($conn, "INSERT INTO badges (name, slug, description, icon)  VALUES (?, ?, ?, ?)", "ssss", [$name, $slug, $descParam, $iconParam]);
             }
         } elseif ($action === 'update' && isset($_POST['badge_id'])) {
             $id = intval($_POST['badge_id']);
             if ($id > 0 && $name !== '' && $slug !== '') {
-                $sql = "
-                    UPDATE badges
-                    SET 
-                        name = '{$nameEsc}',
-                        slug = '{$slugEsc}',
-                        description = " . ($description !== '' ? "'{$descEsc}'" : "NULL") . ",
-                        icon = " . ($icon !== '' ? "'{$iconEsc}'" : "NULL") . "
-                    WHERE id = {$id}
-                    LIMIT 1
-                ";
-                $conn->query($sql);
+                $descParam = ($description !== '') ? $description : null;
+                $iconParam = ($icon !== '') ? $icon : null;
+
+                db_exec($conn, "UPDATE badges  SET name = ?, slug = ?, description = ?, icon = ?  WHERE id = ?  LIMIT 1", "ssssi", [$name, $slug, $descParam, $iconParam, $id]
+                );
             }
         }
         echo "<script>location.href='admin_panel.php';</script>";
@@ -122,34 +108,34 @@
         switch ($type) {
             case 'user':
                 if ($id != $current_user['id']) {
-                    $conn->query("DELETE FROM users WHERE id=$id");
-                    $conn->query("DELETE FROM files WHERE uploaded_by=$id");
-                    $conn->query("DELETE FROM comments WHERE userid=$id");
+                    db_exec($conn, "DELETE FROM users WHERE id = ?", "i", [$id]);
+                    db_exec($conn, "DELETE FROM files WHERE uploaded_by = ?", "i", [$id]);
+                    db_exec($conn, "DELETE FROM comments WHERE userid = ?", "i", [$id]);
                 }
                 break;
 
             case 'file':
-                $conn->query("DELETE FROM files WHERE id=$id");
-                $conn->query("DELETE FROM comments WHERE postid=$id");
+                db_exec($conn, "DELETE FROM files WHERE id = ?", "i", [$id]);
+                db_exec($conn, "DELETE FROM comments WHERE postid = ?", "i", [$id]);
                 break;
 
             case 'comment':
-                $conn->query("DELETE FROM comments WHERE id=$id");
+                db_exec($conn, "DELETE FROM comments WHERE id = ?", "i", [$id]);
                 break;
 
             case 'category':
                 if (isset($_GET['subject'])) {
-                    $subject = $conn->real_escape_string($_GET['subject']);
-                    $conn->query("UPDATE files SET subject='' WHERE subject='$subject'");
+                    $subject = $_GET['subject'];
+                    db_exec($conn, "UPDATE files SET subject = '' WHERE subject = ?", "s", [$subject]);
                 }
                 break;
 
             case 'user_badge':
-                $conn->query("DELETE FROM user_badges WHERE id=$id");
+                db_exec($conn, "DELETE FROM user_badges WHERE id = ?", "i", [$id]);
                 break;
 
             case 'badge':
-                $conn->query("DELETE FROM badges WHERE id=$id");
+                db_exec($conn, "DELETE FROM badges WHERE id = ?", "i", [$id]);
                 break;
         }
 
@@ -163,23 +149,22 @@
         $adminId = intval($current_user['id']);
 
         if ($action === 'approve') {
-            $res = $conn->query("SELECT * FROM user_custom_css_requests WHERE id = {$css_id} LIMIT 1");
+            $res = db_query($conn, "SELECT * FROM user_custom_css_requests WHERE id = ? LIMIT 1", "i", [$css_id]);
+
             if ($res && $res->num_rows > 0) {
                 $row = $res->fetch_assoc();
                 $userId = intval($row['user_id']);
 
-                $conn->query("UPDATE user_custom_css_requests SET status = 'approved', reviewed_at = NOW(), reviewed_by = {$adminId} WHERE id = {$css_id} LIMIT 1");
-
-                $conn->query("UPDATE user_custom_css_requests SET status = 'rejected' WHERE user_id = {$userId} AND status = 'pending' AND id <> {$css_id}");
+                db_exec($conn, "UPDATE user_custom_css_requests  SET status = 'approved', reviewed_at = NOW(), reviewed_by = ?  WHERE id = ?  LIMIT 1", "ii", [$adminId, $css_id]);
+                db_exec($conn, "UPDATE user_custom_css_requests  SET status = 'rejected'  WHERE user_id = ? AND status = 'pending' AND id <> ?", "ii", [$userId, $css_id]);
             }
         } elseif ($action === 'reject') {
-            $conn->query("UPDATE user_custom_css_requests SET status = 'rejected', reviewed_at = NOW(), reviewed_by = {$adminId} WHERE id = {$css_id} LIMIT 1");
+            db_exec($conn, "UPDATE user_custom_css_requests  SET status = 'rejected', reviewed_at = NOW(), reviewed_by = ?  WHERE id = ?  LIMIT 1", "ii", [$adminId, $css_id]);
         }
 
         echo "<script>location.href='admin_panel.php';</script>";
+        exit();
     }
-
-    
 
     $users = $conn->query("SELECT * FROM users ORDER BY id DESC");
     $files = $conn->query("SELECT * FROM files ORDER BY id DESC");
@@ -190,7 +175,6 @@
     $badge_options = $conn->query("SELECT id, name FROM badges ORDER BY name ASC");
     $user_options  = $conn->query("SELECT id, username FROM users ORDER BY username ASC");
     $badges = $conn->query("SELECT * FROM badges ORDER BY id DESC");
-
 ?>
 
 <div class="main">
@@ -226,14 +210,22 @@
                 <th>ID</th><th>Név</th><th>Leírás</th><th>Kategória</th><th>Feltöltő</th><th>Művelet</th>
             </tr>
             <?php while($f = $files->fetch_assoc()) {
-                $uploader = $conn->query("SELECT username FROM users WHERE id=" . intval($f['uploaded_by']))->fetch_assoc();
+                $uploaderUsername = 'Ismeretlen';
+                if (!empty($f['uploaded_by'])) {
+                    $uid = (int)$f['uploaded_by'];
+                    $uploaderRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [$uid]);
+                    $uploaderRow = $uploaderRes ? $uploaderRes->fetch_assoc() : null;
+                    if ($uploaderRow && isset($uploaderRow['username'])) {
+                        $uploaderUsername = $uploaderRow['username'];
+                    }
+                }
                 ?>
                 <tr>
                     <td><?= $f['id'] ?></td>
                     <td><?= htmlspecialchars($f['name']) ?></td>
                     <td><?= htmlspecialchars($f['description']) ?></td>
                     <td><?= htmlspecialchars($f['subject']) ?></td>
-                    <td><?= htmlspecialchars($uploader['username'] ?? 'Ismeretlen') ?></td>
+                    <td><?= htmlspecialchars($uploaderUsername) ?></td>
                     <td>
                         <a href="?delete_type=file&delete_id=<?= $f['id'] ?>" onclick="return confirm('Biztosan törlöd ezt a fájlt?')">Törlés</a>
                     </td>
@@ -317,7 +309,7 @@
             <?php } ?>
         </table>
     </section>
-        <section class="card">
+    <section class="card">
         <h2>User badge-ek kezelése</h2>
         <h3>Új badge hozzárendelése</h3>
         <form method="post" action="admin_panel.php" style="margin-bottom: 16px;">
@@ -360,9 +352,20 @@
                     <td>
                         <?php
                         if (!empty($ub['granted_by'])) {
-                            $gbRes = $conn->query("SELECT username FROM users WHERE id=" . intval($ub['granted_by']) . " LIMIT 1");
+                            $gbUsername = 'ismeretlen';
+                            $gbId = (int)$ub['granted_by'];
+
+                            $gbRes = db_query(
+                                $conn,
+                                "SELECT username FROM users WHERE id = ? LIMIT 1",
+                                "i",
+                                [$gbId]
+                            );
                             $gbRow = $gbRes ? $gbRes->fetch_assoc() : null;
-                            echo htmlspecialchars($gbRow['username'] ?? 'ismeretlen');
+                            if ($gbRow && isset($gbRow['username'])) {
+                                $gbUsername = $gbRow['username'];
+                            }
+                            echo htmlspecialchars($gbUsername);
                         } else {
                             echo '—';
                         }
@@ -379,9 +382,8 @@
             <?php } ?>
         </table>
     </section>
-        <section class="card">
+    <section class="card">
         <h2>Badge-ek kezelése</h2>
-
         <h3>Új badge létrehozása</h3>
         <form method="post" action="admin_panel.php" style="margin-bottom:16px;">
             <input type="hidden" name="badge_action" value="create">
@@ -430,7 +432,7 @@
                                 value="<?= htmlspecialchars($b['icon'] ?? '') ?>">
                         </td>
                         <td>
-                            <button type="submit" class="btn-ghost">Mentés</button>
+                            <button type="submit" class="btn-cta btn-ghost">Mentés</button>
                             <a href="?delete_type=badge&delete_id=<?= $b['id'] ?>"
                             onclick="return confirm('Biztosan törlöd ezt a badge-et? A hozzárendelt user_badge-ek is törlődnek.')">
                                 Törlés

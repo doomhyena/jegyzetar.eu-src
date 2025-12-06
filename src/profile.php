@@ -37,14 +37,11 @@
         exit(t('msg_invalid_profile_id'));
     }
 
-    $stmt = db_prepared($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$profileId]);
-    $res = $stmt->get_result();
-    if (!$res || $res->num_rows === 0) {
-        $stmt->close();
+    $res = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$profileId]);
+    if ($res->num_rows === 0) {
         exit(t('msg_profile_not_found'));
     }
     $profile = $res->fetch_assoc();
-    $stmt->close();
 
     $isOwner  = ($viewerId === (int)$profile['id']);
 
@@ -103,21 +100,19 @@
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $profileUpdateError = t('error_bad_email_format');
         } else {
-
             if ($needsSecuritySetup) {
                 $sec_question = trim($_POST['security_question'] ?? '');
                 $sec_answer   = trim($_POST['security_answer'] ?? '');
-
                 if ($sec_question === '' || $sec_answer === '') {
                     $profileUpdateError = t('error_security_answer_required');
                 } else {
-                    db_prepared($conn, "UPDATE users SET firstname = ?, lastname = ?, email = ?, birthdate = ?, security_question = ?, security_answer = ? WHERE id = ? LIMIT 1", "ssssssi", [$firstname, $lastname, $email, $birthdate, $sec_question, $sec_answer, $viewerId])->close();
+                    db_stmt($conn, "UPDATE users  SET firstname = ?, lastname = ?, email = ?, birthdate = ?, security_question = ?, security_answer = ?  WHERE id = ? LIMIT 1", "ssssssi", [$firstname, $lastname, $email, $birthdate, $sec_question, $sec_answer, $viewerId])->close();
                     $_SESSION['profile_toast'] = 'msg_profile_update_success';
                     header("Location: profile.php?userid=" . $viewerId);
                     exit;
                 }
             } else {
-                db_prepared($conn, "UPDATE users SET firstname = ?, lastname = ?, email = ?, birthdate = ? WHERE id = ? LIMIT 1", "ssssi", [$firstname, $lastname, $email, $birthdate, $viewerId])->close();
+                db_stmt($conn, "UPDATE users  SET firstname = ?, lastname = ?, email = ?, birthdate = ?  WHERE id = ? LIMIT 1", "ssssi", [$firstname, $lastname, $email, $birthdate, $viewerId])->close();
                 $_SESSION['profile_toast'] = 'msg_profile_update_success';
                 header("Location: profile.php?userid=" . $viewerId);
                 exit;
@@ -126,31 +121,23 @@
     }
 
     $badges = [];
-    $stmt = db_prepared($conn, "SELECT b.* FROM user_badges ub JOIN badges b ON ub.badge_id = b.id WHERE ub.user_id = ? ORDER BY ub.granted_at ASC", "i", [(int)$profile['id']]);
-    $badgeRes = $stmt->get_result();
-    if ($badgeRes) {
-        while ($row = $badgeRes->fetch_assoc()) {
-            $badges[] = $row;
-        }
+    $badgeRes = db_query($conn, "SELECT b.*  FROM user_badges ub  JOIN badges b ON ub.badge_id = b.id  WHERE ub.user_id = ?  ORDER BY ub.granted_at ASC", "i", [(int)$profile['id']]);
+    while ($row = $badgeRes->fetch_assoc()) {
+        $badges[] = $row;
     }
-    $stmt->close();
 
     $approvedCss = '';
-    $stmt = db_prepared($conn, "SELECT css FROM user_custom_css_requests WHERE user_id = ? AND status = 'approved' ORDER BY id DESC LIMIT 1", "i", [(int)$profile['id']]);
-    $cssRes = $stmt->get_result();
-    if ($cssRes && $cssRes->num_rows > 0) {
+    $cssRes = db_query($conn, "SELECT css  FROM user_custom_css_requests  WHERE user_id = ? AND status = 'approved'  ORDER BY id DESC  LIMIT 1", "i", [(int)$profile['id']]);
+    if ($cssRes->num_rows > 0) {
         $approvedCss = $cssRes->fetch_assoc()['css'];
     }
-    $stmt->close();
 
     $lastCssRequest = null;
     if ($isOwner) {
-        $stmt = db_prepared($conn, "SELECT * FROM user_custom_css_requests WHERE user_id = ? AND status <> 'disabled' ORDER BY id DESC LIMIT 1", "i", [$viewerId]);
-        $lastReqRes = $stmt->get_result();
-        if ($lastReqRes && $lastReqRes->num_rows > 0) {
+        $lastReqRes = db_query($conn, "SELECT *  FROM user_custom_css_requests  WHERE user_id = ? AND status <> 'disabled'  ORDER BY id DESC  LIMIT 1", "i", [$viewerId]);
+        if ($lastReqRes->num_rows > 0) {
             $lastCssRequest = $lastReqRes->fetch_assoc();
         }
-        $stmt->close();
     }
 
     $profile_picture_path = "assets/img/default_profile_picture.jpg";
@@ -185,7 +172,7 @@
         }
 
         if (is_uploaded_file($tmp_name) && move_uploaded_file($tmp_name, $target_file)) {
-            db_prepared($conn, "UPDATE users SET profile_picture = ? WHERE id = ? LIMIT 1", "si", [$file_name, $viewerId])->close();
+            db_stmt($conn, "UPDATE users SET profile_picture = ? WHERE id = ? LIMIT 1", "si", [$file_name, $viewerId])->close();
 
             header("Location: profile.php?userid=".$viewerId);
             exit;
@@ -209,7 +196,7 @@
             $theme = 'default';
         }
 
-        db_prepared($conn, "UPDATE users SET bio = ?, profile_theme = ? WHERE id = ? LIMIT 1", "ssi", [$bio, $theme, $viewerId])->close();
+        db_stmt($conn, "UPDATE users SET bio = ?, profile_theme = ? WHERE id = ? LIMIT 1", "ssi", [$bio, $theme, $viewerId])->close();
 
         header("Location: profile.php?userid=" . $viewerId);
         exit;
@@ -219,7 +206,7 @@
         $css = trim($_POST['custom_css'] ?? '');
 
         if ($css !== '') {
-            db_prepared($conn, "INSERT INTO user_custom_css_requests (user_id, css, status, created_at) VALUES (?, ?, 'pending', NOW())", "is", [$viewerId, $css])->close();
+            db_stmt($conn, "INSERT INTO user_custom_css_requests (user_id, css, status, created_at)  VALUES (?, ?, 'pending', NOW())", "is", [$viewerId, $css])->close();
         } else {
             $_SESSION['profile_toast'] = 'msg_css_empty_reset';
             $_SESSION['close_css_preview'] = true;
@@ -231,15 +218,12 @@
 
     if ($isOwner && isset($_POST['reset-custom-css'])) {
 
-        $res = db_prepared($conn, "SELECT * FROM user_custom_css_requests WHERE user_id = ? ORDER BY id DESC LIMIT 1", "i", [$viewerId]);
-        $reqRes = $res->get_result();
-        $req = $reqRes ? $reqRes->fetch_assoc() : null;
-        $res->close();
+        $reqRes = db_query($conn, "SELECT *  FROM user_custom_css_requests  WHERE user_id = ?  ORDER BY id DESC  LIMIT 1", "i", [$viewerId]);
+        $req = $reqRes->num_rows > 0 ? $reqRes->fetch_assoc() : null;
 
         if ($req) {
-            db_prepared($conn, "INSERT INTO user_custom_css_archive (original_request_id, user_id, css, status, created_at, reviewed_at, reviewed_by) VALUES (?, ?, ?, ?, ?, ?, ?)", "iissssi", [$req['id'], $req['user_id'], $req['css'], $req['status'], $req['created_at'], $req['reviewed_at'], $req['reviewed_by']])->close();
-
-            db_prepared($conn, "DELETE FROM user_custom_css_requests WHERE id = ?", "i", [$req['id']])->close();
+            db_stmt($conn, "INSERT INTO user_custom_css_archive (original_request_id, user_id, css, status, created_at, reviewed_at, reviewed_by)  VALUES (?, ?, ?, ?, ?, ?, ?)", "iissssi", [ $req['id'], $req['user_id'], $req['css'], $req['status'], $req['created_at'], $req['reviewed_at'], $req['reviewed_by']])->close();
+            db_stmt($conn, "DELETE FROM user_custom_css_requests WHERE id = ?", "i", [$req['id']])->close();
         }
 
         $_SESSION['css_reset_done'] = true;
@@ -252,21 +236,16 @@
     }
 
     $notify_number = 0;
-    $stmt = db_prepared($conn, "SELECT id FROM notifys WHERE toid = ? AND readed = 0", "i", [(int)$profile['id']]);
-    $nfRes = $stmt->get_result();
-    if ($nfRes) {
-        $notify_number = (int)$nfRes->num_rows;
-    }
-    $stmt->close();
-
+    $nfRes = db_query($conn, "SELECT id FROM notifys WHERE toid = ? AND readed = 0", "i", [(int)$profile['id']]);
+    
+    $notify_number = (int)$nfRes->num_rows;
     $friendship = null;
+
     if (!$isOwner) {
-        $stmt = db_prepared($conn, "SELECT * FROM friends WHERE (fromid = ? AND toid = ?) OR (fromid = ? AND toid = ?) LIMIT 1", "iiii", [$viewerId, $profileId, $profileId, $viewerId]);
-        $frqRes = $stmt->get_result();
-        if ($frqRes && $frqRes->num_rows > 0) {
+        $frqRes = db_query($conn, "SELECT * FROM friends  WHERE (fromid = ? AND toid = ?) OR (fromid = ? AND toid = ?)  LIMIT 1", "iiii", [$viewerId, $profileId, $profileId, $viewerId]);
+        if ($frqRes->num_rows > 0) {
             $friendship = $frqRes->fetch_assoc();
         }
-        $stmt->close();
     }
 
     $basicEditMode = false;
@@ -483,13 +462,9 @@
                                 <div class="profile-info-item">
                                     <div class="profile-info-label"><?= t('profile_bio') ?></div>
                                     <div class="profile-info-value">
-                                        <textarea
-                                            class="profile-bio-input"
-                                            rows="4"
-                                            name="bio"
-                                            id="profile-bio-input"
-                                            placeholder="<?= htmlspecialchars(t('profile_bio')) ?>"
-                                        ><?= htmlspecialchars($profile['bio'] ?? '') ?></textarea>
+                                        <textarea class="profile-bio-input" rows="4" name="bio" id="profile-bio-input" placeholder="<?= htmlspecialchars(t('profile_bio')) ?>">
+                                        <?= htmlspecialchars($profile['bio'] ?? '') ?>
+                                    </textarea>
                                     </div>
                                 </div>
                                 <div class="profile-info-item">
@@ -555,16 +530,8 @@ body {
                                 <div class="profile-info-item">
                                     <div class="profile-info-label"><?= t('profile_css_label') ?></div>
                                     <div class="profile-info-value">
-                                        <textarea
-                                            class="profile-bio-input"
-                                            rows="4"
-                                            id="profile-custom-css-input"
-                                            style="width: 250px"
-                                            name="custom_css"
-                                            placeholder="<?= htmlspecialchars(t('css_placeholder')) ?>"
-                                            data-i18n-css-empty="<?= htmlspecialchars(t('msg_css_empty_reset')) ?>"
-                                            data-i18n-css-admin="<?= htmlspecialchars(t('msg_css_approved_by_admin')) ?>"
-                                        ><?php
+                                        <textarea class="profile-bio-input" rows="4" id="profile-custom-css-input" style="width: 250px" name="custom_css" placeholder="<?= htmlspecialchars(t('css_placeholder')) ?>" data-i18n-css-empty="<?= htmlspecialchars(t('msg_css_empty_reset')) ?>" data-i18n-css-admin="<?= htmlspecialchars(t('msg_css_approved_by_admin')) ?>">  
+                                            <?php
                                             if ($cssResetDone) {
                                                 echo '';
                                             } else {
@@ -599,17 +566,14 @@ body {
                         <h3 data-translation-key="profile_uploaded_files"><?= t('profile_uploaded_files') ?></h3>
                     </div>
                     <?php
-                    $stmt = db_prepared($conn, "SELECT * FROM files WHERE uploaded_by = ? ORDER BY id DESC", "i", [(int)$profile['id']]);
-                    $files = $stmt->get_result();
-                    if ($files && $files->num_rows > 0): ?>
+                    $files = db_query($conn, "SELECT * FROM files WHERE uploaded_by = ? ORDER BY id DESC", "i", [(int)$profile['id']]);
+                    if ($files->num_rows > 0): ?>
                         <div class="content-grid grid-large">
                             <?php while ($file = $files->fetch_assoc()):
-                                $uploaderStmt = db_prepared($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [(int)$file['uploaded_by']]);
-                                $uploaderRes = $uploaderStmt->get_result();
-                                $uploader = $uploaderRes && $uploaderRes->num_rows > 0
+                                $uploaderRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [(int)$file['uploaded_by']]);
+                                $uploader = $uploaderRes->num_rows > 0
                                     ? $uploaderRes->fetch_assoc()
                                     : ['username' => t('label_unknown_user')];
-                                $uploaderStmt->close();
                                 $ext = pathinfo($file['file_name'], PATHINFO_EXTENSION);
                                 ?>
                                 <article class="card">
@@ -660,7 +624,6 @@ body {
                                     <?php endif; ?>
                                 </article>
                                <?php endwhile; ?>
-                               <?php $stmt->close(); ?>
                         </div>
                     <?php else: ?>
                         <div class="card">

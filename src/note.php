@@ -1,65 +1,71 @@
 <?php
-    // norbi: note.php (sok részt a index.php-bol emeltem at)
-    // -->jegyzet neve
-    // -->jegyzet megtekintes/letoltes
-    // -->kommenteles
-    // -->ertekeles
-    // -->egységes stilus a tobbi oldallal
+    // norbi: note.php
     require_once "assets/php/db.php";
     require_once "assets/php/lang.php";
     require_once 'assets/php/functions.php';
 
-    if(!isset($_COOKIE['id'])){
+    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
         header("Location: reglog.php");
+        exit;
     }
 
-    $sql = "SELECT * FROM users WHERE id='" . $_COOKIE['id'] . "'";
-    $found_user = $conn->query($sql);
-    $user = $found_user->fetch_assoc();
+    $userId = (int)$_COOKIE['id'];
 
-    $sql = "SELECT * FROM notifys WHERE toid = $user[id] AND readed = 0";
-    $founded_notify = $conn->query($sql);
-    $notify_number = mysqli_num_rows($founded_notify);
-    $note_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    $userRes = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$userId]);
+    $user = $userRes ? $userRes->fetch_assoc() : null;
+
+    if (!$user) {
+        header("Location: reglog.php");
+        exit;
+    }
+
+    $nfRes = db_query($conn, "SELECT id FROM notifys WHERE toid = ? AND readed = 0", "i", [$user['id']]);
+    $notify_number = $nfRes ? $nfRes->num_rows : 0;
+
+    $note_id = isset($_GET['id']) && ctype_digit($_GET['id']) ? (int)$_GET['id'] : 0;
 
     if ($note_id <= 0) {
         http_response_code(400);
         $note = null;
     } else {
-        $sql = $conn->query("SELECT * FROM files WHERE id = $note_id LIMIT 1");
+        $noteRes = db_query($conn, "SELECT * FROM files WHERE id = ? LIMIT 1", "i", [$note_id]
+        );
+        $note = ($noteRes && $noteRes->num_rows > 0) ? $noteRes->fetch_assoc() : null;
     }
 
+    if (isset($_POST['favorite-btn']) && isset($_POST['favorite_file_id'])) {
+        $file_id = (int)$_POST['favorite_file_id'];
+        $user_id = (int)$user['id'];
 
-    // norbi: kedvencezés
-    if (isset($_POST['favorite-btn'])) {
-        if (isset($_POST['favorite_file_id'])) {
-            $file_id = (int)$_POST['favorite_file_id'];
-            $user_id = (int)$user['id'];
+        if ($file_id > 0) {
+            $check_result = db_query($conn, "SELECT id FROM favorites WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, $user_id]
+            );
 
-            $check_sql = "SELECT id FROM favorites WHERE file_id = $file_id AND user_id = $user_id";
-            $check_result = $conn->query($check_sql);
-            
             if ($check_result && $check_result->num_rows > 0) {
-                $conn->query("DELETE FROM favorites WHERE file_id = $file_id AND user_id = $user_id");
+                db_exec($conn, "DELETE FROM favorites WHERE file_id = ? AND user_id = ?", "ii", [$file_id, $user_id]
+                );
             } else {
-                $conn->query("INSERT INTO favorites (file_id, user_id) VALUES ($file_id, $user_id)");
+                db_exec($conn, "INSERT INTO favorites (file_id, user_id) VALUES (?, ?)", "ii", [$file_id, $user_id]);
             }
-
-            header("Location: " . $_SERVER['REQUEST_URI']);
-            exit;
         }
+
+        header("Location: " . $_SERVER['REQUEST_URI']);
+        exit;
     }
 
-    if (isset($_POST['comment-btn'])) {
-        if (isset($_POST['post_id'])) {
-            $postid = (int)$_POST['post_id'];
-            $text = $conn->real_escape_string($_POST['comment-text']);
-            $conn->query("INSERT INTO comments (userid, postid, text) VALUES ('{$user['id']}', '{$postid}', '{$text}')");
+    if (isset($_POST['comment-btn']) && isset($_POST['post_id'])) {
+        $postid = (int)$_POST['post_id'];
+        $text   = trim($_POST['comment-text'] ?? '');
 
-            if (isset($_GET['uploader'])) {
+        if ($postid > 0 && $text !== '') {
+            db_exec($conn, "INSERT INTO comments (userid, postid, text) VALUES (?, ?, ?)", "iis", [$user['id'], $postid, $text]);
+
+            if (isset($_GET['uploader']) && ctype_digit($_GET['uploader'])) {
                 $uploader = (int)$_GET['uploader'];
-                $conn->query("INSERT INTO notifys (fromid, toid, notifytype, readed) VALUES ('{$user['id']}', '{$uploader}', 'comment', 0)");
+
+                db_exec($conn, "INSERT INTO notifys (fromid, toid, notifytype, readed) VALUES (?, ?, ?, 0)","iis",[$user['id'], $uploader, 'comment']);
             }
+
             header("Location: " . $_SERVER['REQUEST_URI']);
             exit;
         } else {
@@ -72,28 +78,17 @@
         $rating  = (int)$_POST['rating'];
         $user_id = (int)$user['id'];
 
-        $check_sql = "SELECT id FROM ratings WHERE file_id = $file_id AND user_id = $user_id";
-        $check_result = $conn->query($check_sql);
-        if ($check_result && $check_result->num_rows > 0) {
-            $conn->query("UPDATE ratings SET rating = $rating WHERE file_id = $file_id AND user_id = $user_id");
-        } else {
-            $conn->query("INSERT INTO ratings (file_id, user_id, rating) VALUES ($file_id, $user_id, $rating)");
+        if ($file_id > 0 && $rating >= 1 && $rating <= 5) {
+            $check_result = db_query($conn, "SELECT id FROM ratings WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, $user_id]);
+            if ($check_result && $check_result->num_rows > 0) {
+                db_exec($conn, "UPDATE ratings SET rating = ? WHERE file_id = ? AND user_id = ?", "iii", [$rating, $file_id, $user_id]
+                );
+            } else {
+                db_exec($conn, "INSERT INTO ratings (file_id, user_id, rating) VALUES (?, ?, ?)", "iii", [$file_id, $user_id, $rating]);
+            }
         }
 
         echo "<meta http-equiv='refresh' content='0'>";
-    }
-
-    if ($note_id > 0) {
-        $sql = "SELECT * FROM files WHERE id = $note_id";
-        $result = $conn->query($sql);
-
-        if ($result && $result->num_rows > 0) {
-            $note = $result->fetch_assoc();
-        } else {
-            $note = null;
-        }
-    } else {
-        $note = null;
     }
 
 ?>
@@ -115,36 +110,27 @@
         <?php if ($note): ?>
             <?php
             $file_id = (int)$note['id'];
-
             $file_name = htmlspecialchars($note['name']);
-            $ext = pathinfo($note['file_name'], PATHINFO_EXTENSION);
-
-
-            $uploader_q = $conn->query("SELECT * FROM users WHERE id=" . (int)$note['uploaded_by']);
-            $uploader = $uploader_q ? $uploader_q->fetch_assoc() : ['username' => 'ismeretlen'];
+            $ext = strtolower(pathinfo($note['file_name'], PATHINFO_EXTENSION));
+            $uploaderRes = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [(int)$note['uploaded_by']]);
+            $uploader = $uploaderRes && $uploaderRes->num_rows ? $uploaderRes->fetch_assoc() : ['username' => 'ismeretlen'];
             $username = htmlspecialchars($uploader['username'] ?? 'ismeretlen');
-
-            // értékelések lekérése
-            $avg_q = $conn->query("SELECT IFNULL(AVG(rating),0) as avg_rating, COUNT(id) as rating_count FROM ratings WHERE file_id = $file_id");
-            $avg_data = $avg_q ? $avg_q->fetch_assoc() : ['avg_rating' => 0, 'rating_count' => 0];
+            $avgRes = db_query($conn, "SELECT IFNULL(AVG(rating),0) as avg_rating, COUNT(id) as rating_count  FROM ratings  WHERE file_id = ?", "i", [$file_id]);
+            $avg_data = $avgRes && $avgRes->num_rows ? $avgRes->fetch_assoc() : ['avg_rating' => 0, 'rating_count' => 0];
             $avg = number_format((float)$avg_data['avg_rating'], 2, '.', '');
             $cnt = (int)$avg_data['rating_count'];
-
-            // norbi: kedvenc státusz ellenőrzése
             $is_favorite = false;
-            $fav_check = $conn->query("SELECT id FROM favorites WHERE file_id = $file_id AND user_id = " . (int)$user['id']);
-            if ($fav_check && $fav_check->num_rows > 0) {
+            $favRes = db_query($conn, "SELECT id FROM favorites WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, (int)$user['id']]);
+            if ($favRes && $favRes->num_rows > 0) {
                 $is_favorite = true;
             }
-
-            $user_dir = "users/" . ($uploader['username'] ?? '') . "/";
+            $user_dir  = "users/" . ($uploader['username'] ?? '') . "/";
             $safe_path = $user_dir . $note['file_name'];
             ?>
             <article class="card note-card">
                 <header class="card-head">
                     <h1 class="entry-title"><?= $file_name ?></h1>
                     <div style="display: flex; gap: 8px;">
-                        <!-- norbi: kedvencezési gomb -->
                         <form method="post" style="display: inline;">
                             <input type="hidden" name="favorite_file_id" value="<?= $file_id ?>">
                             <button type="submit" name="favorite-btn" class="favorite-btn <?= $is_favorite ? 'favorited' : '' ?>">
@@ -166,7 +152,6 @@
                         </a>
                     </div>
                 </header>
-
                 <?php if ($ext === 'docx'): ?>
                     <p><b>Ez egy .docx fájl. A megtekintéshez töltsd le és nyisd meg Microsoft Word-ben.</b></p>
                 <?php elseif ($ext === 'mp4'): ?>
@@ -177,51 +162,44 @@
                 <?php elseif ($ext === 'pdf'): ?>
                     <iframe src="<?= htmlspecialchars($safe_path) ?>" width="100%" height="500"></iframe>
                 <?php endif; ?>
-
                 <p>Feltöltötte:
                     <a class="uploader-name" href="profile.php?userid=<?= (int)$note['uploaded_by'] ?>"><?= $username ?></a>
                 </p>
-                <!-- norbi: átlag értékelés és értékelési forma egységesítése-->
                 <div class="rating-section">
                     <h3>Értékelés</h3>
                     <p><b>Átlag értékelés:</b> <?= $avg ?> (<?= $cnt ?> értékelés)</p>
-                    
                     <form method="post" action="" class="rating-form filters-inner">
                         <input type="hidden" name="rate_file_id" value="<?= $file_id ?>">
                         <div class="star-rating" aria-label="Értékelés 1–5">
                             <?php
                             $usr_rate = 0;
-                            $rs = $conn->query("SELECT rating FROM ratings WHERE file_id = $file_id AND user_id = " . (int)$user['id']);
+                            $rs = db_query($conn, "SELECT rating FROM ratings WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, (int)$user['id']]
+                            );
                             if ($rs && $rs->num_rows > 0) {
                                 $usr_rate = (int)$rs->fetch_assoc()['rating'];
                             }
                             for ($i = 5; $i >= 1; $i--) {
-                                $checked = ($usr_rate === $i) ? 'checked' : '';
+                                $checked  = ($usr_rate === $i) ? 'checked' : '';
                                 $input_id = "star{$i}_note_{$file_id}";
-                                echo '<input type="radio" id="' . $input_id . '" name="rating" value="' . $i . '" ' . $checked . '>';
-                                echo '<label for="' . $input_id . '" title="' . $i . ' csillag">★</label>';
+                                echo '<input type="radio" id="'.$input_id.'" name="rating" value="'.$i.'" '.$checked.'>';
+                                echo '<label for="'.$input_id.'" title="'.$i.' csillag">★</label>';
                             }
                             ?>
                         </div>
-                        <!-- norbi: rating stilus illeszkedése a többiekhez -->
                         <button type="submit" name="rate-btn" class="rate-btn">
                             <svg class="icon icon-star" viewBox="0 0 24 24" aria-hidden="true">
-                                <polygon points="12,2 15,8 22,9 17,14 18,21 12,18 6,21 7,14 2,9 9,8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <polygon points="12,2 15,8 22,9 17,14 18,21 12,18 6,21 7,14 2,9 9,8"
+                                         fill="none" stroke="currentColor" stroke-width="2"
+                                         stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <span>Értékelés küldése</span>
                         </button>
                     </form>
                 </div>
-
                 <div class="comments-section">
                     <h3>Kommentek</h3>
                     <?php
-                    $comments_sql = "SELECT c.*, u.username FROM comments c 
-                                       JOIN users u ON c.userid = u.id 
-                                       WHERE c.postid = $file_id 
-                                       ORDER BY c.id DESC";
-                    $comments_result = $conn->query($comments_sql);
-
+                    $comments_result = db_query($conn, "SELECT c.*, u.username  FROM comments c  JOIN users u ON c.userid = u.id  WHERE c.postid = ?  ORDER BY c.id DESC", "i", [$file_id]);
                     if ($comments_result && $comments_result->num_rows > 0):
                         while ($comment = $comments_result->fetch_assoc()):
                             ?>
@@ -235,13 +213,14 @@
                         ?>
                         <p class="entry-meta">Még nincs komment.</p>
                     <?php endif; ?>
-
                     <form method="post" action="" class="comment-form filters-inner">
                         <input type="hidden" name="post_id" value="<?= $file_id ?>">
                         <textarea name="comment-text" class="input" placeholder="Írj kommentet..." required rows="3"></textarea>
                         <button type="submit" name="comment-btn" class="btn-search">
                             <svg class="icon icon-send" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
+                                      fill="none" stroke="currentColor" stroke-width="2"
+                                      stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <span>Küldés</span>
                         </button>

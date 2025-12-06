@@ -1,21 +1,75 @@
 <?php
 
-    if (!function_exists('db_prepared')) {
-        function db_prepared(mysqli $conn, string $sql, string $types, array $params): mysqli_stmt {
+    if (!function_exists('db_log_error')) {
+        function db_log_error(mysqli $conn, string $message, ?string $sql = null, array $params = []): void
+        {
+            $logLine = sprintf(
+                "[%s] %s | SQL: %s | PARAMS: %s | MYSQL: (%d) %s\n",
+                date('Y-m-d H:i:s'),
+                $message,
+                $sql ?? '-',
+                $params ? json_encode($params, JSON_UNESCAPED_UNICODE) : '[]',
+                $conn->errno,
+                $conn->error
+            );
+
+            error_log($logLine);
+
+            $logFile = __DIR__ . '/../logs/db_errors.log';
+            $dir = dirname($logFile);
+            if (@is_dir($dir) || @mkdir($dir, 0775, true)) {
+                @file_put_contents($logFile, $logLine, FILE_APPEND);
+            }
+        }
+    }
+
+    if (!function_exists('db_stmt')) {
+        function db_stmt(mysqli $conn, string $sql, string $types = '', array $params = []): mysqli_stmt {
+            if ($types !== '' && strlen($types) !== count($params)) {
+                db_log_error(
+                    $conn,
+                    "db_stmt: types és param szám eltérés",
+                    $sql,
+                    ['types' => $types, 'params' => $params]
+                );
+                throw new InvalidArgumentException('A types hossza nem egyezik a paraméterek számával.');
+            }
+
             $stmt = $conn->prepare($sql);
             if (!$stmt) {
+                db_log_error($conn, 'Előkészítési hiba (prepare)', $sql, $params);
                 throw new RuntimeException('Előkészítési hiba (prepare): ' . $conn->error);
             }
 
-            if (!$stmt->bind_param($types, ...$params)) {
-                throw new RuntimeException('Paraméterek bind-elése sikertelen: ' . $stmt->error);
+            if ($types !== '' && $params) {
+                if (!$stmt->bind_param($types, ...$params)) {
+                    db_log_error($conn, 'Paraméterek bind-elése sikertelen', $sql, $params);
+                    throw new RuntimeException('Paraméterek bind-elése sikertelen: ' . $stmt->error);
+                }
             }
 
             if (!$stmt->execute()) {
+                db_log_error($conn, 'Végrehajtási hiba (execute)', $sql, $params);
                 throw new RuntimeException('Végrehajtási hiba (execute): ' . $stmt->error);
             }
 
             return $stmt;
+        }
+    }
+
+    if (!function_exists('db_query')) {
+
+        function db_query(mysqli $conn, string $sql, string $types = '', array $params = []): mysqli_result
+        {
+            $stmt = db_stmt($conn, $sql, $types, $params);
+            $result = $stmt->get_result();
+
+            if ($result === false) {
+                db_log_error($conn, 'db_query: get_result() false-t adott vissza', $sql, $params);
+                throw new RuntimeException('db_query: get_result() nem adott vissza eredményt.');
+            }
+
+            return $result;
         }
     }
 

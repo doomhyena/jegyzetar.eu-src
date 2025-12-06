@@ -21,16 +21,12 @@
 <div class="main" style="max-width: 600px;">
     <?php
     if (isset($_POST['forg-btn'])) {
-        $username        = $_POST['username'] ?? '';
-        $security_answer = $_POST['security_answer'] ?? '';
-
-        $username_esc = $conn->real_escape_string($username);
-        $sql = "SELECT * FROM users WHERE username='$username_esc'";
-        $found_user = $conn->query($sql);
+        $username = trim($_POST['username'] ?? '');
+        $security_answer = trim($_POST['security_answer'] ?? '');
+        $found_user = db_query($conn, "SELECT * FROM users WHERE username = ? LIMIT 1", "s", [$username]);
 
         if ($found_user && $found_user->num_rows > 0) {
             $user = $found_user->fetch_assoc();
-
             if ($security_answer === $user['security_answer']) {
                 ?>
                 <h1><?= t('password_reset_heading_new') ?></h1>
@@ -55,7 +51,7 @@
             echo "<meta http-equiv='refresh' content='0;url=forgotpass.php'>";
         }
     } elseif (isset($_POST['new-pass-btn'])) {
-        if (!isset($_GET['userid'])) {
+        if (!isset($_GET['userid']) || !ctype_digit($_GET['userid'])) {
             echo "<script>alert('".t('msg_invalid_user_id')."');</script>";
             echo "<meta http-equiv='refresh' content='0;url=forgotpass.php'>";
         } else {
@@ -64,16 +60,16 @@
             $pass2  = $_POST['password2'] ?? '';
 
             if ($pass1 === $pass2) {
-                $sql = "SELECT * FROM users WHERE id=$userid";
-                $found_user = $conn->query($sql);
+                $found_user = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$userid]);
 
                 if ($found_user && $found_user->num_rows > 0) {
                     $user = $found_user->fetch_assoc();
 
                     if ($pass1 !== $user['password']) {
                         $titkositott_jelszo = password_hash($pass1, PASSWORD_DEFAULT);
-                        $pass_esc = $conn->real_escape_string($titkositott_jelszo);
-                        $conn->query("UPDATE users SET password='$pass_esc' WHERE id=$userid");
+
+                        db_exec($conn, "UPDATE users SET password = ? WHERE id = ?", "si", [$titkositott_jelszo, $userid]
+                        );
                         ?>
                         <div class="card">
                             <h3><?= t('change_success_title') ?></h3>

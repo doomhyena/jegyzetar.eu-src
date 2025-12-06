@@ -12,7 +12,7 @@
 
     if (!empty($_SESSION['discord_prefill']) && is_array($_SESSION['discord_prefill'])) {
         $prefillUsername = $_SESSION['discord_prefill']['username'] ?? '';
-        $prefillEmail    = $_SESSION['discord_prefill']['email'] ?? '';
+        $prefillEmail = $_SESSION['discord_prefill']['email'] ?? '';
         unset($_SESSION['discord_prefill']);
     }
 
@@ -43,7 +43,7 @@
         $birthdate = $_POST['birthdate'] ?? '';
         $gender = $_POST['gender'] ?? '';
         $email = $_POST['email'] ?? '';
-        $password = $_POST['password1']  ?? '';
+        $password = $_POST['password1'] ?? '';
         $passwordtwo = $_POST['password2'] ?? '';
         $registration_date = date('Y-m-d H:i:s');
         $security_question = $_POST['security_question'] ?? '';
@@ -51,55 +51,36 @@
 
         $currentForm = 'reg';
 
-        $username_esc = $conn->real_escape_string($username);
-        $email_esc    = $conn->real_escape_string($email);
+        $found_user = db_query($conn, "SELECT id FROM users WHERE username = ? LIMIT 1", "s", [$username]
+        );
 
-        $sql = "SELECT * FROM users WHERE username='{$username_esc}'";
-        $found_user = $conn->query($sql);
+        if ($found_user->num_rows == 0) {
 
-        if ($found_user && $found_user->num_rows == 0) {
-            $sql = "SELECT * FROM users WHERE email='{$email_esc}'";
-            $found_email = $conn->query($sql);
+            $found_email = db_query($conn, "SELECT id FROM users WHERE email = ? LIMIT 1", "s", [$email]);
 
-            if ($found_email && $found_email->num_rows == 0) {
+            if ($found_email->num_rows == 0) {
+
                 if ($password === $passwordtwo) {
                     $titkositott_jelszo = password_hash($password, PASSWORD_DEFAULT);
 
-                    $lastname_esc  = $conn->real_escape_string($lastname);
-                    $firstname_esc = $conn->real_escape_string($firstname);
-                    $birthdate_esc = $conn->real_escape_string($birthdate);
-                    $gender_esc = $conn->real_escape_string($gender);
-                    $sec_q_esc = $conn->real_escape_string($security_question);
-                    $sec_a_esc = $conn->real_escape_string($security_answer);
-                    $regdate_esc  = $conn->real_escape_string($registration_date);
-                    $password_esc = $conn->real_escape_string($titkositott_jelszo);
+                    db_stmt($conn, "INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)", "ssssssssss", [$lastname, $firstname, $username, $birthdate, $gender, $email, $titkositott_jelszo, $security_question, $security_answer, $registration_date]
+                    )->close();
 
-                    $sql = "
-                        INSERT INTO users
-                            (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin)
-                        VALUES
-                            ('{$lastname_esc}', '{$firstname_esc}', '{$username_esc}', '{$birthdate_esc}', '{$gender_esc}',
-                             '{$email_esc}', '{$password_esc}', '{$sec_q_esc}', '{$sec_a_esc}', '{$regdate_esc}', 0)
-                    ";
-
-                    if ($conn->query($sql)) {
-                        $newUserId = (int)$conn->insert_id;
-                        if ($newUserId > 0) {
-                            setcookie("id", $newUserId, time() + 3600, "/");
-                        }
-                        $folder = getcwd();
-                        $path   = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
-                        if (!is_dir($path) && mkdir($path, 0777, true)) {
-                            echo "<script>alert('".t('msg_storage_created')."');</script>";
-                            header("Location: reglog.php");
-                            exit;
-                        } else {
-                            echo "<script>alert('".t('msg_storage_failed')."');</script>";
-                        }
-                        $currentForm = 'login';
-                    } else {
-                        echo "<script>alert('".t('msg_registration_failed')."');</script>";
+                    $newUserId = (int)$conn->insert_id;
+                    if ($newUserId > 0) {
+                        setcookie("id", $newUserId, time() + 3600, "/");
                     }
+
+                    $folder = getcwd();
+                    $path   = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
+                    if (!is_dir($path) && mkdir($path, 0777, true)) {
+                        echo "<script>alert('".t('msg_storage_created')."');</script>";
+                        header("Location: reglog.php");
+                        exit;
+                    } else {
+                        echo "<script>alert('".t('msg_storage_failed')."');</script>";
+                    }
+                    $currentForm = 'login';
                 } else {
                     echo "<script>alert('".t('msg_passwords_not_match')."');</script>";
                 }
@@ -114,22 +95,17 @@
     if (isset($_POST['login-btn'])) {
         $username = $_POST['username'] ?? '';
         $password = $_POST['password'] ?? '';
-
         $currentForm = 'login';
+        $found_user = db_query($conn, "SELECT * FROM users WHERE username = ? LIMIT 1", "s", [$username]);
 
-        $username_esc = $conn->real_escape_string($username);
-        $sql = "SELECT * FROM users WHERE username='{$username_esc}'";
-        $found_user = $conn->query($sql);
-
-        if ($found_user && $found_user->num_rows > 0) {
+        if ($found_user->num_rows > 0) {
             $user = $found_user->fetch_assoc();
             if (password_verify($password, $user['password'])) {
-                //norbi: átvezet a 2fa oldalra
-                session_start();
-				$_SESSION['id'] = $user['id'];
-				$_SESSION['email'] = $user['email'];
-				header("Location: mail-2fa.php"); 
-                
+                // norbi: átvezet a 2fa oldalra
+                $_SESSION['id']    = $user['id'];
+                $_SESSION['email'] = $user['email'];
+                header("Location: mail-2fa.php");
+                exit;
                 //setcookie("id", $user['id'], time() + 3600, "/");
                 //header("Location: index.php");
                 //exit;
@@ -184,14 +160,7 @@
                 <label for="firstname"><?= t('label_firstname') ?></label>
                 <input class="input" type="text" name="firstname" id="firstname" required>
                 <label for="username"><?= t('label_username') ?></label>
-                <input
-                    class="input"
-                    type="text"
-                    name="username"
-                    id="username"
-                    value="<?= htmlspecialchars($prefillUsername, ENT_QUOTES, 'UTF-8') ?>"
-                    required
-                >
+                <input class="input" type="text" name="username" id="username" value="<?= htmlspecialchars($prefillUsername, ENT_QUOTES, 'UTF-8') ?>" required>
                 <label for="birthdate"><?= t('label_birthdate') ?></label>
                 <input class="input" type="date" name="birthdate" id="birthdate" required>
                 <label for="gender"><?= t('label_gender') ?></label>
@@ -201,14 +170,7 @@
                     <option value="other"><?= t('gender_other') ?></option>
                 </select>
                 <label for="email"><?= t('label_email') ?></label>
-                <input
-                    class="input"
-                    type="email"
-                    name="email"
-                    id="email"
-                    value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>"
-                    required
-                >
+                <input class="input" type="email" name="email" id="email" value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>" required>
                 <label for="password1"><?= t('label_password') ?></label>
                 <input class="input" type="password" name="password1" id="password1" required>
                 <label for="password2"><?= t('label_password_again') ?></label>

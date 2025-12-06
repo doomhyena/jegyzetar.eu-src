@@ -1,17 +1,15 @@
 <?php
-require "assets/php/db.php";
-require "assets/php/lang.php";
+    require "assets/php/db.php";
+    require "assets/php/lang.php";
 
-if (!isset($_COOKIE['id'])) {
-    header("Location: reglog.php");
-    exit;
-}
+    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
+        header("Location: reglog.php");
+        exit;
+    }
 
-$aktualis_felhasznalo_id = $_COOKIE['id'];
-
-// egyszerű lista, minden csoport
-$csoportok_sql = "SELECT * FROM groups ORDER BY id DESC";
-$csoportok_lekerdezes = $conn->query($csoportok_sql);
+    $aktualis_felhasznalo_id = (int)$_COOKIE['id'];
+    $csoportok_sql = "SELECT * FROM groups ORDER BY id DESC";
+    $csoportok_lekerdezes = $conn->query($csoportok_sql);
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">
@@ -29,9 +27,7 @@ $csoportok_lekerdezes = $conn->query($csoportok_sql);
 </head>
 <body>
 <?php include 'assets/php/navbar.php'; ?>
-
 <div class="main">
-    <!-- Fejléc + új csoport gomb -->
     <div class="section-titlebar">
         <div>
             <h1>Tanuló csoportok</h1>
@@ -45,20 +41,19 @@ $csoportok_lekerdezes = $conn->query($csoportok_sql);
             </a>
         </div>
     </div>
-
     <?php if ($csoportok_lekerdezes && $csoportok_lekerdezes->num_rows > 0): ?>
         <div class="content-grid grid-large" style="margin-top:16px;">
             <?php while ($egy_csoport = $csoportok_lekerdezes->fetch_assoc()):
-                $csoport_id     = $egy_csoport['id'];
-                $csoport_nev    = $egy_csoport['name'];
-                $csoport_leiras = $egy_csoport['description'];
-                $csoport_privat = $egy_csoport['is_private'];
+                    $csoport_id = $egy_csoport['id'];
+                    $csoport_nev = $egy_csoport['name'];
+                    $csoport_leiras = $egy_csoport['description'];
+                    $csoport_privat = $egy_csoport['is_private'];
 
-                if ($csoport_privat == 1) {
-                    $privat_szoveg = "Privát csoport";
-                } else {
-                    $privat_szoveg = "Nyilvános csoport";
-                }
+                    if ($csoport_privat == 1) {
+                        $privat_szoveg = "Privát csoport";
+                    } else {
+                        $privat_szoveg = "Nyilvános csoport";
+                    }
                 ?>
                 <article class="card">
                     <div class="card-head">
@@ -71,7 +66,6 @@ $csoportok_lekerdezes = $conn->query($csoportok_sql);
                             <?= htmlspecialchars($privat_szoveg) ?>
                         </span>
                     </div>
-
                     <?php if (trim($csoport_leiras) !== ""): ?>
                         <p class="entry-meta" style="margin-top:8px;">
                             <?= nl2br(htmlspecialchars($csoport_leiras)) ?>
@@ -81,7 +75,6 @@ $csoportok_lekerdezes = $conn->query($csoportok_sql);
                             Ehhez a csoporthoz még nincs leírás megadva.
                         </p>
                     <?php endif; ?>
-
                     <div style="margin-top:10px;">
                         <a href="group.php?id=<?= (int)$csoport_id ?>" class="btn-ghost">
                             Csoport megnyitása
@@ -96,7 +89,6 @@ $csoportok_lekerdezes = $conn->query($csoportok_sql);
         </div>
     <?php endif; ?>
 </div>
-
 <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>

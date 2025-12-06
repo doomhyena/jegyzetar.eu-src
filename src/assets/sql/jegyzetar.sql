@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2025. Dec 02. 11:09
+-- Létrehozás ideje: 2025. Dec 06. 22:14
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -86,7 +86,8 @@ CREATE TABLE `favorites` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL,
-  `created_at
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 --
 -- A tábla adatainak kiíratása `favorites`
@@ -148,13 +149,6 @@ CREATE TABLE `groups` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
---
--- A tábla adatainak kiíratása `groups`
---
-
-INSERT INTO `groups` (`id`, `name`, `description`, `owner_id`, `is_private`, `created_at`) VALUES
-(0, 'Teszt termék', 'asd', 4, 0, '2025-12-02 10:56:08');
-
 -- --------------------------------------------------------
 
 --
@@ -186,13 +180,6 @@ CREATE TABLE `group_members` (
   `status` enum('accepted','pending') NOT NULL DEFAULT 'accepted',
   `joined_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
-
---
--- A tábla adatainak kiíratása `group_members`
---
-
-INSERT INTO `group_members` (`id`, `group_id`, `user_id`, `role`, `status`, `joined_at`) VALUES
-(0, 0, 4, 'owner', 'accepted', '2025-12-02 10:56:08');
 
 -- --------------------------------------------------------
 
@@ -2085,7 +2072,7 @@ ALTER TABLE `user_custom_css_requests`
 -- AUTO_INCREMENT a táblához `2fa_codes`
 --
 ALTER TABLE `2fa_codes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT a táblához `badges`
