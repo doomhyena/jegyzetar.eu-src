@@ -3,15 +3,7 @@
     if (!function_exists('db_log_error')) {
         function db_log_error(mysqli $conn, string $message, ?string $sql = null, array $params = []): void
         {
-            $logLine = sprintf(
-                "[%s] %s | SQL: %s | PARAMS: %s | MYSQL: (%d) %s\n",
-                date('Y-m-d H:i:s'),
-                $message,
-                $sql ?? '-',
-                $params ? json_encode($params, JSON_UNESCAPED_UNICODE) : '[]',
-                $conn->errno,
-                $conn->error
-            );
+            $logLine = sprintf("[%s] %s | SQL: %s | PARAMS: %s | MYSQL: (%d) %s\n", date('Y-m-d H:i:s'), $message, $sql ?? '-', $params ? json_encode($params, JSON_UNESCAPED_UNICODE) : '[]', $conn->errno, $conn->error);
 
             error_log($logLine);
 
@@ -72,6 +64,16 @@
             return $result;
         }
     }
+
+    if (!function_exists('db_exec')) {
+        function db_exec(mysqli $conn, string $sql, string $types = '', array $params = []): bool
+        {
+            $stmt = db_stmt($conn, $sql, $types, $params);
+            $stmt->close();
+            return true;
+        }
+    }
+
 
     if (!function_exists('Message')) {
         function Message($text){
