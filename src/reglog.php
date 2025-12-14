@@ -1,106 +1,127 @@
 <?php
-    session_start();
+session_start();
 
-    require_once "assets/php/db.php";
-    require_once "assets/php/lang.php";
-    require_once 'assets/php/functions.php';
+require_once "assets/php/db.php";
+require_once "assets/php/lang.php";
+require_once 'assets/php/functions.php';
 
-    include 'assets/php/navbar.php';
+include 'assets/php/navbar.php';
 
-    $prefillUsername = '';
-    $prefillEmail = '';
+$prefillUsername = '';
+$prefillEmail = '';
 
-    if (!empty($_SESSION['discord_prefill']) && is_array($_SESSION['discord_prefill'])) {
-        $prefillUsername = $_SESSION['discord_prefill']['username'] ?? '';
-        $prefillEmail = $_SESSION['discord_prefill']['email'] ?? '';
-        unset($_SESSION['discord_prefill']);
-    }
+if (!empty($_SESSION['discord_prefill']) && is_array($_SESSION['discord_prefill'])) {
+    $prefillUsername = $_SESSION['discord_prefill']['username'] ?? '';
+    $prefillEmail = $_SESSION['discord_prefill']['email'] ?? '';
+    unset($_SESSION['discord_prefill']);
+}
 
-    $security_questions = [
-        t('sec_q_favorite_book'),
-        t('sec_q_first_pet_name'),
-        t('sec_q_mother_maiden_name'),
-        t('sec_q_birth_city'),
-        t('sec_q_favorite_food')
-    ];
+$security_questions = [
+    t('sec_q_favorite_book'),
+    t('sec_q_first_pet_name'),
+    t('sec_q_mother_maiden_name'),
+    t('sec_q_birth_city'),
+    t('sec_q_favorite_food')
+];
 
-    $selected_question = $security_questions[array_rand($security_questions)];
+$selected_question = $security_questions[array_rand($security_questions)];
 
-    $currentForm = ($prefillUsername || $prefillEmail) ? 'reg' : 'login';
+$currentForm = ($prefillUsername || $prefillEmail) ? 'reg' : 'login';
 
-    if (isset($_POST['reg-btn'])) {
-        $currentForm = 'reg';
-    }
+if (isset($_POST['reg-btn'])) {
+    $currentForm = 'reg';
+}
 
-    if (isset($_POST['login-btn'])) {
-        $currentForm = 'login';
-    }
+if (isset($_POST['login-btn'])) {
+    $currentForm = 'login';
+}
 
-    if (isset($_POST['reg-btn'])) {
-        $lastname = $_POST['lastname'] ?? '';
-        $firstname = $_POST['firstname'] ?? '';
-        $username = $_POST['username'] ?? '';
-        $birthdate = $_POST['birthdate'] ?? '';
-        $gender = $_POST['gender'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password1'] ?? '';
-        $passwordtwo = $_POST['password2'] ?? '';
-        $registration_date = date('Y-m-d H:i:s');
-        $security_question = $_POST['security_question'] ?? '';
-        $security_answer = $_POST['security_answer'] ?? '';
+if (isset($_POST['reg-btn'])) {
+    $lastname = $_POST['lastname'] ?? '';
+    $firstname = $_POST['firstname'] ?? '';
+    $username = $_POST['username'] ?? '';
+    $birthdate = $_POST['birthdate'] ?? '';
+    $gender = $_POST['gender'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $password = $_POST['password1'] ?? '';
+    $passwordtwo = $_POST['password2'] ?? '';
+    $registration_date = date('Y-m-d H:i:s');
+    $security_question = $_POST['security_question'] ?? '';
+    $security_answer = $_POST['security_answer'] ?? '';
 
-        $currentForm = 'reg';
+    $currentForm = 'reg';
 
-        $found_user = db_query($conn, "SELECT id FROM users WHERE username = ? LIMIT 1", "s", [$username]
-        );
+    $found_user = db_query(
+        $conn,
+        "SELECT id FROM users WHERE username = ? LIMIT 1",
+        "s",
+        [$username]
+    );
 
-        if ($found_user->num_rows == 0) {
+    if ($found_user->num_rows == 0) {
 
-            $found_email = db_query($conn, "SELECT id FROM users WHERE email = ? LIMIT 1", "s", [$email]);
+        $found_email = db_query($conn, "SELECT id FROM users WHERE email = ? LIMIT 1", "s", [$email]);
 
-            if ($found_email->num_rows == 0) {
+        if ($found_email->num_rows == 0) {
 
-                if ($password === $passwordtwo) {
-                    $titkositott_jelszo = password_hash($password, PASSWORD_DEFAULT);
+            if ($password === $passwordtwo) {
+                $titkositott_jelszo = password_hash($password, PASSWORD_DEFAULT);
 
-                    db_stmt($conn, "INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)", "ssssssssss", [$lastname, $firstname, $username, $birthdate, $gender, $email, $titkositott_jelszo, $security_question, $security_answer, $registration_date]
-                    )->close();
 
-                    $newUserId = (int)$conn->insert_id;
-                    if ($newUserId > 0) {
-                        setcookie("id", $newUserId, time() + 3600, "/");
-                    }
 
-                    $folder = getcwd();
-                    $path   = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
-                    if (!is_dir($path) && mkdir($path, 0777, true)) {
-                        echo "<script>alert('".t('msg_storage_created')."');</script>";
-                        header("Location: reglog.php");
-                        exit;
-                    } else {
-                        echo "<script>alert('".t('msg_storage_failed')."');</script>";
-                    }
-                    $currentForm = 'login';
-                } else {
-                    echo "<script>alert('".t('msg_passwords_not_match')."');</script>";
+                db_stmt(
+                    $conn,
+                    "INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)",
+                    "ssssssssss",
+                    [$lastname, $firstname, $username, $birthdate, $gender, $email, $titkositott_jelszo, $security_question, $security_answer, $registration_date]
+                )->close();
+
+
+
+                $newUserId = (int)$conn->insert_id;
+                if ($newUserId > 0) {
+                    setcookie("id", $newUserId, time() + 3600, "/");
                 }
+
+                $_SESSION["ver_id"] = $newUserId;
+                $_SESSION['email'] = $email;
+
+                $folder = getcwd();
+                $path   = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
+                if (!is_dir($path) && mkdir($path, 0777, true)) {
+                    echo "<script>alert('" . t('msg_storage_created') . "');</script>";
+                    header("Location: reglog.php");
+                    exit;
+                } else {
+                    echo "<script>alert('" . t('msg_storage_failed') . "');</script>";
+                }
+                $currentForm = 'login';
+                header("Location: mail-regver.php");
+                
             } else {
-                echo "<script>alert('".t('msg_email_exists')."');</script>";
+                echo "<script>alert('" . t('msg_passwords_not_match') . "');</script>";
             }
         } else {
-            echo "<script>alert('".t('msg_username_exists')."');</script>";
+            echo "<script>alert('" . t('msg_email_exists') . "');</script>";
         }
+    } else {
+        echo "<script>alert('" . t('msg_username_exists') . "');</script>";
     }
+}
 
-    if (isset($_POST['login-btn'])) {
-        $username = $_POST['username'] ?? '';
-        $password = $_POST['password'] ?? '';
-        $currentForm = 'login';
-        $found_user = db_query($conn, "SELECT * FROM users WHERE username = ? LIMIT 1", "s", [$username]);
+if (isset($_POST['login-btn'])) {
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $currentForm = 'login';
+    $found_user = db_query($conn, "SELECT * FROM users WHERE username = ? LIMIT 1", "s", [$username]);
 
-        if ($found_user->num_rows > 0) {
-            $user = $found_user->fetch_assoc();
-            if (password_verify($password, $user['password'])) {
+    if ($found_user->num_rows > 0) {
+        $user = $found_user->fetch_assoc();
+        if (password_verify($password, $user['password'])) {
+            // email_verified == 0 nem tud belépni
+            if ($user["email_verified"] == 0) {
+                echo "<script>alert('Kérlek aktiváld a fiókodat!')</script>";
+            } else {
                 // norbi: átvezet a 2fa oldalra
                 $_SESSION['id']    = $user['id'];
                 $_SESSION['email'] = $user['email'];
@@ -109,16 +130,18 @@
                 //setcookie("id", $user['id'], time() + 3600, "/");
                 //header("Location: index.php");
                 //exit;
-            } else {
-                echo "<script>alert('".t('msg_wrong_password')."');</script>";
             }
         } else {
-            echo "<script>alert('".t('msg_user_not_found')."');</script>";
+            echo "<script>alert('" . t('msg_wrong_password') . "');</script>";
         }
+    } else {
+        echo "<script>alert('" . t('msg_user_not_found') . "');</script>";
     }
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">
+
 <head>
     <title><?= t('auth_page_title') ?></title>
     <meta charset="UTF-8">
@@ -130,75 +153,77 @@
     <link rel="stylesheet" href="assets/css/styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
+
 <body>
-<div class="main">
-    <div class="auth-wrap">
-        <div class="auth-head">
-            <h1><?= t('auth_welcome_title') ?></h1>
-            <p class="auth-note"><?= t('auth_welcome_subtitle') ?></p>
-        </div>
-        <div class="auth-grid">
-            <form class="auth-card" id="login" method="post" style="<?= $currentForm==='login' ? '' : 'display:none;' ?>">
-                <h1><?= t('auth_login_heading') ?></h1>
-                <label for="login_username"><?= t('label_username') ?></label>
-                <input class="input" type="text" name="username" id="login_username" required>
-                <label for="login_password"><?= t('label_password') ?></label>
-                <input class="input" type="password" name="password" id="login_password" required>
+    <div class="main">
+        <div class="auth-wrap">
+            <div class="auth-head">
+                <h1><?= t('auth_welcome_title') ?></h1>
+                <p class="auth-note"><?= t('auth_welcome_subtitle') ?></p>
+            </div>
+            <div class="auth-grid">
+                <form class="auth-card" id="login" method="post" style="<?= $currentForm === 'login' ? '' : 'display:none;' ?>">
+                    <h1><?= t('auth_login_heading') ?></h1>
+                    <label for="login_username"><?= t('label_username') ?></label>
+                    <input class="input" type="text" name="username" id="login_username" required>
+                    <label for="login_password"><?= t('label_password') ?></label>
+                    <input class="input" type="password" name="password" id="login_password" required>
+                    <div class="auth-actions" style="margin-top:12px;">
+                        <button class="btn-cta" type="submit" name="login-btn"><?= t('auth_btn_login') ?></button>
+                        <a class="btn-ghost" href="forgotpass.php"><?= t('auth_forgot_password') ?></a>
+                    </div>
+                    <p class="auth-note" style="margin-top:16px;">
+                        <?= t('auth_no_account') ?>
+                        <a class="switcher" href="#" data-switch="reg"><?= t('auth_link_register') ?></a>
+                    </p>
+                </form>
+                <form class="auth-card" id="reg" method="post" style="<?= $currentForm === 'reg' ? '' : 'display:none;' ?>">
+                    <h1><?= t('auth_register_heading') ?></h1>
+                    <label for="lastname"><?= t('label_lastname') ?></label>
+                    <input class="input" type="text" name="lastname" id="lastname" required>
+                    <label for="firstname"><?= t('label_firstname') ?></label>
+                    <input class="input" type="text" name="firstname" id="firstname" required>
+                    <label for="username"><?= t('label_username') ?></label>
+                    <input class="input" type="text" name="username" id="username" value="<?= htmlspecialchars($prefillUsername, ENT_QUOTES, 'UTF-8') ?>" required>
+                    <label for="birthdate"><?= t('label_birthdate') ?></label>
+                    <input class="input" type="date" name="birthdate" id="birthdate" required>
+                    <label for="gender"><?= t('label_gender') ?></label>
+                    <select class="select" name="gender" id="gender" required>
+                        <option value="male"><?= t('gender_male') ?></option>
+                        <option value="female"><?= t('gender_female') ?></option>
+                        <option value="other"><?= t('gender_other') ?></option>
+                    </select>
+                    <label for="email"><?= t('label_email') ?></label>
+                    <input class="input" type="email" name="email" id="email" value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>" required>
+                    <label for="password1"><?= t('label_password') ?></label>
+                    <input class="input" type="password" name="password1" id="password1" required>
+                    <label for="password2"><?= t('label_password_again') ?></label>
+                    <input class="input" type="password" name="password2" id="password2" required>
+                    <p class="auth-note">
+                        <strong><?= t('auth_security_question_label') ?></strong>
+                        <?= htmlspecialchars($selected_question) ?>
+                    </p>
+                    <input type="hidden" name="security_question" value="<?= htmlspecialchars($selected_question) ?>">
+                    <label for="security_answer"><?= t('auth_security_answer_label') ?></label>
+                    <input class="input" type="text" name="security_answer" id="security_answer" required>
+                    <div class="auth-actions" style="margin-top:12px;">
+                        <button class="btn-cta" type="submit" name="reg-btn"><?= t('auth_btn_register') ?></button>
+                    </div>
+                    <p class="auth-note" style="margin-top:16px;">
+                        <?= t('auth_have_account') ?>
+                        <a class="switcher" href="#" data-switch="login"><?= t('auth_link_login') ?></a>
+                    </p>
+                </form>
                 <div class="auth-actions" style="margin-top:12px;">
-                    <button class="btn-cta" type="submit" name="login-btn"><?= t('auth_btn_login') ?></button>
-                    <a class="btn-ghost" href="forgotpass.php"><?= t('auth_forgot_password') ?></a>
+                    <a class="btn-ghost" href="assets/oauth/discord-login.php">
+                        <?= t('auth_continue_with_discord') ?>
+                    </a>
                 </div>
-                <p class="auth-note" style="margin-top:16px;">
-                    <?= t('auth_no_account') ?>
-                    <a class="switcher" href="#" data-switch="reg"><?= t('auth_link_register') ?></a>
-                </p>
-            </form>
-            <form class="auth-card" id="reg" method="post" style="<?= $currentForm==='reg' ? '' : 'display:none;' ?>">
-                <h1><?= t('auth_register_heading') ?></h1>
-                <label for="lastname"><?= t('label_lastname') ?></label>
-                <input class="input" type="text" name="lastname" id="lastname" required>
-                <label for="firstname"><?= t('label_firstname') ?></label>
-                <input class="input" type="text" name="firstname" id="firstname" required>
-                <label for="username"><?= t('label_username') ?></label>
-                <input class="input" type="text" name="username" id="username" value="<?= htmlspecialchars($prefillUsername, ENT_QUOTES, 'UTF-8') ?>" required>
-                <label for="birthdate"><?= t('label_birthdate') ?></label>
-                <input class="input" type="date" name="birthdate" id="birthdate" required>
-                <label for="gender"><?= t('label_gender') ?></label>
-                <select class="select" name="gender" id="gender" required>
-                    <option value="male"><?= t('gender_male') ?></option>
-                    <option value="female"><?= t('gender_female') ?></option>
-                    <option value="other"><?= t('gender_other') ?></option>
-                </select>
-                <label for="email"><?= t('label_email') ?></label>
-                <input class="input" type="email" name="email" id="email" value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>" required>
-                <label for="password1"><?= t('label_password') ?></label>
-                <input class="input" type="password" name="password1" id="password1" required>
-                <label for="password2"><?= t('label_password_again') ?></label>
-                <input class="input" type="password" name="password2" id="password2" required>
-                <p class="auth-note">
-                    <strong><?= t('auth_security_question_label') ?></strong>
-                    <?= htmlspecialchars($selected_question) ?>
-                </p>
-                <input type="hidden" name="security_question" value="<?= htmlspecialchars($selected_question) ?>">
-                <label for="security_answer"><?= t('auth_security_answer_label') ?></label>
-                <input class="input" type="text" name="security_answer" id="security_answer" required>
-                <div class="auth-actions" style="margin-top:12px;">
-                    <button class="btn-cta" type="submit" name="reg-btn"><?= t('auth_btn_register') ?></button>
-                </div>
-                <p class="auth-note" style="margin-top:16px;">
-                    <?= t('auth_have_account') ?>
-                    <a class="switcher" href="#" data-switch="login"><?= t('auth_link_login') ?></a>
-                </p>
-            </form>
-            <div class="auth-actions" style="margin-top:12px;">
-                <a class="btn-ghost" href="assets/oauth/discord-login.php">
-                    <?= t('auth_continue_with_discord') ?>
-                </a>
             </div>
         </div>
     </div>
-</div>
-<script src="assets/js/script.js"></script>
-<?php include 'assets/php/footer.php'; ?>
+    <script src="assets/js/script.js"></script>
+    <?php include 'assets/php/footer.php'; ?>
 </body>
+
 </html>
