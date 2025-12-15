@@ -378,6 +378,18 @@
                                         </form>
                                     <?php endif; ?>
                                 </div>
+                                <div class="profile-report" style="margin-top:8px; max-width: 260px;">
+                                    <form method="post"
+                                        action="assets/php/report.php">
+                                        <input type="hidden" name="type" value="user">
+                                        <input type="hidden" name="target_id" value="<?= (int)$profileId ?>">
+                                        <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
+                                        <textarea name="reason" rows="2" placeholder="Miért jelented ezt a felhasználót? (nem kötelező)" style="width: 100%; resize: vertical; margin-bottom: 4px;"></textarea>
+                                        <button type="submit" class="btn-ghost" onclick="return confirm('Biztosan jelenteni szeretnéd ezt a felhasználót?');">
+                                            Felhasználó jelentése
+                                        </button>
+                                    </form>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </div>

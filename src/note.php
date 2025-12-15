@@ -150,6 +150,16 @@
                             </svg>
                             Letöltés
                         </a>
+                        <?php if ($isLoggedIn && $currentUserId): ?>
+                            <form method="post" action="assets/php/report.php" style="display: inline;" onsubmit="return confirm('Biztosan jelenteni szeretnéd ezt a jegyzetet?');">
+                                <input type="hidden" name="type" value="note">
+                                <input type="hidden" name="target_id" value="<?= (int)$file_id ?>">
+                                <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
+                                <button type="submit" class="btn-ghost">
+                                    Jelentés
+                                </button>
+                            </form>
+                        <?php endif; ?>
                     </div>
                 </header>
                 <?php if ($ext === 'docx'): ?>

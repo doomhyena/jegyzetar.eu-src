@@ -113,9 +113,7 @@
                 <div class="content-grid grid-large">
                     <?php while ($file = $latest_result->fetch_assoc()):
                             $uploaderRes = db_query( $conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [(int)$file['uploaded_by']]);
-                            $uploader = $uploaderRes && $uploaderRes->num_rows
-                                ? $uploaderRes->fetch_assoc()
-                                : ['username' => 'ismeretlen'];
+                            $uploader = $uploaderRes && $uploaderRes->num_rows ? $uploaderRes->fetch_assoc() : ['username' => 'ismeretlen'];
                             $file_id  = (int)$file['id'];
                             $name = htmlspecialchars($file['name']);
                             $username = htmlspecialchars($uploader['username']);
@@ -167,6 +165,27 @@
                                         </svg>
                                         <?= t('btn_download') ?>
                                     </a>
+                                    <?php if ($isLoggedIn && $currentUserId): ?>
+                                        <form method="post" action="assets/php/report.php" style="display:inline-block; max-width: 240px;" onsubmit="return confirmReportSubmit(this);">
+                                            <input type="hidden" name="type" value="note">
+                                            <input type="hidden" name="target_id" value="<?= (int)$file_id ?>">
+                                            <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
+                                            <button type="button" class="btn-ghost report-trigger" onclick="openReportBox(this);">
+                                                Jegyzet jelentése
+                                            </button>
+                                            <div class="report-box" style="display:none; margin-top:4px;">
+                                                <textarea name="reason" rows="2" placeholder="Miért jelented ezt a jegyzetet? (nem kötelező)" style="width:100%; resize:vertical; margin-bottom:4px;"></textarea>
+                                                <div style="display:flex; gap:4px; justify-content:flex-end;">
+                                                    <button type="button" class="btn-ghost" onclick="cancelReport(this);">
+                                                        Mégse
+                                                    </button>
+                                                    <button type="submit" class="btn-cta">
+                                                        Küldés
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    <?php endif; ?>
                                 </div>
                             </header>
                             <?php if ($ext=="mp4"): ?>
@@ -191,12 +210,7 @@
                                     <?php
                                         $usr_rate = 0;
                                         if ($isLoggedIn && $currentUserId) {
-                                            $rRes = db_query(
-                                                $conn,
-                                                "SELECT rating FROM ratings WHERE file_id = ? AND user_id = ? LIMIT 1",
-                                                "ii",
-                                                [$file_id, $currentUserId]
-                                            );
+                                            $rRes = db_query( $conn, "SELECT rating FROM ratings WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, $currentUserId]);
                                             if ($rRes && $rRes->num_rows) {
                                                 $usr_rate = (int)$rRes->fetch_assoc()['rating'];
                                             }

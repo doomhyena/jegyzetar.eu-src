@@ -180,7 +180,6 @@ document.addEventListener('DOMContentLoaded', function(){
         const loginForm = document.getElementById('login');
         if (!regForm || !loginForm) return;
         if (which === 'reg') {
-            // Restore server-side default ('' means use CSS / layout rules)
             regForm.style.display = '';
             loginForm.style.display = 'none';
             loginForm.classList.add('is-hidden');
@@ -214,7 +213,6 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     });
 
-    // Also support old `.switcher` anchors which may exist in templates
     document.querySelectorAll('.switcher').forEach(a => {
         a.addEventListener('click', (e) => {
             e.preventDefault();
@@ -225,10 +223,8 @@ document.addEventListener('DOMContentLoaded', function(){
             }
         });
     });
-    // Make global so HTML onclick attributes or other scopes can call it
     try { window.showForm = showForm; } catch (err) { /* ignore if not allowed */ }
 
-    // Apply initial view state to body class and aria attributes based on which form is visible
     try {
         const regForm = document.getElementById('reg');
         const loginForm = document.getElementById('login');
@@ -325,3 +321,26 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+function openReportBox(button) {
+    const form = button.closest('form');
+    if (!form) return;
+    const box = form.querySelector('.report-box');
+    if (!box) return;
+    box.style.display = 'block';
+    button.style.display = 'none';
+}
+function cancelReport(button) {
+    const box = button.closest('.report-box');
+    if (!box) return;
+    const form = box.closest('form');
+    if (!form) return;
+    const trigger = form.querySelector('.report-trigger');
+    const textarea = form.querySelector('textarea[name="reason"]');
+    if (textarea) textarea.value = '';
+    if (trigger) trigger.style.display = 'inline-block';
+    box.style.display = 'none';
+}
+function confirmReportSubmit(form) {
+    return confirm('Biztosan elküldöd a jelentést?');
+}

@@ -25,7 +25,6 @@
     ];
 
     $selected_question = $security_questions[array_rand($security_questions)];
-
     $currentForm = ($prefillUsername || $prefillEmail) ? 'reg' : 'login';
 
     if (isset($_POST['reg-btn'])) {
@@ -48,47 +47,72 @@
         $registration_date = date('Y-m-d H:i:s');
         $security_question = $_POST['security_question'] ?? '';
         $security_answer = $_POST['security_answer'] ?? '';
+        $regCode = trim($_POST['reg_code'] ?? '');
 
         $currentForm = 'reg';
 
-        $found_user = db_query($conn, "SELECT id FROM users WHERE username = ? LIMIT 1", "s", [$username]
-        );
+        $codeValid = false;
+        $codeRow   = null;
 
-        if ($found_user->num_rows == 0) {
+        if ($regCode === '') {
+            echo "<script>alert('A regisztrációs kód megadása kötelező.');</script>";
+        } else {
+            $codeRes = db_query($conn, "SELECT * FROM reg_codes WHERE code = ? AND active = 1 AND (expires_at IS NULL OR expires_at > NOW()) AND (max_uses IS NULL OR used < max_uses) LIMIT 1", "s", [$regCode]
+            );
 
-            $found_email = db_query($conn, "SELECT id FROM users WHERE email = ? LIMIT 1", "s", [$email]);
+            if ($codeRes->num_rows === 1) {
+                $codeRow   = $codeRes->fetch_assoc();
+                $codeValid = true;
+            } else {
+                echo "<script>alert('Érvénytelen vagy lejárt regisztrációs kód.');</script>";
+            }
+        }
 
-            if ($found_email->num_rows == 0) {
+        if (!$codeValid) {
+        } else {
 
-                if ($password === $passwordtwo) {
-                    $titkositott_jelszo = password_hash($password, PASSWORD_DEFAULT);
+            $found_user = db_query($conn, "SELECT id FROM users WHERE username = ? LIMIT 1", "s", [$username]);
 
-                    db_stmt($conn, "INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)", "ssssssssss", [$lastname, $firstname, $username, $birthdate, $gender, $email, $titkositott_jelszo, $security_question, $security_answer, $registration_date]
-                    )->close();
+            if ($found_user->num_rows == 0) {
 
-                    $newUserId = (int)$conn->insert_id;
-                    if ($newUserId > 0) {
-                        setcookie("id", $newUserId, time() + 3600, "/");
-                    }
+                $found_email = db_query($conn, "SELECT id FROM users WHERE email = ? LIMIT 1", "s", [$email]);
 
-                    $folder = getcwd();
-                    $path   = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
-                    if (!is_dir($path) && mkdir($path, 0777, true)) {
-                        echo "<script>alert('".t('msg_storage_created')."');</script>";
-                        header("Location: reglog.php");
-                        exit;
+                if ($found_email->num_rows == 0) {
+
+                    if ($password === $passwordtwo) {
+                        $titkositott_jelszo = password_hash($password, PASSWORD_DEFAULT);
+
+                        db_stmt($conn, "INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)", "ssssssssss", [$lastname, $firstname, $username, $birthdate, $gender, $email, $titkositott_jelszo, $security_question, $security_answer, $registration_date ])->close();
+
+                        $newUserId = (int)$conn->insert_id;
+                        if ($newUserId > 0) {
+                            setcookie("id", $newUserId, time() + 3600, "/");
+                        }
+
+                        if ($codeRow) {
+                            db_stmt($conn, "UPDATE reg_codes SET used = used + 1, active = CASE WHEN max_uses IS NOT NULL AND used + 1 >= max_uses THEN 0 ELSE active END WHERE id = ?", "i", [$codeRow['id']])->close();
+                        }
+
+                        $folder = getcwd();
+                        $path   = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
+                        if (!is_dir($path) && mkdir($path, 0777, true)) {
+                            echo "<script>alert('".t('msg_storage_created')."');</script>";
+                            header("Location: reglog.php");
+                            exit;
+                        } else {
+                            echo "<script>alert('".t('msg_storage_failed')."');</script>";
+                        }
+
+                        $currentForm = 'login';
                     } else {
-                        echo "<script>alert('".t('msg_storage_failed')."');</script>";
+                        echo "<script>alert('".t('msg_passwords_not_match')."');</script>";
                     }
-                    $currentForm = 'login';
                 } else {
-                    echo "<script>alert('".t('msg_passwords_not_match')."');</script>";
+                    echo "<script>alert('".t('msg_email_exists')."');</script>";
                 }
             } else {
-                echo "<script>alert('".t('msg_email_exists')."');</script>";
+                echo "<script>alert('".t('msg_username_exists')."');</script>";
             }
-        } else {
-            echo "<script>alert('".t('msg_username_exists')."');</script>";
         }
     }
 
@@ -102,13 +126,13 @@
             $user = $found_user->fetch_assoc();
             if (password_verify($password, $user['password'])) {
                 // norbi: átvezet a 2fa oldalra
-                $_SESSION['id']    = $user['id'];
-                $_SESSION['email'] = $user['email'];
-                header("Location: mail-2fa.php");
+                // $_SESSION['id'] = $user['id'];
+                // $_SESSION['email'] = $user['email'];
+                // header("Location: mail-2fa.php");
+                // exit;
+                setcookie("id", $user['id'], time() + 3600, "/");
+                header("Location: index.php");
                 exit;
-                //setcookie("id", $user['id'], time() + 3600, "/");
-                //header("Location: index.php");
-                //exit;
             } else {
                 echo "<script>alert('".t('msg_wrong_password')."');</script>";
             }
@@ -170,7 +194,10 @@
                     <option value="other"><?= t('gender_other') ?></option>
                 </select>
                 <label for="email"><?= t('label_email') ?></label>
-                <input class="input" type="email" name="email" id="email" value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>" required>
+                <input class="input" type="email" name="email" id="email"
+                    value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>" required>
+                <label for="reg_code">Regisztrációs kód</label>
+                <input class="input" type="text" name="reg_code" id="reg_code" required>
                 <label for="password1"><?= t('label_password') ?></label>
                 <input class="input" type="password" name="password1" id="password1" required>
                 <label for="password2"><?= t('label_password_again') ?></label>

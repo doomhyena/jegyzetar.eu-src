@@ -3,51 +3,104 @@
     require_once "assets/php/lang.php";
     require_once 'assets/php/functions.php';
 
-    if(!isset($_COOKIE['id'])){
+    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
         header("Location: reglog.php");
         exit;
     }
 
-    $userid = $_COOKIE['id'];
-    $sql = "SELECT * FROM users WHERE id='$userid'";
-    $found_user = $conn->query($sql);
+    $userid = (int)$_COOKIE['id'];
+
+    $found_user = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$userid]);
     $user = $found_user->fetch_assoc();
+
+    if (!$user) {
+        header("Location: reglog.php");
+        exit;
+    }
+
+    // LIMITEK
+    $MAX_USER_TOTAL = 60 * 1024 * 1024; // 60 MB / user
+    $MAX_FILE_SIZE  = 60 * 1024 * 1024; // ha per-fájl is akarsz limitet
 
     // (!!!) norbi: visszaállítottam a régi feltöltési logikát (!!!)
     // ezt viszont csináljuk meg normálisan, egyelőre maradhat igy mert nem tudok dolgozni e nélkül...
-    if(isset($_POST['upload-btn'])){
-        $subject = $_POST['subject'];
-        $tags = $_POST['tags'];
-        $file_name = $_FILES['upload-file']['name'];
-        $tmp_name = $_FILES['upload-file']['tmp_name'];
-        $file_type = mime_content_type($tmp_name);
-        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+    if (isset($_POST['upload-btn'])) {
 
-        $allowed_extensions = ['pdf', 'mp4', 'docx'];
-        $allowed_types = ['application/pdf', 'video/mp4', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        if (!isset($_FILES['upload-file']) || $_FILES['upload-file']['error'] !== UPLOAD_ERR_OK) {
+            echo "<script>alert('Hiba a fájl feltöltésekor.');</script>";
+        } else {
+            $subject = $_POST['subject'] ?? '';
+            $tags = $_POST['tags'] ?? '';
+            $description = $_POST['description'] ?? '';
+            $displayName = $_POST['name'] ?? '';
 
-        $folder = getcwd();
-        $dir = $folder . "/users/" . $user['username'] . "/";
+            $file_name = $_FILES['upload-file']['name'];
+            $tmp_name  = $_FILES['upload-file']['tmp_name'];
+            $file_size = $_FILES['upload-file']['size'];
 
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true); 
-        }
+            if ($file_size > $MAX_FILE_SIZE) {
+                $mb = round($MAX_FILE_SIZE / 1024 / 1024);
+                echo "<script>alert('Túl nagy a fájl. Maximum {$mb} MB-os fájlt tölthetsz fel.');</script>";
+            } else {
+                $sumRes = db_query(
+                    $conn,
+                    "SELECT COALESCE(SUM(file_size), 0) AS used_bytes FROM files WHERE uploaded_by = ?",
+                    "i",
+                    [$user['id']]
+                );
+                $sumRow   = $sumRes ? $sumRes->fetch_assoc() : ['used_bytes' => 0];
+                $usedNow  = (int)$sumRow['used_bytes'];
+                $afterNew = $usedNow + $file_size;
 
-        $description = $_POST['description'];
-        $path =  $folder . "/users/" . $user['username'] . "/".$file_name;
+                if ($afterNew > $MAX_USER_TOTAL) {
+                    $maxMb = round($MAX_USER_TOTAL / 1024 / 1024);
+                    $usedMb  = round($usedNow / 1024 / 1024);
+                    $fileMb  = round($file_size / 1024 / 1024);
+                    echo "<script>alert('Nincs elég hely a felhasználói kvótádban. Max {$maxMb} MB-ot használhatsz. Jelenleg ~{$usedMb} MB-ot használsz, a fájl mérete ~{$fileMb} MB.');</script>";
+                } else {
+                    $file_type = mime_content_type($tmp_name);
+                    $file_ext  = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
-        if(move_uploaded_file($tmp_name, $path)){
-            $conn->query("INSERT INTO files (uploaded_by, name, file_name, description, file_path, subject, tags) VALUES ('$user[id]', '{$_POST['name']}', '$file_name', '$description', '$path', '$subject', '$tags')");
-            echo "<script>alert('A fájl sikeresen feltöltve!')</script>";
-			header("Location: upload.php");
+                    $allowed_extensions = ['pdf', 'mp4', 'docx'];
+                    $allowed_types = [ 'application/pdf', 'video/mp4', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
+                    if (!in_array($file_ext, $allowed_extensions, true) || !in_array($file_type, $allowed_types, true)) {
+                        echo "<script>alert('Ez a fájltípus nem engedélyezett. Csak PDF, MP4 és DOCX tölthető fel.');</script>";
+                    } else {
+                        $folder = getcwd();
+                        $dir    = $folder . "/users/" . $user['username'] . "/";
+
+                        if (!is_dir($dir)) {
+                            mkdir($dir, 0777, true);
+                        }
+
+                        $targetPath = $dir . $file_name;
+                        if (file_exists($targetPath)) {
+                            $base = pathinfo($file_name, PATHINFO_FILENAME);
+                            $ext  = pathinfo($file_name, PATHINFO_EXTENSION);
+                            $file_name = $base . '_' . time() . '.' . $ext;
+                            $targetPath = $dir . $file_name;
+                        }
+
+                        if (move_uploaded_file($tmp_name, $targetPath)) {
+                            db_stmt($conn, "INSERT INTO files (uploaded_by, name, file_name, description, file_path, subject, tags, file_size) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", "issssssi", [$user['id'], $displayName, $file_name, $description, $targetPath, $subject, $tags, $file_size] )->close();
+                            echo "<script>alert('A fájl sikeresen feltöltve!');</script>";
+                            header("Location: upload.php");
+                            exit;
+                        } else {
+                            echo "<script>alert('A fájl mozgatása a célmappába nem sikerült.');</script>";
+                        }
+                    }
+                }
+            }
         }
     }
 
     $sql = "SELECT * FROM notifys WHERE toid = $user[id] AND readed = 0";
     $founded_notify = $conn->query($sql);
     $notify_number = mysqli_num_rows($founded_notify);
-
 ?>
+
 <!DOCTYPE html>
 <html lang="hu">
    <head>

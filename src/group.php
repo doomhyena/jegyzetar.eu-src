@@ -68,6 +68,15 @@
                         Kilépés a csoportból
                     </button>
                 </form>
+                <form method="post" action="assets/php/report.php" style="display:inline-block; max-width: 240px;">
+                    <input type="hidden" name="type" value="group">
+                    <input type="hidden" name="target_id" value="<?= (int)$csoport_id ?>">
+                    <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
+                    <textarea name="reason" rows="2" placeholder="Miért jelented a csoportot? (nem kötelező)" style="width: 100%; resize: vertical; margin-bottom: 4px;"></textarea>
+                    <button type="submit" class="btn-ghost" onclick="return confirm('Biztosan jelenteni szeretnéd ezt a csoportot?');">
+                        ⚠ Csoport jelentése
+                    </button>
+                </form>
             <?php endif; ?>
         </div>
     </section>

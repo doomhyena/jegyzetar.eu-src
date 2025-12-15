@@ -166,6 +166,68 @@
         exit();
     }
 
+    if (isset($_POST['report_action']) && isset($_POST['report_id'])) {
+        $reportId = (int)$_POST['report_id'];
+        $action = $_POST['report_action'];
+        $adminId = (int)$current_user['id'];
+
+        if (in_array($action, ['resolve', 'dismiss'], true)) {
+            $newStatus = ($action === 'resolve') ? 'resolved' : 'dismissed';
+
+            db_stmt($conn, "UPDATE reports SET status = ?, handled_by = ?, handled_at = NOW() WHERE id = ?", "sii", [$newStatus, $adminId, $reportId]);
+        }
+
+        echo "<script>location.href='admin_panel.php#reports';</script>";
+        exit();
+    }
+
+    if (isset($_POST['create_reg_code'])) {
+        $code = trim($_POST['code'] ?? '');
+        $description = trim($_POST['description'] ?? '');
+        $maxUses = $_POST['max_uses'] ?? '';
+        $expiresRaw  = trim($_POST['expires_at'] ?? '');
+        $maxUsesVal = null;
+        $expiresAt = null;
+
+        if ($code === '') {
+            echo "<script>alert('A kód mező nem lehet üres.');</script>";
+        } else {
+            if ($maxUses !== '' && ctype_digit($maxUses)) {
+                $maxUsesVal = (int)$maxUses;
+            }
+
+            if ($expiresRaw !== '') {
+                $expiresAt = str_replace('T', ' ', $expiresRaw) . ':00';
+            }
+
+            db_stmt($conn, "INSERT INTO reg_codes (code, description, max_uses, expires_at, active) VALUES (?, ?, ?, ?, 1)", "ssis", [$code, $description !== '' ? $description : null, $maxUsesVal, $expiresAt])->close();
+
+            echo "<script>alert('Regisztrációs kód létrehozva.');</script>";
+        }
+    }
+
+    if (isset($_POST['deactivate_reg_code'])) {
+        $id = (int)($_POST['reg_code_id'] ?? 0);
+        if ($id > 0) {
+            db_stmt($conn, "UPDATE reg_codes SET active = 0 WHERE id = ?", "i", [$id])->close();
+        }
+    }
+
+    if (isset($_POST['activate_reg_code'])) {
+        $id = (int)($_POST['reg_code_id'] ?? 0);
+        if ($id > 0) {
+            db_stmt($conn, "UPDATE reg_codes SET active = 1 WHERE id = ?", "i", [$id])->close();
+        }
+    }
+
+    if (isset($_POST['delete_reg_code'])) {
+        $id = (int)($_POST['reg_code_id'] ?? 0);
+        if ($id > 0) {
+            db_stmt($conn, "DELETE FROM reg_codes WHERE id = ?", "i", [$id])->close();
+        }
+    }
+
+    $regCodes = db_query($conn, "SELECT * FROM reg_codes ORDER BY id DESC");
     $users = $conn->query("SELECT * FROM users ORDER BY id DESC");
     $files = $conn->query("SELECT * FROM files ORDER BY id DESC");
     $comments = $conn->query("SELECT comments.*, users.username FROM comments LEFT JOIN users ON comments.userid=users.id ORDER BY comments.id DESC");
@@ -175,6 +237,7 @@
     $badge_options = $conn->query("SELECT id, name FROM badges ORDER BY name ASC");
     $user_options  = $conn->query("SELECT id, username FROM users ORDER BY username ASC");
     $badges = $conn->query("SELECT * FROM badges ORDER BY id DESC");
+    $reports = $conn->query("SELECT r.*, u.username AS reporter_name FROM reports r LEFT JOIN users u ON u.id = r.reporter_id ORDER BY (r.status = 'open') DESC, r.created_at DESC");
 ?>
 
 <div class="main">
@@ -441,6 +504,209 @@
                     </form>
                 </tr>
             <?php } ?>
+        </table>
+    </section>
+    <section class="card" id="reports">
+        <h2>Jelentések</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Jelentő</th>
+                <th>Típus</th>
+                <th>Cél</th>
+                <th>Indok</th>
+                <th>Állapot</th>
+                <th>Dátum</th>
+                <th>Művelet</th>
+            </tr>
+
+            <?php if ($reports && $reports->num_rows > 0): ?>
+                <?php while ($rep = $reports->fetch_assoc()): ?>
+                    <?php
+                        $targetId   = (int)$rep['target_id'];
+                        $targetType = $rep['target_type'];
+
+                        $targetUrl   = '#';
+                        $targetLabel = 'Ismeretlen cél';
+
+                        if ($targetType === 'user') {
+                            $targetUrl = 'profile.php?userid=' . $targetId;
+
+                            $uRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [$targetId]);
+                            $uRow = $uRes ? $uRes->fetch_assoc() : null;
+
+                            if ($uRow && isset($uRow['username'])) {
+                                $targetLabel = 'Felhasználó: @' . $uRow['username'];
+                            } else {
+                                $targetLabel = 'Felhasználó ID: ' . $targetId;
+                            }
+
+                        } elseif ($targetType === 'group') {
+                            $targetUrl = 'group.php?id=' . $targetId;
+
+                            $gRes = db_query($conn, "SELECT name FROM groups WHERE id = ? LIMIT 1", "i", [$targetId]);
+                            $gRow = $gRes ? $gRes->fetch_assoc() : null;
+
+                            if ($gRow && isset($gRow['name'])) {
+                                $targetLabel = 'Csoport: ' . $gRow['name'];
+                            } else {
+                                $targetLabel = 'Csoport ID: ' . $targetId;
+                            }
+
+                        } elseif ($targetType === 'note') {
+                            $targetUrl = 'note.php?id=' . $targetId;
+
+                            $nRes = db_query($conn, "SELECT name FROM files WHERE id = ? LIMIT 1", "i", [$targetId]);
+                            $nRow = $nRes ? $nRes->fetch_assoc() : null;
+
+                            if ($nRow && isset($nRow['name'])) {
+                                $targetLabel = 'Jegyzet: ' . $nRow['name'];
+                            } else {
+                                $targetLabel = 'Jegyzet ID: ' . $targetId;
+                            }
+                        }
+                    ?>
+                    <tr>
+                        <td><?= (int)$rep['id'] ?></td>
+                        <td><?= htmlspecialchars($rep['reporter_name'] ?? 'ismeretlen') ?></td>
+                        <td><?= htmlspecialchars($rep['target_type']) ?></td>
+                        <td>
+                            <?php if ($targetUrl !== '#'): ?>
+                                <a href="<?= htmlspecialchars($targetUrl, ENT_QUOTES, 'UTF-8') ?>" target="_blank">
+                                    <?= htmlspecialchars($targetLabel, ENT_QUOTES, 'UTF-8') ?>
+                                </a>
+                                <br>
+                                <small>ID: <?= $targetId ?></small>
+                            <?php else: ?>
+                                <?= htmlspecialchars($targetLabel, ENT_QUOTES, 'UTF-8') ?>
+                            <?php endif; ?>
+                        </td>
+                        <td><?= nl2br(htmlspecialchars($rep['reason'])) ?></td>
+                        <td>
+                            <?php
+                                if ($rep['status'] === 'open') {
+                                    echo 'Nyitott';
+                                } elseif ($rep['status'] === 'resolved') {
+                                    echo 'Megoldva';
+                                } else {
+                                    echo 'Elutasítva';
+                                }
+                            ?>
+                        </td>
+                        <td><?= htmlspecialchars($rep['created_at']) ?></td>
+                        <td>
+                            <?php if ($rep['status'] === 'open'): ?>
+                                <form method="post" style="display:inline;">
+                                    <input type="hidden" name="report_id" value="<?= (int)$rep['id'] ?>">
+                                    <button type="submit" name="report_action" value="resolve">
+                                        Elfogad
+                                    </button>
+                                </form>
+                                <form method="post" style="display:inline;">
+                                    <input type="hidden" name="report_id" value="<?= (int)$rep['id'] ?>">
+                                    <button type="submit" name="report_action" value="dismiss">
+                                        Elutasít
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                -
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="8">Nincs még jelentés.</td>
+                </tr>
+            <?php endif; ?>
+        </table>
+    </section>
+    <section class="card" id="reg-codes">
+        <h2>Regisztrációs kódok</h2>
+        <h3>Új kód létrehozása</h3>
+        <form method="post" style="margin-bottom:16px; display:grid; gap:8px; max-width:400px;">
+            <label>
+                Kód
+                <input type="text" name="code" required>
+            </label>
+            <label>
+                Leírás (pl. "10.A osztály", "Teszt kód")
+                <input type="text" name="description">
+            </label>
+
+            <label>
+                Max. felhasználás (üres = végtelen)
+                <input type="number" name="max_uses" min="1">
+            </label>
+
+            <label>
+                Lejárat (üres = soha)
+                <input type="datetime-local" name="expires_at">
+            </label>
+
+            <button type="submit" name="create_reg_code" class="btn-cta">
+                Kód létrehozása
+            </button>
+        </form>
+        <h3>Meglévő kódok</h3>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Kód</th>
+                <th>Leírás</th>
+                <th>Felhasznált / Max</th>
+                <th>Lejárat</th>
+                <th>Aktív</th>
+                <th>Létrehozva</th>
+                <th>Műveletek</th>
+            </tr>
+            <?php if ($regCodes && $regCodes->num_rows > 0): ?>
+                <?php while ($code = $regCodes->fetch_assoc()): ?>
+                    <tr>
+                        <td><?= (int)$code['id'] ?></td>
+                        <td><code><?= htmlspecialchars($code['code']) ?></code></td>
+                        <td><?= htmlspecialchars($code['description'] ?? '') ?></td>
+                        <td>
+                            <?= (int)$code['used'] ?>
+                            /
+                            <?= $code['max_uses'] !== null ? (int)$code['max_uses'] : '∞' ?>
+                        </td>
+                        <td>
+                            <?= $code['expires_at'] ? htmlspecialchars($code['expires_at']) : 'Nincs' ?>
+                        </td>
+                        <td>
+                            <?= ((int)$code['active'] === 1) ? 'Igen' : 'Nem' ?>
+                        </td>
+                        <td><?= htmlspecialchars($code['created_at']) ?></td>
+                        <td>
+                            <form method="post" style="display:inline;">
+                                <input type="hidden" name="reg_code_id" value="<?= (int)$code['id'] ?>">
+                                <?php if ((int)$code['active'] === 1): ?>
+                                    <button type="submit" name="deactivate_reg_code">
+                                        Deaktiválás
+                                    </button>
+                                <?php else: ?>
+                                    <button type="submit" name="activate_reg_code">
+                                        Aktiválás
+                                    </button>
+                                <?php endif; ?>
+                            </form>
+
+                            <form method="post" style="display:inline;"
+                                onsubmit="return confirm('Biztosan törlöd ezt a kódot?');">
+                                <input type="hidden" name="reg_code_id" value="<?= (int)$code['id'] ?>">
+                                <button type="submit" name="delete_reg_code">
+                                    Törlés
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="8">Még nincs regisztrációs kód.</td>
+                </tr>
+            <?php endif; ?>
         </table>
     </section>
 </div>
