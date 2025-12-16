@@ -3,9 +3,9 @@
 
     require_once "assets/php/db.php";
     require_once "assets/php/lang.php";
-    require_once 'assets/php/functions.php';
+    require_once "assets/php/functions.php";
 
-    include 'assets/php/navbar.php';
+    include "assets/php/navbar.php";
 
     $prefillUsername = '';
     $prefillEmail = '';
@@ -25,119 +25,166 @@
     ];
 
     $selected_question = $security_questions[array_rand($security_questions)];
+
+    // alap form: ha discordból jön prefill, akkor reg, különben login
     $currentForm = ($prefillUsername || $prefillEmail) ? 'reg' : 'login';
+    if (isset($_POST['reg-btn'])) $currentForm = 'reg';
+    if (isset($_POST['login-btn'])) $currentForm = 'login';
 
-    if (isset($_POST['reg-btn'])) {
-        $currentForm = 'reg';
+    /**
+     * Helper: biztonságos redirect (ne maradjon futó kód)
+     */
+    function go($url) {
+        header("Location: " . $url);
+        exit;
     }
 
-    if (isset($_POST['login-btn'])) {
-        $currentForm = 'login';
-    }
-
+    /**
+     * REGISTER
+     */
     if (isset($_POST['reg-btn'])) {
-        $lastname = $_POST['lastname'] ?? '';
-        $firstname = $_POST['firstname'] ?? '';
-        $username = $_POST['username'] ?? '';
+        $lastname  = trim($_POST['lastname'] ?? '');
+        $firstname = trim($_POST['firstname'] ?? '');
+        $username  = trim($_POST['username'] ?? '');
         $birthdate = $_POST['birthdate'] ?? '';
-        $gender = $_POST['gender'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $password = $_POST['password1'] ?? '';
-        $passwordtwo = $_POST['password2'] ?? '';
+        $gender    = $_POST['gender'] ?? '';
+        $email     = trim($_POST['email'] ?? '');
+        $password  = $_POST['password1'] ?? '';
+        $password2 = $_POST['password2'] ?? '';
         $registration_date = date('Y-m-d H:i:s');
+
         $security_question = $_POST['security_question'] ?? '';
-        $security_answer = $_POST['security_answer'] ?? '';
+        $security_answer   = trim($_POST['security_answer'] ?? '');
+
         $regCode = trim($_POST['reg_code'] ?? '');
 
-        $currentForm = 'reg';
-
-        $codeValid = false;
-        $codeRow   = null;
-
+        // 1) reg kód validálás
         if ($regCode === '') {
             echo "<script>alert('A regisztrációs kód megadása kötelező.');</script>";
         } else {
-            $codeRes = db_query($conn, "SELECT * FROM reg_codes WHERE code = ? AND active = 1 AND (expires_at IS NULL OR expires_at > NOW()) AND (max_uses IS NULL OR used < max_uses) LIMIT 1", "s", [$regCode]
+            $codeRes = db_query(
+                $conn,
+                "SELECT * FROM reg_codes
+                 WHERE code = ?
+                   AND active = 1
+                   AND (expires_at IS NULL OR expires_at > NOW())
+                   AND (max_uses IS NULL OR used < max_uses)
+                 LIMIT 1",
+                "s",
+                [$regCode]
             );
 
-            if ($codeRes->num_rows === 1) {
-                $codeRow   = $codeRes->fetch_assoc();
-                $codeValid = true;
-            } else {
+            if ($codeRes->num_rows !== 1) {
                 echo "<script>alert('Érvénytelen vagy lejárt regisztrációs kód.');</script>";
-            }
-        }
-
-        if (!$codeValid) {
-        } else {
-
-            $found_user = db_query($conn, "SELECT id FROM users WHERE username = ? LIMIT 1", "s", [$username]);
-
-            if ($found_user->num_rows == 0) {
-
-                $found_email = db_query($conn, "SELECT id FROM users WHERE email = ? LIMIT 1", "s", [$email]);
-
-                if ($found_email->num_rows == 0) {
-
-                    if ($password === $passwordtwo) {
-                        $titkositott_jelszo = password_hash($password, PASSWORD_DEFAULT);
-
-                        db_stmt($conn, "INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)", "ssssssssss", [$lastname, $firstname, $username, $birthdate, $gender, $email, $titkositott_jelszo, $security_question, $security_answer, $registration_date ])->close();
-
-                        $newUserId = (int)$conn->insert_id;
-                        if ($newUserId > 0) {
-                            setcookie("id", $newUserId, time() + 3600, "/");
-                        }
-
-                        if ($codeRow) {
-                            db_stmt($conn, "UPDATE reg_codes SET used = used + 1, active = CASE WHEN max_uses IS NOT NULL AND used + 1 >= max_uses THEN 0 ELSE active END WHERE id = ?", "i", [$codeRow['id']])->close();
-                        }
-
-                        $folder = getcwd();
-                        $path   = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
-                        if (!is_dir($path) && mkdir($path, 0777, true)) {
-                            echo "<script>alert('".t('msg_storage_created')."');</script>";
-                            header("Location: reglog.php");
-                            exit;
-                        } else {
-                            echo "<script>alert('".t('msg_storage_failed')."');</script>";
-                        }
-
-                        $currentForm = 'login';
-                    } else {
-                        echo "<script>alert('".t('msg_passwords_not_match')."');</script>";
-                    }
-                } else {
-                    echo "<script>alert('".t('msg_email_exists')."');</script>";
-                }
             } else {
-                echo "<script>alert('".t('msg_username_exists')."');</script>";
+                $codeRow = $codeRes->fetch_assoc();
+
+                // 2) username / email unique
+                $found_user = db_query($conn, "SELECT id FROM users WHERE username = ? LIMIT 1", "s", [$username]);
+                if ($found_user->num_rows > 0) {
+                    echo "<script>alert('" . t('msg_username_exists') . "');</script>";
+                } else {
+                    $found_email = db_query($conn, "SELECT id FROM users WHERE email = ? LIMIT 1", "s", [$email]);
+                    if ($found_email->num_rows > 0) {
+                        echo "<script>alert('" . t('msg_email_exists') . "');</script>";
+                    } else {
+                        // 3) password match
+                        if ($password !== $password2) {
+                            echo "<script>alert('" . t('msg_passwords_not_match') . "');</script>";
+                        } else {
+                            $hashed = password_hash($password, PASSWORD_DEFAULT);
+
+                            // 4) user insert
+                            $stmt = db_stmt(
+                                $conn,
+                                "INSERT INTO users
+                                    (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin)
+                                 VALUES
+                                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)",
+                                "ssssssssss",
+                                [$lastname, $firstname, $username, $birthdate, $gender, $email, $hashed, $security_question, $security_answer, $registration_date]
+                            );
+                            $stmt->close();
+
+                            $newUserId = (int)$conn->insert_id;
+                            if ($newUserId <= 0) {
+                                echo "<script>alert('Hiba történt a regisztráció során.');</script>";
+                            } else {
+                                // 5) reg kód használat növelés
+                                db_stmt(
+                                    $conn,
+                                    "UPDATE reg_codes
+                                     SET used = used + 1,
+                                         active = CASE
+                                             WHEN max_uses IS NOT NULL AND used + 1 >= max_uses THEN 0
+                                             ELSE active
+                                         END
+                                     WHERE id = ?",
+                                    "i",
+                                    [$codeRow['id']]
+                                )->close();
+
+                                // 6) user mappa létrehozás
+                                $folder = getcwd();
+                                $path = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
+
+                                if (!is_dir($path)) {
+                                    if (!mkdir($path, 0777, true)) {
+                                        echo "<script>alert('" . t('msg_storage_failed') . "');</script>";
+                                        // nem állítjuk meg a reget, mert user már létrejött, csak storage nincs
+                                    } else {
+                                        // opcionális: csak akkor alertelj, ha akarod
+                                        // echo "<script>alert('" . t('msg_storage_created') . "');</script>";
+                                    }
+                                }
+
+                                // 7) verifikációs session (mail-regver.php használja)
+                                $_SESSION["ver_id"] = $newUserId;
+                                $_SESSION["email"]  = $email;
+
+                                // ha nálad még kell cookie is:
+                                setcookie("id", $newUserId, time() + 3600, "/");
+
+                                go("mail-regver.php");
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
+    /**
+     * LOGIN
+     */
     if (isset($_POST['login-btn'])) {
-        $username = $_POST['username'] ?? '';
+        $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
-        $currentForm = 'login';
+
         $found_user = db_query($conn, "SELECT * FROM users WHERE username = ? LIMIT 1", "s", [$username]);
 
-        if ($found_user->num_rows > 0) {
-            $user = $found_user->fetch_assoc();
-            if (password_verify($password, $user['password'])) {
-                // norbi: átvezet a 2fa oldalra
-                // $_SESSION['id'] = $user['id'];
-                // $_SESSION['email'] = $user['email'];
-                // header("Location: mail-2fa.php");
-                // exit;
-                setcookie("id", $user['id'], time() + 3600, "/");
-                header("Location: index.php");
-                exit;
-            } else {
-                echo "<script>alert('".t('msg_wrong_password')."');</script>";
-            }
+        if ($found_user->num_rows <= 0) {
+            echo "<script>alert('" . t('msg_user_not_found') . "');</script>";
         } else {
-            echo "<script>alert('".t('msg_user_not_found')."');</script>";
+            $user = $found_user->fetch_assoc();
+
+            if (!password_verify($password, $user['password'])) {
+                echo "<script>alert('" . t('msg_wrong_password') . "');</script>";
+            } else {
+                if ((int)($user['email_verified'] ?? 0) === 0) {
+                    echo "<script>alert('Kérlek aktiváld a fiókodat!');</script>";
+                } else {
+                    // 2FA flow
+                    $_SESSION['id']    = $user['id'];
+                    $_SESSION['email'] = $user['email'];
+
+                    go("mail-2fa.php");
+
+                    // Ha NEM akarsz 2FA-t, akkor ezt használd helyette:
+                    // setcookie("id", $user['id'], time() + 3600, "/");
+                    // go("index.php");
+                }
+            }
         }
     }
 ?>
@@ -161,62 +208,83 @@
             <h1><?= t('auth_welcome_title') ?></h1>
             <p class="auth-note"><?= t('auth_welcome_subtitle') ?></p>
         </div>
+
         <div class="auth-grid">
             <form class="auth-card" id="login" method="post" style="<?= $currentForm==='login' ? '' : 'display:none;' ?>">
                 <h1><?= t('auth_login_heading') ?></h1>
+
                 <label for="login_username"><?= t('label_username') ?></label>
                 <input class="input" type="text" name="username" id="login_username" required>
+
                 <label for="login_password"><?= t('label_password') ?></label>
                 <input class="input" type="password" name="password" id="login_password" required>
+
                 <div class="auth-actions" style="margin-top:12px;">
                     <button class="btn-cta" type="submit" name="login-btn"><?= t('auth_btn_login') ?></button>
                     <a class="btn-ghost" href="forgotpass.php"><?= t('auth_forgot_password') ?></a>
                 </div>
+
                 <p class="auth-note" style="margin-top:16px;">
                     <?= t('auth_no_account') ?>
                     <a class="switcher" href="#" data-switch="reg"><?= t('auth_link_register') ?></a>
                 </p>
             </form>
+
             <form class="auth-card" id="reg" method="post" style="<?= $currentForm==='reg' ? '' : 'display:none;' ?>">
                 <h1><?= t('auth_register_heading') ?></h1>
+
                 <label for="lastname"><?= t('label_lastname') ?></label>
                 <input class="input" type="text" name="lastname" id="lastname" required>
+
                 <label for="firstname"><?= t('label_firstname') ?></label>
                 <input class="input" type="text" name="firstname" id="firstname" required>
+
                 <label for="username"><?= t('label_username') ?></label>
-                <input class="input" type="text" name="username" id="username" value="<?= htmlspecialchars($prefillUsername, ENT_QUOTES, 'UTF-8') ?>" required>
+                <input class="input" type="text" name="username" id="username"
+                       value="<?= htmlspecialchars($prefillUsername, ENT_QUOTES, 'UTF-8') ?>" required>
+
                 <label for="birthdate"><?= t('label_birthdate') ?></label>
                 <input class="input" type="date" name="birthdate" id="birthdate" required>
+
                 <label for="gender"><?= t('label_gender') ?></label>
                 <select class="select" name="gender" id="gender" required>
                     <option value="male"><?= t('gender_male') ?></option>
                     <option value="female"><?= t('gender_female') ?></option>
                     <option value="other"><?= t('gender_other') ?></option>
                 </select>
+
                 <label for="email"><?= t('label_email') ?></label>
                 <input class="input" type="email" name="email" id="email"
-                    value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>" required>
+                       value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>" required>
+
                 <label for="reg_code">Regisztrációs kód</label>
                 <input class="input" type="text" name="reg_code" id="reg_code" required>
+
                 <label for="password1"><?= t('label_password') ?></label>
                 <input class="input" type="password" name="password1" id="password1" required>
+
                 <label for="password2"><?= t('label_password_again') ?></label>
                 <input class="input" type="password" name="password2" id="password2" required>
+
                 <p class="auth-note">
                     <strong><?= t('auth_security_question_label') ?></strong>
                     <?= htmlspecialchars($selected_question) ?>
                 </p>
                 <input type="hidden" name="security_question" value="<?= htmlspecialchars($selected_question) ?>">
+
                 <label for="security_answer"><?= t('auth_security_answer_label') ?></label>
                 <input class="input" type="text" name="security_answer" id="security_answer" required>
+
                 <div class="auth-actions" style="margin-top:12px;">
                     <button class="btn-cta" type="submit" name="reg-btn"><?= t('auth_btn_register') ?></button>
                 </div>
+
                 <p class="auth-note" style="margin-top:16px;">
                     <?= t('auth_have_account') ?>
                     <a class="switcher" href="#" data-switch="login"><?= t('auth_link_login') ?></a>
                 </p>
             </form>
+
             <div class="auth-actions" style="margin-top:12px;">
                 <a class="btn-ghost" href="assets/oauth/discord-login.php">
                     <?= t('auth_continue_with_discord') ?>

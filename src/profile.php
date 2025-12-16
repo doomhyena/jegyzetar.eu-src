@@ -379,15 +379,21 @@
                                     <?php endif; ?>
                                 </div>
                                 <div class="profile-report" style="margin-top:8px; max-width: 260px;">
-                                    <form method="post"
-                                        action="assets/php/report.php">
+                                    <form method="post" action="assets/php/report.php" id="user-report-form">
                                         <input type="hidden" name="type" value="user">
                                         <input type="hidden" name="target_id" value="<?= (int)$profileId ?>">
                                         <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
-                                        <textarea name="reason" rows="2" placeholder="Miért jelented ezt a felhasználót? (nem kötelező)" style="width: 100%; resize: vertical; margin-bottom: 4px;"></textarea>
-                                        <button type="submit" class="btn-ghost" onclick="return confirm('Biztosan jelenteni szeretnéd ezt a felhasználót?');">
+
+                                        <button type="button" class="btn-ghost" id="report-toggle-btn">
                                             Felhasználó jelentése
                                         </button>
+
+                                        <div id="report-box" style="display:none; margin-top:6px;">
+                                            <textarea name="reason" id="report-reason" rows="3" required placeholder="Írd le, miért jelented ezt a felhasználót..." style="width: 100%; resize: vertical; margin-bottom: 6px;"></textarea>
+                                            <button type="submit" class="btn-cta" id="report-submit-btn" disabled onclick="return confirm('Biztosan elküldöd a jelentést az adminnak?');">
+                                                Jelentés elküldése
+                                            </button>
+                                        </div>
                                     </form>
                                 </div>
                             <?php endif; ?>
@@ -542,25 +548,25 @@ body {
                                 <div class="profile-info-item">
                                     <div class="profile-info-label"><?= t('profile_css_label') ?></div>
                                     <div class="profile-info-value">
-                                        <textarea class="profile-bio-input" rows="4" id="profile-custom-css-input" style="width: 250px" name="custom_css" placeholder="<?= htmlspecialchars(t('css_placeholder')) ?>" data-i18n-css-empty="<?= htmlspecialchars(t('msg_css_empty_reset')) ?>" data-i18n-css-admin="<?= htmlspecialchars(t('msg_css_approved_by_admin')) ?>">  
+                                        <textarea class="profile-bio-input" rows="4" id="profile-custom-css-input" style="width: 250px" name="custom_css" placeholder="<?= htmlspecialchars(t('css_placeholder')) ?>" data-i18n-css-empty="<?= htmlspecialchars(t('msg_css_empty_reset')) ?>" data-i18n-css-admin="<?= htmlspecialchars(t('msg_css_approved_by_admin')) ?>">
                                             <?php
                                             if ($cssResetDone) {
                                                 echo '';
                                             } else {
                                                 echo htmlspecialchars($lastCssRequest['css'] ?? '');
                                             }
-                                        ?></textarea>
+                                            ?></textarea>
                                         <p class="entry-meta">
                                             <?= t('css_approval_note') ?>
                                         </p>
-                                            <div class="css-button-row">
-                                                <button type="submit" name="submit-custom-css" class="btn-cta profile-save-btn">
-                                                    <?= t('profile_custom_css_submit') ?>
-                                                </button>
-                                                <button type="submit" name="reset-custom-css" class="btn-cta profile-save-btn">
-                                                    <?= t('profile_custom_css_reset_btn') ?>
-                                                </button>
-                                            </div>
+                                        <div class="css-button-row">
+                                            <button type="submit" name="submit-custom-css" class="btn-cta profile-save-btn">
+                                                <?= t('profile_custom_css_submit') ?>
+                                            </button>
+                                            <button type="submit" name="reset-custom-css" class="btn-cta profile-save-btn">
+                                                <?= t('profile_custom_css_reset_btn') ?>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </form>
@@ -584,8 +590,8 @@ body {
                             <?php while ($file = $files->fetch_assoc()):
                                 $uploaderRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [(int)$file['uploaded_by']]);
                                 $uploader = $uploaderRes->num_rows > 0
-                                    ? $uploaderRes->fetch_assoc()
-                                    : ['username' => t('label_unknown_user')];
+                                        ? $uploaderRes->fetch_assoc()
+                                        : ['username' => t('label_unknown_user')];
                                 $ext = pathinfo($file['file_name'], PATHINFO_EXTENSION);
                                 ?>
                                 <article class="card">
@@ -597,7 +603,7 @@ body {
                                         <a class="entry-download-btn" href="assets/php/download.php?id=<?= (int)$file['id'] ?>">
                                             <svg class="icon icon-download" viewBox="0 0 24 24" aria-hidden="true">
                                                 <path d="M12 3v10m0 0l-4-4m4 4l4-4M4 17v3h16v-3"
-                                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                             </svg>
                                             <?= t('btn_download') ?>
                                         </a>
@@ -635,7 +641,7 @@ body {
                                         </form>
                                     <?php endif; ?>
                                 </article>
-                               <?php endwhile; ?>
+                            <?php endwhile; ?>
                         </div>
                     <?php else: ?>
                         <div class="card">

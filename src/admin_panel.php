@@ -42,7 +42,7 @@
         a:hover { text-decoration: underline; }
     </style>
 </head>
-<body>
+<body class="admin-page">
 <?php
     include 'assets/php/navbar.php';
 
@@ -462,7 +462,7 @@
             <button type="submit" class="btn-cta" style="margin-left:12px;">Hozzáadás</button>
         </form>
         <h3>Meglévő badge-ek</h3>
-        <table>
+        <table class="admin-table-compact">
             <tr>
                 <th>ID</th>
                 <th>Név</th>
@@ -519,7 +519,6 @@
                 <th>Dátum</th>
                 <th>Művelet</th>
             </tr>
-
             <?php if ($reports && $reports->num_rows > 0): ?>
                 <?php while ($rep = $reports->fetch_assoc()): ?>
                     <?php
@@ -598,13 +597,13 @@
                             <?php if ($rep['status'] === 'open'): ?>
                                 <form method="post" style="display:inline;">
                                     <input type="hidden" name="report_id" value="<?= (int)$rep['id'] ?>">
-                                    <button type="submit" name="report_action" value="resolve">
+                                    <button type="submit" name="report_action" value="resolve" class="btn-cta">
                                         Elfogad
                                     </button>
                                 </form>
                                 <form method="post" style="display:inline;">
                                     <input type="hidden" name="report_id" value="<?= (int)$rep['id'] ?>">
-                                    <button type="submit" name="report_action" value="dismiss">
+                                    <button type="submit" name="report_action" value="dismiss" class="btn-ghost">
                                         Elutasít
                                     </button>
                                 </form>
@@ -621,29 +620,27 @@
             <?php endif; ?>
         </table>
     </section>
+
     <section class="card" id="reg-codes">
         <h2>Regisztrációs kódok</h2>
         <h3>Új kód létrehozása</h3>
         <form method="post" style="margin-bottom:16px; display:grid; gap:8px; max-width:400px;">
             <label>
                 Kód
-                <input type="text" name="code" required>
+                <input type="text" name="code" class="input" required>
             </label>
             <label>
                 Leírás (pl. "10.A osztály", "Teszt kód")
-                <input type="text" name="description">
+                <input type="text" name="description" class="input">
             </label>
-
             <label>
                 Max. felhasználás (üres = végtelen)
-                <input type="number" name="max_uses" min="1">
+                <input type="number" name="max_uses" class="input" min="1">
             </label>
-
             <label>
                 Lejárat (üres = soha)
-                <input type="datetime-local" name="expires_at">
+                <input type="datetime-local" name="expires_at" class="input">
             </label>
-
             <button type="submit" name="create_reg_code" class="btn-cta">
                 Kód létrehozása
             </button>
@@ -682,20 +679,19 @@
                             <form method="post" style="display:inline;">
                                 <input type="hidden" name="reg_code_id" value="<?= (int)$code['id'] ?>">
                                 <?php if ((int)$code['active'] === 1): ?>
-                                    <button type="submit" name="deactivate_reg_code">
+                                    <button type="submit" name="deactivate_reg_code" class="btn-ghost">
                                         Deaktiválás
                                     </button>
                                 <?php else: ?>
-                                    <button type="submit" name="activate_reg_code">
+                                    <button type="submit" name="activate_reg_code" class="btn-cta">
                                         Aktiválás
                                     </button>
                                 <?php endif; ?>
                             </form>
-
                             <form method="post" style="display:inline;"
-                                onsubmit="return confirm('Biztosan törlöd ezt a kódot?');">
+                                  onsubmit="return confirm('Biztosan törlöd ezt a kódot?');">
                                 <input type="hidden" name="reg_code_id" value="<?= (int)$code['id'] ?>">
-                                <button type="submit" name="delete_reg_code">
+                                <button type="submit" name="delete_reg_code" class="btn-ghost btn-delete">
                                     Törlés
                                 </button>
                             </form>

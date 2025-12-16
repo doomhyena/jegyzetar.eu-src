@@ -45,6 +45,50 @@ Changelog by: Neved
 
 ---
 
+## [1.3.6] - 2025-12-16
+
+### Added
+#### • Jelentés / Report rendszer
+- Új “Report” gomb a felhasználók és jegyzetek jelentéséhez
+- Jelentések továbbítása az admin felé (admin tud intézkedni)
+
+### Changed
+#### • UI / Design finomhangolás
+- Kevesebb gradient: letisztultabb, kevésbé “túltolt” megjelenés
+- A felületek (kártyák, navbar, gombok) inkább “soft”/egyszínű alapot kaptak, a gradient inkább csak accent maradt
+
+### Fixed
+#### • Főoldali értékelés
+- Javítva: a főoldalon az értékelés (csillagok / beküldés) most már működik
+
+### Security
+#### • Report funkció
+- Csak bejelentkezett felhasználó tud jelentést küldeni (vendég nem)
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
+## [1.3.5] - 2025-12-14
+
+### Added
+#### •mail-regver.php
+-Regisztráció után küld egy linket e-mailbe amivel belehet aktiválni a fiókot
+
+#### •reg-ver.php
+-Ide visz az e-mail-ben lévő link
+
+### Changed
+#### •jegyzetar.sql
+-új tábla: tokens (id, user_id, token), itt találhatóak a generált tokenek az aktivációhoz
+
+#### •reglog.php
+-nem lehet mostmár belépni aktiválatlan fiókkal (email_verified == 0)
+-email küldés sikeres regisztráció után
+
+Changelog by: Norbi
+
+
 ## [1.3.4] - 2025-12-06
 
 ### Added

@@ -344,3 +344,27 @@ function cancelReport(button) {
 function confirmReportSubmit(form) {
     return confirm('Biztosan elküldöd a jelentést?');
 }
+
+(function () {
+    var toggleBtn = document.getElementById('report-toggle-btn');
+    var box = document.getElementById('report-box');
+    var reason = document.getElementById('report-reason');
+    var submitBtn = document.getElementById('report-submit-btn');
+
+    if (!toggleBtn || !box || !reason || !submitBtn) return;
+
+    toggleBtn.addEventListener('click', function () {
+        box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
+        if (box.style.display === 'block') {
+            reason.focus();
+        }
+    });
+
+    function updateSubmitState() {
+        var val = reason.value.replace(/\s+/g, '').length;
+        submitBtn.disabled = (val === 0);
+    }
+
+    reason.addEventListener('input', updateSubmitState);
+    updateSubmitState();
+})();
