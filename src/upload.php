@@ -30,7 +30,7 @@
             echo "<script>alert('Hiba a fájl feltöltésekor.');</script>";
         } else {
             $subject = $_POST['subject'] ?? '';
-            $tags = $_POST['tags'] ?? '';
+            $tags = $_POST['applied_tags'] ?? '';
             $description = $_POST['description'] ?? '';
             $displayName = $_POST['name'] ?? '';
 
@@ -126,8 +126,9 @@
                 <textarea class="input" name="description" placeholder="Rövid leírás az anyagról..." rows="4" required></textarea>
                 <label for="subject">Tárgy:</label>
                 <input class="input" type="text" name="subject" placeholder="pl. fizika, történelem" required>
-                <label for="tags">Kulcsszavak, címkék:</label>
-                <input class="input" type="text" name="tags" placeholder="pl. ZH, jegyzet, beadandó" required>
+                <label for="tag">Címkék:</label>
+                <textarea class="input" id="tag" name="applied_tags" placeholder="Címkék..." rows="3" readonly></textarea>
+                <?php include 'assets/php/kereso_tag.php'; ?>
                 <label for="upload-file">Fájl kiválasztása:</label>
                 <div class="file-input-wrapper">
                     <input class="input" type="file" name="upload-file" required>
