@@ -45,6 +45,53 @@ Changelog by: Neved
 
 ---
 
+## [1.4.2] - 2025-01-13
+
+### Added
+
+#### • Biztonság és fiókkezelés
+
+* Kétlépcsős azonosítás (2FA) be- és kikapcsolásának lehetősége a profil oldalon
+* Biztonsági kérdések hash-elése az adatbiztonság növelése érdekében
+
+### Changed
+
+#### • Felhasználói felület
+
+* Navbar újratervezése (UI redesign)
+* `messages.php` felhasználói felületének átdolgozása
+* Gradientek mennyiségének csökkentése a letisztultabb megjelenés érdekében
+
+### Fixed
+
+#### • Jogosultság és adatvédelem
+
+* Más felhasználók adatainak szerkesztési lehetőségének megszüntetése (pl. jelszó módosítás adatbázison keresztül)
+* Profil bemutatkozás karakterlimitjének bevezetése (maximum 1500 karakter)
+
+### Security
+
+#### • Adatbiztonság
+
+* Jogosulatlan adatmanipuláció lehetőségének megszüntetése más felhasználók esetén
+
+Changelog by: Csontos Kincső Anasztázia
+
+
+## [1.4.1] - 2025-01-13
+
+### Added
+#### • Reklámok
+- Egyes oldalakon reklámok jelennek meg a baloldalt
+
+### Fixed
+#### • mobilos hamburger menü
+- Mostmár lenyílik és rendesen lehet használni a mobilon
+
+Changelog by: Szekeres Levente
+
+---
+
 ## [1.4.0] - 2026-01-09
 TAGELÉS REWORK
 
