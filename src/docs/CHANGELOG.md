@@ -45,6 +45,23 @@ Changelog by: Neved
 
 ---
 
+## [1.4.0] - 2026-01-09
+TAGELÉS REWORK
+
+### Added
+#### •findtag.php, kereso_tag.php
+-adatbázisban lévő tagek megmutatására szolgál mindkettő php fájl
+
+### Changed
+#### •upload.php
+-beraktam egy textarea-t amibe az applikált tagek kerülnek be. ennek a tartalma töltödik fel a db-be
+
+
+Changelog by: Norbi
+
+---
+
+
 ## [1.3.6] - 2025-12-16
 
 ### Added

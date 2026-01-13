@@ -34,7 +34,7 @@
             echo "<script>alert('Hiba a fájl feltöltésekor.');</script>";
         } else {
             $subject = $_POST['subject'] ?? '';
-            $tags = $_POST['tags'] ?? '';
+            $tags = $_POST['applied_tags'] ?? '';
             $description = $_POST['description'] ?? '';
             $displayName = $_POST['name'] ?? '';
 
@@ -120,6 +120,7 @@
    </head>
    <body>
         <?php include 'assets/php/navbar.php'; ?>
+<<<<<<< HEAD
         <div class="content-wrapper">
             <?php include "assets/php/ads.php"; ?>
             <div class="main" style="max-width: 700px;">
@@ -140,6 +141,26 @@
                     <button type="submit" name="upload-btn" class="btn-cta">Feltöltés</button>
                 </form>
             </div>
+=======
+        <div class="main" style="max-width: 700px;">
+            <h1>Anyag feltöltése</h1>
+            <form class="card" method="post" enctype="multipart/form-data">
+                <label for="name">Anyag neve:</label>
+                <input class="input" type="text" name="name" placeholder="pl. Fizika ZH anyag" required>
+                <label for="description">Leírás:</label>
+                <textarea class="input" name="description" placeholder="Rövid leírás az anyagról..." rows="4" required></textarea>
+                <label for="subject">Tárgy:</label>
+                <input class="input" type="text" name="subject" placeholder="pl. fizika, történelem" required>
+                <label for="tag">Címkék:</label>
+                <textarea class="input" id="tag" name="applied_tags" placeholder="Címkék..." rows="3" readonly></textarea>
+                <?php include 'assets/php/kereso_tag.php'; ?>
+                <label for="upload-file">Fájl kiválasztása:</label>
+                <div class="file-input-wrapper">
+                    <input class="input" type="file" name="upload-file" required>
+                </div>
+                <button type="submit" name="upload-btn" class="btn-cta">Feltöltés</button>
+            </form>
+>>>>>>> c34c9e0e6fa420ec74d9588d63f935ea7121e5bf
         </div>
         <?php include 'assets/php/footer.php'; ?>
    </body>
