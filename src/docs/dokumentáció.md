@@ -13,7 +13,7 @@ Baranyi Norbert <br>
 Csontos Kincső <br>
 Szekeres Levente<br>
 
-**2025**
+**2026**
 
 </div>
 
@@ -65,7 +65,6 @@ Szekeres Levente<br>
     - 8.5. [Gamifikáció](#85-gamifikáció)
     - 8.6. [Mobil Applikáció](#86-mobil-applikáció)
     - 8.7. [Asztali Alkalmazás](#87-asztali-alkalmazás)
-    - 8.8. [Appendix](#88-appendix)
 
 9. [Ki mit készített?](#9-ki-mit-készített?)
     - 9.1. [Baranyi Norbert](#91-baranyi-norbert)
@@ -133,13 +132,25 @@ A Jegyzetár rendszer az alábbi kulcsfunkciókat biztosítja:
 - Feltöltések jelentése és moderálása
     - Admin eszközök kiterjesztése: Külön felület az egyedi profil CSS kérések kezelésére (jóváhagyás / elutasítás / archiválás), valamint a felhasználók és feltöltések részletes kezelése (törlés, szerkesztés, moderation logs).
 
-### Újabb (2025/2) funkciók és fejlesztések
+### Újabb (2025/26) funkciók és fejlesztések
 
-- Profil-onkénti egyedi CSS: A felhasználók beadhatnak egyedi CSS kérést a profiljuk vizuális testreszabására. A kért CSS a profiloldalon kliens-oldali előnézetként megtekinthető, de ténylegesen csak admin jóváhagyás után élesedik. Az előnézet ideiglenes módosításokat alkalmaz és automatikusan eltávolítja a nem engedélyezett, vagy a szerkezetet szétszedő stílusokat.
-- Admin jóváhagyási felület: Az admin felületen a beérkező egyedi CSS kérések átnézhetők, jóváhagyhatók vagy elutasíthatók. A jóváhagyás után az elfogadott CSS inline bejegyzésként kerül a profilba, a korábbi megjegyzések archiválódnak.
-- Fordítási rendszer finomhangolása: A fordítási kulcsok mostantól adatbázisban vannak tárolva, és a rendszer automatikusan létrehozza a hiányzó kulcsokat az aktív nyelvekhez, így könnyebben karbantartható a honlap nyelvi tartalma.
-- SQL import & seed workflow: Új eszközök a dump-ok és fordítások takarítására (duplikált bejegyzések eltávolítása, `ON DUPLICATE KEY` használata) — lásd a fejlesztői szekciót és a `assets/sql/scripts` mappát (pl. `clean_translations.py`, `repair_translations.sql`), melyek segítenek a hibamentes importban.
-- Biztonsági és stabilitási fejlesztések: Az SQL lekérdezések és form-kezelések jobb sanitizációja (prepared statements: `db_prepared`) és a duplikált include hibák elkerülése a `require_once` + `function_exists` kombináció gyakorlati bevezetésével.
+#### Profil egyedi CSS kérések
+Bevezetésre került a felhasználói CSS kérelmek kezelése, amely a profil felületén megadható, de csak admin jóváhagyása után érvényesül. Az előnézet a felhasználói élményt javítja és nem ment a szerverre automatikusan.
+
+#### Admin jóváhagyási UI
+Az admin panelben külön táblában listázhatók és jóváhagyhatók a CSS kérések; az elfogadott CSS archiválható és az előző állapot is visszaállítható.
+
+#### Frontend preview & safe background rules
+A preview kliens oldali (style tag injektálás), a SAFE_BG_RULE szabály megakadályozza a background képek kellemetlen ismétlődését, és a preview idején a jobboldali panel rejtésre kerül, hogy az előnézet ne rontsa el az oldalt.
+
+#### Lokalizációs módosítások
+A `t()` segédfüggvény és `lang.php` központi megoldással egy adatbázis-alapú fordítási rendszer lett bevezetve. A fordítások hiányzó kulcsait automatikusan lehet seed-elni. Fordítási kulcsok a `profiles`-hoz a 1543-as ID-tól készültek.
+
+#### SQL dump & seed eszközök
+Hozzáadtuk a `clean_translations.py`, `translations_clean.sql`, `replace_translations_in_dump.py`, `repair_translations.sql` eszközöket, amelyek a dump-ok importjának biztonságát növelik (duplikált bejegyzések eltávolítása, ON DUPLICATE használata, táblák import sorrendje). A `repair_translations.sql` script automatikus backup-ot készít, majd törli a duplikátumokat és létrehozza a megfelelő UNIQUE indexet.
+
+#### Biztonsági javítások
+A kód refaktorálásával `db_prepared()` használata javasolt a lekérdezésekhez, `require_once` és `function_exists` védelem bevezetésre került, a `Message()` segédfüggvény javítja az értesítések konzisztenciáját.
 
 
 ### 1.3. Technológiai Stack
@@ -184,30 +195,17 @@ A Jegyzetár egy háromrétegű architektúrát követ:
 
 #### Táblák
 
-```bash
-
-1. users
+1. 2fa_codes
    - `id` (INT, PK, AUTO_INCREMENT)
-   - `lastname` (VARCHAR(100))
-   - `firstname` (VARCHAR(100))
-   - `username` (VARCHAR(50), UNIQUE)
-   - `email` (VARCHAR(50), UNIQUE)
-   - `profile_picture` (VARCHAR(255))
-   - `password` (VARCHAR(255))
-   - `security_question` (VARCHAR(255))
-   - `security_answer` (VARCHAR(255))
-   - `registration_date` DATETIME NOT NULL DEFAULT current_timestamp()
+   - `userid` (INT, FK → users.id)
+   - `code` (INT)
 
-2. files
-   - `id` (INT, AUTO_INCREMENT)
-   - `uploaded_by` (INT)
-   - `name` (VARCHAR(255))
-   - `file_name` (VARCHAR(255))
-   - `description` (TEXT)
-   - `file_path` (VARCHAR(255))
-   - `subject` (VARCHAR(100))
-   - `tags` (VARCHAR(100))
-   - `tn_name` (VARCHAR(255))
+2. badges
+   - `id` (INT, PK, AUTO_INCREMENT)
+   - `name` (VARCHAR(64))
+   - `slug` (VARCHAR(64), UNIQUE)
+   - `description` (VARCHAR(255))
+   - `icon` (VARCHAR(16))
 
 3. comments
    - `id` (INT, PK, AUTO_INCREMENT)
@@ -215,71 +213,172 @@ A Jegyzetár egy háromrétegű architektúrát követ:
    - `postid` (INT)
    - `text` (VARCHAR(1000))
 
-4. notifys
+4. favorites
+   - `id` (INT, PK, AUTO_INCREMENT)
+   - `user_id` (INT, FK → users.id)
+   - `file_id` (INT, FK → files.id)
+   - `created_at` (DATETIME DEFAULT current_timestamp())
+
+5. files
+   - `id` (INT, PK, AUTO_INCREMENT)
+   - `uploaded_by` (INT, FK → users.id)
+   - `name` (VARCHAR(255))
+   - `file_name` (VARCHAR(255))
+   - `description` (TEXT)
+   - `file_path` (VARCHAR(255))
+   - `subject` (VARCHAR(100))
+   - `tags` (VARCHAR(255))
+   - `tn_name` (VARCHAR(255))
+   - `file_size` (BIGINT UNSIGNED)
+
+6. friends
+   - `id` (INT, PK, AUTO_INCREMENT)
+   - `fromid` (INT, FK → users.id)
+   - `toid` (INT, FK → users.id)
+   - `status` (TINYINT DEFAULT 0)
+
+7. groups
+   - `id` (INT, PK, AUTO_INCREMENT)
+   - `name` (VARCHAR(100))
+   - `description` (TEXT)
+   - `owner_id` (INT, FK → users.id)
+   - `is_private` (TINYINT DEFAULT 0)
+   - `created_at` (DATETIME DEFAULT current_timestamp())
+
+8. group_files
+   - `id` (INT, PK, AUTO_INCREMENT)
+   - `group_id` (INT, FK → groups.id)
+   - `uploaded_by` (INT, FK → users.id)
+   - `name` (VARCHAR(255))
+   - `description` (TEXT)
+   - `file_name` (VARCHAR(255))
+   - `created_at` (DATETIME)
+   - `is_approved` (TINYINT DEFAULT 0)
+
+9. group_members
+   - `id` (INT, PK, AUTO_INCREMENT)
+   - `group_id` (INT, FK → groups.id)
+   - `user_id` (INT, FK → users.id)
+   - `role` (ENUM('owner','member') DEFAULT 'member')
+   - `status` (ENUM('accepted','pending') DEFAULT 'accepted')
+   - `joined_at` (DATETIME DEFAULT current_timestamp())
+
+10. languages
+    - `id` (INT, PK, AUTO_INCREMENT)
+    - `code` (VARCHAR(5), UNIQUE)
+    - `name` (VARCHAR(50))
+
+11. messages
     - `id` (INT, PK, AUTO_INCREMENT)
     - `fromid` (INT, FK → users.id)
     - `toid` (INT, FK → users.id)
-    - `notifytype` (VARCHAR(100))
-    - `readed` (TINYINT(1), DEFAULT 0)
+    - `content` (TEXT)
+    - `sent_at` (DATE DEFAULT current_timestamp())
 
-5. namedays
+12. namedays
     - `id` (INT, PK, AUTO_INCREMENT)
     - `datum` (VARCHAR(5))
     - `nevek` (VARCHAR(255))
 
-6. messages
+13. notifys
     - `id` (INT, PK, AUTO_INCREMENT)
     - `fromid` (INT, FK → users.id)
     - `toid` (INT, FK → users.id)
-    - `content` text NOT NULL,
-    - `sent_at` date NOT NULL DEFAULT current_timestamp()
+    - `notifytype` (VARCHAR(100))
+    - `readed` (TINYINT DEFAULT 0)
 
-7. ratings
+14. ratings
     - `id` (INT, PK, AUTO_INCREMENT)
     - `file_id` (INT, FK → files.id)
     - `user_id` (INT, FK → users.id)
-    - `rating` (TINYINT, 1-5)
+    - `rating` (TINYINT)
     - `created_at` (DATETIME DEFAULT current_timestamp())
     - `updated_at` (DATETIME DEFAULT current_timestamp() ON UPDATE current_timestamp())
 
-8. favorites
+15. reg_codes
     - `id` (INT, PK, AUTO_INCREMENT)
-    - `file_id` (INT, FK → files.id)
-    - `user_id` (INT, FK → users.id)
+    - `code` (VARCHAR(50), UNIQUE)
+    - `description` (VARCHAR(255))
+    - `max_uses` (INT)
+    - `used` (INT DEFAULT 0)
+    - `expires_at` (DATETIME)
+    - `active` (TINYINT DEFAULT 1)
+    - `created_at` (DATETIME DEFAULT current_timestamp())
 
-9. user_badges
+16. reports
+    - `id` (INT, PK, AUTO_INCREMENT)
+    - `reporter_id` (INT, FK → users.id)
+    - `target_type` (VARCHAR(50))
+    - `target_id` (INT)
+    - `reason` (TEXT)
+    - `status` (ENUM('open','dismissed','resolved') DEFAULT 'open')
+    - `created_at` (DATETIME DEFAULT current_timestamp())
+    - `handled_by` (INT, FK → users.id)
+    - `handled_at` (DATETIME)
+
+17. tags
+    - `id` (INT, PK, AUTO_INCREMENT)
+    - `tags` (VARCHAR(100))
+
+18. tokens
     - `id` (INT, PK, AUTO_INCREMENT)
     - `user_id` (INT, FK → users.id)
-    - `badge_id` (INT, FK → badges.id)
-    - `granted_by` (INT, FK → users.id)
-    - `granted_at` (DATETIME)
+    - `token` (VARCHAR(255))
+    - `created_at` (TIMESTAMP DEFAULT current_timestamp())
 
-10. translations
+19. translations
     - `id` (INT, PK, AUTO_INCREMENT)
     - `t_key` (VARCHAR(100))
     - `lang_code` (VARCHAR(5))
     - `text` (VARCHAR(255))
 
-11. user_custom_css_requests
+20. users
+    - `id` (INT, PK, AUTO_INCREMENT)
+    - `lastname` (VARCHAR(100))
+    - `firstname` (VARCHAR(100))
+    - `username` (VARCHAR(50), UNIQUE)
+    - `birthdate` (DATE)
+    - `gender` (ENUM('male','female','other'))
+    - `email` (VARCHAR(100), UNIQUE)
+    - `profile_picture` (VARCHAR(255))
+    - `password` (VARCHAR(255))
+    - `security_question` (VARCHAR(255))
+    - `security_answer` (VARCHAR(255))
+    - `admin` (TINYINT DEFAULT 0)
+    - `registration_date` (DATETIME DEFAULT current_timestamp())
+    - `language` (VARCHAR(5) DEFAULT 'hu')
+    - `oauth_provider` (VARCHAR(50))
+    - `oauth_sub` (VARCHAR(255))
+    - `email_verified` (TINYINT DEFAULT 0)
+    - `bio` (TEXT)
+    - `profile_theme` (VARCHAR(32) DEFAULT 'default')
+
+21. user_badges
     - `id` (INT, PK, AUTO_INCREMENT)
     - `user_id` (INT, FK → users.id)
-    - `css` (MEDIUMTEXT)
-    - `status` ENUM('pending','approved','rejected')
-    - `created_at` (DATETIME DEFAULT current_timestamp())
-    - `reviewed_at` (DATETIME NULL)
-    - `reviewed_by` (INT, FK → users.id)
+    - `badge_id` (INT, FK → badges.id)
+    - `granted_by` (INT, FK → users.id)
+    - `granted_at` (DATETIME DEFAULT current_timestamp())
 
-12. user_custom_css_archive
+22. user_custom_css_archive
     - `id` (INT, PK, AUTO_INCREMENT)
     - `original_request_id` (INT)
     - `user_id` (INT, FK → users.id)
     - `css` (MEDIUMTEXT)
     - `status` (ENUM('pending','approved','rejected'))
     - `created_at` (DATETIME)
-    - `reviewed_at` (DATETIME NULL)
+    - `reviewed_at` (DATETIME)
     - `reviewed_by` (INT, FK → users.id)
+    - `archived_at` (DATETIME DEFAULT current_timestamp())
 
-```
+23. user_custom_css_requests
+    - `id` (INT, PK, AUTO_INCREMENT)
+    - `user_id` (INT, FK → users.id)
+    - `css` (MEDIUMTEXT)
+    - `status` (ENUM('pending','approved','rejected') DEFAULT 'pending')
+    - `created_at` (DATETIME DEFAULT current_timestamp())
+    - `reviewed_at` (DATETIME)
+    - `reviewed_by` (INT, FK → users.id)
 
 
 ## 3. Frontend Architektúra
@@ -442,45 +541,65 @@ A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját hasz
 ### 7.3. FájlStruktúra
 
 ```bash
-
-Jegyzetár-Dev/
-│   ├──/assets
-│   │
-│   ├── /css
-│   │   └── styles.css                      # A projekt stíluslapja
-│   ├──/img
-│   │   ├── default_profile_picture.png     # Alapértelmezett profilkép azoknak akik nem állítottak be profilképet
-│   │   ├── favicon.ico                     # Az alkalmazás faviconja
-│   │   ├── logo-1.png                      # Az első logó
-│   │   └── logo-2.png                      # A második logó
-│   ├──/js
-│   │   └── script.js                       # A JavaScript fájl, amely a fő funkciókat tartalmazza
-│   ├──/php
-│   │   ├── accept_friend.php               # Barátok elfogadását kezelő fájl
-│   │   ├── add_friend.php                  # Barátok hozzáadását kezelő fájl
-│   │   ├── db.php                          # Az adatbázis kapcsolat beállításait tartalmazó fájl
-│   │   ├── delete.php                      # Fájlok törlését kezelő fájl
-│   │   ├── download.php                    # Fájlok letöltését kezelő fájl
-│   │   ├── findanything.php                # Keresési funkciót megvalósító fájl
-│   │   ├── footer.php                      # A footer-t megjelenítő fájl
-│   │   ├── loadmessages.php                # Üzenetek betöltését kezelő fájl
-│   │   ├── logout.php                      # Kijelentkezést kezelő fájl
-│   │   └── navbar.php                      # navbar-t megjelenítő fájé
-│   ├── /sql
-│   │   └── Jegyzetár.sql                   # Az oldal adatbázisa
-├── users/                                  # Felhasználók tárhelyét tartalmazó mappa
-├── edit_email.php                          # Az email cím módosításáért felelős fájl
-├── Év végi feladat.pdf                     # A feladatot leíró dokumentum
-├── forgotpass.php                          # Jelszó visszaállítást kezelő fájl
-├── index.php                               # Az oldal főoldala
-├── LICENSE                                 # Az oldal licensze
-├── messages.php                            # Az üzenetküldéséért és fogadásáért felelős fájé
-├── notify.php                              # Értesítéseket kezelő fájl
-├── profile.php                             # Profilokat megjelenítő fájl
-├── README.md                               # Az oldal dokumentációja markdown fájlként
-├── reglog.php                              # Bejelentkezést és a regisztrációt kezelő fájl
-├── search.php                              # Keresést kezelő fájl
-└── upload.php                              # Feltöltést kezelő fájl
+jegyzetar.eu-src/
+├── src/
+│   ├── 2fa.php                              # Kétlépcsős hitelesítés oldal
+│   ├── admin_panel.php                      # Adminisztrációs panel
+│   ├── create_group.php                     # Csoport létrehozása oldal
+│   ├── favorites.php                        # Kedvenc jegyzetek oldal
+│   ├── forgotpass.php                       # Jelszó visszaállítás oldal
+│   ├── group.php                            # Csoport részletek oldal
+│   ├── groups.php                           # Csoportok listája oldal
+│   ├── index.php                            # Főoldal
+│   ├── messages.php                         # Üzenetek oldal
+│   ├── note.php                             # Jegyzet részletek oldal
+│   ├── notify.php                           # Értesítések oldal
+│   ├── profile.php                          # Profil oldal
+│   ├── reg-ver.php                          # E-mail aktivációs oldal
+│   ├── reglog.php                           # Regisztráció és bejelentkezés oldal
+│   ├── search.php                           # Keresés oldal
+│   ├── upload.php                           # Feltöltés oldal
+│   ├── .idea/                               # IDE konfigurációs fájlok
+│   ├── assets/
+│   │   ├── composer.json                    # Composer függőségek
+│   │   ├── ads/                             # Hirdetések mappája
+│   │   ├── css/
+│   │   │   └── styles.css                   # Fő stíluslap
+│   │   ├── img/                             # Képek mappája
+│   │   ├── js/
+│   │   │   └── script.js                    # JavaScript fájl
+│   │   ├── logs/                            # Log fájlok
+│   │   ├── oauth/
+│   │   │   ├── discord-callback.php         # Discord OAuth callback
+│   │   │   └── discord-login.php            # Discord OAuth login
+│   │   ├── php/
+│   │   │   ├── accept_friend.php            # Barát elfogadása
+│   │   │   ├── add_friend.php               # Barát hozzáadása
+│   │   │   ├── ads.php                      # Hirdetések kezelése
+│   │   │   ├── db.php                       # Adatbázis kapcsolat
+│   │   │   ├── delete.php                   # Fájlok törlése
+│   │   │   ├── download.php                 # Fájlok letöltése
+│   │   │   ├── findanything.php             # Keresési funkció
+│   │   │   ├── footer.php                   # Footer megjelenítés
+│   │   │   ├── functions.php                # Közös függvények
+│   │   │   ├── group_actions.php            # Csoport műveletek
+│   │   │   ├── group_init.php               # Csoport inicializálás
+│   │   │   ├── lang.php                     # Nyelvi kezelés
+│   │   │   ├── loadmessages.php             # Üzenetek betöltése
+│   │   │   ├── logout.php                   # Kijelentkezés
+│   │   │   ├── mail-2fa.php                 # 2FA e-mail küldés
+│   │   │   ├── mail-regver.php              # Regisztrációs e-mail
+│   │   │   ├── navbar.php                   # Navigációs sáv
+│   │   │   └── report.php                   # Jelentések kezelése
+│   │   ├── sql/
+│   │   │   └── jegyzetar.sql                # Adatbázis dump
+│   │   └── vendor/                          # Composer vendor könyvtár
+│   ├── docs/
+│   │   ├── CHANGELOG.md                     # Változásnapló
+│   │   ├── dokumentáció.md                  # Ez a dokumentáció
+│   │   └── img/                             # Dokumentáció képei
+│   └── users/                               # Felhasználói fájlok
+└── LICENSE                                  # Licensz fájl
 ```
 
 ### 7.4. Fejlesztői eszközök, script-ek és refaktorok
@@ -615,31 +734,44 @@ A platform funkcionalitásának bővítése érdekében egy asztali alkalmazás 
 
 Ezek a fejlesztések jelentősen növelnék a Jegyzetár elérhetőségét és felhasználói élményét minden platformon.
 
-## 8.8. Appendix
-
-Ez az Appendix összefoglalja a 2025/26-os fejlesztési munkák legfontosabb változásait, azok hatását és a hozzájuk kapcsolódó praktikus megjegyzéseket.
-
-- Profil egyedi CSS kérések: bevezetésre került a felhasználói CSS kérelmek kezelése, amely a profil felületén megadható, de csak admin jóváhagyása után érvényesül. Az előnézet a felhasználói élményt javítja és nem ment a szerverre automatikusan.
-- Admin jóváhagyási UI: Az admin panelben külön táblában listázhatók és jóváhagyhatók a CSS kérések; az elfogadott CSS archiválható és az előző állapot is visszaállítható.
-- Frontend preview & safe background rules: A preview kliens oldali (style tag injektálás), a SAFE_BG_RULE szabály megakadályozza a background képek kellemetlen ismétlődését, és a preview idején a jobboldali panel rejtésre kerül, hogy az előnézet ne rontsa el az oldalt.
-- Lokalizációs módosítások: A `t()` segédfüggvény és `lang.php` központi megoldással egy adatbázis-alapú fordítási rendszer lett bevezetve. A fordítások hiányzó kulcsait automatikusan lehet seed-elni. Fordítási kulcsok a `profiles`-hoz a 1543-as ID-tól készültek.
-- SQL dump & seed eszközök: Hozzáadtuk a `clean_translations.py`, `translations_clean.sql`, `replace_translations_in_dump.py`, `repair_translations.sql` eszközöket, amelyek a dump-ok importjának biztonságát növelik (duplikált bejegyzések eltávolítása, ON DUPLICATE használata, táblák import sorrendje). A `repair_translations.sql` script automatikus backup-ot készít, majd törli a duplikátumokat és létrehozza a megfelelő UNIQUE indexet.
-- Biztonsági javítások: A kód refaktorálásával `db_prepared()` használata javasolt a lekérdezéseknél, `require_once` és `function_exists` védelem bevezetésre került, a `Message()` segédfüggvény javítja az értesítések konzisztenciáját.
-
 ## 9. Ki mit készített?
 
 ### 9.1. Baranyi Norbert
 
+- E-mail aktivációs rendszer fejlesztése (mail-regver.php, reg-ver.php, tokens tábla hozzáadása)
+- Kétlépcsős hitelesítés megvalósítása (mail-2fa.php, 2fa.php, 2fa_codes tábla)
+- Kedvencek oldal létrehozása (favorites.php)
+- Adatbázis séma javításai és új táblák (jegyzetar.sql frissítések, favorites tábla)
+- Jegyzet részletek oldal (note.php) és kapcsolódó funkciók (kommentelés, értékelés)
+- Footer és regisztrációs folyamat módosításai
+- Feltöltési logika javításai (upload.php)
 
 ### 9.2. Csontos Kincső Anasztázia
 
+- Jelentés/report rendszer bevezetése (új gombok, admin kezelőfelület)
+- UI/Design finomhangolások (gradient csökkentés, letisztult megjelenés)
+- Adatbázis helper függvények (db_prepared, db_stmt, db_query) és biztonságos SQL kezelése
+- Profil oldal bővítése (előre beállított témák, bemutatkozás, egyedi CSS kérelmek, kítűzők megjelenítése)
+- Multilanguage rendszer (lang.php, languages és translations táblák)
+- Discord OAuth integráció (vendor mappa, .env, login gomb)
+- Születésnapi élmény funkciók (animált keret, üzenetek)
+- Vendég mód engedélyezése (főoldal elérhető bejelentkezés nélkül)
+- Teljes felület újradizájnolása (Aurora UI stílus, reszponzív layout)
+- Kereső funkció bővítése (több mezős keresés, pontosabb találatok)
+- Értékelés rendszer javításai (adatbázisba mentés, egyszeri értékelés)
+- Biztonsági frissítések (SQL injection védelem, prepared statements)
 
 ### 9.3. Szekeres Levente
+
+- Csoport funkciók teljes implementációja (group.php, groups.php, create_group.php, group_init.php)
+- Csoporttagság kezelése (tulajdonos, elfogadott, függőben lévő tagok)
+- Csoporton belüli jegyzetfeltöltés és moderáció
+- Csoport integráció a keresésbe, értesítésekbe és navigációba
 
 
 <div style="page-break-before: always;"></div>
 
 ## 10. Licensz
-Ez a projekt saját projektmunkás licensz alatt áll. A forráskód és a dokumentáció kizárólag oktatási célokra használható fel, kereskedelmi felhasználása nem engedélyezett.
+Ez a projekt saját projektmunkás licensz alatt áll. A forráskód és a dokumentáció kizárólag oktatási célokra használható fel, kereskedelmi felhasználásra nem engedélyezett.
 
 A felhasználók vállalják, hogy nem töltenek fel jogvédett tartalmat.

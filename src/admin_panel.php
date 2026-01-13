@@ -1,4 +1,8 @@
 <?php
+    header("X-Frame-Options: DENY");
+    header("X-Content-Type-Options: nosniff");
+    header("Referrer-Policy: no-referrer");
+
     require_once "assets/php/db.php";
     require_once "assets/php/lang.php";
     require_once "assets/php/functions.php";
@@ -446,25 +450,53 @@
         </table>
     </section>
     <section class="card">
-        <h2>Badge-ek kezelése</h2>
+        <div class="badges-header">
+            <div>
+                <h2 style="margin:0;">Badge-ek kezelése</h2>
+                <small>Kis jelvények, amikkel jutalmazhatod a felhasználókat.</small>
+            </div>
+        </div>
+
         <h3>Új badge létrehozása</h3>
-        <form method="post" action="admin_panel.php" style="margin-bottom:16px;">
+        <form method="post" action="admin_panel.php" class="badge-form-grid">
             <input type="hidden" name="badge_action" value="create">
-            <label for="badge_name">Név:</label>
-            <input type="text" id="badge_name" name="name" class="input" required placeholder="pl. Szuper segítő">
-            <label for="badge_slug" style="margin-left:12px;">Slug:</label>
-            <input type="text" id="badge_slug" name="slug" class="input" required placeholder="pl. super-helper">
-            <br><br>
-            <label for="badge_desc">Leírás:</label>
-            <input type="text" id="badge_desc" name="description" class="input" placeholder="pl. Sok jegyzetet töltött fel">
-            <label for="badge_icon" style="margin-left:12px;">Ikon (emoji / rövid kód):</label>
-            <input type="text" id="badge_icon" name="icon" class="input" placeholder="pl. ⭐ vagy fa-icon">
-            <button type="submit" class="btn-cta" style="margin-left:12px;">Hozzáadás</button>
+
+            <div class="form-field">
+                <label for="badge_name">Név</label>
+                <input type="text" id="badge_name" name="name" class="input"
+                       required placeholder="pl. Szuper segítő">
+            </div>
+
+            <div class="form-field">
+                <label for="badge_slug">Slug</label>
+                <input type="text" id="badge_slug" name="slug" class="input"
+                       required placeholder="pl. super-helper">
+            </div>
+
+            <div class="form-field">
+                <label for="badge_desc">Leírás</label>
+                <input type="text" id="badge_desc" name="description" class="input"
+                       placeholder="pl. Sok jegyzetet töltött fel">
+            </div>
+
+            <div class="form-field">
+                <label for="badge_icon">Ikon (emoji / rövid kód)</label>
+                <input type="text" id="badge_icon" name="icon" class="input"
+                       placeholder="pl. ⭐ vagy trophy">
+            </div>
+
+            <div class="form-field">
+                <button type="submit" class="btn-cta">
+                    Hozzáadás
+                </button>
+            </div>
         </form>
+
         <h3>Meglévő badge-ek</h3>
-        <table class="admin-table-compact">
+        <table class="badge-list-table">
             <tr>
                 <th>ID</th>
+                <th>Előnézet</th>
                 <th>Név</th>
                 <th>Slug</th>
                 <th>Leírás</th>
@@ -479,25 +511,34 @@
 
                         <td><?= $b['id'] ?></td>
                         <td>
+                                <span class="badge-chip">
+                                    <?php if (!empty($b['icon'])): ?>
+                                        <span class="badge-chip-icon"><?= htmlspecialchars($b['icon']) ?></span>
+                                    <?php endif; ?>
+                                    <span><?= htmlspecialchars($b['name']) ?></span>
+                                    <span class="badge-chip-slug"><?= htmlspecialchars($b['slug']) ?></span>
+                                </span>
+                        </td>
+                        <td>
                             <input type="text" name="name" class="input"
-                                value="<?= htmlspecialchars($b['name']) ?>" required>
+                                   value="<?= htmlspecialchars($b['name']) ?>" required>
                         </td>
                         <td>
                             <input type="text" name="slug" class="input"
-                                value="<?= htmlspecialchars($b['slug']) ?>" required>
+                                   value="<?= htmlspecialchars($b['slug']) ?>" required>
                         </td>
                         <td>
                             <input type="text" name="description" class="input"
-                                value="<?= htmlspecialchars($b['description'] ?? '') ?>">
+                                   value="<?= htmlspecialchars($b['description'] ?? '') ?>">
                         </td>
                         <td>
                             <input type="text" name="icon" class="input"
-                                value="<?= htmlspecialchars($b['icon'] ?? '') ?>">
+                                   value="<?= htmlspecialchars($b['icon'] ?? '') ?>">
                         </td>
                         <td>
                             <button type="submit" class="btn-cta btn-ghost">Mentés</button>
                             <a href="?delete_type=badge&delete_id=<?= $b['id'] ?>"
-                            onclick="return confirm('Biztosan törlöd ezt a badge-et? A hozzárendelt user_badge-ek is törlődnek.')">
+                               onclick="return confirm('Biztosan törlöd ezt a badge-et? A hozzárendelt user_badge-ek is törlődnek.')">
                                 Törlés
                             </a>
                         </td>
@@ -622,31 +663,44 @@
     </section>
 
     <section class="card" id="reg-codes">
-        <h2>Regisztrációs kódok</h2>
+        <div class="regcodes-header">
+            <div>
+                <h2 style="margin:0;">Regisztrációs kódok</h2>
+                <small>Belépőkódok osztályoknak / eseményeknek – látható statisztikával.</small>
+            </div>
+        </div>
+
         <h3>Új kód létrehozása</h3>
-        <form method="post" style="margin-bottom:16px; display:grid; gap:8px; max-width:400px;">
-            <label>
-                Kód
-                <input type="text" name="code" class="input" required>
-            </label>
-            <label>
-                Leírás (pl. "10.A osztály", "Teszt kód")
-                <input type="text" name="description" class="input">
-            </label>
-            <label>
-                Max. felhasználás (üres = végtelen)
-                <input type="number" name="max_uses" class="input" min="1">
-            </label>
-            <label>
-                Lejárat (üres = soha)
-                <input type="datetime-local" name="expires_at" class="input">
-            </label>
-            <button type="submit" name="create_reg_code" class="btn-cta">
-                Kód létrehozása
-            </button>
+        <form method="post" class="regcodes-form">
+            <div class="form-field">
+                <label for="code">Kód</label>
+                <input type="text" name="code" id="code" class="input" required placeholder="pl. 10A-2024">
+            </div>
+
+            <div class="form-field">
+                <label for="description">Leírás</label>
+                <input type="text" name="description" id="description" class="input" placeholder="pl. 10.A osztály, verseny, teszt stb.">
+            </div>
+
+            <div class="form-field">
+                <label for="max_uses">Max. felhasználás</label>
+                <input type="number" name="max_uses" id="max_uses" class="input" min="1" placeholder="Üres = végtelen">
+            </div>
+
+            <div class="form-field">
+                <label for="expires_at">Lejárat</label>
+                <input type="datetime-local" name="expires_at" id="expires_at" class="input" placeholder="Üres = soha">
+            </div>
+
+            <div class="form-field" style="align-self:flex-end;">
+                <button type="submit" name="create_reg_code" class="btn-cta">
+                    Kód létrehozása
+                </button>
+            </div>
         </form>
+
         <h3>Meglévő kódok</h3>
-        <table>
+        <table class="regcodes-table">
             <tr>
                 <th>ID</th>
                 <th>Kód</th>
@@ -658,8 +712,14 @@
                 <th>Műveletek</th>
             </tr>
             <?php if ($regCodes && $regCodes->num_rows > 0): ?>
-                <?php while ($code = $regCodes->fetch_assoc()): ?>
-                    <tr>
+                <?php while ($code = $regCodes->fetch_assoc()):
+                    $isExpired = false;
+                    if (!empty($code['expires_at']) && strtotime($code['expires_at']) <= time()) {
+                        $isExpired = true;
+                    }
+                    $rowClass = $isExpired ? 'row-expired' : '';
+                ?>
+                    <tr class="<?= $rowClass ?>">
                         <td><?= (int)$code['id'] ?></td>
                         <td><code><?= htmlspecialchars($code['code']) ?></code></td>
                         <td><?= htmlspecialchars($code['description'] ?? '') ?></td>
@@ -669,10 +729,23 @@
                             <?= $code['max_uses'] !== null ? (int)$code['max_uses'] : '∞' ?>
                         </td>
                         <td>
-                            <?= $code['expires_at'] ? htmlspecialchars($code['expires_at']) : 'Nincs' ?>
+                            <?php if ($code['expires_at']): ?>
+                                <?= htmlspecialchars($code['expires_at']) ?>
+                                <?php if ($isExpired): ?>
+                                    <span class="badge badge-expired">Lejárt</span>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                Nincs
+                            <?php endif; ?>
                         </td>
                         <td>
-                            <?= ((int)$code['active'] === 1) ? 'Igen' : 'Nem' ?>
+                            <?php if ((int)$code['active'] === 1 && !$isExpired): ?>
+                                <span class="badge badge-active">Aktív</span>
+                            <?php elseif ((int)$code['active'] === 1 && $isExpired): ?>
+                                <span class="badge badge-expired">Lejárt, még aktív</span>
+                            <?php else: ?>
+                                <span class="badge badge-inactive">Inaktív</span>
+                            <?php endif; ?>
                         </td>
                         <td><?= htmlspecialchars($code['created_at']) ?></td>
                         <td>

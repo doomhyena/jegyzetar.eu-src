@@ -1,4 +1,8 @@
 <?php
+    header("X-Frame-Options: DENY");
+    header("X-Content-Type-Options: nosniff");
+    header("Referrer-Policy: no-referrer");
+
     // norbi: kedvenc jegyzetek megjelenítése
     require_once "assets/php/db.php";
     require_once "assets/php/lang.php";
@@ -17,10 +21,11 @@
         header("Location: reglog.php");
         exit;
     }
+
     $user = $user_result->fetch_assoc();
     $notify_number = 0;
 
-    $nf = db_query($conn, "SELECT id FROM notifys WHERE toid = ? AND readed = 0", "i", [$user_id);
+    $nf = db_query($conn, "SELECT id FROM notifys WHERE toid = ? AND readed = 0", "i", [$user_id]);
     if ($nf) {
         $notify_number = $nf->num_rows;
     }
@@ -55,66 +60,69 @@
 </head>
 <body>
 <?php include 'assets/php/navbar.php'; ?>
-<div class="main">
-    <div class="section-titlebar">
-        <h1>
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
-            </svg>
-            Kedvenc jegyzeteim
-        </h1>
-    </div>
-    <?php if (!empty($favorites)): ?>
-        <div class="content-grid grid-large">
-            <?php foreach ($favorites as $f):
-                $uploaderRes = db_query(
-                    $conn,
-                    "SELECT username FROM users WHERE id = ? LIMIT 1",
-                    "i",
-                    [(int)$f['uploaded_by']]
-                );
-                $uploader = $uploaderRes ? $uploaderRes->fetch_assoc() : ['username' => 'ismeretlen'];
-                $file_id = (int)$f['id'];
-                $file_name = htmlspecialchars($f['name']);
-                $username = htmlspecialchars($uploader['username'] ?? 'ismeretlen');
-                $ext = strtolower(pathinfo($f['file_name'], PATHINFO_EXTENSION));
-                $user_dir = "users/" . ($uploader['username'] ?? '') . "/";
-                $safe_path = $user_dir . $f['file_name'];
+<div class="content-wrapper">
+    <?php include "assets/php/ads.php"; ?>
+    <div class="main">
+        <div class="section-titlebar">
+            <h1>
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 28px; height: 28px; margin-right: 8px; vertical-align: middle;">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
+                </svg>
+                Kedvenc jegyzeteim
+            </h1>
+        </div>
+        <?php if (!empty($favorites)): ?>
+            <div class="content-grid grid-large">
+                <?php foreach ($favorites as $f):
+                    $uploaderRes = db_query(
+                        $conn,
+                        "SELECT username FROM users WHERE id = ? LIMIT 1",
+                        "i",
+                        [(int)$f['uploaded_by']]
+                    );
+                    $uploader = $uploaderRes ? $uploaderRes->fetch_assoc() : ['username' => 'ismeretlen'];
+                    $file_id = (int)$f['id'];
+                    $file_name = htmlspecialchars($f['name']);
+                    $username = htmlspecialchars($uploader['username'] ?? 'ismeretlen');
+                    $ext = strtolower(pathinfo($f['file_name'], PATHINFO_EXTENSION));
+                    $user_dir = "users/" . ($uploader['username'] ?? '') . "/";
+                    $safe_path = $user_dir . $f['file_name'];
 
-                $avgRes = db_query($conn, "SELECT IFNULL(AVG(rating),0) as avg, COUNT(*) as c FROM ratings WHERE file_id = ?", "i", [$file_id]);
-                $avg = 0;
-                $cnt = 0;
-                if ($avgRes && $avgRes->num_rows) {
-                    $d = $avgRes->fetch_assoc();
-                    $avg = number_format((float)$d['avg'], 2);
-                    $cnt = (int)$d['c'];
-                }
-                ?>
-                <article class="card">
-                    <header class="card-head">
-                        <h4 class="entry-title"><?= $file_name ?></h4>
-                        <a class="uploader-name" href="profile.php?userid=<?= (int)$f['uploaded_by'] ?>">@<?= $username ?></a>
-                        <a class="note-desc-btn" href="note.php?id=<?= $file_id ?>">
-                            <?= t('btn_details') ?>
-                        </a>
-                        <a class="entry-download-btn" href="assets/php/download.php?id=<?= $file_id ?>">
-                            <svg class="icon icon-download" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 3v10m0 0l-4-4m4 4l4-4M4 17v3h16v-3"></path>
-                            </svg>
-                            <?= t('btn_download') ?>
-                        </a>
-                    </header>
-                </article>
-            <?php endforeach; ?>
-        </div>
-    <?php else: ?>
-        <div class="card" style="text-align: center; padding: 48px 24px;">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 64px; height: 64px; margin: 0 auto 16px; opacity: 0.3;">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2"/>
-            </svg>
-            <h2>Még nincsenek kedvenc jegyzeteid</h2>
-        </div>
-    <?php endif; ?>
+                    $avgRes = db_query($conn, "SELECT IFNULL(AVG(rating),0) as avg, COUNT(*) as c FROM ratings WHERE file_id = ?", "i", [$file_id]);
+                    $avg = 0;
+                    $cnt = 0;
+                    if ($avgRes && $avgRes->num_rows) {
+                        $d = $avgRes->fetch_assoc();
+                        $avg = number_format((float)$d['avg'], 2);
+                        $cnt = (int)$d['c'];
+                    }
+                    ?>
+                    <article class="card">
+                        <header class="card-head">
+                            <h4 class="entry-title"><?= $file_name ?></h4>
+                            <a class="uploader-name" href="profile.php?userid=<?= (int)$f['uploaded_by'] ?>">@<?= $username ?></a>
+                            <a class="note-desc-btn" href="note.php?id=<?= $file_id ?>">
+                                <?= t('btn_details') ?>
+                            </a>
+                            <a class="entry-download-btn" href="assets/php/download.php?id=<?= $file_id ?>">
+                                <svg class="icon icon-download" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 3v10m0 0l-4-4m4 4l4-4M4 17v3h16v-3"></path>
+                                </svg>
+                                <?= t('btn_download') ?>
+                            </a>
+                        </header>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+        <?php else: ?>
+            <div class="card" style="text-align: center; padding: 48px 24px;">
+                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 64px; height: 64px; margin: 0 auto 16px; opacity: 0.3;">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <h2>Még nincsenek kedvenc jegyzeteid</h2>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
 <?php include 'assets/php/footer.php'; ?>
 </body>

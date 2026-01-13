@@ -11,13 +11,18 @@
 </head>
 <body>
     <?php
-        // norbi: 2fa
+
+        header("X-Frame-Options: DENY");
+        header("X-Content-Type-Options: nosniff");
+        header("Referrer-Policy: no-referrer");
+
+    // norbi: 2fa
         require "assets/php/db.php";
         require_once "assets/php/lang.php";
         require_once "assets/php/functions.php";
 
         if (!isset($_SESSION['tries'])) {
-            $_SESSION['tries'] = 0;
+                $_SESSION['tries'] = 0;
         }
 
         if (!isset($_SESSION['id']) || !isset($_SESSION['email'])) {

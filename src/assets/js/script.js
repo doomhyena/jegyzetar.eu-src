@@ -74,7 +74,7 @@ $('form.message-form').submit(function (e) {
     const statusDiv = $('#message-status');
 
     if (message.length === 0) {
-        statusDiv.text('❌ Nem küldhetsz üres üzenetet.').css('color', 'red');
+        statusDiv.text('Nem küldhetsz üres üzenetet.').css('color', 'red');
         return;
     }
 
@@ -124,6 +124,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 navbarToggler.classList.remove('active');
                 navLinks.classList.remove('active');
             });
+        });
+    }
+
+    const accountItem = document.querySelector('.nav-item-has-dropdown');
+    const accountLink = document.querySelector('.nav-account-link');
+
+    if (accountItem && accountLink) {
+        accountLink.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            accountItem.classList.toggle('is-open');
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.nav-item-has-dropdown')) {
+                accountItem.classList.remove('is-open');
+            }
         });
     }
 });
@@ -245,81 +262,39 @@ document.addEventListener('DOMContentLoaded', function(){
     } catch (err) { /* ignore */ }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const details  = document.getElementById('css-tutorial');
-    const textarea = document.getElementById('profile-custom-css-input');
+    document.addEventListener('DOMContentLoaded', function () {
+        const staticBlock = document.getElementById('basic-profile-static');
+        const formBlock = document.getElementById('basic-profile-form');
+        const editBtn = document.getElementById('edit-basic-profile-btn');
+        const cancelBtn = document.getElementById('cancel-basic-profile-edit');
 
-    if (details) {
-        function updateCssHelpState() {
-            document.body.classList.toggle('css-help-open', details.open);
-        }
-
-        details.addEventListener('toggle', updateCssHelpState);
-
-        if (details.open) {
-            updateCssHelpState();
-        }
-    }
-
-    if (textarea) {
-        const cssForm = textarea.closest('form');
-        if (cssForm) {
-            cssForm.addEventListener('submit', (e) => {
-                const submitter = e.submitter;
-                if (submitter && submitter.name === 'reset-custom-css') {
-                    return; 
-                }
-
-                const val = textarea.value.trim();
-                if (val.length === 0) {
-                    e.preventDefault();
-
-                    if (details && details.open) {
-                        details.open = false;
-                    }
-
-                    const main = document.querySelector('.main');
-                    if (main) {
-                        const toast = document.createElement('div');
-                        toast.className = 'toast toast-error';
-
-                        const cssTa = document.getElementById('profile-custom-css-input');
-                        const msg = (cssTa && cssTa.dataset && cssTa.dataset.i18nCssEmpty)
-                            ? cssTa.dataset.i18nCssEmpty
-                            : 'A CSS mező üres — visszaállítva.';
-
-                        toast.textContent = msg;
-                        main.insertBefore(toast, main.firstChild);
-
-                        setTimeout(() => {
-                            try { toast.remove(); } catch (err) {} 
-                        }, 3000);
-                    }
-                }
+        if (editBtn && staticBlock && formBlock) {
+            editBtn.addEventListener('click', function () {
+                staticBlock.classList.add('hidden');
+                formBlock.classList.remove('hidden');
             });
         }
-    }
-});
 
-document.addEventListener('DOMContentLoaded', function () {
-    const staticBlock = document.getElementById('basic-profile-static');
-    const formBlock = document.getElementById('basic-profile-form');
-    const editBtn = document.getElementById('edit-basic-profile-btn');
-    const cancelBtn = document.getElementById('cancel-basic-profile-edit');
+        if (cancelBtn && staticBlock && formBlock) {
+            cancelBtn.addEventListener('click', function () {
+                formBlock.classList.add('hidden');
+                staticBlock.classList.remove('hidden');
+            });
+        }
+    });
 
-    if (editBtn && staticBlock && formBlock) {
-        editBtn.addEventListener('click', function () {
-            staticBlock.style.display = 'none';
-            formBlock.style.display = 'grid';
-        });
-    }
+document.addEventListener("DOMContentLoaded", () => {
+    const cssHelp = document.querySelector(".css-tutorial");
 
-    if (cancelBtn && staticBlock && formBlock) {
-        cancelBtn.addEventListener('click', function () {
-            formBlock.style.display = 'none';
-            staticBlock.style.display = '';
-        });
-    }
+    if (!cssHelp) return;
+
+    cssHelp.addEventListener("toggle", () => {
+        if (cssHelp.open) {
+            document.body.classList.add("css-help-open");
+        } else {
+            document.body.classList.remove("css-help-open");
+        }
+    });
 });
 
 function openReportBox(button) {
@@ -368,3 +343,14 @@ function confirmReportSubmit(form) {
     reason.addEventListener('input', updateSubmitState);
     updateSubmitState();
 })();
+
+const bio = document.getElementById('profile-bio-input');
+const counter = document.getElementById('bio-counter');
+
+if (bio && counter) {
+    const updateCounter = () => {
+        counter.textContent = `${bio.value.length} / 1500`;
+    };
+    bio.addEventListener('input', updateCounter);
+    updateCounter();
+}

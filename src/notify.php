@@ -1,4 +1,8 @@
 <?php
+    header("X-Frame-Options: DENY");
+    header("X-Content-Type-Options: nosniff");
+    header("Referrer-Policy: no-referrer");
+
     require "assets/php/db.php";
     require "assets/php/lang.php";
     require_once "assets/php/functions.php";
@@ -85,96 +89,99 @@
 
     $founded_notifys = db_query($conn, "SELECT * FROM notifys WHERE toid = ? ORDER BY id DESC", "i", [$user['id']]);
 ?>
-<div class="main">
-    <h1><?= t('notify_title') ?></h1>
-    <?php if ($founded_notifys && $founded_notifys->num_rows > 0): ?>
-        <div class="content-grid">
-            <?php while ($ertesites = $founded_notifys->fetch_assoc()):
-                $from = (int)$ertesites['fromid'];
-                $founded_notifyer = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$from]);
-                $notifyer = $founded_notifyer ? $founded_notifyer->fetch_assoc() : null;
-                if (!$notifyer) continue;
-                ?>
-                <article class="card">
-                    <?php if ($ertesites['notifytype'] === "friend"): ?>
-                        <h4 class="entry-title"><?= t('notif_friend_request_title') ?></h4>
-                        <p>
-                            <a class="uploader-name" href="profile.php?userid=<?= (int)$notifyer['id'] ?>">
-                                <?= htmlspecialchars($notifyer['username']) ?>
-                            </a>
-                            <?= t('notif_friend_marked_you') ?>
-                        </p>
-                        <?php
-                        $check = db_query($conn, "SELECT * FROM friends   WHERE fromid = ?     AND toid   = ?     AND status = 0  LIMIT 1", "ii", [$notifyer['id'], $user['id']]);
-                        if ($check && $check->num_rows > 0): ?>
-                            <form method="post" action="assets/php/accept_friend.php">
-                                <input type="hidden" name="fromid" value="<?= (int)$notifyer['id'] ?>">
-                                <button type="submit" class="btn-cta">
-                                    <?= t('btn_accept_friend') ?>
-                                </button>
-                            </form>
-                        <?php else: ?>
-                            <p class="entry-meta"><?= t('notif_friend_already_processed') ?></p>
-                        <?php endif; ?>
-                    <?php elseif ($ertesites['notifytype'] === 'comment'): ?>
-                        <h4 class="entry-title"><?= t('notif_new_comment_title') ?></h4>
-                        <p>
-                            <a class="uploader-name" href="profile.php?userid=<?= (int)$notifyer['id'] ?>">
-                                <?= htmlspecialchars($notifyer['username']) ?>
-                            </a>
-                            <?= t('notif_comment_your_post') ?>
-                        </p>
-                    <?php elseif ($ertesites['notifytype'] === 'group_invite'): ?>
-                        <?php
-                        $csoport_id = (int)$ertesites['group_id'];
-                        $csoport_adat = null;
-                        if ($csoport_id > 0) {
-                            $csoport_lekerdezes = db_query($conn, "SELECT * FROM groups WHERE id = ? LIMIT 1", "i", [$csoport_id]);
-                            if ($csoport_lekerdezes && $csoport_lekerdezes->num_rows > 0) {
-                                $csoport_adat = $csoport_lekerdezes->fetch_assoc();
-                            }
-                        }
-                        ?>
-                        <h4 class="entry-title">Csoport meghívó</h4>
-                        <?php if ($csoport_adat): ?>
+<div class="content-wrapper">
+    <?php include "assets/php/ads.php"; ?>
+    <div class="main">
+        <h1><?= t('notify_title') ?></h1>
+        <?php if ($founded_notifys && $founded_notifys->num_rows > 0): ?>
+            <div class="content-grid">
+                <?php while ($ertesites = $founded_notifys->fetch_assoc()):
+                    $from = (int)$ertesites['fromid'];
+                    $founded_notifyer = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$from]);
+                    $notifyer = $founded_notifyer ? $founded_notifyer->fetch_assoc() : null;
+                    if (!$notifyer) continue;
+                    ?>
+                    <article class="card">
+                        <?php if ($ertesites['notifytype'] === "friend"): ?>
+                            <h4 class="entry-title"><?= t('notif_friend_request_title') ?></h4>
                             <p>
                                 <a class="uploader-name" href="profile.php?userid=<?= (int)$notifyer['id'] ?>">
                                     <?= htmlspecialchars($notifyer['username']) ?>
                                 </a>
-                                meghívott a(z)
-                                <strong><?= htmlspecialchars($csoport_adat['name']) ?></strong>
-                                csoportba.
+                                <?= t('notif_friend_marked_you') ?>
                             </p>
-                            <form method="post">
-                                <input type="hidden" name="notif_id" value="<?= (int)$ertesites['id'] ?>">
-                                <input type="hidden" name="group_id" value="<?= $csoport_id ?>">
-                                <button type="submit" name="group_invite_accept" class="btn-cta">
-                                    Meghívás elfogadása
-                                </button>
-                                <button type="submit" name="group_invite_decline" class="btn-ghost">
-                                    Elutasítás
-                                </button>
-                            </form>
-                        <?php else: ?>
-                            <p>Ez a csoport már nem létezik.</p>
+                            <?php
+                            $check = db_query($conn, "SELECT * FROM friends   WHERE fromid = ?     AND toid   = ?     AND status = 0  LIMIT 1", "ii", [$notifyer['id'], $user['id']]);
+                            if ($check && $check->num_rows > 0): ?>
+                                <form method="post" action="assets/php/accept_friend.php">
+                                    <input type="hidden" name="fromid" value="<?= (int)$notifyer['id'] ?>">
+                                    <button type="submit" class="btn-cta">
+                                        <?= t('btn_accept_friend') ?>
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <p class="entry-meta"><?= t('notif_friend_already_processed') ?></p>
+                            <?php endif; ?>
+                        <?php elseif ($ertesites['notifytype'] === 'comment'): ?>
+                            <h4 class="entry-title"><?= t('notif_new_comment_title') ?></h4>
+                            <p>
+                                <a class="uploader-name" href="profile.php?userid=<?= (int)$notifyer['id'] ?>">
+                                    <?= htmlspecialchars($notifyer['username']) ?>
+                                </a>
+                                <?= t('notif_comment_your_post') ?>
+                            </p>
+                        <?php elseif ($ertesites['notifytype'] === 'group_invite'): ?>
+                            <?php
+                            $csoport_id = (int)$ertesites['group_id'];
+                            $csoport_adat = null;
+                            if ($csoport_id > 0) {
+                                $csoport_lekerdezes = db_query($conn, "SELECT * FROM groups WHERE id = ? LIMIT 1", "i", [$csoport_id]);
+                                if ($csoport_lekerdezes && $csoport_lekerdezes->num_rows > 0) {
+                                    $csoport_adat = $csoport_lekerdezes->fetch_assoc();
+                                }
+                            }
+                            ?>
+                            <h4 class="entry-title">Csoport meghívó</h4>
+                            <?php if ($csoport_adat): ?>
+                                <p>
+                                    <a class="uploader-name" href="profile.php?userid=<?= (int)$notifyer['id'] ?>">
+                                        <?= htmlspecialchars($notifyer['username']) ?>
+                                    </a>
+                                    meghívott a(z)
+                                    <strong><?= htmlspecialchars($csoport_adat['name']) ?></strong>
+                                    csoportba.
+                                </p>
+                                <form method="post">
+                                    <input type="hidden" name="notif_id" value="<?= (int)$ertesites['id'] ?>">
+                                    <input type="hidden" name="group_id" value="<?= $csoport_id ?>">
+                                    <button type="submit" name="group_invite_accept" class="btn-cta">
+                                        Meghívás elfogadása
+                                    </button>
+                                    <button type="submit" name="group_invite_decline" class="btn-ghost">
+                                        Elutasítás
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <p>Ez a csoport már nem létezik.</p>
+                            <?php endif; ?>
                         <?php endif; ?>
-                    <?php endif; ?>
-                </article>
-            <?php endwhile; ?>
-        </div>
-        <form method="post" style="margin-top: 24px;">
-            <button type="submit" name="del-notifs-btn" class="btn-ghost">
-                <?= t('btn_delete_all_notifications') ?>
-            </button>
-        </form>
-    <?php else: ?>
-        <div class="card">
-            <p><?= t('empty_no_notifications') ?></p>
-        </div>
-    <?php endif; ?>
-    <?php
-        db_exec($conn, "UPDATE notifys SET readed = 1 WHERE toid = ?", "i", [$user['id']]);
-    ?>
+                    </article>
+                <?php endwhile; ?>
+            </div>
+            <form method="post" style="margin-top: 24px;">
+                <button type="submit" name="del-notifs-btn" class="btn-ghost">
+                    <?= t('btn_delete_all_notifications') ?>
+                </button>
+            </form>
+        <?php else: ?>
+            <div class="card">
+                <p><?= t('empty_no_notifications') ?></p>
+            </div>
+        <?php endif; ?>
+        <?php
+            db_exec($conn, "UPDATE notifys SET readed = 1 WHERE toid = ?", "i", [$user['id']]);
+        ?>
+    </div>
 </div>
 <?php include 'assets/php/footer.php'; ?>
 </body>

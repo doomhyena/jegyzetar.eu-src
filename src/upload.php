@@ -1,4 +1,8 @@
 <?php
+    header("X-Frame-Options: DENY");
+    header("X-Content-Type-Options: nosniff");
+    header("Referrer-Policy: no-referrer");
+
     require_once "assets/php/db.php";
     require_once "assets/php/lang.php";
     require_once 'assets/php/functions.php';
@@ -100,7 +104,6 @@
     $founded_notify = $conn->query($sql);
     $notify_number = mysqli_num_rows($founded_notify);
 ?>
-
 <!DOCTYPE html>
 <html lang="hu">
    <head>
@@ -117,23 +120,26 @@
    </head>
    <body>
         <?php include 'assets/php/navbar.php'; ?>
-        <div class="main" style="max-width: 700px;">
-            <h1>Anyag feltöltése</h1>
-            <form class="card" method="post" enctype="multipart/form-data">
-                <label for="name">Anyag neve:</label>
-                <input class="input" type="text" name="name" placeholder="pl. Fizika ZH anyag" required>
-                <label for="description">Leírás:</label>
-                <textarea class="input" name="description" placeholder="Rövid leírás az anyagról..." rows="4" required></textarea>
-                <label for="subject">Tárgy:</label>
-                <input class="input" type="text" name="subject" placeholder="pl. fizika, történelem" required>
-                <label for="tags">Kulcsszavak, címkék:</label>
-                <input class="input" type="text" name="tags" placeholder="pl. ZH, jegyzet, beadandó" required>
-                <label for="upload-file">Fájl kiválasztása:</label>
-                <div class="file-input-wrapper">
-                    <input class="input" type="file" name="upload-file" required>
-                </div>
-                <button type="submit" name="upload-btn" class="btn-cta">Feltöltés</button>
-            </form>
+        <div class="content-wrapper">
+            <?php include "assets/php/ads.php"; ?>
+            <div class="main" style="max-width: 700px;">
+                <h1>Anyag feltöltése</h1>
+                <form class="card" method="post" enctype="multipart/form-data">
+                    <label for="name">Anyag neve:</label>
+                    <input class="input" type="text" name="name" placeholder="pl. Fizika ZH anyag" required>
+                    <label for="description">Leírás:</label>
+                    <textarea class="input" name="description" placeholder="Rövid leírás az anyagról..." rows="4" required></textarea>
+                    <label for="subject">Tárgy:</label>
+                    <input class="input" type="text" name="subject" placeholder="pl. fizika, történelem" required>
+                    <label for="tags">Kulcsszavak, címkék:</label>
+                    <input class="input" type="text" name="tags" placeholder="pl. ZH, jegyzet, beadandó" required>
+                    <label for="upload-file">Fájl kiválasztása:</label>
+                    <div class="file-input-wrapper">
+                        <input class="input" type="file" name="upload-file" required>
+                    </div>
+                    <button type="submit" name="upload-btn" class="btn-cta">Feltöltés</button>
+                </form>
+            </div>
         </div>
         <?php include 'assets/php/footer.php'; ?>
    </body>
