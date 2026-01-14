@@ -1,5 +1,5 @@
 <div align="center">
-<h1> „Schola Europa Akadémia” Technikum, Gimnázium és Alapfokú Művészeti Iskola a  Magyarországi Metodista Egyház fenntartásában </h1>
+<h1> "Schola Europa Akadémia" Technikum, Gimnázium és Alapfokú Művészeti Iskola a  Magyarországi Metodista Egyház fenntartásában</h1>
 
 <br> ![Schola Europa Akadémia logó](img/scholalogo.png)<br>
 
@@ -9,9 +9,9 @@
 Dokumentáció
 
 Készítette:<br>
-Baranyi Norbert <br>
-Csontos Kincső <br>
-Szekeres Levente<br>
+Baranyi Norbert 14/B<br>
+Csontos Kincső 14/A<br>
+Szekeres Levente 14/A<br>
 
 **2026**
 
@@ -46,6 +46,8 @@ Szekeres Levente<br>
    - 4.4. [Code review](#54-pull-request-és-code-review)
    - 4.5. [Hibaelhárítás](#55-hibaelhárítás)
 
+6. [Tesztelés](#6-tesztelés) (Terv alatt)
+
 6. [Felhasználói Dokumentáció](#6-felhasználói-dokumentáció)
    - 6.1. [Telepítési Útmutató](#61-telepítési-útmutató)
    - 6.2. [Használat](#62-használat)
@@ -57,14 +59,15 @@ Szekeres Levente<br>
     - 7.2. [Verziókezelési Stratégia](#73-verziókezelési-stratégia)
     - 7.3. [FájlStruktúra](#73-fájlstruktúra)
 
+8. [API Dokumentáció](#8-api-dokumentáció) (Terv alatt)
+
 8. [Jövőbeli Tervek](#8-jövőbeli-tervek)
-    - 8.1. [Felhasználói fiók bővítések](#81-felhasználói-fiók-bővítések)
-    - 8.2. [Nyelvi lokalizáció](#82-nyelvi-lokalizáció)
-    - 8.3. [Kétlépcsős hitelesítés](#83-kétlépcsős-hiteleítés)
+    - 8.1. [Kollaboratív tanulási eszközök](#81-kollaboratív-tanulási-eszközök)
+    - 8.2. [API és harmadik fél integrációk](#82-api-és-harmadik-fél-integrációk)
+    - 8.3. [Big data analitika](#83-big-data-analitika)
     - 8.4. [AI-alapú keresés és javaslatok](#84-ai-alapú-keresés-és-javaslatok)
     - 8.5. [Gamifikáció](#85-gamifikáció)
     - 8.6. [Mobil Applikáció](#86-mobil-applikáció)
-    - 8.7. [Asztali Alkalmazás](#87-asztali-alkalmazás)
 
 9. [Ki mit készített?](#9-ki-mit-készített?)
     - 9.1. [Baranyi Norbert](#91-baranyi-norbert)
@@ -132,30 +135,27 @@ A Jegyzetár rendszer az alábbi kulcsfunkciókat biztosítja:
 - Feltöltések jelentése és moderálása
     - Admin eszközök kiterjesztése: Külön felület az egyedi profil CSS kérések kezelésére (jóváhagyás / elutasítás / archiválás), valamint a felhasználók és feltöltések részletes kezelése (törlés, szerkesztés, moderation logs).
 
-### Újabb (2025/26) funkciók és fejlesztések
-
-#### Profil egyedi CSS kérések
+### Profil egyedi CSS kérések
 Bevezetésre került a felhasználói CSS kérelmek kezelése, amely a profil felületén megadható, de csak admin jóváhagyása után érvényesül. Az előnézet a felhasználói élményt javítja és nem ment a szerverre automatikusan.
 
-#### Admin jóváhagyási UI
+### Admin jóváhagyási UI
 Az admin panelben külön táblában listázhatók és jóváhagyhatók a CSS kérések; az elfogadott CSS archiválható és az előző állapot is visszaállítható.
 
-#### Frontend preview & safe background rules
+### Frontend preview & safe background rules
 A preview kliens oldali (style tag injektálás), a SAFE_BG_RULE szabály megakadályozza a background képek kellemetlen ismétlődését, és a preview idején a jobboldali panel rejtésre kerül, hogy az előnézet ne rontsa el az oldalt.
 
-#### Lokalizációs módosítások
+### Lokalizációs módosítások
 A `t()` segédfüggvény és `lang.php` központi megoldással egy adatbázis-alapú fordítási rendszer lett bevezetve. A fordítások hiányzó kulcsait automatikusan lehet seed-elni. Fordítási kulcsok a `profiles`-hoz a 1543-as ID-tól készültek.
 
-#### SQL dump & seed eszközök
+### SQL dump & seed eszközök
 Hozzáadtuk a `clean_translations.py`, `translations_clean.sql`, `replace_translations_in_dump.py`, `repair_translations.sql` eszközöket, amelyek a dump-ok importjának biztonságát növelik (duplikált bejegyzések eltávolítása, ON DUPLICATE használata, táblák import sorrendje). A `repair_translations.sql` script automatikus backup-ot készít, majd törli a duplikátumokat és létrehozza a megfelelő UNIQUE indexet.
 
-#### Biztonsági javítások
+### Biztonsági javítások
 A kód refaktorálásával `db_prepared()` használata javasolt a lekérdezésekhez, `require_once` és `function_exists` védelem bevezetésre került, a `Message()` segédfüggvény javítja az értesítések konzisztenciáját.
-
 
 ### 1.3. Technológiai Stack
 
-A Jegyzetár fejlesztése során a következő technológiákat és eszközöket használtuk:
+A Jegyzetár fejlesztése során a következő technológiákat és eszközöket használtuk, amelyek mindegyike szabadon elérhető és bármilyen modern számítógépen telepíthető:
 
 ### Frontend
 - **HTML5, CSS3, JavaScript**: Az alapvető webes technológiák a felhasználói felület kialakításához.
@@ -164,7 +164,6 @@ A Jegyzetár fejlesztése során a következő technológiákat és eszközöket
 
 ### Backend
 - **PHP (8.2+)**: A szerveroldali logika és API-k implementálásához.
-
 
 ### Adatbázis
 - **MySQL**: Relációs adatbázis-kezelő a felhasználói adatok, fájlok és egyéb információk tárolására.
@@ -175,8 +174,36 @@ A Jegyzetár fejlesztése során a következő technológiákat és eszközöket
 - **GitHub**: Távoli repository a kód tárolására és megosztására.
 
 ### Egyéb eszközök
-- **XAMPP**: Lokális fejlesztői környezet (Apache, MySQL, PHP).
-- **Visual Studio Code**: Kódszerkesztő a fejlesztéshez.
+- **XAMPP**: Lokális fejlesztői környezet (Apache, MySQL, PHP) - ingyenesen letölthető bármely operációs rendszerre.
+- **Visual Studio Code**: Kódszerkesztő a fejlesztéshez - ingyenes és cross-platform.
+- **PHPStorm**: Integrált Fejlesztői Környezet a fejlesztéshez - fizetős verzió elérhető bármeéy operációs rendszerre.
+
+### Felhasznált hardverek
+
+#### Baranyi Norbert
+
+-
+
+#### Csontos Kincső Anasztázia
+
+- **Laptop**: Lenovo LOQ 15A
+- **CPU**: AMD Ryzen 5 7235HS
+- **GPU**: NVIDIA GeForce RTX 3050 6GB Laptop GPU
+- **RAM**: 16GB DDR5 4800 MHz
+- **SSD**: 512GB NVMe SSD
+- **OS**: Windows 11 Pro 64-bit
+
+#### Szekeres Levent
+
+-
+
+### Hardver követelmények
+A fejlesztési környezet bármilyen modern számítógépen futtatható. Minimális követelmények:
+- **Operációs rendszer**: Windows 10/11, macOS 10.14+ vagy Linux (Ubuntu/Debian)
+- **Processzor**: Modern többmagos CPU (pl. Intel i5, AMD Ryzen 5 vagy hasonló)
+- **Memória**: Legalább 8GB RAM (ajánlott 16GB a jobb teljesítmény érdekében)
+- **Tárhely**: Legalább 50GB szabad hely SSD-n a projekt fájlok és virtuális környezet számára
+- **Grafikus kártya**: Integrált vagy dedikált GPU (nem kritikus, mivel webfejlesztésről van szó)
 
 ## 2. Rendszerarchitektúra
 
@@ -428,9 +455,9 @@ Minden új funkciót pull request formájában integrálunk, amelyet code review
 ### 5.5. Hibaelhárítás
 A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját használjuk.
 
-### 6. Felhasználói Dokumentáció
+## 6. Felhasználói Dokumentáció
 
-#### 6.1. Telepítési Útmutató
+### 6.1. Telepítési Útmutató
 
 ##### Előfeltételek
 - XAMPP vagy más helyi szerver PHP és MySQL támogatással.
@@ -449,7 +476,7 @@ A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját hasz
 4. Indítsd el a helyi szervert, és navigálj a `http://localhost/jegyzetar.eu-src/src`  címre a böngésződben.
 ```
 
-#### 6.2. Használat 
+### 6.2. Használat 
 
 1. Felhasználói Regisztráció
     1. Navigálj a `reglog.php` oldalra.
@@ -496,9 +523,9 @@ A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját hasz
     2. Válaszd ki, hogy kinek szeretnél üzenetet küldeni.
     3. Küldd el az üzenetedet.
 
-#### 6.3. Weben belüli navigáció
+### 6.3. Weben belüli navigáció
 
-#### 6.4. Biztonsági Tippek
+### 6.4. Biztonsági Tippek
 
 1. **Fiók biztonsága:**
    - Használjon erős jelszót
@@ -521,18 +548,18 @@ A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját hasz
 
 <div style="page-break-before: always;"></div>
 
-### 7. Fejlesztői Dokumentáció
+## 7. Fejlesztői Dokumentáció
 
 ### 7.1. Fejlesztői Környezet Beállítása
 ```bash
-1. Klónozd le a projekt fájljait (pl. `git clone https://github.com/doomhyena/Jegyzetár-Dev.git`) a helyi szerver gyökérkönyvtárába (pl. `c:/xampp/htdocs/Jegyzetár-Dev`).
+1. Klónozd le a projekt fájljait (pl. `git clone https://github.com/doomhyena/jegyzetar.eu-src.git`) a helyi szerver gyökérkönyvtárába (pl. `c:/xampp/htdocs/jegyzetar.eu-src`).
 2. Importáld az adatbázist:
 - Nyisd meg a phpMyAdmin-t.
 - Importáld a `Jegyzetár.sql` fájlt az `assets/sql/` mappából.
 3. Konfiguráld az adatbázis kapcsolatot:
 - Nyisd meg a `db.php` fájlt.
 - Győződj meg róla, hogy az adatbázis hitelesítési adatok megfelelnek a helyi szerver beállításainak.
-4. Indítsd el a helyi szervert, és navigálj a `http://localhost/Jegyzetár/` címre a böngésződben.
+4. Indítsd el a helyi szervert, és navigálj a `http://localhost/jegyzetar.eu-src/src/` címre a böngésződben.
 ```
 ### 7.2. Verziókezelési Stratégia
 - **Main branch**: Stabil, éles verzió.
@@ -626,67 +653,59 @@ Fejlesztői script-ek az `assets/sql/scripts/` mappában:
 Megjegyzés: A `db_prepared` használata erősen ajánlott az SQL lekérdezésekhez; ahol van rá lehetőség, a 2025-es refaktor során a fájlok és komponensek `db_prepared()`-et használnak.
 
 ## 8. Jövőbeli Tervek
-#### 8.1. Felhasználói fiók bővítések
 
-A Jegyzetár egyik jövőbeli fejlesztési iránya a felhasználói profilok bővítése és személyre szabása. A cél, hogy a felhasználók saját igényeik szerint alakíthassák profiljukat, ezzel is növelve a közösségi élményt és az elköteleződést.
+### 8.1. Kollaboratív tanulási eszközök
 
-**Főbb lehetőségek:**
-- **Profilkép feltöltése és módosítása:** A felhasználók egyéni profilképet állíthatnak be, amely megjelenik a hozzászólásoknál, feltöltéseknél és a profiloldalon.
-- **Bemutatkozás megadása:** Lehetőség rövid szöveges bemutatkozás hozzáadására, amely segíti a közösségi kapcsolatok kialakítását.
-- **Érdeklődési körök beállítása:** A felhasználók megadhatják, hogy mely tantárgyak, témák vagy kategóriák érdeklik őket. Ezek alapján a rendszer személyre szabott ajánlásokat és tartalmakat jeleníthet meg.
-- **További személyes adatok kezelése:** Opcionális mezők, mint például elérhetőségek, közösségi média linkek vagy tanulmányi adatok.
+A Jegyzetár közösségi aspektusának bővítése érdekében a cél, hogy a felhasználók együtt dolgozhassanak jegyzeteken és tanulási anyagokon.
 
-**Előnyök:**
-- Személyre szabottabb élmény és ajánlások
-- Közösségi kapcsolatok erősítése
-- Felhasználói aktivitás növelése
+**Lehetséges fejlesztések:**
 
-#### 8.2. Nyelvi lokalizáció
+* **Valós idejű jegyzet szerkesztés:** Több felhasználó egyszerre szerkeszthet egy dokumentumot, hasonlóan a Google Docs-hoz.
+* **Csoportos tanulási szobák:** Felhasználók létrehozhatnak virtuális tanulócsoportokat, ahol fájlok megosztása, chat és feladatok követése egyszerre történhet.
+* **Komment és annotáció rendszer:** A jegyzeteken belül jelölhetnek részeket, és hozzáfűzhetnek személyes megjegyzéseket vagy kérdéseket.
+* **Közös naptár és feladatlista:** Tanulócsoportok eseményeket, határidőket és feladatokat oszthatnak meg egymással.
 
-A Jegyzetár célja, hogy minél szélesebb körben elérhető legyen, ezért a felület több nyelven is használhatóvá válik. A lokalizáció lehetővé teszi, hogy a felhasználók a számukra legkényelmesebb nyelven használják az alkalmazást.
+### 8.2. API és harmadik fél integrációk
 
-**Főbb funkciók:**
-- **Többnyelvű felület:** A rendszer magyar és angol nyelven is elérhető lesz, később további nyelvekkel bővíthető.
-- **Nyelvválasztás a beállításokban:** A felhasználók a profiljukban vagy a beállítások menüben választhatják ki a preferált nyelvet.
-- **Automatikus nyelvfelismerés:** A rendszer képes lehet felismerni a böngésző vagy az operációs rendszer nyelvét, és ennek megfelelően állítja be az alapértelmezett nyelvet.
-- **Fordítási támogatás:** A tartalmak, üzenetek és értesítések is a kiválasztott nyelven jelennek meg.
+A Jegyzetár platformot érdemes külső szolgáltatásokkal összekapcsolni, hogy a felhasználók minél több eszközt használhassanak egy helyen.
 
-**Előnyök:**
-- Nemzetközi felhasználók elérése
-- Felhasználói élmény javítása
-- Könnyebb bevezetés új piacokon
+**Lehetséges fejlesztések:**
 
-#### 8.3. Kétlépcsős hitelesítés
+* **OAuth integrációk:** Google, Microsoft, Discord vagy EduID fiókokkal történő bejelentkezés támogatása.
+* **Fájlmegosztó szolgáltatások integrálása:** Dropbox, Google Drive, OneDrive feltöltés és letöltés közvetlenül a Jegyzetárból.
+* **Tanulási eszközök API kapcsolatai:** Kahoot, Quizlet vagy egyéb oktatási platformokkal való integráció a könnyebb feladat és teszt megosztás érdekében.
+* **Push értesítések külső csatornákra:** Discord bot vagy email értesítések, ha valaki új jegyzetet tölt fel, vagy kommentel a fájlodra.
 
-A biztonság növelése érdekében a Jegyzetár támogatni fogja a kétlépcsős hitelesítést (2FA), amely jelentősen csökkenti a jogosulatlan hozzáférés kockázatát.
+### 8.3. Big data analitika
 
-**Főbb funkciók:**
-- **Másodlagos azonosítás:** Bejelentkezéskor a felhasználónak egy egyszer használatos kódot is meg kell adnia, amelyet SMS-ben vagy e-mailben kap meg.
-- **Beállítási lehetőség:** A kétlépcsős hitelesítés opcionálisan bekapcsolható a profilbeállításokban.
-- **Biztonsági mentési kódok:** Elveszett eszköz esetén a felhasználók előre generált biztonsági kódokkal is beléphetnek.
-- **Értesítések gyanús bejelentkezésekről:** A rendszer figyelmeztetést küld, ha ismeretlen eszközről vagy helyről próbálnak bejelentkezni.
+A platform folyamatos adatgyűjtésével és elemzésével javítható a felhasználói élmény és a tartalom minősége.
 
-**Előnyök:**
-- Fiókbiztonság jelentős növelése
-- Felhasználói adatok védelme
-- Bizalom erősítése a platform iránt
+**Lehetséges fejlesztések:**
 
-#### 8.4. AI-alapú keresés és javaslatok
+* **Felhasználói aktivitás elemzése:** Kinek milyen típusú jegyzetek tetszenek, mennyi időt töltenek az oldalon, mely tantárgyak a legnépszerűbbek.
+* **Tartalom minőség értékelése:** Legjobbra értékelt és leggyakrabban letöltött anyagok kiemelése.
+* **Tanulási szokások feltérképezése:** Időszakos jelentések készítése, hogy mikor aktívak a diákok, milyen tantárgyakhoz kell több támogatás.
+* **Prediktív ajánlások:** A felhasználók korábbi aktivitása alapján automatikus jegyzet- és csoport-ajánlások.
+* **Admin riportok:** Statisztikák a feltöltött tartalmakról, felhasználói aktivitásról és a csoportok működéséről a hatékonyabb menedzsmenthez.
+
+### 8.4. AI-alapú keresés és javaslatok
 
 A Jegyzetár fejlesztése során gépi tanulási és mesterséges intelligencia (AI) megoldások is bevezetésre kerülnek, hogy a felhasználók gyorsabban és hatékonyabban találják meg a számukra releváns tartalmakat.
 
-**Főbb funkciók:**
+Főbb funkciók:
+
 - **Személyre szabott ajánlások:** Az AI elemzi a felhasználó korábbi kereséseit, letöltéseit és érdeklődési köreit, majd ezek alapján ajánl új jegyzeteket vagy segédanyagokat.
 - **Intelligens kereső:** A keresési találatok sorrendjét a rendszer a felhasználó szokásaihoz és preferenciáihoz igazítja.
 - **Tartalom szűrés és kategorizálás:** Az AI segít a feltöltött anyagok automatikus címkézésében és kategorizálásában.
 - **Tanulási útvonalak ajánlása:** A rendszer javaslatokat adhat, hogy milyen anyagokat érdemes elolvasni egy adott témakörben.
 
-**Előnyök:**
+#### Előnyök:
+
 - Gyorsabb és pontosabb keresés
 - Személyre szabott tanulási élmény
 - Nagyobb felhasználói elégedettség
 
-#### 8.5. Gamifikáció
+### 8.5. Gamifikáció
 
 A felhasználói aktivitás ösztönzése érdekében a Jegyzetár gamifikációs elemeket vezet be, amelyek játékosabbá és motiválóbbá teszik a platform használatát.
 
@@ -701,7 +720,8 @@ A felhasználói aktivitás ösztönzése érdekében a Jegyzetár gamifikáció
 - Közösségi aktivitás ösztönzése
 - Pozitív visszacsatolás a felhasználók számára
 
-#### 8.6. Mobil Applikáció
+
+### 8.6. Mobil Applikáció
 
 A Jegyzetár jövőbeli fejlesztési tervei között szerepel egy natív mobilalkalmazás elkészítése Android és iOS platformokra. A mobil app célja, hogy a felhasználók még kényelmesebben érhessék el a jegyzeteket, tölthessenek fel fájlokat, és kommunikálhassanak egymással útközben is.
 
@@ -717,23 +737,6 @@ A Jegyzetár jövőbeli fejlesztési tervei között szerepel egy natív mobilal
 - REST API integráció a meglévő backenddel
 - Biztonságos bejelentkezés és adatkezelés
 
-#### 8.7. Asztali Alkalmazás
-
-A platform funkcionalitásának bővítése érdekében egy asztali alkalmazás fejlesztése is tervben van Windows, macOS és Linux rendszerekre. Az asztali kliens célja, hogy a felhasználók gyorsabban és kényelmesebben kezelhessék nagyobb mennyiségű jegyzetet, illetve integráltabb élményt nyújtson az operációs rendszerrel.
-
-**Főbb funkciók:**
-- Fájlok drag & drop feltöltése közvetlenül a gépről
-- Jegyzetek gyors keresése, szűrése és letöltése
-- Értesítések az asztali környezetben
-- Automatikus szinkronizáció a webes és mobil platformmal
-
-**Technológiai lehetőségek:**
-- **Electron** vagy **Tauri** keretrendszer a cross-platform fejlesztéshez
-- REST API vagy WebSocket kapcsolat a szerverrel
-- Integráció a rendszer értesítési szolgáltatásaival
-
-Ezek a fejlesztések jelentősen növelnék a Jegyzetár elérhetőségét és felhasználói élményét minden platformon.
-
 ## 9. Ki mit készített?
 
 ### 9.1. Baranyi Norbert
@@ -745,6 +748,7 @@ Ezek a fejlesztések jelentősen növelnék a Jegyzetár elérhetőségét és f
 - Jegyzet részletek oldal (note.php) és kapcsolódó funkciók (kommentelés, értékelés)
 - Footer és regisztrációs folyamat módosításai
 - Feltöltési logika javításai (upload.php)
+- UI/Design finomhangolások (gradient csökkentés, letisztult megjelenés)
 
 ### 9.2. Csontos Kincső Anasztázia
 
@@ -760,6 +764,7 @@ Ezek a fejlesztések jelentősen növelnék a Jegyzetár elérhetőségét és f
 - Kereső funkció bővítése (több mezős keresés, pontosabb találatok)
 - Értékelés rendszer javításai (adatbázisba mentés, egyszeri értékelés)
 - Biztonsági frissítések (SQL injection védelem, prepared statements)
+- Dokumentáció
 
 ### 9.3. Szekeres Levente
 
@@ -767,7 +772,7 @@ Ezek a fejlesztések jelentősen növelnék a Jegyzetár elérhetőségét és f
 - Csoporttagság kezelése (tulajdonos, elfogadott, függőben lévő tagok)
 - Csoporton belüli jegyzetfeltöltés és moderáció
 - Csoport integráció a keresésbe, értesítésekbe és navigációba
-
+- UI/Design finomhangolások (gradient csökkentés, letisztult megjelenés)
 
 <div style="page-break-before: always;"></div>
 
