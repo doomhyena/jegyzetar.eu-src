@@ -19,7 +19,7 @@ Szerző megjelölése (kötelező), sor végén:
 
 ### Formátum útmutató 
 
-## [1.X.X] - 2025-0X-0X
+## [1.X.X-beta] - 2026-0X-0X
 
 ### Added
 #### •
@@ -45,7 +45,20 @@ Changelog by: Neved
 
 ---
 
-## [1.4.2] - 2025-01-13
+## [v1.4.3-beta] - 2026-01-14
+
+### Changed
+#### • Dokumentáció
+- Fejezetekkel kibővítve, pontosabb & részletesebb leírás
+
+#### • CHANGELOG
+- A verziók pontosítása `v`-vel & `-beta`-val egészen majd a vizsgáig, vizsga napján is hivatalosan is [v1.0.0] lesz
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
+## [v1.4.2-beta] - 2025-01-13
 
 ### Added
 
@@ -78,7 +91,7 @@ Changelog by: Neved
 Changelog by: Csontos Kincső Anasztázia
 
 
-## [1.4.1] - 2025-01-13
+## [v1.4.1-beta] - 2025-01-13
 
 ### Added
 #### • Reklámok
@@ -92,7 +105,7 @@ Changelog by: Szekeres Levente
 
 ---
 
-## [1.4.0] - 2026-01-09
+## [v1.4.0-beta] - 2026-01-09
 TAGELÉS REWORK
 
 ### Added
@@ -109,7 +122,7 @@ Changelog by: Norbi
 ---
 
 
-## [1.3.6] - 2025-12-16
+## [v1.3.6-beta] - 2025-12-16
 
 ### Added
 #### • Jelentés / Report rendszer
@@ -133,7 +146,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [1.3.5] - 2025-12-14
+## [v1.3.5-beta] - 2025-12-14
 
 ### Added
 #### •mail-regver.php
@@ -153,7 +166,7 @@ Changelog by: Csontos Kincső Anasztázia
 Changelog by: Norbi
 
 
-## [1.3.4] - 2025-12-06
+## [v1.3.4-beta] - 2025-12-06
 
 ### Added
 #### • Database helper usage
@@ -194,7 +207,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [1.3.3] – 2025-12-02
+## [v1.3.3-beta] – 2025-12-02
 
 ### Added
 
@@ -248,7 +261,7 @@ Changelog by: Szekeres Levente
 ---
 
 
-## [1.3.2] - 2025-12-01
+## [v1.3.2-beta] - 2025-12-01
 
 ### Added
 #### • Új SQL táblák
@@ -301,7 +314,7 @@ Magyarul: *"nem hagyjuk, hogy a user bemászza a query-be"*.
 
 Changelog by: Csontos Kincső Anasztázia
 
-## [1.3.1] - 2025-12-1
+## [v1.3.1-beta] - 2025-12-1
 
 ### Added
 #### • mail-2fa.php
@@ -323,7 +336,7 @@ Changelog by: Norbi
 
 ---
 
-## [1.3.0]  - 2025-11-25
+## [v1.3.0-beta]  - 2025-11-25
 
 ### Added
 #### • vendor mappa
@@ -343,7 +356,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [1.2.2] - 2025-11-23
+## [v1.2.2-beta] - 2025-11-23
 
 ### Added
 #### •favorites.php
@@ -357,7 +370,7 @@ Changelog by: Norbi
 
 ---
 
-## [1.2.1] - 2025-11-23
+## [v1.2.1-beta] - 2025-11-23
 
 ### Added
 #### •favorites.php
@@ -386,7 +399,7 @@ Changelog by: Norbi
 
 ---
 
-## [1.2.0] - 2025-11-21
+## [v1.2.0-beta] - 2025-11-21
 
 ### Added
 #### • Multilanguage
@@ -419,7 +432,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [1.1.1] - 2025-11-12
+## [v1.1.1-beta] - 2025-11-12
 
 ### Added
 #### •Uj tábla: favorites
@@ -439,7 +452,7 @@ Changelog by: Norbi
 
 ---
 
-## [1.1.0] - 2025-11-09
+## [v1.1.0-beta] - 2025-11-09
 
 ### Added
 #### • Discord login button
@@ -454,7 +467,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [1.0.3] - 2025-10-02
+## [v1.0.3-beta] - 2025-10-02
 
 ### Fixed
 #### • Születésnapi profil keret
@@ -465,7 +478,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [1.0.2] - 2025-10-02
+## [v1.0.2-beta] - 2025-10-02
 
 
 ### Added
@@ -493,7 +506,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [1.0.1] - 2025-11-02
+## [v1.0.1-beta] - 2025-11-02
 
 ### Added
 - note.php
@@ -523,7 +536,7 @@ Changelog by: Norbi
 
 ---
 
-## [1.0.1] - 2025-11-02
+## [v1.0.1-beta] - 2025-11-02
 
 ### Added
 - note.php
@@ -553,7 +566,7 @@ Changelog by: Norbi
 
 ---
 
-## [1.0.0] - 2025-10-01
+## [v1.0.0-beta] - 2025-10-01
 
 ### Added
 
