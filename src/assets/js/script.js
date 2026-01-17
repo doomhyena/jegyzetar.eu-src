@@ -320,30 +320,22 @@ function confirmReportSubmit(form) {
     return confirm('Biztosan elküldöd a jelentést?');
 }
 
-(function () {
-    var toggleBtn = document.getElementById('report-toggle-btn');
-    var box = document.getElementById('report-box');
-    var reason = document.getElementById('report-reason');
-    var submitBtn = document.getElementById('report-submit-btn');
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleBtn = document.getElementById('report-toggle-btn');
+  const box = document.getElementById('report-box');
 
-    if (!toggleBtn || !box || !reason || !submitBtn) return;
+  if (!toggleBtn || !box) return;
 
-    toggleBtn.addEventListener('click', function () {
-        box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
-        if (box.style.display === 'block') {
-            reason.focus();
-        }
-    });
+  toggleBtn.addEventListener('click', () => {
+    const isHidden = (box.style.display === 'none' || box.style.display === '');
+    box.style.display = isHidden ? 'block' : 'none';
 
-    function updateSubmitState() {
-        var val = reason.value.replace(/\s+/g, '').length;
-        submitBtn.disabled = (val === 0);
+    if (isHidden) {
+      const ta = box.querySelector('textarea');
+      if (ta) ta.focus();
     }
-
-    reason.addEventListener('input', updateSubmitState);
-    updateSubmitState();
-})();
-
+  });
+});
 const bio = document.getElementById('profile-bio-input');
 const counter = document.getElementById('bio-counter');
 
@@ -354,3 +346,4 @@ if (bio && counter) {
     bio.addEventListener('input', updateCounter);
     updateCounter();
 }
+
