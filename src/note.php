@@ -3,9 +3,6 @@
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
 
-    $isLoggedIn = isset($user) && $user !== null;
-    $currentUserId = $user['id'] ?? 0;
-
     // norbi: note.php
     require_once "assets/php/db.php";
     require_once "assets/php/lang.php";
@@ -25,6 +22,9 @@
         header("Location: reglog.php");
         exit;
     }
+
+    $isLoggedIn = true;
+    $currentUserId = (int)$user['id'];
 
     $nfRes = db_query($conn, "SELECT id FROM notifys WHERE toid = ? AND readed = 0", "i", [$user['id']]);
     $notify_number = $nfRes ? $nfRes->num_rows : 0;
@@ -97,7 +97,7 @@
 
         echo "<meta http-equiv='refresh' content='0'>";
     }
-
+    
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">
@@ -162,14 +162,22 @@
                                 <?= t('btn_download') ?>
                             </a>
                             <?php if ($isLoggedIn && $currentUserId): ?>
-                                <form method="post" action="assets/php/report.php" style="display: inline;" onsubmit="return confirm('Biztosan jelenteni szeretnéd ezt a jegyzetet?');">
-                                    <input type="hidden" name="type" value="note">
-                                    <input type="hidden" name="target_id" value="<?= (int)$file_id ?>">
-                                    <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
-                                    <button type="submit" class="btn-ghost">
-                                        Jelentés
-                                    </button>
-                                </form>
+                                <div class="profile-report">
+                                    <form method="post" action="assets/php/report.php" id="user-report-form">
+                                        <input type="hidden" name="type" value="user">
+                                        <input type="hidden" name="target_id" value="<?= (int)$profileId ?>">
+                                        <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
+                                        <button type="button" class="btn-ghost danger" id="report-toggle-btn">
+                                            Jegyzet jelentése
+                                        </button>
+                                        <div id="report-box" style="display:none; margin-top:8px;">
+                                            <textarea name="reason" rows="3" required placeholder="Írd le, miért jelented..." style="width:100%; resize:vertical; margin-bottom:8px;"></textarea>
+                                            <button type="submit" class="btn-cta danger" onclick="return confirm('Biztosan elküldöd a jelentést?');">
+                                                Jelentés elküldése
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             <?php endif; ?>
                         </div>
                     </header>

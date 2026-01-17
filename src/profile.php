@@ -205,7 +205,7 @@ $lastCssRequest = null;
     <meta name="keywords" content="<?= t('meta_keywords_home') ?>">
     <meta name='author' content='Baranyi Norbert, Csontos Kincső, Szekeres Levente'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
+    <link rel="icon" type="image/x-iconre" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
     <script src="assets/js/script.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
