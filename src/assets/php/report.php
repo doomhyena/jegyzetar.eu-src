@@ -1,8 +1,7 @@
 <?php
-
-    require_once "db.php";
-    require_once "functions.php";
-    require_once "lang.php";
+    require_once __DIR__ . "/db.php";
+    require_once __DIR__ . "/functions.php";
+    require_once __DIR__ . "/lang.php";
 
     session_start();
 
@@ -27,7 +26,7 @@
     $type = $_POST['type'] ?? '';
     $targetId = $_POST['target_id'] ?? '';
     $reason = trim($_POST['reason'] ?? '');
-    $redirect = $_POST['redirect']  ?? '/index.php';
+    $redirect = $_POST['redirect'] ?? '/index.php';
 
     $allowedTypes = ['user', 'group', 'note'];
 
@@ -42,6 +41,10 @@
         $reason = 'Nincs megadott indok.';
     }
 
+    if (!is_string($redirect) || $redirect === '' || $redirect[0] !== '/') {
+        $redirect = '/index.php';
+    }
+
     $existing = db_query($conn, "SELECT id FROM reports WHERE reporter_id = ? AND target_type = ? AND target_id = ? AND status = 'open' LIMIT 1", "isi", [$reporterId, $type, $targetId]);
 
     if ($existing && $existing->num_rows > 0) {
@@ -49,7 +52,7 @@
         exit;
     }
 
-    db_stmt($conn, "INSERT INTO reports (reporter_id, target_type, target_id, reason) VALUES (?, ?, ?, ?)", "isis", [$reporterId, $type, $targetId, $reason]);
+    db_stmt($conn, "INSERT INTO reports (reporter_id, target_type, target_id, reason) VALUES (?, ?, ?, ?)", "isis", [$reporterId, $type, $targetId, $reason]);  
 
     header("Location: " . $redirect);
     exit;
