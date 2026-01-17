@@ -207,13 +207,13 @@ $lastCssRequest = null;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/js/script.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <?php if (!empty($approvedCss)): ?>
         <style id="profile-custom-css">
             <?= $approvedCss . "\n" ?>
         </style>
     <?php endif; ?>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="assets/js/script.js" defer></script>
 </head>
 
 <body class="theme-<?= htmlspecialchars($profile_theme) ?>">
@@ -327,27 +327,28 @@ $lastCssRequest = null;
                                     </div>
                                 </div>
                                     <div class="profile-moderation-actions">
-                                    <div class="profile-report">
-                                        <form method="post" action="assets/php/report.php" id="user-report-form">
-                                            <input type="hidden" name="type" value="user">
-                                            <input type="hidden" name="target_id" value="<?= (int)$profileId ?>">
-                                            <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
-                                            <button type="button" class="btn-ghost danger" id="report-toggle-btn">
-                                                Felhasználó jelentése
-                                            </button>
-                                            <div id="report-box" style="display:none; margin-top:8px;">
-                                            <textarea name="reason"
-                                                      rows="3"
-                                                      required
-                                                      placeholder="Írd le, miért jelented..."
-                                                      style="width:100%; resize:vertical; margin-bottom:8px;"></textarea>
-                                                <button type="submit"
-                                                        class="btn-cta danger"
-                                                        onclick="return confirm('Biztosan elküldöd a jelentést?');">
-                                                    Jelentés elküldése
+                                        <div class="profile-report">
+                                            <form method="post" action="assets/php/report.php" id="user-report-form">
+                                                <input type="hidden" name="type" value="user">
+                                                <input type="hidden" name="target_id" value="<?= (int)$profileId ?>">
+                                                <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
+                                                <button type="button" class="btn-ghost danger" id="report-toggle-btn">
+                                                    Felhasználó jelentése
                                                 </button>
-                                            </div>
-                                        </form>
+                                                <div id="report-box" style="display:none; margin-top:8px;">
+                                                <textarea name="reason"
+                                                          rows="3"
+                                                          required
+                                                          placeholder="Írd le, miért jelented..."
+                                                          style="width:100%; resize:vertical; margin-bottom:8px;"></textarea>
+                                                    <button type="submit"
+                                                            class="btn-cta danger"
+                                                            onclick="return confirm('Biztosan elküldöd a jelentést?');">
+                                                        Jelentés elküldése
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                                 <?php endif; ?>

@@ -136,27 +136,12 @@
                             <?php while ($file = $latest_result->fetch_assoc()):
                                 $file_id = (int)$file['id'];
 
-                                $uploaderRes = db_query(
-                                        $conn,
-                                        "SELECT username FROM users WHERE id = ? LIMIT 1",
-                                        "i",
-                                        [(int)$file['uploaded_by']]
-                                );
-                                $uploader = ($uploaderRes && $uploaderRes->num_rows)
-                                        ? $uploaderRes->fetch_assoc()
-                                        : ['username' => 'ismeretlen'];
-
+                                $uploaderRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [(int)$file['uploaded_by']]);
+                                $uploader = ($uploaderRes && $uploaderRes->num_rows) ? $uploaderRes->fetch_assoc() : ['username' => 'ismeretlen'];
                                 $name = htmlspecialchars($file['name'] ?? '');
                                 $username = htmlspecialchars($uploader['username'] ?? 'ismeretlen');
-
                                 $ext = strtolower(pathinfo($file['file_name'] ?? '', PATHINFO_EXTENSION));
-
-                                $avgRes = db_query(
-                                        $conn,
-                                        "SELECT AVG(rating) AS avg, COUNT(*) AS c FROM ratings WHERE file_id = ?",
-                                        "i",
-                                        [$file_id]
-                                );
+                                $avgRes = db_query($conn, "SELECT AVG(rating) AS avg, COUNT(*) AS c FROM ratings WHERE file_id = ?", "i", [$file_id]);
                                 $avg = "0.00";
                                 $cnt = 0;
                                 if ($avgRes && $avgRes->num_rows) {
@@ -167,12 +152,7 @@
 
                                 $is_favorite = false;
                                 if ($isLoggedIn && $currentUserId) {
-                                    $favRes = db_query(
-                                            $conn,
-                                            "SELECT id FROM favorites WHERE file_id = ? AND user_id = ? LIMIT 1",
-                                            "ii",
-                                            [$file_id, $currentUserId]
-                                    );
+                                    $favRes = db_query($conn, "SELECT id FROM favorites WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, $currentUserId]);
                                     $is_favorite = ($favRes && $favRes->num_rows > 0);
                                 }
                                 $safe_path = "users/" . ($uploader['username'] ?? '') . "/" . ($file['file_name'] ?? '');
@@ -202,6 +182,22 @@
                                                 </svg>
                                                 <?= t('btn_download') ?>
                                             </a>
+                                        </div>
+                                        <div class="profile-report">
+                                            <form method="post" action="assets/php/report.php" id="user-report-form">
+                                                <input type="hidden" name="type" value="user">
+                                                <input type="hidden" name="target_id" value="<?= (int)$profileId ?>">
+                                                <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
+                                                <button type="button" class="btn-ghost danger" id="report-toggle-btn">
+                                                    Jegyzet jelentése
+                                                </button>
+                                                <div id="report-box" style="display:none; margin-top:8px;">
+                                                    <textarea name="reason" rows="3" required placeholder="Írd le, miért jelented..." style="width:100%; resize:vertical; margin-bottom:8px;"></textarea>
+                                                    <button type="submit" class="btn-cta danger" onclick="return confirm('Biztosan elküldöd a jelentést?');">
+                                                        Jelentés elküldése
+                                                    </button>
+                                                </div>
+                                            </form>
                                         </div>
                                     </header>
                                     <p><?= t('label_uploaded_by') ?>
