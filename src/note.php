@@ -123,14 +123,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js" defer></script>
 </head>
 <body>
 <?php include 'assets/php/navbar.php'; ?>
-<div class="content-wrapper">
+<div class="content-wrapper w-full">
     <?php include "assets/php/ads.php"; ?>
-    <div class="main">
+    <div class="main w-full max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-6">
         <?php if ($note): ?>
             <?php
                 $file_id = (int)$note['id'];
@@ -153,13 +154,13 @@
                 $user_dir  = "users/" . ($uploader['username'] ?? '') . "/";
                 $safe_path = $user_dir . $note['file_name'];
             ?>
-            <article class="card note-card">
-                <header class="card-head">
-                    <h1 class="entry-title"><?= $file_name ?></h1>
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <form method="post" style="display:inline;">
+            <article class="card note-card break-words">
+                <header class="card-head mb-4">
+                    <h1 class="entry-title text-2xl md:text-3xl lg:text-4xl mb-4 break-words"><?= $file_name ?></h1>
+                    <div class="flex flex-wrap gap-2 md:gap-3">
+                        <form method="post" class="inline-block">
                             <input type="hidden" name="favorite_file_id" value="<?= $file_id ?>">
-                            <button type="submit" name="favorite-btn" class="favorite-btn <?= $is_favorite ? 'favorited' : '' ?>">
+                            <button type="submit" name="favorite-btn" class="favorite-btn <?= $is_favorite ? 'favorited' : '' ?> text-sm md:text-base">
                                 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
                                     <?php if ($is_favorite): ?>
                                         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
@@ -170,30 +171,30 @@
                                 <span><?= $is_favorite ? 'Kedvencek' : 'Kedvencezés' ?></span>
                             </button>
                         </form>
-                        <a class="entry-download-btn" href="assets/php/download.php?id=<?= $file_id ?>">
-                            <svg class="icon icon-download" viewBox="0 0 24 24" aria-hidden="true">
+                        <a class="entry-download-btn text-sm md:text-base" href="assets/php/download.php?id=<?= $file_id ?>">
+                            <svg class="icon icon-download w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M5 20h14M12 3v12m0 0l-4-4m4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <?= t('btn_download') ?>
                         </a>
                         <?php if ($isOwner): ?>
-                            <a class="btn-cta" href="note_stats.php?id=<?= $file_id ?>">Statisztikák</a>
+                            <a class="btn-cta text-sm md:text-base" href="note_stats.php?id=<?= $file_id ?>">Statisztikák</a>
                         <?php endif; ?>
                         <?php if ($isLoggedIn): ?>
-                            <div class="profile-report" style="min-width:240px;">
+                            <div class="profile-report w-full md:w-auto min-w-0 md:min-w-[240px]">
                                 <form method="post" action="assets/php/report.php" id="note-report-form">
                                     <input type="hidden" name="type" value="note">
                                     <input type="hidden" name="target_id" value="<?= (int)$file_id ?>">
                                     <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
-                                    <button type="button" class="btn-ghost danger" id="report-toggle-btn">
+                                    <button type="button" class="btn-ghost danger text-sm md:text-base w-full md:w-auto" id="report-toggle-btn">
                                         Jegyzet jelentése
                                     </button>
-                                    <div id="report-box" style="display:none; margin-top:8px;">
+                                    <div id="report-box" class="hidden mt-2 w-full">
                                         <textarea name="reason" rows="3" required
                                                   placeholder="Írd le, miért jelented..."
-                                                  style="width:100%; resize:vertical; margin-bottom:8px;"></textarea>
+                                                  class="w-full resize-y mb-2 p-2 rounded"></textarea>
 
-                                        <button type="submit" class="btn-cta danger"
+                                        <button type="submit" class="btn-cta danger text-sm md:text-base w-full"
                                                 onclick="return confirm('Biztosan elküldöd a jelentést?');">
                                             Jelentés elküldése
                                         </button>
@@ -204,24 +205,26 @@
                     </div>
                 </header>
                 <?php if ($ext === 'docx'): ?>
-                    <p><b>Ez egy .docx fájl. A megtekintéshez töltsd le és nyisd meg Microsoft Word-ben.</b></p>
+                    <p class="text-sm md:text-base mb-4"><b>Ez egy .docx fájl. A megtekintéshez töltsd le és nyisd meg Microsoft Word-ben.</b></p>
                 <?php elseif ($ext === 'mp4'): ?>
-                    <video controls class="file-preview">
+                    <video controls class="file-preview w-full max-w-full rounded-lg mb-4">
                         <source src="<?= htmlspecialchars($safe_path) ?>" type="video/mp4">
                         A te böngésződ nem támogatja a videocímkét.
                     </video>
                 <?php elseif ($ext === 'pdf'): ?>
-                    <iframe src="<?= htmlspecialchars($safe_path) ?>" width="100%" height="500"></iframe>
+                    <div class="w-full overflow-hidden rounded-lg mb-4">
+                        <iframe src="<?= htmlspecialchars($safe_path) ?>" class="w-full min-h-[400px] md:min-h-[500px] border-0"></iframe>
+                    </div>
                 <?php endif; ?>
-                <p>Feltöltötte:
+                <p class="text-sm md:text-base mb-4">Feltöltötte:
                     <a class="uploader-name" href="profile.php?user=<?= urlencode($uploader['username'] ?? '') ?>">
                         <?= $username ?>
                     </a>
                 </p>
-                <div class="rating-section">
-                    <h3>Értékelés</h3>
-                    <p><b>Átlag értékelés:</b> <?= $avg ?> (<?= $cnt ?> értékelés)</p>
-                    <form method="post" class="rating-form filters-inner">
+                <div class="rating-section mb-6">
+                    <h3 class="text-xl md:text-2xl mb-2">Értékelés</h3>
+                    <p class="text-sm md:text-base mb-4"><b>Átlag értékelés:</b> <?= $avg ?> (<?= $cnt ?> értékelés)</p>
+                    <form method="post" class="rating-form filters-inner flex flex-wrap items-center gap-3">
                         <input type="hidden" name="rate_file_id" value="<?= $file_id ?>">
                         <div class="star-rating" aria-label="Értékelés 1–5">
                             <?php
@@ -237,8 +240,8 @@
                                 }
                             ?>
                         </div>
-                        <button type="submit" name="rate-btn" class="btn-search">
-                            <svg class="icon icon-send" viewBox="0 0 24 24" aria-hidden="true">
+                        <button type="submit" name="rate-btn" class="btn-search text-sm md:text-base">
+                            <svg class="icon icon-send w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
                                       fill="none" stroke="currentColor" stroke-width="2"
                                       stroke-linecap="round" stroke-linejoin="round" />
@@ -248,26 +251,28 @@
                     </form>
                 </div>
 
-                <div class="comments-section">
-                    <h3>Kommentek</h3>
+                <div class="comments-section mt-6">
+                    <h3 class="text-xl md:text-2xl mb-4">Kommentek</h3>
                     <?php
                         $comments_result = db_query($conn, "SELECT c.*, u.username FROM comments c JOIN users u ON c.userid = u.id WHERE c.postid = ? ORDER BY c.id DESC", "i", [$file_id]);
                     ?>
                     <?php if ($comments_result && $comments_result->num_rows > 0): ?>
-                        <?php while ($comment = $comments_result->fetch_assoc()): ?>
-                            <div class="comment">
-                                <strong><?= htmlspecialchars($comment['username']) ?>:</strong>
-                                <p><?= htmlspecialchars($comment['text']) ?></p>
-                            </div>
-                        <?php endwhile; ?>
+                        <div class="space-y-3 mb-4">
+                            <?php while ($comment = $comments_result->fetch_assoc()): ?>
+                                <div class="comment p-3 rounded-lg bg-white/5 border border-white/10">
+                                    <strong class="text-sm md:text-base"><?= htmlspecialchars($comment['username']) ?>:</strong>
+                                    <p class="text-sm md:text-base mt-1 break-words"><?= htmlspecialchars($comment['text']) ?></p>
+                                </div>
+                            <?php endwhile; ?>
+                        </div>
                     <?php else: ?>
-                        <p class="entry-meta">Még nincs komment.</p>
+                        <p class="entry-meta text-sm md:text-base mb-4">Még nincs komment.</p>
                     <?php endif; ?>
-                    <form method="post" class="comment-form filters-inner">
+                    <form method="post" class="comment-form filters-inner flex flex-col gap-3">
                         <input type="hidden" name="post_id" value="<?= $file_id ?>">
-                        <textarea name="comment-text" class="input" placeholder="Írj kommentet..." required rows="3"></textarea>
-                        <button type="submit" name="comment-btn" class="btn-search">
-                            <svg class="icon icon-send" viewBox="0 0 24 24" aria-hidden="true">
+                        <textarea name="comment-text" class="input w-full text-sm md:text-base" placeholder="Írj kommentet..." required rows="3"></textarea>
+                        <button type="submit" name="comment-btn" class="btn-search text-sm md:text-base">
+                            <svg class="icon icon-send w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
                                       fill="none" stroke="currentColor" stroke-width="2"
                                       stroke-linecap="round" stroke-linejoin="round" />
@@ -278,10 +283,10 @@
                 </div>
             </article>
         <?php else: ?>
-            <div class="card">
-                <h1>Jegyzet nem található!</h1>
-                <p>A keresett jegyzet nem létezik vagy törölve lett.</p>
-                <a href="index.php" class="btn-cta">Vissza a főoldalra</a>
+            <div class="card p-6">
+                <h1 class="text-2xl md:text-3xl mb-4">Jegyzet nem található!</h1>
+                <p class="text-sm md:text-base mb-4">A keresett jegyzet nem létezik vagy törölve lett.</p>
+                <a href="index.php" class="btn-cta text-sm md:text-base">Vissza a főoldalra</a>
             </div>
         <?php endif; ?>
     </div>

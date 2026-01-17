@@ -60,18 +60,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js"></script>
 </head>
 <body>
 <?php include 'assets/php/navbar.php'; ?>
-<div class="main">
-    <h1><?= t('messages_title') ?></h1>
-    <div class="home-grid">
-        <aside class="content-aside">
-            <div class="card">
-                <h3><?= t('messages_friends_heading') ?></h3>
-                <div class="list-compact">
+<div class="main w-full max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-6">
+    <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6"><?= t('messages_title') ?></h1>
+    <div class="home-grid flex flex-col lg:flex-row gap-6">
+        <aside class="content-aside w-full lg:w-80 flex-shrink-0">
+            <div class="card p-4 md:p-6">
+                <h3 class="text-xl md:text-2xl mb-4"><?= t('messages_friends_heading') ?></h3>
+                <div class="list-compact flex flex-col gap-2">
                     <?php
                         $me = $uid;
                         $found_friends = db_query($conn, "SELECT * FROM friends WHERE (fromid = ? AND status = 1)     OR (toid   = ? AND status = 1)", "ii", [$me, $me]);
@@ -87,12 +88,12 @@
                             $active = (isset($_GET['friendid']) && (int)$_GET['friendid'] === $friendid) ? : '';
                             $user_picture_path = !empty($friend['profile_picture']) ? 'users/' . htmlspecialchars($friend['username']) . '/' . htmlspecialchars($friend['profile_picture'])  : 'assets/img/default_profile_picture.jpg';
                     ?>
-                    <div class="mini-card <?= (isset($_GET['friendid']) && (int)$_GET['friendid'] === $friendid) ? 'active' : '' ?>">
-                        <a href="messages.php?friendid=<?= $friendid ?>">
-                            <img src="<?=  $user_picture_path?>" alt="avatar" class="avatar-sm">
+                    <div class="mini-card flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors <?= (isset($_GET['friendid']) && (int)$_GET['friendid'] === $friendid) ? 'bg-white/10' : '' ?>">
+                        <a href="messages.php?friendid=<?= $friendid ?>" class="flex-shrink-0">
+                            <img src="<?=  $user_picture_path?>" alt="avatar" class="avatar-sm w-10 h-10 md:w-12 md:h-12 rounded-full object-cover">
                         </a>
-                        <div class="friend-info">
-                            <a href="profile.php?user=<?= urlencode($friend['username']) ?>"  class="friend-username">
+                        <div class="friend-info flex-1 min-w-0">
+                            <a href="profile.php?user=<?= urlencode($friend['username']) ?>"  class="friend-username text-sm md:text-base truncate block hover:underline">
                                 @<?= htmlspecialchars($friend['username']) ?>
                             </a>
                         </div>
@@ -100,46 +101,46 @@
                      <?php
                             endwhile;
                         else:
-                            echo "<p>".t('messages_no_friends')."</p>";
+                            echo "<p class='text-sm md:text-base'>".t('messages_no_friends')."</p>";
                         endif;
                     ?>
                 </div>
             </div>
         </aside>
-        <section class="content-main">
+        <section class="content-main flex-1 min-w-0">
             <?php if (isset($_GET['friendid'])):
                 $friendid = (int)$_GET['friendid'];
                 $found_friend = db_query( $conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$friendid]);
                 $friend = $found_friend ? $found_friend->fetch_assoc() : null;
             ?>
                 <?php if ($friend): ?>
-                <div class="card">
-                    <div class="message-header">
-                        <img src="<?=  $user_picture_path ?>" class="avatar-md" alt="avatar">
+                <div class="card p-4 md:p-6">
+                    <div class="message-header flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
+                        <img src="<?=  $user_picture_path ?>" class="avatar-md w-12 h-12 md:w-14 md:h-14 rounded-full object-cover" alt="avatar">
                             <a href="profile.php?user=<?= urlencode($friend['username']) ?>"
-                               class="message-username">
+                               class="message-username text-lg md:text-xl font-semibold hover:underline">
                                 @<?= htmlspecialchars($friend['username']) ?>
                             </a>
                     </div>
-                    <div id="message-container" style="max-height: 500px; overflow-y: auto; margin: 18px 0;">
+                    <div id="message-container" class="max-h-[400px] md:max-h-[500px] overflow-y-auto my-4 space-y-2">
                         <?php include 'assets/php/loadmessages.php'; ?>
                     </div>
-                    <form method="post" action="?friendid=<?= $friendid ?>" class="filters-inner" style="margin-top: 12px;">
+                    <form method="post" action="?friendid=<?= $friendid ?>" class="filters-inner flex flex-col md:flex-row gap-3 mt-4">
                         <input type="hidden" name="toid" value="<?= $friendid ?>">
-                        <input class="input" type="text" name="message" placeholder="<?= t('messages_placeholder') ?>" required>
-                        <button type="submit" name="send_message" class="btn-cta">
+                        <input class="input flex-1 text-sm md:text-base" type="text" name="message" placeholder="<?= t('messages_placeholder') ?>" required>
+                        <button type="submit" name="send_message" class="btn-cta text-sm md:text-base flex-shrink-0">
                             <?= t('btn_send') ?>
                         </button>
                     </form>
                 </div>
             <?php else: ?>
-                <div class="card">
-                    <p><?= t('messages_friend_not_found') ?></p>
+                <div class="card p-6">
+                    <p class="text-sm md:text-base"><?= t('messages_friend_not_found') ?></p>
                 </div>
             <?php endif; ?>
             <?php else: ?>
-                <div class="card">
-                    <p><?= t('messages_choose_friend') ?></p>
+                <div class="card p-6">
+                    <p class="text-sm md:text-base"><?= t('messages_choose_friend') ?></p>
                 </div>
             <?php endif; ?>
         </section>

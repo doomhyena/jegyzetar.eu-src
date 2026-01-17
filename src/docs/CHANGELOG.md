@@ -45,6 +45,95 @@ Changelog by: Neved
 
 ---
 
+## [v1.4.5-beta] - 2026-01-17
+
+### Added
+#### • Tailwind CSS CDN integráció
+- Tailwind CSS 4 Browser CDN hozzáadva az összes oldalhoz
+- Főoldalak: index.php, note.php, search.php, upload.php, groups.php, messages.php, reglog.php
+- További oldalak: favorites.php, 2fa.php, group.php, create_group.php, forgotpass.php, admin_panel.php
+- Egységes reszponzív utility class rendszer bevezetése a teljes projektben
+
+### Changed
+#### • Teljes UI reszponzív refaktorálás Tailwind utility class-okkal
+- **index.php**: Mobil-first grid rendszer (1/2/3 oszlop), egységes padding/spacing, reszponzív tipográfia
+- **navbar.php**: Flexbox-alapú layout, reszponzív szövegméretek, dropdown pozicionálás javítva
+- **note.php**: Reszponzív tartalom wrapper (max-w-4xl), flexbox gombok/űrlapok, tördelés javítva (break-words)
+- **search.php**: Grid keresési űrlap (1/2/4 oszlop breakpointok), reszponzív eredménylista, kártya layout
+- **upload.php**: Függőleges form layout gap-el, egységes input/button méretek
+- **groups.php**: Grid csoport kártyák (1/2/3 oszlop), flex header mobile/desktop módban
+- **messages.php**: Sidebar/main flex layout (mobil: stack, desktop: side-by-side), üzenet UI javítva
+- **reglog.php**: Auth formok grid layout (1/2 oszlop), flexbox gombok, mobil-first spacing
+- **favorites.php**: Grid layout (1/2/3 oszlop), reszponzív kártya rendszer, egységes gombok és spacing
+- **2fa.php**: Reszponzív auth form (max-w-lg), vertikális gap-alapú layout, mobilbarát gombok
+- **group.php**: Teljes újraformázás: tagok listája flex-alapú, jegyzetek flexbox card-ok, pending kérések responsive
+- **create_group.php**: Reszponzív form layout (max-w-3xl), függőleges űrlap mezők, checkbox javítva
+- **forgotpass.php**: Auth formok (max-w-lg), responsive button layout, flex container három állapothoz
+- **admin_panel.php**: Teljes admin UI refaktorálás (max-w-7xl), grid formok (2/3/4 oszlop), overflow-x táblázatokhoz
+
+#### • Egységes konténer logika
+- Minden oldal: `w-full max-w-{size} mx-auto px-4 md:px-6 lg:px-8`
+- Konzisztens max-width értékek (max-w-3xl, max-w-4xl, max-w-6xl) oldal típusonként
+
+#### • Reszponzív tipográfia
+- Mobil: text-sm/base, Desktop: md:text-base/lg
+- Címsorok: text-2xl md:text-3xl lg:text-4xl skála
+- Gombok/inputok: egységes text-sm md:text-base
+
+### Fixed
+#### • Layout és overflow hibák
+- Vízszintes scroll megszüntetve minden oldalon
+- Hosszú szövegek/URL-ek tördelése (break-words, truncate)
+- Mobilon túlnyúló képek/videók/iframe-ek (w-full, max-w-full)
+- Navbar elemek túlcsordulása mobilon (truncate, whitespace-nowrap, flex-shrink-0)
+- Kártya tartalmak egységes elrendezése (flex-col, min-w-0, gap-*)
+- a profil mostmár teljesen szimmetrikus / valid HTML struktúrára épül
+
+#### • Spacing és elrendezés konzisztencia
+- Egységes gap/padding rendszer (gap-2/3/4/6, p-4 md:p-6)
+- Grid/flex rendszerek mobilon és desktopon
+- Form elemek full-width mobilon, auto desktop
+
+#### • Navbar mobilos működés egységesítése
+- Mobilos navbar háttér sötétítve: rgba(15, 23, 42, 0.95) + blur(20px)
+- Dropdown menü mobilon sötét háttér: rgba(30, 41, 59, 0.8)
+- script.js importálva minden oldalon (search.php, note_stats.php)
+- Navbar toggle működés azonos minden oldalon
+- Z-index javítva a mobilos menü helyes megjelenéséhez
+
+#### • jQuery függőségek javítása
+- jQuery CDN hozzáadva hiányzó oldalakhoz (search.php, note_stats.php)
+- script.js védve `typeof $ !== 'undefined'` ellenőrzéssel
+- jQuery-függő kód blokkok (messages, search-box) biztonságosan betöltve
+- "$ is not defined" konzol hiba megszüntetve minden oldalon
+
+### Removed
+#### • Inline style attribútumok
+- style="margin-top:...", style="display:flex" helyett Tailwind utility classok
+- Felesleges wrapper div-ek ahol Tailwind class elegendő
+
+### Security
+#### • Admin jogosultság ellenőrzés javítása
+- **admin_panel.php**: Admin jogosultság ellenőrzés hozzáadva (403 Forbidden, ha nem admin)
+- KRITIKUS: Korábban bárki hozzáférhetett az admin panelhez bejelentkezés után
+
+#### • IDOR (Insecure Direct Object Reference) védelem auditálva
+- **profile.php**: Minden UPDATE utasítás `$viewerId`-t használ (VÉDETT)
+  - Basic profile, profile picture, bio, theme, 2FA - mind biztonságos
+  - `$isOwner` ellenőrzés minden módosításnál
+- **note_stats.php**: Owner ellenőrzés implementálva (VÉDETT)
+  - Csak a jegyzet tulajdonosa láthatja a statisztikákat
+- **Egyéb oldalak**: Nincs közvetlen UPDATE/DELETE `$_GET`/`$_POST` paraméterekből
+
+#### • Biztonsági konklúzió
+- Profil módosítás: NEM lehet más felhasználók adatait megváltoztatni
+- URL paraméterek (`?userid=`) figyelmen kívül vannak hagyva
+- Session-alapú autentikáció mindenhol következetes
+- ⚠CSRF védelem még nincs implementálva (későbbi feladat)
+
+Changelog by: **Csontos Kincső Anasztázia**
+
+
 ## [v1.4.4-beta] – 2026-01-17
 
 ### Added
@@ -57,8 +146,6 @@ Changelog by: Neved
 * Olvasható **esemény feed** a `file_events` táblából (nem táblázatos, hanem kártyás megjelenítés)
 * Admin-only megjelenítés teljes IP-vel és User-Agenttel
 * Jogosultság alapú hozzáférés (csak a feltöltő látja)
-
----
 
 ### Changed
 
@@ -79,8 +166,6 @@ Changelog by: Neved
 * `file_stats_daily` és `file_events` adatok strukturáltabb felhasználása
 * Grafikon adatainak normalizált előkészítése PHP oldalon
 
----
-
 ### Fixed
 
 #### • Frontend
@@ -90,16 +175,12 @@ Changelog by: Neved
 * Olvashatatlan, vízszintesen görgethető eseménytáblázat
 * Nem definiált grafikon-vonalak miatti runtime error
 
----
-
 ### Removed
 
 #### • Frontend
 
 * Horizontálisan scrollozható `file_events` táblázat
 * Felesleges admin/role fallback logika
-
----
 
 ### Security
 
@@ -109,8 +190,6 @@ Changelog by: Neved
 * Teljes User-Agent csak admin jogosultsággal érhető el
 * Jegyzet statisztika kizárólag a feltöltő számára elérhető
 * IPv6 és IPv4 IP-kezelés egységesítése (`INET6_NTOA`)
-
----
 
 Changelog by: **Csontos Kincső Anasztázia**
 

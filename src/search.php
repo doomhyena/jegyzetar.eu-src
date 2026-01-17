@@ -103,22 +103,26 @@
 <html lang="<?= htmlspecialchars($lang) ?>">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= t('search_title') ?></title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/script.js" defer></script>
 </head>
 <body>
 <?php include 'assets/php/navbar.php'; ?>
-<div class="content-wrapper">
+<div class="content-wrapper w-full">
     <?php include "assets/php/ads.php"; ?>
-    <div class="main">
-            <section class="card search-panel" style="margin-bottom: 32px;">
-                <form method="GET" class="search-form-grid">
-                    <div class="form-field full-width">
-                        <label for="q"><?= t('search_placeholder') ?? 'Keresés...' ?></label>
-                        <div class="search-input-wrapper">
-                            <input type="text" name="q" id="q" value="<?= htmlspecialchars($q) ?>" class="input" placeholder="Írd be mit keresel...">
-                            <button type="submit" class="btn-cta">
-                                <svg class="icon icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px; height:20px;">
+    <div class="main w-full max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-6">
+            <section class="card search-panel mb-6 md:mb-8 p-4 md:p-6">
+                <form method="GET" class="search-form-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="form-field md:col-span-2 lg:col-span-4">
+                        <label for="q" class="text-sm md:text-base mb-2 block"><?= t('search_placeholder') ?? 'Keresés...' ?></label>
+                        <div class="search-input-wrapper flex gap-2">
+                            <input type="text" name="q" id="q" value="<?= htmlspecialchars($q) ?>" class="input flex-1 text-sm md:text-base" placeholder="Írd be mit keresel...">
+                            <button type="submit" class="btn-cta flex-shrink-0">
+                                <svg class="icon icon-search w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="11" cy="11" r="8"></circle>
                                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                                 </svg>
@@ -127,8 +131,8 @@
                     </div>
 
                     <div class="form-field">
-                        <label><?= t('label_scope') ?? 'Hol keressünk?' ?></label>
-                        <select name="scope" class="select">
+                        <label class="text-sm md:text-base mb-2 block"><?= t('label_scope') ?? 'Hol keressünk?' ?></label>
+                        <select name="scope" class="select w-full text-sm md:text-base">
                             <option value="all" <?= $scope === 'all' ? 'selected' : '' ?>>Mindenhol</option>
                             <option value="files" <?= $scope === 'files' ? 'selected' : '' ?>>Csak fájlok</option>
                             <option value="users" <?= $scope === 'users' ? 'selected' : '' ?>>Csak felhasználók</option>
@@ -136,8 +140,8 @@
                     </div>
 
                     <div class="form-field">
-                        <label><?= t('label_type') ?? 'Fájltípus' ?></label>
-                        <select name="type" class="select">
+                        <label class="text-sm md:text-base mb-2 block"><?= t('label_type') ?? 'Fájltípus' ?></label>
+                        <select name="type" class="select w-full text-sm md:text-base">
                             <option value="all" <?= $type === 'all' ? 'selected' : '' ?>>Összes típus</option>
                             <option value="pdf" <?= $type === 'pdf' ? 'selected' : '' ?>>PDF</option>
                             <option value="mp4" <?= $type === 'mp4' ? 'selected' : '' ?>>Videó (MP4)</option>
@@ -145,9 +149,9 @@
                         </select>
                     </div>
 
-                    <div class="form-field">
-                        <label><?= t('label_sort') ?? 'Rendezés' ?></label>
-                        <select name="sort" class="select">
+                    <div class="form-field md:col-span-2 lg:col-span-1">
+                        <label class="text-sm md:text-base mb-2 block"><?= t('label_sort') ?? 'Rendezés' ?></label>
+                        <select name="sort" class="select w-full text-sm md:text-base">
                             <option value="new" <?= $sort === 'new' ? 'selected' : '' ?>>Legújabb elöl</option>
                             <option value="old" <?= $sort === 'old' ? 'selected' : '' ?>>Legrégebbi elöl</option>
                         </select>
@@ -156,8 +160,8 @@
             </section>
 
         <?php if ($userResult && $userResult->num_rows > 0): ?>
-            <h3><?= t('result_users') ?></h3>
-            <div class="list-compact">
+            <h3 class="text-xl md:text-2xl mb-4"><?= t('result_users') ?></h3>
+            <div class="list-compact flex flex-col gap-3 mb-6">
                 <?php while ($u = $userResult->fetch_assoc()):
                     $usernameRaw = $u['username'];
                     $username = htmlspecialchars($usernameRaw);
@@ -170,14 +174,14 @@
                         }
                     }
                 ?>
-                    <article class="mini-card">
-                        <img src="<?= htmlspecialchars($pfp) ?>" alt="" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--stroke);">
-                        <div class="mini-main">
-                            <h4 class="mini-title"><?= $fullname ?: '@'.$username ?></h4>
-                            <p class="mini-meta">@<?= $username ?></p>
+                    <article class="mini-card flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
+                        <img src="<?= htmlspecialchars($pfp) ?>" alt="" class="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-white/10 flex-shrink-0">
+                        <div class="mini-main flex-1 min-w-0">
+                            <h4 class="mini-title text-base md:text-lg font-semibold truncate"><?= $fullname ?: '@'.$username ?></h4>
+                            <p class="mini-meta text-sm md:text-base opacity-75 truncate">@<?= $username ?></p>
                         </div>
                         <a href="profile.php?username=<?= urlencode($usernameRaw) ?>"
-                           class="btn-ghost"
+                           class="btn-ghost text-sm md:text-base flex-shrink-0"
                            title="<?= t('open_profile') ?>">
                             <?= t('open_profile') ?>
                         </a>
@@ -186,25 +190,25 @@
             </div>
         <?php endif; ?>
         <?php if ($fileResult && $fileResult->num_rows > 0): ?>
-            <h3 style="margin-top: 32px;"><?= t('result_files') ?></h3>
-            <div class="content-grid">
+            <h3 class="text-xl md:text-2xl mt-6 md:mt-8 mb-4"><?= t('result_files') ?></h3>
+            <div class="content-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <?php while ($f = $fileResult->fetch_assoc()):
                     $uploaderQ = db_query($conn, "SELECT username FROM users WHERE id = ?", "i", [(int)$f['uploaded_by']]);
                     $uploader  = $uploaderQ && $uploaderQ->num_rows ? $uploaderQ->fetch_assoc()['username'] : null;
                     ?>
-                    <article class="card">
-                        <h4 class="entry-title"><?= htmlspecialchars($f['name']) ?></h4>
+                    <article class="card p-4 break-words flex flex-col">
+                        <h4 class="entry-title text-lg md:text-xl mb-2 truncate"><?= htmlspecialchars($f['name']) ?></h4>
 
                         <?php if ($uploader): ?>
-                            <p class="entry-meta">
+                            <p class="entry-meta text-sm md:text-base mb-4">
                                 <?= t('label_uploaded_by') ?>
                                 <a class="uploader-name" href="profile.php?username=<?= urlencode($uploader) ?>">
                                     @<?= htmlspecialchars($uploader) ?>
                                 </a>
                             </p>
                         <?php endif; ?>
-                        <div style="margin-top: auto; display: flex; gap: 8px;">
-                            <a class="note-link" href="note.php?id=<?= (int)$f['id'] ?>">
+                        <div class="mt-auto flex gap-2">
+                            <a class="note-link text-sm md:text-base" href="note.php?id=<?= (int)$f['id'] ?>">
                                 <?= t('btn_details') ?>
                             </a>
                         </div>

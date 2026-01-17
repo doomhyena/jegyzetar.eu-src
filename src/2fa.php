@@ -8,6 +8,9 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/script.js" defer></script>
 </head>
 <body>
     <?php
@@ -60,23 +63,22 @@
             }
         }
     ?>
-    <div class="main">
+    <div class="main w-full max-w-lg mx-auto px-4 md:px-6 lg:px-8 py-6">
         <div class="auth-wrap">
-            <div class="auth-head">
-                <h1>Kétlépcsős azonosítás</h1>
-                <p class="auth-note">Kérlek írd be az e-mailben kapott kódot!</p>
+            <div class="auth-head mb-6">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl mb-2">Kétlépcsős azonosítás</h1>
+                <p class="auth-note text-sm md:text-base">Kérlek írd be az e-mailben kapott kódot!</p>
             </div>
             <div class="auth-grid">
-                <form class="auth-card" method="post">
-                    <input class="input" type="text" name="code" id="code" placeholder="Kód" required>
-                    <div class="auth-actions" style="margin-top:12px;">
-                        <button class="btn-cta" type="submit">Ellenőrzés</button>
+                <form class="auth-card p-6 md:p-8 flex flex-col gap-4" method="post">
+                    <input class="input w-full text-sm md:text-base" type="text" name="code" id="code" placeholder="Kód" required>
+                    <div class="auth-actions flex flex-col md:flex-row gap-3">
+                        <button class="btn-cta w-full md:w-auto text-sm md:text-base" type="submit">Ellenőrzés</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-    <script src="assets/js/script.js"></script>
     <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>

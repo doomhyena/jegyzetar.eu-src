@@ -22,6 +22,12 @@
         exit();
     }
 
+    // Admin jogosultság ellenőrzés
+    if (!isset($current_user['admin']) || (int)$current_user['admin'] !== 1) {
+        http_response_code(403);
+        exit('Hozzáférés megtagadva. Nincs admin jogosultság.');
+    }
+
     $user = $current_user;
 ?>
 <!DOCTYPE html>
@@ -35,8 +41,9 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="assets/js/script.js"></script>
+    <script src="assets/js/script.js" defer></script>
     <style>
         table { width: 100%; border-collapse: collapse; margin: 18px 0; }
         th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--stroke); }
@@ -244,10 +251,10 @@
     $reports = $conn->query("SELECT r.*, u.username AS reporter_name FROM reports r LEFT JOIN users u ON u.id = r.reporter_id ORDER BY (r.status = 'open') DESC, r.created_at DESC");
 ?>
 
-<div class="main">
-    <h1>Admin Panel</h1>
-    <section class="card">
-        <h2>Felhasználók kezelése</h2>
+<div class="main w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6">
+    <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6">Admin Panel</h1>
+    <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
+        <h2 class="text-xl md:text-2xl mb-4">Felhasználók kezelése</h2>
         <table>
             <tr>
                 <th>ID</th><th>Név</th><th>Felhasználónév</th><th>Email</th><th>Admin</th><th>Művelet</th>
@@ -270,8 +277,8 @@
             <?php } ?>
         </table>
     </section>
-    <section class="card">
-        <h2>Fájlok kezelése</h2>
+    <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
+        <h2 class="text-xl md:text-2xl mb-4">Fájlok kezelése</h2>
         <table>
             <tr>
                 <th>ID</th><th>Név</th><th>Leírás</th><th>Kategória</th><th>Feltöltő</th><th>Művelet</th>
@@ -300,8 +307,8 @@
             <?php } ?>
         </table>
     </section>
-    <section class="card">
-        <h2>Kommentek kezelése</h2>
+    <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
+        <h2 class="text-xl md:text-2xl mb-4">Kommentek kezelése</h2>
         <table>
             <tr>
                 <th>ID</th><th>Felhasználó</th><th>Fájl ID</th><th>Szöveg</th><th>Művelet</th>
@@ -319,8 +326,8 @@
             <?php } ?>
         </table>
     </section>
-    <section class="card">
-        <h2>Kategóriák kezelése</h2>
+    <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
+        <h2 class="text-xl md:text-2xl mb-4">Kategóriák kezelése</h2>
         <table>
             <tr>
                 <th>Kategória</th><th>Művelet</th>
@@ -335,8 +342,8 @@
             <?php } ?>
         </table>
     </section>
-    <section class="card">
-        <h2>Profil CSS kérések</h2>
+    <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
+        <h2 class="text-xl md:text-2xl mb-4">Profil CSS kérések</h2>
         <table>
             <tr>
                 <th>ID</th>
@@ -376,32 +383,37 @@
             <?php } ?>
         </table>
     </section>
-    <section class="card">
-        <h2>User badge-ek kezelése</h2>
-        <h3>Új badge hozzárendelése</h3>
-        <form method="post" action="admin_panel.php" style="margin-bottom: 16px;">
+    <section class="card p-4 md:p-6 mb-6">
+        <h2 class="text-xl md:text-2xl mb-4">User badge-ek kezelése</h2>
+        <h3 class="text-lg md:text-xl mb-3">Új badge hozzárendelése</h3>
+        <form method="post" action="admin_panel.php" class="mb-4 flex flex-col md:flex-row gap-3 items-end">
             <input type="hidden" name="action" value="add_user_badge">
-            <label for="user_id">Felhasználó:</label>
-            <select name="user_id" id="user_id" class="profile-theme-select" required>
-                <option value="">Válassz felhasználót</option>
-                <?php while ($u = $user_options->fetch_assoc()) { ?>
-                    <option value="<?= (int)$u['id'] ?>">
-                        <?= htmlspecialchars($u['username']) ?>
-                    </option>
-                <?php } ?>
-            </select>
-            <label for="badge_id" style="margin-left: 12px;">Badge:</label>
-            <select name="badge_id" id="badge_id" class="profile-theme-select" required>
-                <option value="">Válassz badge-et</option>
-                <?php while ($b = $badge_options->fetch_assoc()) { ?>
-                    <option value="<?= (int)$b['id'] ?>">
-                        <?= htmlspecialchars($b['name']) ?>
-                    </option>
-                <?php } ?>
-            </select>
-            <button type="submit" class="btn-cta" style="margin-left: 12px;">Hozzáadás</button>
+            <div class="flex flex-col gap-2">
+                <label for="user_id" class="text-sm md:text-base font-semibold">Felhasználó:</label>
+                <select name="user_id" id="user_id" class="profile-theme-select text-sm md:text-base" required>
+                    <option value="">Válassz felhasználót</option>
+                    <?php while ($u = $user_options->fetch_assoc()) { ?>
+                        <option value="<?= (int)$u['id'] ?>">
+                            <?= htmlspecialchars($u['username']) ?>
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div class="flex flex-col gap-2">
+                <label for="badge_id" class="text-sm md:text-base font-semibold">Badge:</label>
+                <select name="badge_id" id="badge_id" class="profile-theme-select text-sm md:text-base" required>
+                    <option value="">Válassz badge-et</option>
+                    <?php while ($b = $badge_options->fetch_assoc()) { ?>
+                        <option value="<?= (int)$b['id'] ?>">
+                            <?= htmlspecialchars($b['name']) ?>
+                        </option>
+                    <?php } ?>
+                </select>
+            </div>
+            <button type="submit" class="btn-cta text-sm md:text-base">Hozzáadás</button>
         </form>
-        <h3>Meglévő user_badge-ek</h3>
+        <h3 class="text-lg md:text-xl mb-3">Meglévő user_badge-ek</h3>
+        <div class="overflow-x-auto">
         <table>
             <tr>
                 <th>ID</th>
@@ -448,51 +460,53 @@
                 </tr>
             <?php } ?>
         </table>
+        </div>
     </section>
-    <section class="card">
-        <div class="badges-header">
+    <section class="card p-4 md:p-6 mb-6">
+        <div class="badges-header mb-4">
             <div>
-                <h2 style="margin:0;">Badge-ek kezelése</h2>
-                <small>Kis jelvények, amikkel jutalmazhatod a felhasználókat.</small>
+                <h2 class="text-xl md:text-2xl">Badge-ek kezelése</h2>
+                <small class="text-xs md:text-sm opacity-75">Kis jelvények, amikkel jutalmazhatod a felhasználókat.</small>
             </div>
         </div>
 
-        <h3>Új badge létrehozása</h3>
-        <form method="post" action="admin_panel.php" class="badge-form-grid">
+        <h3 class="text-lg md:text-xl mb-3">Új badge létrehozása</h3>
+        <form method="post" action="admin_panel.php" class="badge-form-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <input type="hidden" name="badge_action" value="create">
 
             <div class="form-field">
-                <label for="badge_name">Név</label>
-                <input type="text" id="badge_name" name="name" class="input"
+                <label for="badge_name" class="text-sm md:text-base font-semibold">Név</label>
+                <input type="text" id="badge_name" name="name" class="input w-full text-sm md:text-base"
                        required placeholder="pl. Szuper segítő">
             </div>
 
             <div class="form-field">
-                <label for="badge_slug">Slug</label>
-                <input type="text" id="badge_slug" name="slug" class="input"
+                <label for="badge_slug" class="text-sm md:text-base font-semibold">Slug</label>
+                <input type="text" id="badge_slug" name="slug" class="input w-full text-sm md:text-base"
                        required placeholder="pl. super-helper">
             </div>
 
             <div class="form-field">
-                <label for="badge_desc">Leírás</label>
-                <input type="text" id="badge_desc" name="description" class="input"
+                <label for="badge_desc" class="text-sm md:text-base font-semibold">Leírás</label>
+                <input type="text" id="badge_desc" name="description" class="input w-full text-sm md:text-base"
                        placeholder="pl. Sok jegyzetet töltött fel">
             </div>
 
             <div class="form-field">
-                <label for="badge_icon">Ikon (emoji / rövid kód)</label>
-                <input type="text" id="badge_icon" name="icon" class="input"
+                <label for="badge_icon" class="text-sm md:text-base font-semibold">Ikon (emoji / rövid kód)</label>
+                <input type="text" id="badge_icon" name="icon" class="input w-full text-sm md:text-base"
                        placeholder="pl. ⭐ vagy trophy">
             </div>
 
-            <div class="form-field">
-                <button type="submit" class="btn-cta">
+            <div class="form-field flex items-end">
+                <button type="submit" class="btn-cta w-full text-sm md:text-base">
                     Hozzáadás
                 </button>
             </div>
         </form>
 
-        <h3>Meglévő badge-ek</h3>
+        <h3 class="text-lg md:text-xl mb-3">Meglévő badge-ek</h3>
+        <div class="overflow-x-auto">
         <table class="badge-list-table">
             <tr>
                 <th>ID</th>
@@ -546,9 +560,10 @@
                 </tr>
             <?php } ?>
         </table>
+        </div>
     </section>
-    <section class="card" id="reports">
-        <h2>Jelentések</h2>
+    <section class="card p-4 md:p-6 mb-6 overflow-x-auto" id="reports">
+        <h2 class="text-xl md:text-2xl mb-4">Jelentések</h2>
         <table>
             <tr>
                 <th>ID</th>
@@ -662,44 +677,45 @@
         </table>
     </section>
 
-    <section class="card" id="reg-codes">
-        <div class="regcodes-header">
+    <section class="card p-4 md:p-6 mb-6" id="reg-codes">
+        <div class="regcodes-header mb-4">
             <div>
-                <h2 style="margin:0;">Regisztrációs kódok</h2>
-                <small>Belépőkódok osztályoknak / eseményeknek – látható statisztikával.</small>
+                <h2 class="text-xl md:text-2xl">Regisztrációs kódok</h2>
+                <small class="text-xs md:text-sm opacity-75">Belépőkódok osztályoknak / eseményeknek – látható statisztikával.</small>
             </div>
         </div>
 
-        <h3>Új kód létrehozása</h3>
-        <form method="post" class="regcodes-form">
+        <h3 class="text-lg md:text-xl mb-3">Új kód létrehozása</h3>
+        <form method="post" class="regcodes-form grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="form-field">
-                <label for="code">Kód</label>
-                <input type="text" name="code" id="code" class="input" required placeholder="pl. 10A-2024">
+                <label for="code" class="text-sm md:text-base font-semibold">Kód</label>
+                <input type="text" name="code" id="code" class="input w-full text-sm md:text-base" required placeholder="pl. 10A-2024">
             </div>
 
             <div class="form-field">
-                <label for="description">Leírás</label>
-                <input type="text" name="description" id="description" class="input" placeholder="pl. 10.A osztály, verseny, teszt stb.">
+                <label for="description" class="text-sm md:text-base font-semibold">Leírás</label>
+                <input type="text" name="description" id="description" class="input w-full text-sm md:text-base" placeholder="pl. 10.A osztály, verseny, teszt stb.">
             </div>
 
             <div class="form-field">
-                <label for="max_uses">Max. felhasználás</label>
-                <input type="number" name="max_uses" id="max_uses" class="input" min="1" placeholder="Üres = végtelen">
+                <label for="max_uses" class="text-sm md:text-base font-semibold">Max. felhasználás</label>
+                <input type="number" name="max_uses" id="max_uses" class="input w-full text-sm md:text-base" min="1" placeholder="Üres = végtelen">
             </div>
 
             <div class="form-field">
-                <label for="expires_at">Lejárat</label>
-                <input type="datetime-local" name="expires_at" id="expires_at" class="input" placeholder="Üres = soha">
+                <label for="expires_at" class="text-sm md:text-base font-semibold">Lejárat</label>
+                <input type="datetime-local" name="expires_at" id="expires_at" class="input w-full text-sm md:text-base" placeholder="Üres = soha">
             </div>
 
-            <div class="form-field" style="align-self:flex-end;">
-                <button type="submit" name="create_reg_code" class="btn-cta">
+            <div class="form-field flex items-end">
+                <button type="submit" name="create_reg_code" class="btn-cta w-full text-sm md:text-base">
                     Kód létrehozása
                 </button>
             </div>
         </form>
 
-        <h3>Meglévő kódok</h3>
+        <h3 class="text-lg md:text-xl mb-3">Meglévő kódok</h3>
+        <div class="overflow-x-auto">
         <table class="regcodes-table">
             <tr>
                 <th>ID</th>
@@ -777,6 +793,7 @@
                 </tr>
             <?php endif; ?>
         </table>
+        </div>
     </section>
 </div>
 <?php include 'assets/php/footer.php'; ?>

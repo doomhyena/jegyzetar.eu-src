@@ -170,74 +170,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-<div class="main">
+<div class="main w-full max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-12">
     <div class="auth-wrap">
-        <div class="auth-head">
-            <h1><?= t('auth_welcome_title') ?></h1>
-            <p class="auth-note"><?= t('auth_welcome_subtitle') ?></p>
+        <div class="auth-head text-center mb-8">
+            <h1 class="text-3xl md:text-4xl lg:text-5xl mb-3"><?= t('auth_welcome_title') ?></h1>
+            <p class="auth-note text-sm md:text-base opacity-80"><?= t('auth_welcome_subtitle') ?></p>
         </div>
-        <div class="auth-grid">
-            <form class="auth-card" id="login" method="post" style="<?= $currentForm==='login' ? '' : 'display:none;' ?>">
-                <h1><?= t('auth_login_heading') ?></h1>
-                <label for="login_username"><?= t('label_username') ?></label>
-                <input class="input" type="text" name="username" id="login_username" required>
-                <label for="login_password"><?= t('label_password') ?></label>
-                <input class="input" type="password" name="password" id="login_password" required>
-                <div class="auth-actions" style="margin-top:12px;">
-                    <button class="btn-cta" type="submit" name="login-btn"><?= t('auth_btn_login') ?></button>
-                    <a class="btn-ghost" href="forgotpass.php"><?= t('auth_forgot_password') ?></a>
+        <div class="auth-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <form class="auth-card p-6 md:p-8 flex flex-col gap-4" id="login" method="post" style="<?= $currentForm==='login' ? '' : 'display:none;' ?>">
+                <h1 class="text-2xl md:text-3xl mb-2"><?= t('auth_login_heading') ?></h1>
+                <label for="login_username" class="text-sm md:text-base font-semibold"><?= t('label_username') ?></label>
+                <input class="input w-full text-sm md:text-base" type="text" name="username" id="login_username" required>
+                <label for="login_password" class="text-sm md:text-base font-semibold"><?= t('label_password') ?></label>
+                <input class="input w-full text-sm md:text-base" type="password" name="password" id="login_password" required>
+                <div class="auth-actions flex flex-col md:flex-row gap-3 mt-3">
+                    <button class="btn-cta w-full md:w-auto text-sm md:text-base" type="submit" name="login-btn"><?= t('auth_btn_login') ?></button>
+                    <a class="btn-ghost w-full md:w-auto text-center text-sm md:text-base" href="forgotpass.php"><?= t('auth_forgot_password') ?></a>
                 </div>
-                <p class="auth-note" style="margin-top:16px;">
+                <p class="auth-note text-sm md:text-base text-center mt-4">
                     <?= t('auth_no_account') ?>
-                    <a class="switcher" href="#" data-switch="reg"><?= t('auth_link_register') ?></a>
+                    <a class="switcher underline" href="#" data-switch="reg"><?= t('auth_link_register') ?></a>
                 </p>
             </form>
-            <form class="auth-card" id="reg" method="post" style="<?= $currentForm==='reg' ? '' : 'display:none;' ?>">
-                <h1><?= t('auth_register_heading') ?></h1>
-                <label for="lastname"><?= t('label_lastname') ?></label>
-                <input class="input" type="text" name="lastname" id="lastname" required>
-                <label for="firstname"><?= t('label_firstname') ?></label>
-                <input class="input" type="text" name="firstname" id="firstname" required>
-                <label for="username"><?= t('label_username') ?></label>
-                <input class="input" type="text" name="username" id="username"
+            <form class="auth-card p-6 md:p-8 flex flex-col gap-3" id="reg" method="post" style="<?= $currentForm==='reg' ? '' : 'display:none;' ?>">
+                <h1 class="text-2xl md:text-3xl mb-2"><?= t('auth_register_heading') ?></h1>
+                <label for="lastname" class="text-sm md:text-base font-semibold"><?= t('label_lastname') ?></label>
+                <input class="input w-full text-sm md:text-base" type="text" name="lastname" id="lastname" required>
+                <label for="firstname" class="text-sm md:text-base font-semibold"><?= t('label_firstname') ?></label>
+                <input class="input w-full text-sm md:text-base" type="text" name="firstname" id="firstname" required>
+                <label for="username" class="text-sm md:text-base font-semibold"><?= t('label_username') ?></label>
+                <input class="input w-full text-sm md:text-base" type="text" name="username" id="username"
                        value="<?= htmlspecialchars($prefillUsername, ENT_QUOTES, 'UTF-8') ?>" required>
-                <label for="birthdate"><?= t('label_birthdate') ?></label>
-                <input class="input" type="date" name="birthdate" id="birthdate" required>
-                <label for="gender"><?= t('label_gender') ?></label>
-                <select class="select" name="gender" id="gender" required>
+                <label for="birthdate" class="text-sm md:text-base font-semibold"><?= t('label_birthdate') ?></label>
+                <input class="input w-full text-sm md:text-base" type="date" name="birthdate" id="birthdate" required>
+                <label for="gender" class="text-sm md:text-base font-semibold"><?= t('label_gender') ?></label>
+                <select class="select w-full text-sm md:text-base" name="gender" id="gender" required>
                     <option value="male"><?= t('gender_male') ?></option>
                     <option value="female"><?= t('gender_female') ?></option>
                     <option value="other"><?= t('gender_other') ?></option>
                 </select>
-                <label for="email"><?= t('label_email') ?></label>
-                <input class="input" type="email" name="email" id="email"
+                <label for="email" class="text-sm md:text-base font-semibold"><?= t('label_email') ?></label>
+                <input class="input w-full text-sm md:text-base" type="email" name="email" id="email"
                        value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>" required>
-                <label for="reg_code">Regisztrációs kód</label>
-                <input class="input" type="text" name="reg_code" id="reg_code" required>
-                <label for="password1"><?= t('label_password') ?></label>
-                <input class="input" type="password" name="password1" id="password1" required>
-                <label for="password2"><?= t('label_password_again') ?></label>
-                <input class="input" type="password" name="password2" id="password2" required>
-                <p class="auth-note">
-                    <strong><?= t('auth_security_question_label') ?></strong>
+                <label for="reg_code" class="text-sm md:text-base font-semibold">Regisztrációs kód</label>
+                <input class="input w-full text-sm md:text-base" type="text" name="reg_code" id="reg_code" required>
+                <label for="password1" class="text-sm md:text-base font-semibold"><?= t('label_password') ?></label>
+                <input class="input w-full text-sm md:text-base" type="password" name="password1" id="password1" required>
+                <label for="password2" class="text-sm md:text-base font-semibold"><?= t('label_password_again') ?></label>
+                <input class="input w-full text-sm md:text-base" type="password" name="password2" id="password2" required>
+                <p class="auth-note text-sm md:text-base p-3 bg-white/5 rounded-lg">
+                    <strong><?= t('auth_security_question_label') ?></strong><br>
                     <?= htmlspecialchars($selected_question) ?>
                 </p>
                 <input type="hidden" name="security_question" value="<?= htmlspecialchars($selected_question) ?>">
-                <label for="security_answer"><?= t('auth_security_answer_label') ?></label>
-                <input class="input" type="text" name="security_answer" id="security_answer" required>
-                <div class="auth-actions" style="margin-top:12px;">
-                    <button class="btn-cta" type="submit" name="reg-btn"><?= t('auth_btn_register') ?></button>
+                <label for="security_answer" class="text-sm md:text-base font-semibold"><?= t('auth_security_answer_label') ?></label>
+                <input class="input w-full text-sm md:text-base" type="text" name="security_answer" id="security_answer" required>
+                <div class="auth-actions flex flex-col gap-3 mt-3">
+                    <button class="btn-cta w-full text-sm md:text-base" type="submit" name="reg-btn"><?= t('auth_btn_register') ?></button>
                 </div>
-                <p class="auth-note" style="margin-top:16px;">
+                <p class="auth-note text-sm md:text-base text-center mt-4">
                     <?= t('auth_have_account') ?>
-                    <a class="switcher" href="#" data-switch="login"><?= t('auth_link_login') ?></a>
+                    <a class="switcher underline" href="#" data-switch="login"><?= t('auth_link_login') ?></a>
                 </p>
             </form>
-            <div class="auth-actions" style="margin-top:12px;">
-                <a class="btn-ghost" href="assets/oauth/discord-login.php">
+            <div class="auth-actions lg:col-span-2 flex justify-center mt-4">
+                <a class="btn-ghost w-full md:w-auto text-center text-sm md:text-base" href="assets/oauth/discord-login.php">
                     <?= t('auth_continue_with_discord') ?>
                 </a>
             </div>

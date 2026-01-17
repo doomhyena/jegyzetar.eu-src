@@ -100,173 +100,160 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js" defer></script>
 </head>
-    <body>
+<body>
     <?php
         include 'assets/php/navbar.php';
     ?>
-    <div class="content-wrapper">
+    <div class="content-wrapper w-full">
         <?php include "assets/php/ads.php"; ?>
-        <div class="main">
-            <section class="hero card">
-                <div class="hero-body">
+        <div class="main w-full max-w-6xl mx-auto px-4 md:px-6 lg:px-8">
+            <section class="hero card mb-6 md:mb-8">
+                <div class="hero-body p-4 md:p-6 lg:p-10">
                     <div class="hero-text">
-                        <h1 class="hero-title">
+                        <h1 class="hero-title text-2xl md:text-3xl lg:text-4xl font-bold mb-2">
                             <?= t('hero_greeting') . " " . htmlspecialchars($displayName) ?>!
                         </h1>
-                        <p class="hero-sub"><?= t('hero_nameday') ?>: <strong><?= htmlspecialchars($nameday) ?></strong></p>
+                        <p class="hero-sub text-base md:text-lg opacity-90"><?= t('hero_nameday') ?>: <strong><?= htmlspecialchars($nameday) ?></strong></p>
                     </div>
-                    <div class="hero-actions">
-                        <a class="btn-cta" href="<?= $isLoggedIn ? 'upload.php' : 'reglog.php' ?>">
+                    <div class="hero-actions mt-4 md:mt-6 lg:mt-0">
+                        <a class="btn-cta text-base md:text-lg px-6 md:px-8 py-2 md:py-3" href="<?= $isLoggedIn ? 'upload.php' : 'reglog.php' ?>">
                             + <?= t('nav_upload') ?>
                         </a>
                     </div>
                 </div>
             </section>
             <div class="home-grid">
-                <section class="content-main">
-                    <div class="section-titlebar">
-                        <h3><?= t('home_new_uploads') ?></h3>
+            <section class="content-main flex-1 min-w-0">
+                    <div class="section-titlebar flex justify-between items-center mb-4">
+                        <h3 class="text-xl md:text-2xl"><?= t('home_new_uploads') ?></h3>
                         <a class="link-more" href="search.php?sort=new"><?= t('home_all_arrow') ?></a>
                     </div>
                     <?php if ($latest_result && $latest_result->num_rows > 0): ?>
-                        <div class="content-grid grid-large">
+                        <div class="content-grid grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <?php while ($file = $latest_result->fetch_assoc()):
-                                $file_id = (int)$file['id'];
+                                    $file_id = (int)$file['id'];
+                                    $uploaderRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [(int)$file['uploaded_by']]);
+                                    $uploader = ($uploaderRes && $uploaderRes->num_rows) ? $uploaderRes->fetch_assoc() : ['username' => 'ismeretlen'];
+                                    $name = htmlspecialchars($file['name'] ?? '');
+                                    $username = htmlspecialchars($uploader['username'] ?? 'ismeretlen');
+                                    $ext = strtolower(pathinfo($file['file_name'] ?? '', PATHINFO_EXTENSION));
+                                    $avgRes = db_query($conn, "SELECT AVG(rating) AS avg, COUNT(*) AS c FROM ratings WHERE file_id = ?", "i", [$file_id]);
+                                    $avg = "0.00";
+                                    $cnt = 0;
+                                    if ($avgRes && $avgRes->num_rows) {
+                                        $d = $avgRes->fetch_assoc();
+                                        $avg = number_format((float)($d['avg'] ?? 0), 2);
+                                        $cnt = (int)($d['c'] ?? 0);
+                                    }
 
-                                $uploaderRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [(int)$file['uploaded_by']]);
-                                $uploader = ($uploaderRes && $uploaderRes->num_rows) ? $uploaderRes->fetch_assoc() : ['username' => 'ismeretlen'];
-                                $name = htmlspecialchars($file['name'] ?? '');
-                                $username = htmlspecialchars($uploader['username'] ?? 'ismeretlen');
-                                $ext = strtolower(pathinfo($file['file_name'] ?? '', PATHINFO_EXTENSION));
-                                $avgRes = db_query($conn, "SELECT AVG(rating) AS avg, COUNT(*) AS c FROM ratings WHERE file_id = ?", "i", [$file_id]);
-                                $avg = "0.00";
-                                $cnt = 0;
-                                if ($avgRes && $avgRes->num_rows) {
-                                    $d = $avgRes->fetch_assoc();
-                                    $avg = number_format((float)($d['avg'] ?? 0), 2);
-                                    $cnt = (int)($d['c'] ?? 0);
-                                }
+                                    $userRating = 0;
+                                    if ($isLoggedIn && $currentUserId) {
+                                        $ur = db_query(
+                                                $conn,
+                                                "SELECT rating FROM ratings WHERE file_id = ? AND user_id = ? LIMIT 1",
+                                                "ii",
+                                                [$file_id, $currentUserId]
+                                        );
+                                        if ($ur && $ur->num_rows > 0) {
+                                            $userRating = (int)$ur->fetch_assoc()['rating'];
+                                        }
+                                    }
 
                                 $is_favorite = false;
-                                if ($isLoggedIn && $currentUserId) {
-                                    $favRes = db_query($conn, "SELECT id FROM favorites WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, $currentUserId]);
-                                    $is_favorite = ($favRes && $favRes->num_rows > 0);
-                                }
-                                $safe_path = "users/" . ($uploader['username'] ?? '') . "/" . ($file['file_name'] ?? '');
-                                ?>
-                                <article class="card note-card" id="file-<?= $file_id ?>">
-                                    <header class="card-head">
-                                        <h4 class="entry-title"><?= $name ?></h4>
-                                        <div style="display:flex; gap:8px; align-items:center;">
-                                            <form method="post" style="display:inline;">
-                                                <input type="hidden" name="favorite_file_id" value="<?= $file_id ?>">
-                                                <button type="submit" name="favorite-btn" class="favorite-btn <?= $is_favorite ? 'favorited' : '' ?>"<?= !$isLoggedIn ? 'disabled' : '' ?>aria-label="favorite">
-                                                    <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                                                        <?php if ($is_favorite): ?>
-                                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
-                                                        <?php else: ?>
-                                                            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2"/>
-                                                        <?php endif; ?>
-                                                    </svg>
-                                                </button>
-                                            </form>
-                                            <a class="note-desc-btn" href="note.php?id=<?= $file_id ?>">
-                                                <?= t('btn_details') ?>
-                                            </a>
-                                            <a class="entry-download-btn" href="assets/php/download.php?id=<?= $file_id ?>">
-                                                <svg class="icon icon-download" viewBox="0 0 24 24" aria-hidden="true">
-                                                    <path d="M5 20h14M12 3v12m0 0l-4-4m4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                                </svg>
-                                                <?= t('btn_download') ?>
-                                            </a>
-                                        </div>
-                                        <div class="profile-report">
-                                            <form method="post" action="assets/php/report.php" id="user-report-form">
-                                                <input type="hidden" name="type" value="user">
-                                                <input type="hidden" name="target_id" value="<?= (int)$profileId ?>">
-                                                <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
-                                                <button type="button" class="btn-ghost danger" id="report-toggle-btn">
-                                                    Jegyzet jelentése
-                                                </button>
-                                                <div id="report-box" style="display:none; margin-top:8px;">
-                                                    <textarea name="reason" rows="3" required placeholder="Írd le, miért jelented..." style="width:100%; resize:vertical; margin-bottom:8px;"></textarea>
-                                                    <button type="submit" class="btn-cta danger" onclick="return confirm('Biztosan elküldöd a jelentést?');">
-                                                        Jelentés elküldése
-                                                    </button>
-                                                </div>
-                                            </form>
+                                    if ($isLoggedIn && $currentUserId) {
+                                        $favRes = db_query($conn, "SELECT id FROM favorites WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, $currentUserId]);
+                                        $is_favorite = ($favRes && $favRes->num_rows > 0);
+                                    }
+                                    $safe_path = "users/" . ($uploader['username'] ?? '') . "/" . ($file['file_name'] ?? '');
+                            ?>
+                                <article class="card note-card" id="file-<?= (int)$file_id ?>">
+                                    <header class="note-header">
+                                        <div class="card-title-group">
+                                            <h4 class="entry-title"><?= htmlspecialchars($file['name'] ?? '') ?></h4>
+                                            <p class="uploader-info">
+                                                Feltöltötte:
+                                                <a class="uploader-name" href="profile.php?user=<?= urlencode($uploader['username'] ?? '') ?>">
+                                                    @<?= htmlspecialchars($uploader['username'] ?? 'ismeretlen') ?>
+                                                </a>
+                                            </p>
                                         </div>
                                     </header>
-                                    <p><?= t('label_uploaded_by') ?>
-                                        <a class="uploader-name" href="profile.php?user=<?= urlencode($uploader['username']) ?>">@<?= htmlspecialchars($uploader['username']) ?>
-                                        </a>
-                                    </p>
-                                    <p>
-                                        <b><?= t('label_rating_average') ?></b>
-                                        <?= $avg ?> (<?= $cnt ?> <?= t('suffix_ratings_paren') ?>)
-                                    </p>
-                                    <form method="post">
-                                        <input type="hidden" name="rate_file_id" value="<?= $file_id ?>">
-                                        <div class="star-rating">
-                                            <?php
-                                            $usr_rate = 0;
-                                            if ($isLoggedIn && $currentUserId) {
-                                                $rRes = db_query(
-                                                        $conn,
-                                                        "SELECT rating FROM ratings WHERE file_id = ? AND user_id = ? LIMIT 1",
-                                                        "ii",
-                                                        [$file_id, $currentUserId]
-                                                );
-                                                if ($rRes && $rRes->num_rows) {
-                                                    $usr_rate = (int)$rRes->fetch_assoc()['rating'];
-                                                }
-                                            }
-                                            for ($i = 5; $i >= 1; $i--) {
-                                                $checked  = ($usr_rate === $i) ? "checked" : "";
-                                                $disabled = (!$isLoggedIn ? "disabled" : "");
-                                                $inputId  = "rate-{$file_id}-{$i}";
-
-                                                echo "<input id='{$inputId}' type='radio' name='rating' value='{$i}' {$checked} {$disabled}>";
-                                                echo "<label for='{$inputId}'>★</label>";
-                                            }
-                                            ?>
-                                        </div>
-                                        <?php if ($isLoggedIn): ?>
-                                            <button type="button" class="btn-search">
-                                                <svg class="icon icon-send" viewBox="0 0 24 24" aria-hidden="true">
-                                                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
-                                                          fill="none" stroke="currentColor" stroke-width="2"
-                                                          stroke-linecap="round" stroke-linejoin="round" />
-                                                </svg>
-                                                <span><?= t('btn_send') ?></span>
-                                            </button>
+                                    <div class="card-actions">
+                                        <?php if ($isLoggedIn && $currentUserId): ?>
+                                            <form method="POST" style="margin:0;">
+                                                <input type="hidden" name="favorite-btn" value="1">
+                                                <input type="hidden" name="favorite_file_id" value="<?= (int)$file_id ?>">
+                                                <button type="submit"
+                                                        class="favorite-btn <?= $is_favorite ? 'favorited' : '' ?>"
+                                                        title="<?= $is_favorite ? 'Kedvencekből törlés' : 'Kedvencekhez' ?>">
+                                                    ❤
+                                                </button>
+                                            </form>
                                         <?php else: ?>
-                                            <button type="button" class="btn-search">
-                                                <svg class="icon icon-send" viewBox="0 0 24 24" aria-hidden="true">
-                                                    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
-                                                          fill="none" stroke="currentColor" stroke-width="2"
-                                                          stroke-linecap="round" stroke-linejoin="round" />
-                                                </svg>
-                                                <span><?= t('btn_login_to_rate') ?></span>
-                                            </button>
+                                            <a class="favorite-btn" href="reglog.php" title="Jelentkezz be a kedvencekhez">
+                                                ❤
+                                            </a>
                                         <?php endif; ?>
-                                    </form>
+                                        <a href="note.php?id=<?= (int)$file_id ?>" class="btn-sm btn-ghost">
+                                            Részletek
+                                        </a>
+                                        <a href="assets/php/download.php?id=<?= (int)$file_id ?>" class="btn-sm btn-cta">
+                                            Letöltés
+                                        </a>
+                                    </div>
+                                    <div class="card-footer-meta">
+                                        <div class="rating-display">
+                                            ⭐ <span class="rating-value"><?= htmlspecialchars($avg) ?></span>
+                                            <span class="rating-count">(<?= (int)$cnt ?> ért.)</span>
+                                        </div>
+                                        <?php if ($isLoggedIn && $currentUserId): ?>
+                                            <form class="rating-form" method="POST" action="index.php">
+                                                <input type="hidden" name="rate-btn" value="1">
+                                                <input type="hidden" name="rate_file_id" value="<?= (int)$file_id ?>">
+
+                                                <div class="star-rating" aria-label="Értékelés">
+                                                    <?php for ($i = 5; $i >= 1; $i--): ?>
+                                                        <input
+                                                                type="radio"
+                                                                id="rate-<?= (int)$file_id ?>-<?= $i ?>"
+                                                                name="rating"
+                                                                value="<?= $i ?>"
+                                                                <?= ((int)$userRating === $i) ? 'checked' : '' ?>
+                                                                onchange="this.form.submit()"
+                                                        >
+                                                        <label for="rate-<?= (int)$file_id ?>-<?= $i ?>" title="<?= $i ?> csillag">★</label>
+                                                    <?php endfor; ?>
+                                                </div>
+                                                <?php if ((int)$userRating > 0): ?>
+                                                    <span class="rating-count">Te: <?= (int)$userRating ?>/5</span>
+                                                <?php endif; ?>
+                                            </form>
+                                        <?php else: ?>
+                                            <span class="rating-count">Értékeléshez jelentkezz be.</span>
+                                        <?php endif; ?>
+                                    </div>
                                 </article>
                             <?php endwhile; ?>
                         </div>
                     <?php endif; ?>
                 </section>
-                <aside class="content-aside">
-                    <div class="section-titlebar">
-                        <h3><?= t('sidebar_top_rated') ?></h3>
+                <aside class="content-aside w-full lg:w-80 min-w-0">
+                    <div class="section-titlebar mb-4">
+                        <h3 class="text-xl md:text-2xl"><?= t('sidebar_top_rated') ?></h3>
                     </div>
                     <?php if ($popular_result && $popular_result->num_rows > 0): ?>
-                        <div class="list-compact">
+                        <div class="list-compact flex flex-col gap-3">
                             <?php while ($file = $popular_result->fetch_assoc()): ?>
-                                <p><?= htmlspecialchars($file['name'] ?? '') ?> — ⭐ <?= number_format((float)$file['avg_rating'], 2) ?></p>
+                                <a href="note.php?id=<?= $file['id'] ?>" class="popular-item-link block p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 min-w-0">
+                                    <div class="flex justify-between items-center gap-2 min-w-0">
+                                        <span class="font-medium truncate text-sm md:text-base"><?= htmlspecialchars($file['name'] ?? '') ?></span>
+                                        <span class="text-xs md:text-sm whitespace-nowrap opacity-80">⭐ <?= number_format((float)$file['avg_rating'], 2) ?></span>
+                                    </div>
+                                </a>
                             <?php endwhile; ?>
                         </div>
                     <?php endif; ?>

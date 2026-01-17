@@ -115,30 +115,31 @@
        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
        <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
        <link rel="stylesheet" href="assets/css/styles.css">
+       <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	   <script src="assets/js/script.js"></script>
    </head>
    <body>
         <?php include 'assets/php/navbar.php'; ?>
-        <div class="content-wrapper">
+        <div class="content-wrapper w-full">
             <?php include "assets/php/ads.php"; ?>
-            <div class="main" style="max-width: 700px;">
-            <h1>Anyag feltöltése</h1>
-            <form class="card" method="post" enctype="multipart/form-data">
-                <label for="name">Anyag neve:</label>
-                <input class="input" type="text" name="name" placeholder="pl. Fizika ZH anyag" required>
-                <label for="description">Leírás:</label>
-                <textarea class="input" name="description" placeholder="Rövid leírás az anyagról..." rows="4" required></textarea>
-                <label for="subject">Tárgy:</label>
-                <input class="input" type="text" name="subject" placeholder="pl. fizika, történelem" required>
-                <label for="tag">Címkék:</label>
-                <textarea class="input" id="tag" name="applied_tags" placeholder="Címkék..." rows="3" readonly></textarea>
+            <div class="main w-full max-w-3xl mx-auto px-4 md:px-6 lg:px-8 py-6">
+            <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6">Anyag feltöltése</h1>
+            <form class="card p-4 md:p-6 flex flex-col gap-4" method="post" enctype="multipart/form-data">
+                <label for="name" class="text-sm md:text-base font-semibold">Anyag neve:</label>
+                <input class="input w-full text-sm md:text-base" type="text" name="name" placeholder="pl. Fizika ZH anyag" required>
+                <label for="description" class="text-sm md:text-base font-semibold">Leírás:</label>
+                <textarea class="input w-full text-sm md:text-base" name="description" placeholder="Rövid leírás az anyagról..." rows="4" required></textarea>
+                <label for="subject" class="text-sm md:text-base font-semibold">Tárgy:</label>
+                <input class="input w-full text-sm md:text-base" type="text" name="subject" placeholder="pl. fizika, történelem" required>
+                <label for="tag" class="text-sm md:text-base font-semibold">Címkék:</label>
+                <textarea class="input w-full text-sm md:text-base" id="tag" name="applied_tags" placeholder="Címkék..." rows="3" readonly></textarea>
                 <?php include 'assets/php/kereso_tag.php'; ?>
-                <label for="upload-file">Fájl kiválasztása:</label>
-                <div class="file-input-wrapper">
-                    <input class="input" type="file" name="upload-file" required>
+                <label for="upload-file" class="text-sm md:text-base font-semibold">Fájl kiválasztása:</label>
+                <div class="file-input-wrapper w-full">
+                    <input class="input w-full text-sm md:text-base" type="file" name="upload-file" required>
                 </div>
-                <button type="submit" name="upload-btn" class="btn-cta">Feltöltés</button>
+                <button type="submit" name="upload-btn" class="btn-cta w-full md:w-auto text-sm md:text-base mt-2">Feltöltés</button>
             </form>
             </div>
         </div>

@@ -130,43 +130,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js" defer></script>
 </head>
 <body>
-<div class="main" style="max-width:600px;">
+<div class="main w-full max-w-lg mx-auto px-4 md:px-6 lg:px-8 py-6">
     <?php if ($success): ?>
-        <div class="card">
-            <h3><?= t('change_success_title') ?></h3>
-            <p><?= t('password_change_success_text') ?></p>
-            <a class="btn-cta" href="reglog.php"><?= t('btn_go_to_login') ?></a>
+        <div class="card p-6 md:p-8 flex flex-col gap-4 text-center">
+            <h3 class="text-xl md:text-2xl"><?= t('change_success_title') ?></h3>
+            <p class="text-sm md:text-base"><?= t('password_change_success_text') ?></p>
+            <a class="btn-cta w-full md:w-auto text-sm md:text-base mx-auto" href="reglog.php"><?= t('btn_go_to_login') ?></a>
         </div>
     <?php elseif ($showNewPassword): ?>
-        <h1><?= t('password_reset_heading_new') ?></h1>
-        <form method="post" class="card">
+        <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6"><?= t('password_reset_heading_new') ?></h1>
+        <form method="post" class="card p-6 md:p-8 flex flex-col gap-4">
             <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
-            <label><?= t('label_new_password') ?></label>
-            <input class="input" type="password" name="password1" required>
-            <label><?= t('label_password_again') ?></label>
-            <input class="input" type="password" name="password2" required>
-            <button class="btn-cta" name="new-pass-btn">
+            <label class="text-sm md:text-base font-semibold"><?= t('label_new_password') ?></label>
+            <input class="input w-full text-sm md:text-base" type="password" name="password1" required>
+            <label class="text-sm md:text-base font-semibold"><?= t('label_password_again') ?></label>
+            <input class="input w-full text-sm md:text-base" type="password" name="password2" required>
+            <button class="btn-cta w-full md:w-auto text-sm md:text-base mt-2" name="new-pass-btn">
                 <?= t('btn_change_password') ?>
             </button>
         </form>
     <?php else: ?>
-        <h1><?= t('password_reset_heading_main') ?></h1>
-        <form method="post" class="card">
+        <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6"><?= t('password_reset_heading_main') ?></h1>
+        <form method="post" class="card p-6 md:p-8 flex flex-col gap-4">
             <input type="hidden" name="csrf" value="<?= htmlspecialchars($_SESSION['csrf']) ?>">
-            <label><?= t('label_username') ?></label>
-            <input class="input" type="text" name="username" required>
-            <label><?= t('label_security_answer_full') ?></label>
-            <input class="input" type="text" name="security_answer" required>
-            <button class="btn-cta" name="forg-btn">
-                <?= t('btn_submit') ?>
-            </button>
-            <a class="btn-ghost" href="reglog.php">
-                <?= t('link_back_to_login') ?>
-            </a>
+            <label class="text-sm md:text-base font-semibold"><?= t('label_username') ?></label>
+            <input class="input w-full text-sm md:text-base" type="text" name="username" required>
+            <label class="text-sm md:text-base font-semibold"><?= t('label_security_answer_full') ?></label>
+            <input class="input w-full text-sm md:text-base" type="text" name="security_answer" required>
+            <div class="flex flex-col md:flex-row gap-3 mt-2">
+                <button class="btn-cta w-full md:w-auto text-sm md:text-base" name="forg-btn">
+                    <?= t('btn_submit') ?>
+                </button>
+                <a class="btn-ghost w-full md:w-auto text-center text-sm md:text-base" href="reglog.php">
+                    <?= t('link_back_to_login') ?>
+                </a>
+            </div>
         </form>
     <?php endif; ?>
 </div>

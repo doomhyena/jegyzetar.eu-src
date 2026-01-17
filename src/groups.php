@@ -26,30 +26,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js" defer></script>
 </head>
 <body>
 <?php include 'assets/php/navbar.php'; ?>
-<div class="content-wrapper">
+<div class="content-wrapper w-full">
     <?php include "assets/php/ads.php"; ?>
 
-    <div class="main">
-        <div class="section-titlebar">
-            <div>
-                <h1>Tanuló csoportok</h1>
-                <p class="entry-meta">
+    <div class="main w-full max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-6">
+        <div class="section-titlebar flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div class="min-w-0">
+                <h1 class="text-2xl md:text-3xl lg:text-4xl mb-2">Tanuló csoportok</h1>
+                <p class="entry-meta text-sm md:text-base">
                     Itt találod az összes elérhető tanuló csoportot.
                 </p>
             </div>
-            <div class="hero-actions">
-                <a href="create_group.php" class="btn-cta">
+            <div class="hero-actions flex-shrink-0">
+                <a href="create_group.php" class="btn-cta text-sm md:text-base whitespace-nowrap">
                     Új csoport létrehozása
                 </a>
             </div>
         </div>
         <?php if ($csoportok_lekerdezes && $csoportok_lekerdezes->num_rows > 0): ?>
-            <div class="content-grid grid-large" style="margin-top:16px;">
+            <div class="content-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <?php while ($egy_csoport = $csoportok_lekerdezes->fetch_assoc()):
                         $csoport_id = $egy_csoport['id'];
                         $csoport_nev = $egy_csoport['name'];
@@ -62,28 +63,28 @@
                             $privat_szoveg = "Nyilvános csoport";
                         }
                     ?>
-                    <article class="card">
-                        <div class="card-head">
-                            <h3 class="entry-title">
-                                <a href="group.php?id=<?= (int)$csoport_id ?>" class="link-more" style="text-decoration:none;">
+                    <article class="card p-4 md:p-6 flex flex-col break-words">
+                        <div class="card-head mb-3">
+                            <h3 class="entry-title text-lg md:text-xl lg:text-2xl mb-2">
+                                <a href="group.php?id=<?= (int)$csoport_id ?>" class="link-more hover:underline">
                                     <?= htmlspecialchars($csoport_nev) ?>
                                 </a>
                             </h3>
-                            <span class="entry-meta">
+                            <span class="entry-meta text-xs md:text-sm inline-block px-2 py-1 rounded bg-white/10">
                                 <?= htmlspecialchars($privat_szoveg) ?>
                             </span>
                         </div>
                         <?php if (trim($csoport_leiras) !== ""): ?>
-                            <p class="entry-meta" style="margin-top:8px;">
+                            <p class="entry-meta text-sm md:text-base mb-3 break-words">
                                 <?= nl2br(htmlspecialchars($csoport_leiras)) ?>
                             </p>
                         <?php else: ?>
-                            <p class="entry-meta" style="margin-top:8px;">
+                            <p class="entry-meta text-sm md:text-base mb-3 opacity-75">
                                 Ehhez a csoporthoz még nincs leírás megadva.
                             </p>
                         <?php endif; ?>
-                        <div style="margin-top:10px;">
-                            <a href="group.php?id=<?= (int)$csoport_id ?>" class="btn-ghost">
+                        <div class="mt-auto">
+                            <a href="group.php?id=<?= (int)$csoport_id ?>" class="btn-ghost text-sm md:text-base">
                                 Csoport megnyitása
                             </a>
                         </div>
@@ -91,8 +92,8 @@
                 <?php endwhile; ?>
             </div>
         <?php else: ?>
-            <div class="card" style="margin-top:18px;">
-                <p class="entry-meta">Nincs megjeleníthető csoport.</p>
+            <div class="card p-6">
+                <p class="entry-meta text-sm md:text-base">Nincs megjeleníthető csoport.</p>
             </div>
         <?php endif; ?>
     </div>
