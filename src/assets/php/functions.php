@@ -106,3 +106,22 @@
             return $fallback !== '' ? $fallback : $key;
         }
     }
+
+    if (!function_exists('log_file_event')) {
+            function log_file_event($conn, int $fileId, ?int $userId, string $type, ?int $rating=null) {
+                $ip = $_SERVER['REMOTE_ADDR'] ?? null;
+                $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255);
+
+                $cooldownSeconds = 600;
+                $keyUserId = $userId ?? 0;
+
+                if ($userId) {
+                    $recent = db_query($conn, "SELECT id FROM file_events WHERE file_id=? AND user_id=? AND event_type=? AND created_at > (NOW() - INTERVAL ? SECOND) LIMIT 1",  "iisi", [$fileId, $userId, $type, $cooldownSeconds]);
+                    if ($recent && $recent->num_rows > 0) return;
+                } else if ($ip) {
+                    $recent = db_query($conn, "SELECT id FROM file_events WHERE file_id=? AND user_id IS NULL AND event_type=? AND ip=INET6_ATON(?) AND created_at > (NOW() - INTERVAL ? SECOND) LIMIT 1",  "issi", [$fileId, $type, $ip, $cooldownSeconds]);
+                    if ($recent && $recent->num_rows > 0) return;
+                }
+                db_exec($conn, "INSERT INTO file_events (file_id, user_id, event_type, rating, ip, user_agent)VALUES (?, ?, ?, ?, ".($ip ? "INET6_ATON(?)" : "NULL").", ?)",  $ip ? "iisis" : "iiiis", $ip ? [$fileId, $userId, $type, $rating, $ip, $ua] : [$fileId, $userId, $type, $rating, $ua]);
+            }
+        }
