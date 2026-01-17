@@ -1390,9 +1390,154 @@ th {
     color: var(--primary);
 }
 
-tr:hover {
-    background: rgba(255,255,255,.03);
+/* ===========================
+   note_stats layout + feed
+   =========================== */
+
+.stats-actions{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
 }
+
+.stats-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:16px;
+    margin-top: 12px;
+}
+
+.stats-stack{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:16px;
+    margin-top: 18px;
+}
+
+@media (max-width: 980px){
+    .stats-grid{ grid-template-columns: 1fr; }
+}
+
+.chart-wrap{
+    width:100%;
+    overflow:hidden;
+}
+
+.chart-legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 14px;
+    margin-top:10px;
+    align-items:center;
+}
+
+.legend-dot{
+    display:inline-block;
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    margin-right:6px;
+    vertical-align:middle;
+}
+
+.legend-hint{
+    opacity:.8;
+    font-size:.9rem;
+}
+
+.trend-table-wrap{
+    overflow:auto;
+}
+
+.events-feed{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.event-item{
+    border:1px solid rgba(148,163,184,.25);
+    border-radius:14px;
+    padding:12px;
+}
+
+.event-head{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:flex-start;
+}
+
+.event-left{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+.event-right{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+}
+
+.event-badge{
+    display:inline-flex;
+    gap:8px;
+    align-items:center;
+    padding:6px 10px;
+    border-radius:999px;
+    background: rgba(148,163,184,.18);
+    font-weight:600;
+}
+
+.event-time{
+    opacity:.85;
+    font-size:.95rem;
+}
+
+.event-pill{
+    padding:6px 10px;
+    border-radius:999px;
+    background: rgba(148,163,184,.12);
+    font-size:.95rem;
+    white-space:nowrap;
+}
+
+.event-pill-danger{
+    background: rgba(239,68,68,.15);
+}
+
+.event-body{
+    margin-top:10px;
+}
+
+.ua-label{
+    font-size:.9rem;
+    opacity:.8;
+    margin-bottom:6px;
+}
+
+.ua-box{
+    border-radius:12px;
+    padding:10px 12px;
+    background: rgba(148,163,184,.10);
+    overflow-wrap:anywhere;
+    word-break:break-word;
+    line-height:1.25;
+}
+
+.ua-details{
+    margin-top:8px;
+}
+
+.ua-details summary{
+    cursor:pointer;
+    opacity:.9;
+}
+
 
 a {
     color: var(--accent);

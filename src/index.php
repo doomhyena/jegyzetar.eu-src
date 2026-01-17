@@ -72,7 +72,7 @@
         }
 
         $file_id = (int)$_POST['rate_file_id'];
-        $rating  = (int)$_POST['rating'];
+        $rating = (int)$_POST['rating'];
         $user_id = (int)$user['id'];
 
         if ($file_id > 0 && $rating >= 1 && $rating <= 5) {

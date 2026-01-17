@@ -107,21 +107,93 @@
         }
     }
 
-    if (!function_exists('log_file_event')) {
-            function log_file_event($conn, int $fileId, ?int $userId, string $type, ?int $rating=null) {
-                $ip = $_SERVER['REMOTE_ADDR'] ?? null;
-                $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255);
+    function get_client_ip(): ?string {
+        $remote = $_SERVER['REMOTE_ADDR'] ?? null;
 
-                $cooldownSeconds = 600;
-                $keyUserId = $userId ?? 0;
+        if (!$remote) return null;
 
-                if ($userId) {
-                    $recent = db_query($conn, "SELECT id FROM file_events WHERE file_id=? AND user_id=? AND event_type=? AND created_at > (NOW() - INTERVAL ? SECOND) LIMIT 1",  "iisi", [$fileId, $userId, $type, $cooldownSeconds]);
-                    if ($recent && $recent->num_rows > 0) return;
-                } else if ($ip) {
-                    $recent = db_query($conn, "SELECT id FROM file_events WHERE file_id=? AND user_id IS NULL AND event_type=? AND ip=INET6_ATON(?) AND created_at > (NOW() - INTERVAL ? SECOND) LIMIT 1",  "issi", [$fileId, $type, $ip, $cooldownSeconds]);
-                    if ($recent && $recent->num_rows > 0) return;
-                }
-                db_exec($conn, "INSERT INTO file_events (file_id, user_id, event_type, rating, ip, user_agent)VALUES (?, ?, ?, ?, ".($ip ? "INET6_ATON(?)" : "NULL").", ?)",  $ip ? "iisis" : "iiiis", $ip ? [$fileId, $userId, $type, $rating, $ip, $ua] : [$fileId, $userId, $type, $rating, $ua]);
-            }
+        $trustedProxies = ['127.0.0.1', '::1'];
+        if (!in_array($remote, $trustedProxies, true)) {
+            return $remote;
         }
+
+        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            return $_SERVER['HTTP_CF_CONNECTING_IP'];
+        }
+
+        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+            return trim($ips[0]);
+        }
+
+        if (!empty($_SERVER['HTTP_X_REAL_IP'])) {
+            return $_SERVER['HTTP_X_REAL_IP'];
+        }
+
+        return $remote;
+    }
+
+    if (!function_exists('log_file_event')) {
+        function log_file_event(mysqli $conn, int $fileId, ?int $userId, string $type, ?int $rating = null): void
+        {
+            $ip = get_client_ip();
+            $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255);
+            $cooldownSeconds = 600;
+            $allowed = ['view','download','favorite_add','favorite_remove','rate','comment','report'];
+
+            if (!in_array($type, $allowed, true)) {
+                $type = 'view';
+            }
+
+            if ($userId !== null) {
+                $recent = db_query($conn, "SELECT id FROM file_events WHERE file_id=? AND user_id=? AND event_type=? AND created_at > (NOW() - INTERVAL ? SECOND) LIMIT 1",  "iisi",  [$fileId, $userId, $type, $cooldownSeconds]);
+                if ($recent && $recent->num_rows > 0) return;
+
+                db_exec($conn, "INSERT INTO file_events (file_id, user_id, event_type, rating, ip, user_agent) VALUES (?, ?, ?, ?, " . ($ip ? "INET6_ATON(?)" : "NULL") . ", ?)",  $ip ? "iisis" . "s" : "iisis",  $ip ? [$fileId, $userId, $type, $rating, $ip, $ua] : [$fileId, $userId, $type, $rating, $ua]);
+                return;
+            }
+
+            if ($ip) {
+                $recent = db_query($conn, "SELECT id FROM file_events WHERE file_id=? AND user_id IS NULL AND event_type=? AND ip=INET6_ATON(?) AND created_at > (NOW() - INTERVAL ? SECOND) LIMIT 1",  "issi",  [$fileId, $type, $ip, $cooldownSeconds]);
+                if ($recent && $recent->num_rows > 0) return;
+
+                db_exec($conn, "INSERT INTO file_events (file_id, user_id, event_type, rating, ip, user_agent) VALUES (?, NULL, ?, ?, " . ($ip ? "INET6_ATON(?)" : "NULL") . ", ?)",  $ip ? "isis" . "s" : "isis",  $ip ? [$fileId, $type, $rating, $ip, $ua] : [$fileId, $type, $rating, $ua]);
+                return;
+            }
+            if ($recent && $recent->num_rows > 0) return;
+            db_exec($conn, "INSERT INTO file_events (file_id, user_id, event_type, rating, ip, user_agent) VALUES (?, NULL, ?, ?, " . ($ip ? "INET6_ATON(?)" : "NULL") . ", ?)",  $ip ? "isis" . "s" : "isis",  $ip ? [$fileId, $type, $rating, $ip, $ua] : [$fileId, $type, $rating, $ua]);
+        }
+    }
+    function anonymize_ip(?string $ip): string {
+        if (!$ip || $ip === '—') return '—';
+
+        if (strpos($ip, '.') !== false) {
+            $parts = explode('.', $ip);
+            if (count($parts) === 4) {
+                return $parts[0] . '.' . $parts[1] . '.xxx.xxx';
+            }
+            return $ip;
+        }
+
+        if (strpos($ip, ':') !== false) {
+            $chunks = explode(':', $ip);
+            $chunks = array_values(array_filter($chunks, fn($c)=>$c!=='')); // compressált címeknél
+            $head = array_slice($chunks, 0, 3);
+            return implode(':', $head) . ':xxxx:xxxx:xxxx:xxxx:xxxx';
+        }
+
+        return $ip;
+    }
+
+    function fmt_event_label(string $type): array {
+        return match($type) {
+            'view' => ['👁', 'Megtekintés'],
+            'download' => ['⬇', 'Letöltés'],
+            'favorite_add' => ['⭐', 'Kedvenc hozzáadva'],
+            'favorite_remove' => ['✖', 'Kedvenc levéve'],
+            'rate' => ['★', 'Értékelés'],
+            'comment' => ['💬', 'Komment'],
+            'report' => ['⚑', 'Jelentés'],
+            default => ['•', $type]
+        };
+    }

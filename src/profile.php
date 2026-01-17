@@ -34,21 +34,11 @@
 
     $profile = $res->fetch_assoc();
     $profileId = $profile['id'];
-    $isOwner  = ($viewerId === $profileId);
+    $isOwner = ($viewerId === $profileId);
     $friendship = null;
 
     if (!$isOwner) {
-        $fsRes = db_query(
-                $conn,
-                "SELECT * FROM friends 
-             WHERE 
-               (fromid = ? AND toid = ?) 
-               OR 
-               (fromid = ? AND toid = ?)
-             LIMIT 1",
-                "iiii",
-                [$viewerId, $profileId, $profileId, $viewerId]
-        );
+        $fsRes = db_query($conn, "SELECT * FROM friends WHERE (fromid = ? AND toid = ?)  OR  (fromid = ? AND toid = ?) LIMIT 1", "iiii",  [$viewerId, $profileId, $profileId, $viewerId]);
 
         if ($fsRes && $fsRes->num_rows > 0) {
             $friendship = $fsRes->fetch_assoc();

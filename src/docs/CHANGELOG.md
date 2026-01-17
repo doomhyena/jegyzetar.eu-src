@@ -45,6 +45,77 @@ Changelog by: Neved
 
 ---
 
+## [v1.4.4-beta] – 2026-01-17
+
+### Added
+
+#### • Jegyzet statisztika
+
+* Új **note_stats.php** oldal jegyzetenkénti statisztikákhoz
+* Összesített adatok megjelenítése (*views, downloads, favorites, ratings, flashcards*)
+* **14 napos trend grafikon** (views / downloads / favorites / ratings_count)
+* Olvasható **esemény feed** a `file_events` táblából (nem táblázatos, hanem kártyás megjelenítés)
+* Admin-only megjelenítés teljes IP-vel és User-Agenttel
+* Jogosultság alapú hozzáférés (csak a feltöltő látja)
+
+---
+
+### Changed
+
+#### • Jogosultságkezelés
+
+* `isOwner` logika egységesítve (`uploaded_by === currentUserId`)
+* Admin felismerés egyszerűsítve (`users.admin = 1`)
+
+#### • Frontend
+
+* Táblázatos eseménylista lecserélve **reszponzív feed nézetre**
+* Grafikon canvas HiDPI-támogatással
+* Legend és színek egységesítése
+* User-Agent szöveg vágása nem admin felhasználóknál
+
+#### • Backend
+
+* `file_stats_daily` és `file_events` adatok strukturáltabb felhasználása
+* Grafikon adatainak normalizált előkészítése PHP oldalon
+
+---
+
+### Fixed
+
+#### • Frontend
+
+* Hiányzó JS változók miatti grafikonhiba (`favorites`, `ratings`)
+* Hibás admin ellenőrzés (`is_admin` / `role` → `admin`)
+* Olvashatatlan, vízszintesen görgethető eseménytáblázat
+* Nem definiált grafikon-vonalak miatti runtime error
+
+---
+
+### Removed
+
+#### • Frontend
+
+* Horizontálisan scrollozható `file_events` táblázat
+* Felesleges admin/role fallback logika
+
+---
+
+### Security
+
+#### • IP-címek 
+
+* IP-címek **anonimizálása nem admin felhasználóknak**
+* Teljes User-Agent csak admin jogosultsággal érhető el
+* Jegyzet statisztika kizárólag a feltöltő számára elérhető
+* IPv6 és IPv4 IP-kezelés egységesítése (`INET6_NTOA`)
+
+---
+
+Changelog by: **Csontos Kincső Anasztázia**
+
+---
+
 ## [v1.4.3-beta] - 2026-01-14
 
 ### Changed

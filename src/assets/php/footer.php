@@ -13,6 +13,6 @@
            rel="noopener noreferrer">
             <?= t('footer_github_link') ?>
         </a>
-        <p><?= t('footer_rights') ?></p>
+        <p>&copy; 2025 - <?= date('Y') ?> Jegyzetár</p>
     </div>
 </footer>
