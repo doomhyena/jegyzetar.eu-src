@@ -1,7 +1,8 @@
-Vizsgaremek Licencfeltételek (VLL) 1.0
+Vizsgaremek Licencfeltételek (VLL) 1.1
 
-A jelen licencfeltételek a repository-ban elérhető teljes anyagra vonatkoznak, beleértve – de nem kizárólagosan – a forráskódot, dokumentációt, képeket, ábrákat, adatstruktúrákat, fájlokat, valamint minden kapcsolódó tartalmat.
-A licenc kizárólag a szakmai vizsga lebonyolításához szükséges megtekintést engedélyezi. A tartalom bármely más célú felhasználása a szerző előzetes, írásos hozzájárulása nélkül szigorúan tilos.
+A jelen licencfeltételek a repository-ban elérhető teljes anyagra vonatkoznak, beleértve - de nem kizárólagosan - a forráskódot, dokumentációt, képeket, ábrákat, adatstruktúrákat, fájlokat, valamint minden kapcsolódó tartalmat.
+
+A licenc kizárólag a szakmai vizsga lebonyolításához szükséges megtekintést engedélyezi. A tartalom bármely más célú felhasználása a szerzők előzetes, írásos hozzájárulása nélkül szigorúan tilos.
 
 1. Engedélyezett felhasználás
 
@@ -11,13 +12,13 @@ A licenc korlátozott, nem kizárólagos és nem átruházható jogot biztosít 
 * Hozzáférés biztosítása a vizsga értékelői, a vizsgabizottság tagjai, illetve az érintett oktatási intézmény erre kijelölt képviselői számára.
 * A projekt bemutatása portfólióban, szakmai bemutatkozás vagy álláskeresés céljából, feltéve, hogy:
 
-  * a szerzők nevei (Baranyi Norbert, Csontos Kincső Anasztázia, Szekeres Levente) és a jelen licenc egyértelműen feltüntetésre kerülnek,
+  * a szerzők nevei **(Baranyi Norbert, Csontos Kincső Anasztázia, Szekeres Levente)** és a jelen licenc egyértelműen feltüntetésre kerülnek,
   * a bemutatás nem jár kereskedelmi haszonszerzéssel,
   * a tartalom semmilyen formában nem kerül módosításra.
 
 2. Tiltott tevékenységek
 
-A következő tevékenységek kizárólag a szerző előzetes, kifejezett és írásos engedélyével végezhetők. Ennek hiányában az alábbiak szigorúan tilosak:
+A következő tevékenységek kizárólag **valamennyi szerző előzetes, egyhangú és írásos engedélyével** végezhetők. Ennek hiányában az alábbiak szigorúan tilosak:
 
 * A forráskód, dokumentáció vagy azok bármely részének másolása, letöltése, terjesztése, nyilvánosságra hozatala vagy archiválása.
 * A tartalom módosítása, átdolgozása, fordítása, illetve abból származékos mű létrehozása.
@@ -28,21 +29,25 @@ A következő tevékenységek kizárólag a szerző előzetes, kifejezett és í
 
 3. Szellemi tulajdon
 
-* A repository teljes tartalma Csontos Kincső Anasztázia kizárólagos szellemi tulajdonát képezi.
-* A szerző fenntart minden szerzői, iparjogvédelmi és egyéb, a tartalomhoz kapcsolódó jogot, beleértve – de nem kizárólagosan – a forráskódra, eljárásokra, struktúrákra, algoritmusokra és dokumentációra vonatkozó jogokat.
-* A jelen licenc semmilyen formában nem értelmezhető úgy, hogy tulajdonjogot vagy felhasználási jogot ruházna át a felhasználóra a kifejezetten engedélyezett körön túl.
+* A repository teljes tartalma **Baranyi Norbert, Csontos Kincső Anasztázia és Szekeres Levente közös szellemi tulajdonát képezi**, egyenlő arányban.
+* A szerzők közösen gyakorolják a szerzői, felhasználási és egyéb, a tartalomhoz kapcsolódó jogokat.
+* A jelen licenc semmilyen formában nem értelmezhető úgy, hogy a kifejezetten engedélyezett körön túl bármely felhasználási vagy tulajdonjog átruházásra kerülne.
 
 4. Felelősség és jogkövetkezmények
 
 * A licenc feltételeinek megsértése súlyos jogsértésnek minősül, és polgári vagy büntetőjogi következményeket vonhat maga után.
-* A szerző jogosult minden szükséges jogi lépést megtenni, beleértve a kártérítési igény érvényesítését, a hozzáférés azonnali megszüntetését, valamint az érintett oktatási vagy szakmai szervezetek értesítését.
+* A szerzők jogosultak közösen minden szükséges jogi lépést megtenni, beleértve a kártérítési igény érvényesítését és a hozzáférés megszüntetését.
 * A jogsértésből eredő valamennyi kárért a jogsértő teljes körű felelősséggel tartozik.
 
-5. Záró rendelkezések
+ 5. Záró rendelkezések
 
 * A jelen licenc a közzététel napjától hatályos.
-* A licenc a szerző döntése alapján bármikor visszavonható.
-* A licenc magyar jog hatálya alá tartozik, az esetleges jogviták elbírálására a szerző székhelye szerint illetékes bíróság jogosult.
+* A licenc módosítása vagy visszavonása kizárólag **valamennyi szerző közös döntése alapján** lehetséges.
+* A licenc magyar jog hatálya alá tartozik, az esetleges jogviták elbírálására a szerzők lakóhelye szerint illetékes magyar bíróság jogosult.
 
-**Készítette:** Csontos Kincső Anasztázia
+**Készítette:**
+Baranyi Norbert
+Csontos Kincső Anasztázia
+Szekeres Levente
+
 **Dátum:** 2026.01.21
