@@ -3,8 +3,6 @@
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
 
-    session_start();
-
     require_once "assets/php/db.php";
     require_once "assets/php/lang.php";
     require_once "assets/php/functions.php";
