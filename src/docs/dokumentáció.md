@@ -108,8 +108,8 @@ Szekeres Levente 14/A
            - 9.6.3. [Tanuló Csoport Létrehozása](#963-tanuló-csoport-létrehozása)
            - 9.6.4. [Kedvencek](#964-kedvencek)
            - 9.6.5. [Elfelejtett jelszó](#965-elfelejtett-jelszó)
-           - 9.6.6. [Tanuló csoport](#966-tanulócsoport)
-           - 9.6.7. [Tanuló csoportok](#967-tanuló-csoportok)
+           - 9.6.6. [Tanuló Csoport](#966-tanulócsoport)
+           - 9.6.7. [Tanuló Csoportok](#967-tanuló-csoportok)
            - 9.6.8. [Főoldal](#968-főoldal)
            - 9.6.9. [Feltöltés](#969-feltöltés)
            - 9.6.10. [Kereső](#9610-kereső)
@@ -851,1492 +851,298 @@ Fejlesztői script-ek az `assets/sql/scripts/` mappában:
 3. Admin panel: approve/reject
 4. Approved esetén archiválás → `user_custom_css_archive`
 
-#### 9.6.1. 2fa.php
+#### 9.6.1. 2FA
 
-**Oldal neve:** `2fa.php`
-**Cél:** A bejelentkezés második lépcsője: az e-mailben kapott egyszer használatos kód ellenőrzése, majd siker esetén beléptetés.
+* **Cél:** Bejelentkezés második lépcsője: e-mailben kapott egyszer használatos kód ellenőrzése és beléptetés.
+* **Route:** `.../2fa.php`
+* **Auth:** User (session: `id`, `email`)
+* **Input:** POST `code`, Session `id`, `email`, `tries`
+* **Fő logika:**
 
-**Elérés / route:**
+  * Session ellenőrzés, `tries` inicializálás
+  * 2FA kód ellenőrzése (`2fa_codes`)
+  * Siker: kód törlés, `id` cookie (1 óra), session destroy, redirect `index.php`
+  * Hiba: alert + `tries++`, 3 próbálkozás után session destroy + redirect `reglog.php`
+* **DB:** `2fa_codes`
+* **Visszajelzés:** alert hibánál, redirect siker/lock esetén
+* **Security:** paraméterezett SQL, brute force limit (3), security headerek, **CSRF nincs**
+* **AC:**
 
-* URL: `.../2fa.php`
-* Belépés szükséges? **User** (legalább `$_SESSION['id']` és `$_SESSION['email']` megléte kötelező)
-
-**Bemenetek (inputok):**
-
-* GET: nincs érdemi GET paraméter
-* POST:
-
-  * `code` (string): a felhasználó által beírt 2FA kód
-* Session:
-
-  * `id` (int): felhasználó azonosító
-  * `email` (string): felhasználó email címe
-  * `tries` (int): hibás próbálkozások száma (ha nincs, 0-ra inicializálódik)
-
-**Folyamat (lépések):**
-
-1. **Biztonsági headerek beállítása**
-
-   * `X-Frame-Options: DENY` (clickjacking ellen)
-   * `X-Content-Type-Options: nosniff`
-   * `Referrer-Policy: no-referrer`
-
-2. **Session előkészítés**
-
-   * Ha `$_SESSION['tries']` nincs beállítva: `0` értékre állítja.
-
-3. **Jogosultság ellenőrzés**
-
-   * Ha nincs `$_SESSION['id']` vagy `$_SESSION['email']`:
-
-     * `redirect` → `reglog.php`
-     * `exit`
-
-4. **Oldal megjelenítés (navbar + űrlap)**
-
-   * Rendereli az oldalt és a kód bekérésére szolgáló formot.
-
-5. **Kód ellenőrzés (POST esetén)**
-
-   * Ha érkezett `$_POST['code']`:
-
-     1. `trim()` → `$code`
-
-     2. Ha `$code` nem üres:
-
-        * DB lekérdezés: van-e találat a `2fa_codes` táblában a `(userid, code)` párosra:
-
-          * `SELECT id FROM 2fa_codes WHERE userid = ? AND code = ? LIMIT 1`
-
-     3. **Siker ág** (pontosan 1 találat):
-
-        * Törli a kódot (egyszer használatos):
-
-          * `DELETE FROM 2fa_codes WHERE userid = ? AND code = ?`
-        * Beállít egy cookie-t:
-
-          * `setcookie("id", $userid, time() + 3600, "/");` (1 óra)
-        * `session_destroy()` (a 2FA session vége)
-        * `redirect` → `index.php` + `exit`
-
-     4. **Hiba ág** (nincs találat / üres kód):
-
-        * JS alert: `Helytelen kód`
-        * `$_SESSION['tries']++`
-        * Ha `tries >= 3`:
-
-          * `session_destroy()`
-          * `redirect` → `reglog.php` + `exit`
-
-**UI állapotok / felhasználói visszajelzés:**
-
-* Loading: nincs
-* Empty state: nincs külön kezelve
-* Error state:
-
-  * Hibás kód esetén: `alert('Helytelen kód')`
-  * 3 hibás próbálkozás után: visszadob a `reglog.php` oldalra (session törléssel)
-* Success state:
-
-  * Helyes kód esetén: kód törlése + cookie beállítás + redirect `index.php`
-
-**Biztonság:**
-
-* SQL injection védelem: paraméterezett DB hívások (`db_query`, `db_exec` helyettesítőkkel)
-* XSS védelem: itt nincs visszatükrözött user input HTML-be (alert fix szöveg), így közvetlen XSS felület nem látszik
-* Brute force védelem: session alapú próbálkozás limit (`tries`, max 3)
-* Clickjacking/Content sniffing/Referrer védelem: a fenti HTTP headerek
-* CSRF token: **nincs** a formban (jelenleg nem implementált)
-
-**Elfogadási kritériumok (tesztelhető):**
-
-* "Ha nincs bejelentkezési session (`id`/`email`), az oldal `reglog.php`-ra redirectel."
-* "Helyes kód esetén a `2fa_codes` rekord törlődik, `id` cookie beállítódik 1 órára, majd `index.php` redirect történik."
-* "Hibás kód esetén `tries` növekszik és a felhasználó figyelmeztetést kap."
-* "3 egymást követő hibás kód után a session törlődik és `reglog.php` redirect történik."
-* "Üres kódra nem történik DB törlés/’beléptetés’, és hibának minősül."
-
-Ha szeretnéd, ugyanebben a sablonban leírom a *2FA kód generálás/kiküldés* oldalát/funkcióját is (ahol a `2fa_codes` rekord létrejön és az email kimegy) - mert a teljes 2FA flow igazán ott válik kerekké.
+  * Session nélkül redirect
+  * Helyes kód törlődik és beléptet
+  * 3 hibás kód után kiléptet
 
 #### 9.6.2. Admin Panel
 
-**Oldal neve:** `admin_panel.php`
-**Cél:** Admin felület az oldal tartalmainak és moderációs elemeinek kezelésére: felhasználók/fájlok/kommentek törlése, kategóriák “ürítése", profil CSS kérelmek bírálata, badge-ek kezelése és kiosztása, jelentések kezelése, regisztrációs kódok kezelése.
-
-**Elérés / route:**
-
-* URL: `.../admin_panel.php`
-* Belépés szükséges? **Admin**
-
-  * Cookie alapú azonosítás: `$_COOKIE['id']`
-  * Admin jogosultság: `users.admin == 1`
-
-**Bemenetek (inputok):**
-
-* GET:
-
-  * `delete_type` (string): `user|file|comment|category|user_badge|badge`
-  * `delete_id` (int): törlendő rekord azonosítója (több típusnál)
-  * `subject` (string): kategória törlésnél a kategória neve (URL-enkódolva érkezhet)
-  * `css_action` (string): `approve|reject`
-  * `css_id` (int): CSS kérelem ID
-* POST:
-
-  * Badge hozzárendelés:
-
-    * `action=add_user_badge`
-    * `user_id` (int), `badge_id` (int)
-  * Badge CRUD:
-
-    * `badge_action=create|update`
-    * create: `name`, `slug`, opcionálisan `description`, `icon`
-    * update: `badge_id` + ugyanazok a mezők
-  * Jelentések kezelése:
-
-    * `report_action=resolve|dismiss`
-    * `report_id` (int)
-  * Regisztrációs kódok:
-
-    * létrehozás: `create_reg_code` + `code`, `description`, `max_uses`, `expires_at`
-    * aktiválás/deaktiválás/törlés: `activate_reg_code` / `deactivate_reg_code` / `delete_reg_code` + `reg_code_id`
-* Session: a fájl nem sessiont használ auth-hoz, hanem **cookie**-t:
-
-  * `id` cookie kötelező és numerikus
-
-**Folyamat (lépések):**
-
-1. **Biztonsági headerek beállítása**
-
-   * `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`
-
-2. **Azonosítás cookie alapján**
-
-   * Ha nincs `$_COOKIE['id']` vagy nem numerikus (`ctype_digit`):
-
-     * redirect → `reglog.php` + exit
-   * `userId = (int)$_COOKIE['id']`
-   * DB: `SELECT * FROM users WHERE id = ? LIMIT 1`
-   * Ha nincs ilyen user:
-
-     * redirect → `reglog.php` + exit
-
-3. **Admin jogosultság ellenőrzés**
-
-   * Ha `users.admin != 1`:
-
-     * HTTP 403 + `exit('Hozzáférés megtagadva...')`
-   * (A body-ban van egy **második** ellenőrzés is: ott UI-s üzenetet renderel és leáll.)
-
-4. **Admin műveletek kezelése (POST/GET)**
-
-   * **User badge hozzárendelés** (POST `action=add_user_badge`)
-
-     1. `user_id`, `badge_id`, `adminId` integerre
-     2. Ellenőrzi, létezik-e már ilyen sor (`user_badges`):
-
-        * `SELECT id FROM user_badges WHERE user_id=? AND badge_id=? LIMIT 1`
-     3. Ha nem létezik: `INSERT INTO user_badges (user_id, badge_id, granted_by) VALUES (?, ?, ?)`
-     4. Kimenet: JS redirect `admin_panel.php` + exit
-
-   * **Badge létrehozás / szerkesztés** (POST `badge_action`)
-
-     * `create`:
-
-       * validál: `name` és `slug` nem üres
-       * `description`/`icon` üresen → `NULL`
-       * `INSERT INTO badges (...) VALUES (?, ?, ?, ?)`
-     * `update`:
-
-       * validál: `badge_id > 0`, `name` és `slug` nem üres
-       * `UPDATE badges SET ... WHERE id=? LIMIT 1`
-     * Kimenet: JS redirect `admin_panel.php` + exit
-
-   * **Törlések / kategória kezelés** (GET `delete_type`, `delete_id`)
-
-     * `user`:
-
-       * ha nem saját fiók:
-
-         * `DELETE FROM users WHERE id=?`
-         * `DELETE FROM files WHERE uploaded_by=?`
-         * `DELETE FROM comments WHERE userid=?`
-     * `file`:
-
-       * `DELETE FROM files WHERE id=?`
-       * `DELETE FROM comments WHERE postid=?`
-     * `comment`:
-
-       * `DELETE FROM comments WHERE id=?`
-     * `category`:
-
-       * `subject` esetén: `UPDATE files SET subject='' WHERE subject=?`
-       * (tehát nem a “kategória rekordot" törli, hanem kiüríti a fájlokból)
-     * `user_badge`: `DELETE FROM user_badges WHERE id=?`
-     * `badge`: `DELETE FROM badges WHERE id=?`
-     * Kimenet: JS redirect `admin_panel.php` + exit
-
-   * **Profil CSS kérelmek bírálata** (GET `css_action`, `css_id`)
-
-     * `approve`:
-
-       1. lekéri a kérést: `SELECT * FROM user_custom_css_requests WHERE id=? LIMIT 1`
-       2. ha megvan:
-
-          * adott sor: `status='approved'`, `reviewed_at=NOW()`, `reviewed_by=adminId`
-          * ugyanazon user többi pending kérelme: `status='rejected'` (kivéve a mostani)
-     * `reject`:
-
-       * adott sor: `status='rejected'`, `reviewed_at=NOW()`, `reviewed_by=adminId`
-     * Kimenet: JS redirect `admin_panel.php` + exit
-
-   * **Jelentések kezelése** (POST `report_action`, `report_id`)
-
-     * csak `resolve` vagy `dismiss`
-     * DB: `UPDATE reports SET status=?, handled_by=?, handled_at=NOW() WHERE id=?`
-     * Kimenet: JS redirect `admin_panel.php#reports` + exit
-
-   * **Regisztrációs kód létrehozása** (POST `create_reg_code`)
-
-     1. `code` trim, üres → alert és nem ír DB-t
-     2. `max_uses` ha szám → int, különben `NULL`
-     3. `expires_at` ha megadva: `datetime-local` formátum `T` cserével + `:00`
-     4. DB: `INSERT INTO reg_codes (code, description, max_uses, expires_at, active) VALUES (?, ?, ?, ?, 1)`
-     5. Kimenet: alert “létrehozva" (a page marad)
-
-   * **Regisztrációs kód aktiválás/deaktiválás/törlés** (POST)
-
-     * `UPDATE reg_codes SET active=0/1 WHERE id=?`
-     * `DELETE FROM reg_codes WHERE id=?`
-
-5. **Listák lekérdezése (renderhez)**
-
-   * `reg_codes`, `users`, `files`, `comments + username join`, `categories DISTINCT subject`, `css_requests`, `user_badges` joinok, `badge_options`, `user_options`, `badges`, `reports` + cél típus szerinti extra lookup a táblákból (users/groups/files).
-
-6. **Kimenet (UI render)**
-
-   * Táblázatos admin felület szekciókkal:
-
-     * Felhasználók / Fájlok / Kommentek / Kategóriák / CSS kérelmek / User badge kiosztás+lista / Badge CRUD / Jelentések / Regisztrációs kódok
-
-**UI állapotok / felhasználói visszajelzés:**
-
-* Loading: nincs
-* Empty state:
-
-  * Jelentések: “Nincs még jelentés."
-  * Reg kódok: “Még nincs regisztrációs kód."
-* Error state:
-
-  * Nem admin: 403 “Hozzáférés megtagadva…" (vagy body-ban kártyaüzenet)
-  * Reg kód létrehozásnál üres kód: `alert('A kód mező nem lehet üres.')`
-* Success state:
-
-  * Több művelet után JS redirect vissza az admin panelre
-  * Reg kód létrehozásnál: `alert('Regisztrációs kód létrehozva.')`
-
-**Biztonság:**
-
-* SQL injection védelem: jellemzően paraméterezett hívások (`db_query`, `db_exec`, `db_stmt`) használata
-* XSS védelem: listázásoknál több helyen `htmlspecialchars()` (pl. username, email, subject, CSS, report reason)
-* Jogosultság: admin ellenőrzés `users.admin == 1` alapján (cookie → user betöltés → admin flag)
-* CSRF token: **nincs** (sem a POST formokban, sem a GET-es “törlés/jóváhagyás" műveleteknél)
-* Destruktív műveletek GET-tel: törlés/jóváhagyás részben **GET paraméterekkel** történik, csak `confirm()` JS védelemmel (ez UX, nem biztonság)
-
-**Elfogadási kritériumok (tesztelhető):**
-
-* "Cookie `id` nélkül vagy nem numerikus `id`-vel a rendszer `reglog.php`-ra redirectel."
-* "Nem admin user 403-at kap és nem látja az admin panelt."
-* "Saját felhasználó nem törölhető (UI-ban ‘Saját fiók’, backendben is tiltva van a user delete ágon)."
-* "Badge hozzárendelésnél duplikált `user_badges` sor nem jön létre."
-* "Jóváhagyott CSS kérelem után a felhasználó többi pending kérelme automatikusan rejected lesz."
-* "Regisztrációs kód üres `code` mezővel nem kerül DB-be."
-* "Report resolve/dismiss esetén a `reports.status`, `handled_by`, `handled_at` frissül, majd a felület a #reports szekcióra ugrik."
-
-#### 9.6.3. Tanuló csoport létrehozása
-
-**Oldal neve:** `create_group.php`
-**Cél:** Új tanulócsoport létrehozása. A bejelentkezett felhasználó megadja a csoport nevét/leírását, opcionálisan privátra állítja, majd a rendszer létrehozza a `groups` rekordot és automatikusan belépteti a létrehozót “owner" szerepkörrel.
-
-**Elérés / route:**
-
-* URL: `.../create_group.php`
-* Belépés szükséges? **User** (cookie alapú azonosítás: `$_COOKIE['id']`)
-
-**Bemenetek (inputok):**
-
-* GET: nincs érdemi GET paraméter
-* POST (csak ha `letrehozas` be van küldve):
-
-  * `letrehozas` (submit jelző)
-  * `name` (string): csoport neve
-  * `description` (string): csoport leírása (opcionális)
-  * `is_private` (checkbox): ha be van pipálva → privát csoport
-* Cookie:
-
-  * `id` (string/int): bejelentkezett felhasználó azonosítója (csak numerikus fogadható el)
-
-**Folyamat (lépések):**
-
-1. **Biztonsági headerek beállítása**
-
-   * `X-Frame-Options: DENY`
-   * `X-Content-Type-Options: nosniff`
-   * `Referrer-Policy: no-referrer`
-
-2. **Jogosultság ellenőrzés**
-
-   * Ha nincs `$_COOKIE['id']` vagy nem numerikus (`ctype_digit`):
-
-     * redirect → `reglog.php`
-     * `exit`
-
-3. **Input beolvasás és validálás (POST esetén)**
-
-   * Csak akkor fut, ha `isset($_POST['letrehozas'])`
-   * `name` és `description` trimelve:
-
-     * `$csoport_nev = trim($_POST['name'] ?? '')`
-     * `$csoport_leiras = trim($_POST['description'] ?? '')`
-   * Privát flag:
-
-     * `$privat = isset($_POST['is_private']) ? 1 : 0`
-   * Tulajdonos:
-
-     * `$tulaj_id = (int)$_COOKIE['id']`
-   * Validálás:
-
-     * Ha a csoport neve üres:
-
-       * `alert('A csoport neve kötelező!')`
-       * nincs DB írás
-
-4. **DB műveletek**
-
-   * Csoport létrehozása:
-
-     * `INSERT INTO groups (name, description, owner_id, is_private) VALUES (?, ?, ?, ?)`
-   * Ha az insert sikeres (`$inserted > 0`):
-
-     1. `$uj_csoport_id = $conn->insert_id`
-     2. Létrehozó felvétele tagként “owner" role-lal, elfogadott státusszal:
-
-        * `INSERT INTO group_members (group_id, user_id, role, status) VALUES (?, ?, 'owner', 'accepted')`
-     3. `alert('Csoport sikeresen létrehozva!')`
-     4. redirect → `group.php?id=<új_id>` + `exit`
-   * Ha az insert nem sikerül:
-
-     * `alert('Hiba történt a csoport létrehozásakor.')`
-
-5. **Kimenet (UI)**
-
-   * Form mezők:
-
-     * Csoport neve (input)
-     * Leírás (textarea)
-     * Privát csoport checkbox + magyarázó szöveg
-   * Gombok:
-
-     * "Csoport létrehozása" (POST)
-     * "Mégse, vissza a listához" → `groups.php`
-
-**UI állapotok / felhasználói visszajelzés:**
-
-* Loading: nincs
-* Empty state: nincs
-* Error state:
-
-  * Üres név: alert "A csoport neve kötelező!"
-  * DB insert hiba: alert "Hiba történt a csoport létrehozásakor."
-* Success state:
-
-  * alert "Csoport sikeresen létrehozva!"
-  * redirect a frissen létrehozott csoport oldalára: `group.php?id=...`
-
-**Biztonság:**
-
-* SQL injection védelem: paraméterezett DB hívás (`db_exec` placeholder-ekkel)
-* XSS védelem: ezen az oldalon a beküldött érték nincs visszarenderelve (nincs echo a name/description-ra), így közvetlen XSS felület itt nem látszik
-* CSRF token: **nincs** (a POST kérés nincs CSRF-fel védve)
-* Auth: cookie `id` ellenőrzés (numerikus), de nem ellenőrzi itt külön, hogy a cookie-ban lévő user valóban létezik-e a users táblában (csak annyit, hogy szám)
-
-**Elfogadási kritériumok (tesztelhető):**
-
-* "Nem bejelentkezett felhasználó (`id` cookie nélkül / nem numerikus id-vel) a `reglog.php` oldalra kerül."
-* "Üres csoportnév esetén nem történik DB írás, és megjelenik a kötelező mező hibaüzenet."
-* "Sikeres létrehozáskor létrejön egy rekord a `groups` táblában a helyes `owner_id` és `is_private` értékekkel."
-* "Sikeres létrehozáskor létrejön egy rekord a `group_members` táblában `role='owner'` és `status='accepted'` értékekkel a létrehozó userre."
-* "Siker esetén pontos redirect történik: `group.php?id=<új_csoport_id>`."
+* **Cél:** Adminisztrációs felület (felhasználók, fájlok, kommentek, badge-ek, CSS kérelmek, reportok, regisztrációs kódok).
+* **Route:** `.../admin_panel.php`
+* **Auth:** Admin (cookie `id` + `users.admin=1`)
+* **Input:**
+
+  * GET: törlés, CSS bírálat
+  * POST: badge CRUD, report kezelés, reg kód kezelés
+* **Fő logika:**
+
+  * Cookie alapú auth + admin ellenőrzés
+  * Admin műveletek végrehajtása (törlés, jóváhagyás, CRUD)
+  * Műveletek után JS redirect
+  * Admin lista nézet renderelése
+* **DB:** `users`, `files`, `comments`, `badges`, `user_badges`, `reports`, `reg_codes`, `user_custom_css_requests`
+* **Visszajelzés:** 403 nem adminnál, alert validációs hibáknál, redirect siker után
+* **Security:** paraméterezett SQL, XSS escape listáknál, **CSRF nincs**, destruktív műveletek részben GET-tel
+* **AC:**
+
+  * Nem admin nem fér hozzá
+  * Saját user nem törölhető
+  * Duplikált badge nem jön létre
+  * CSS approve automatikusan rejecteli a többit
+
+#### 9.6.3. Tanuló Csoport Létrehozása
+
+* **Cél:** Új tanulócsoport létrehozása, létrehozó automatikusan owner.
+* **Route:** `.../create_group.php`
+* **Auth:** User (cookie `id`)
+* **Input:** POST `name`, `description?`, `is_private?`
+* **Fő logika:**
+
+  * Auth ellenőrzés
+  * Név validálás
+  * `groups` rekord létrehozása
+  * `group_members` insert (owner, accepted)
+  * Redirect `group.php?id=...`
+* **DB:** `groups`, `group_members`
+* **Visszajelzés:** alert hibánál, redirect siker esetén
+* **Security:** paraméterezett SQL, **CSRF nincs**
+* **AC:**
+
+  * Üres név → nincs DB írás
+  * Sikeres insert után owner tag létrejön
+  * Pontos redirect történik
 
 #### 9.6.4. Kedvencek
 
-**Oldal neve:** `favorites.php`
-**Cél:** A bejelentkezett felhasználó kedvencnek jelölt jegyzeteinek (fájlok) listázása és megjelenítése, elérés biztosítása a részletekhez és letöltéshez.
-
-**Elérés / route:**
-
-* URL: `.../favorites.php`
-* Belépés szükséges? **User** (cookie alapú azonosítás: `$_COOKIE['id']`)
-
-**Bemenetek (inputok):**
-
-* GET: nincs érdemi GET input
-* POST: nincs (csak megjelenítő oldal)
-* Cookie:
-
-  * `id` (string/int): bejelentkezett felhasználó azonosítója (numerikus)
-* Session: nincs használva ebben a fájlban
-
-**Folyamat (lépések):**
-
-1. **Jogosultság ellenőrzés**
-
-   * Ha nincs `$_COOKIE['id']` vagy nem numerikus (`ctype_digit`):
-
-     * redirect → `reglog.php` + `exit`
-   * Betölti a usert:
-
-     * `SELECT * FROM users WHERE id = ? LIMIT 1`
-   * Ha nincs találat:
-
-     * redirect → `reglog.php` + `exit`
-
-2. **Input validálás**
-
-   * Nincs klasszikus input validálás (nincs GET/POST), csak cookie `id` típusellenőrzés és user létezés ellenőrzés.
-
-3. **DB művelet(ek)**
-
-   * Értesítések száma (nem közvetlenül a kedvencekhez, de UI-hoz):
-
-     * `SELECT id FROM notifys WHERE toid = ? AND readed = 0`
-   * Kedvencek lekérése:
-
-     * `SELECT * FROM favorites WHERE user_id = ?`
-   * Minden kedvenc sorra:
-
-     * `file_id` alapján fájl betöltése:
-
-       * `SELECT * FROM files WHERE id = ? LIMIT 1`
-     * ha van találat: hozzáadja a `$favorites` tömbhöz
-   * Renderelés közben (minden listázott fájlnál):
-
-     * feltöltő username lekérése:
-
-       * `SELECT username FROM users WHERE id = ? LIMIT 1`
-     * értékelések átlaga + darabszám:
-
-       * `SELECT IFNULL(AVG(rating),0) as avg, COUNT(*) as c FROM ratings WHERE file_id = ?`
-
-4. **Kimenet**
-
-   * Siker: oldal renderelése a kedvenc fájlok kártyáival
-   * Üres lista: “Még nincsenek kedvenc jegyzeteid" empty state kártya
-   * Hiba (auth): redirect `reglog.php`
-
-**UI állapotok / felhasználói visszajelzés:**
-
-* Loading: nincs
-* Empty state:
-
-  * Ha `$favorites` üres: üzenet és ikon (“Még nincsenek kedvenc jegyzeteid")
-* Error state:
-
-  * Nincs bejelentkezés / érvénytelen user: redirect `reglog.php`
-* Success state:
-
-  * Kedvencek megjelenítése kártyákban:
-
-    * cím (`name`)
-    * feltöltő profil link (`profile.php?userid=...`)
-    * “Részletek" link: `note.php?id=...`
-    * “Letöltés" link: `assets/php/download.php?id=...`
-
-**Biztonság:**
-
-* SQL injection védelem: paraméterezett lekérdezések (`db_query`) használata
-* XSS védelem:
-
-  * Megjelenített dinamikus mezők escape-elve: `htmlspecialchars($f['name'])`, `htmlspecialchars($uploader['username'])`, stb.
-* Fájl esetén:
-
-  * A `favorites.php` nem tölt fel fájlt; letöltés külön endpointon (`download.php?id=...`) történik (annak a védelme ott releváns).
-* CSRF token: nem releváns (nincs állapotmódosító POST ezen az oldalon)
-
-**Elfogadási kritériumok (tesztelhető):**
-
-* "Cookie `id` nélkül vagy nem numerikus `id`-vel a felhasználó `reglog.php`-ra redirectelődik."
-* "Ha a cookie alapján nem létező user azonosító jön, szintén `reglog.php`-ra redirectelődik."
-* "Ha van legalább 1 kedvenc rekord, a hozzá tartozó fájl(ok) kártyái megjelennek."
-* "Ha nincs kedvenc, az empty state (‘Még nincsenek kedvenc jegyzeteid’) jelenik meg."
-* "A listában lévő elemeknél a fájlnév és username XSS-védetten jelenik meg (`htmlspecialchars`)."
-* "A ‘Részletek’ link `note.php?id=<file_id>`-re, a ‘Letöltés’ link `download.php?id=<file_id>`-re mutat."
-
-#### 9.6.5. Elfelejtett jelszó
-
-**Oldal neve:** `forgotpass.php`
-**Cél:** Elfelejtett jelszó visszaállítása biztonsági kérdés válaszával. 2 lépésben működik: (1) felhasználónév + biztonsági válasz ellenőrzése rate limit-tel, (2) új jelszó megadása és mentése.
-
-**Elérés / route:**
-
-* URL: `.../forgotpass.php`
-* Belépés szükséges? **Guest** (nem kell bejelentkezni)
-
-**Bemenetek (inputok):**
-
-* GET: nincs
-* POST:
-
-  * 1. lépés (biztonsági válasz ellenőrzés):
-
-    * `forg-btn` (submit jelző)
-    * `username` (string)
-    * `security_answer` (string)
-    * `csrf` (string)
-  * 2. lépés (új jelszó beállítás):
-
-    * `new-pass-btn` (submit jelző)
-    * `password1` (string)
-    * `password2` (string)
-    * `csrf` (string)
-* Session:
-
-  * `csrf` (string): CSRF token
-  * `pw_reset_user` (int): melyik user resetelhető
-  * `pw_reset_ok` (bool): sikeres 1. lépés jelzője
-
-**Folyamat (lépések):**
-
-1. **Jogosultság ellenőrzés / session előkészítés**
-
-   * `session_start()`
-   * CSRF token generálás, ha még nincs: `$_SESSION['csrf'] = bin2hex(random_bytes(32))`
-   * UI állapot változók: `showSecurityForm`, `showNewPassword`, `success`
-
-2. **Input validálás**
-
-   * Minden POST esetén `check_csrf()` fut:
-
-     * ha token nem egyezik: `exit('CSRF blocked')`
-   * 1. lépésben: `username` és `security_answer` nem lehet üres → `alert_redirect(error_all_fields_required)`
-   * 2. lépésben:
-
-     * csak akkor engedett, ha `pw_reset_user` és `pw_reset_ok` be van állítva → különben `exit('Unauthorized')`
-     * jelszavak egyezzenek → különben `alert_redirect(passwords_not_match)`
-     * min. hossz: 8 → különben `alert_redirect(password_too_short)`
-
-3. **DB művelet(ek)**
-
-   * **Rate limit / lock ellenőrzés** (1. lépés):
-
-     * IP: `$_SERVER['REMOTE_ADDR']`
-     * `password_reset_attempts` lekérdezés: `attempts`, `locked_until` adott `(username, ip)` párosra
-     * ha `locked_until` a jövőben van → `alert_redirect(msg_too_many_attempts)`
-   * **User + biztonsági válasz ellenőrzés**:
-
-     * `SELECT id, security_answer FROM users WHERE username = ? LIMIT 1`
-     * ha nincs user → `alert_redirect(msg_user_not_found)`
-     * `password_verify($answer, $user['security_answer'])`
-
-       * **Helytelen válasz esetén**:
-
-         * ha van rl rekord:
-
-           * `attempts = attempts + 1`
-           * ha `attempts >= MAX_ATTEMPTS (5)`:
-
-             * `locked_until = now + 15 perc`
-           * `UPDATE password_reset_attempts SET attempts=?, locked_until=?, last_attempt=NOW() ...`
-         * ha nincs rl rekord:
-
-           * `INSERT INTO password_reset_attempts (username, ip_address, attempts, last_attempt) VALUES (..., 1, NOW())`
-         * majd: `alert_redirect(msg_wrong_security_answer)`
-       * **Helyes válasz esetén**:
-
-         * törli az rl rekordot: `DELETE FROM password_reset_attempts WHERE username=? AND ip_address=?`
-         * beállítja sessionben:
-
-           * `pw_reset_user = user.id`
-           * `pw_reset_ok = true`
-         * UI váltás: 2. lépés űrlap megjelenítése
-   * **Új jelszó mentése** (2. lépés):
-
-     * hash: `password_hash($p1, PASSWORD_DEFAULT)`
-     * `UPDATE users SET password = ? WHERE id = ? LIMIT 1`
-     * `session_unset(); session_destroy();`
-     * `success = true` (siker UI)
-
-4. **Kimenet**
-
-   * Siker:
-
-     * “Jelszó sikeresen megváltoztatva" képernyő + link `reglog.php`
-   * 1. lépés UI:
-
-     * felhasználónév + biztonsági válasz form (CSRF hidden fielddel)
-   * 2. lépés UI:
-
-     * új jelszó + megerősítés form (CSRF hidden fielddel)
-   * Hiba:
-
-     * `alert_redirect(...)` üzenetekkel (a pontos megvalósítás az `alert_redirect` függvénytől függ)
-
-**UI állapotok / felhasználói visszajelzés:**
-
-* Loading: nincs
-* Empty state: nincs
-* Error state:
-
-  * Üres mezők → “minden mező kötelező"
-  * User nem található
-  * Rossz biztonsági válasz
-  * Túl sok próbálkozás → lock (15 perc)
-  * CSRF blokkolás → “CSRF blocked"
-  * Jogosulatlan 2. lépés megnyitás → “Unauthorized"
-  * Jelszavak nem egyeznek / túl rövid
-* Success state:
-
-  * Siker képernyő + “Ugrás a bejelentkezéshez" (`reglog.php`)
-
-**Biztonság:**
-
-* SQL injection védelem: paraméterezett DB hívások (`db_query`, `db_exec`)
-* XSS védelem:
-
-  * oldalnyelv és CSRF érték escape-elve: `htmlspecialchars($lang)`, `htmlspecialchars($_SESSION['csrf'])`
-  * a szövegek fordításból jönnek (`t()`), közvetlen user input nincs visszarenderelve
-* CSRF védelem: **van**, session token + `hash_equals`
-* Rate limit / brute force védelem:
-
-  * `password_reset_attempts` tábla `username + ip` alapon
-  * MAX 5 próbálkozás után 15 perces lock (`locked_until`)
-* Jelszó tárolás: `password_hash()` (bcrypt/argon a PHP defaulttól függően)
-* Megjegyzés: a reset folyamat “biztonsági válasz" alapú, nincs email tokenes megerősítés ebben a flow-ban.
-
-**Elfogadási kritériumok (tesztelhető):**
-
-* "CSRF token nélkül/hibás tokennel a kérés blokkolódik (‘CSRF blocked’)."
-* "Üres `username` vagy `security_answer` esetén nem indul DB ellenőrzés/jelszó reset."
-* "Nem létező user esetén ‘user not found’ üzenet jön (és nincs jelszó módosítás)."
-* "5 rossz biztonsági válasz ugyanarra a username+IP párosra 15 perces lockot eredményez."
-* "Helyes biztonsági válasz után megjelenik az új jelszó űrlap, és csak ekkor engedett a jelszócsere."
-* "Nem egyező jelszavaknál nem történik DB update."
-* "Sikeres jelszóváltáskor frissül a `users.password`, a session törlődik, és a siker képernyő jelenik meg, linkkel a `reglog.php` oldalra."
-* "Jogosulatlanul (session jelzők nélkül) a 2. lépés POST nem fut le (‘Unauthorized’)."
-
-#### 9.6.6. Tanulócsoport
-
-**Oldal neve:** `group.php`
-**Cél:** Csoport adatlap megjelenítése és kezelése: leírás, privát/nyilvános állapot, tagság (csatlakozás/kilépés), tagok listája, (tulajnak) jelentkezések kezelése, csoport jegyzetek megjelenítése, (tagoknak) feltöltés, (tulajnak) jóváhagyás/elutasítás, valamint csoport törlése. Privát csoportnál a tartalom csak tagoknak/tulajnak látható.
-
-**Elérés / route:**
-
-* URL: `.../group.php?id=...` (az `id` paramétert a `group_init.php` tipikusan beolvassa)
-* Belépés szükséges? **Vegyes**
-
-  * A csoport oldal megnyitható, de **privát csoportnál** a tartalom csak **tagoknak / tulajnak** elérhető.
-  * A műveletek (csatlakozás, kilépés, adminisztráció, feltöltés stb.) bejelentkezéshez kötöttek (ez a `group_init.php` / `group_actions.php` feladata).
-
-**Bemenetek (inputok):**
-
-* GET:
-
-  * `id` (int): csoport azonosító (a betöltéshez; közvetetten a `group_init.php` használja)
-* POST (a gombok alapján, tényleges feldolgozás a `group_actions.php`-ban történik):
-
-  * Tagság:
-
-    * `join_group` (csatlakozás)
-    * `kilepes` (kilépés)
-  * Tag kezelés (tulaj):
-
-    * `remove_member` + `remove_user_id` (tag eltávolítása)
-    * `elfogadas` + `kezelt_user_id` (jelentkezés elfogadása)
-    * `elutasitas` + `kezelt_user_id` (jelentkezés elutasítása)
-  * Csoport jegyzet feltöltés (tag):
-
-    * `uj_jegyzet`
-    * `jegyzet_nev` (string)
-    * `jegyzet_fajl` (file upload)
-    * `jegyzet_leiras` (string, opcionális)
-  * Csoport jegyzet moderálás (tulaj):
-
-    * `jegyzet_elfogadas` + `jegyzet_id`
-    * `jegyzet_elutasitas` + `jegyzet_id`
-  * Csoport törlés (tulaj):
-
-    * `csoport_torles`
-* Egyéb (külön endpoint):
-
-  * Csoport jelentése: `assets/php/report.php` felé POST
-
-    * `type=group`, `target_id`, `redirect`, `reason`
-* Session/Cookie:
-
-  * Ebben a fájlban közvetlenül nincs cookie/session ellenőrzés, ezt a `group_init.php` és `group_actions.php` végzi (ott derül ki: ki az aktuális user, tag-e, tulaj-e).
-
-**Folyamat (lépések):**
-
-1. **Jogosultság / környezet inicializálás**
-
-   * Biztonsági headerek beállítása.
-   * Include-ok:
-
-     * `group_init.php` (csoport + user állapot betöltése: pl. `$csoport_id`, `$csoport_nev`, `$privat`, `$aktualis_felhasznalo_tag`, `$aktualis_felhasznalo_tulaj`, `$aktualis_felhasznalo_pending`, `$tulaj_id` stb.)
-     * `group_actions.php` (POST műveletek feldolgozása: csatlakozás/kilépés/elfogadás/elutasítás/feltöltés/jóváhagyás/törlés…)
-   * Privát csoport gate:
-
-     * ha `privat == 1` ÉS nem tag ÉS nem tulaj:
-
-       * `$hiba_uzenet = "Ez egy privát csoport. A tartalom csak tagoknak látható."`
-       * a tartalmi blokkok több helyen `$hiba_uzenet == ""` feltétellel vannak “lezárva"
-
-2. **Input validálás**
-
-   * A megjelenítő fájlban főleg feltételes megjelenítés van.
-   * A tényleges validálás (pl. csatlakozás, feltöltés, jogosultság) a `group_actions.php`-ban történik.
-   * A report űrlapnál `redirect` mező `$_SERVER['REQUEST_URI']`-ből kerül kitöltésre és HTML-escape-elve.
-
-3. **DB művelet(ek)**
-
-   * Tagok listája (csak tag/tulaj és nem privát tiltás esetén):
-
-     * `SELECT group_members.*, users.username ... WHERE group_id=? AND status='accepted'`
-   * Függő jelentkezések (csak tulaj):
-
-     * `SELECT group_members.*, users.username ... WHERE group_id=? AND status='pending'`
-   * Csoport jegyzetek (elfogadottak):
-
-     * `SELECT group_files.*, users.username ... WHERE group_id=? AND is_approved=1 ORDER BY id DESC`
-   * Csoport jegyzetek (jóváhagyásra várók, csak tulaj):
-
-     * `SELECT group_files.*, users.username ... WHERE group_id=? AND is_approved=0 ORDER BY id DESC`
-   * A tényleges írások/törlések/jóváhagyások DB oldalon a `group_actions.php`-ban vannak.
-
-4. **Kimenet**
-
-   * Siker: csoport oldal renderelése, állapottól függő blokkokkal:
-
-     * leírás / privát jelzés
-     * csatlakozás/kilépés gombok
-     * taglista + (tulajnak) eltávolítás gomb
-     * (tulajnak) pending kérelmek elfogadás/elutasítás
-     * jegyzetek listája + (tagoknak) feltöltés
-     * (tulajnak) várakozó jegyzetek elfogadás/elutasítás
-     * (tulajnak) csoport törlése
-   * Hiba:
-
-     * privát csoport esetén nem tag: figyelmeztetés szöveg, és a tartalom jelentős része rejtve marad
-
-**UI állapotok / felhasználói visszajelzés:**
-
-* Loading: nincs
-* Empty state:
-
-  * nincs leírás: “Ehhez a csoporthoz még nincs leírás megadva."
-  * nincs tag: “Még nincsenek tagok ebben a csoportban."
-  * nincs pending: “Nincsenek függőben lévő jelentkezések."
-  * nincs elfogadott jegyzet: “Még nincsenek elfogadott csoport jegyzetek."
-  * nincs várakozó jegyzet (tulaj): “Nincs elfogadásra váró jegyzet."
-* Error state:
-
-  * privát csoport + nem tag: “Ez egy privát csoport. A tartalom csak tagoknak látható."
-  * jelentés / törlés / elutasítás confirm ablakok (JS confirm)
-* Success state:
-
-  * a konkrét siker üzenetek/redirectek jellemzően a `group_actions.php`-ban vannak (pl. csatlakozás elfogadása, jegyzet jóváhagyása stb.)
-
-**Biztonság:**
-
-* SQL injection védelem: paraméterezett lekérdezések (`db_query`)
-* XSS védelem:
-
-  * csoport név/leírás, tag nevek, jegyzet adatok escape-elve: `htmlspecialchars()`, leírásnál `nl2br(htmlspecialchars(...))`
-  * report redirect mező `ENT_QUOTES`-szal escape-elve
-* Fájl esetén:
-
-  * Feltöltés `multipart/form-data`-val történik, de a validálás/mentés nem itt van (várhatóan `group_actions.php` végzi: whitelist/max méret/path traversal védelem ott releváns)
-  * Megjelenítésnél a fájl elérési út így készül: `users/<username>/<file_name>` és direkt linkként szerepel (a tényleges biztonság attól függ, a feltöltésnél mennyire “safe" a fájlnév és a mappastruktúra)
-* CSRF token: **nincs** a formokon (a POST akciók CSRF nélkül futnak, legalábbis ebben a fájlban)
-* Jogosultság:
-
-  * Privát csoport tartalom elrejtés UI-szinten itt történik (`$hiba_uzenet` gate)
-  * A tényleges jogosultság-ellenőrzés (pl. ne tudj nem tulajként elfogadni/eltávolítani) a `group_actions.php` felelőssége
-
-**Elfogadási kritériumok (tesztelhető):**
-
-* "Privát csoportban nem tag felhasználó nem látja a taglistát és a csoport jegyzeteket, és megkapja a privát figyelmeztetést."
-* "Tag felhasználó látja az elfogadott taglistát és az elfogadott jegyzeteket."
-* "Nem tag és nem pending felhasználó csatlakozás gombot lát; pending állapotban ‘függőben’ üzenetet lát."
-* "Tulajdonos látja a pending jelentkezéseket és tud elfogadni/elutasítani."
-* "Tulajdonos tud tagot eltávolítani (kivéve saját magát), és látja a csoport törlése gombot."
-* "Tag tud új jegyzetet feltölteni a csoportba (űrlap megjelenik)."
-* "Tulajdonos látja az elfogadásra váró jegyzeteket és tudja elfogadni/elutasítani."
-* "A megjelenített dinamikus szövegek XSS-védetten jelennek meg (`htmlspecialchars`)."
-
-#### 9.6.7. Tanuló csoportok
-
-**Oldal neve:** `groups.php`
-**Cél:** A rendszerben elérhető tanuló csoportok listázása és megjelenítése, valamint belépési pont biztosítása új csoport létrehozásához (`create_group.php`) és egy adott csoport megnyitásához (`group.php?id=...`).
-
-**Elérés / route:**
-
-* URL: `.../groups.php`
-* Belépés szükséges? **User** (cookie alapú azonosítás: `$_COOKIE['id']`)
-
-**Bemenetek (inputok):**
-
-* GET: nincs (a csoport megnyitása linkből megy tovább: `group.php?id=...`)
-* POST: nincs
-* Cookie:
-
-  * `id` (string/int): bejelentkezett felhasználó azonosító (numerikus ellenőrzéssel)
-* Session: nincs ebben a fájlban
-
-**Folyamat (lépések):**
-
-1. **Jogosultság ellenőrzés**
-
-   * Biztonsági headerek beállítása.
-   * Ha nincs `$_COOKIE['id']` vagy nem numerikus (`ctype_digit`):
-
-     * redirect → `reglog.php`
-     * `exit`
-   * `$aktualis_felhasznalo_id = (int)$_COOKIE['id']` (a lapon érdemben nem kerül felhasználásra, csak eltárolásra)
-
-2. **Input validálás**
-
-   * Nincs klasszikus input (nincs GET/POST), csak a cookie `id` típusellenőrzése.
-
-3. **DB művelet(ek)**
-
-   * Csoportok lekérése:
-
-     * `SELECT * FROM groups ORDER BY id DESC`
-     * *Megjegyzés:* itt közvetlen `$conn->query()` van használva (nincs paraméter, így nem injection-érzékeny ebben a formában).
-   * Eredmény bejárása és renderelése:
-
-     * mezők: `id`, `name`, `description`, `is_private`
-
-4. **Kimenet**
-
-   * Siker: rendereli a csoportkártyákat:
-
-     * név (link: `group.php?id=...`)
-     * privát/nyilvános badge
-     * leírás vagy “nincs leírás"
-     * “Csoport megnyitása" gomb
-   * Hiba (auth): redirect `reglog.php`
-   * Üres lista: “Nincs megjeleníthető csoport."
-
-**UI állapotok / felhasználói visszajelzés:**
-
-* Loading: nincs
-* Empty state:
-
-  * Ha nincs egy csoport sem: “Nincs megjeleníthető csoport."
-  * Egy adott csoportnál nincs leírás: “Ehhez a csoporthoz még nincs leírás megadva."
-* Error state:
-
-  * Nem bejelentkezett user: redirect `reglog.php`
-* Success state:
-
-  * Csoportlista megjelenik kártyákban
-  * CTA: “Új csoport létrehozása" → `create_group.php`
-
-**Biztonság:**
-
-* SQL injection védelem:
-
-  * A csoport lista query nem fogad inputot (fix SQL), ezért itt nincs közvetlen injection felület.
-  * (Általánosan a projektben paraméterezett hívások javasoltak, de ennél a konkrét querynél nem kritikus.)
-* XSS védelem:
-
-  * Csoport név/leírás escape-elve: `htmlspecialchars()`, leírásnál `nl2br(htmlspecialchars(...))`
-  * Privát/nyilvános státusz szöveg is escape-elve
-* CSRF token: nem releváns (nincs állapotmódosító POST)
-* Jogosultság:
-
-  * Belépés cookie alapján kötelező (id numerikus ellenőrzéssel)
-
-**Elfogadási kritériumok (tesztelhető):**
-
-* "Cookie `id` nélkül vagy nem numerikus `id`-vel a felhasználó `reglog.php`-ra redirectelődik."
-* "Ha vannak csoportok a DB-ben, mind megjelenik a listában (id desc sorrendben)."
-* "A csoport neve linkként a `group.php?id=<id>` oldalra vezet."
-* "Privát csoportnál ‘Privát csoport’, nyilvánosnál ‘Nyilvános csoport’ címke látszik."
-* "Ha egy csoportnak nincs leírása, a megfelelő empty szöveg jelenik meg."
-* "A csoportnév és leírás XSS-védetten jelenik meg (`htmlspecialchars`)."
+* **Cél:** Bejelentkezett felhasználó kedvenc jegyzeteinek listázása.
+* **Route:** `.../favorites.php`
+* **Auth:** User (cookie `id`)
+* **Input:** nincs
+* **Fő logika:**
+
+  * User ellenőrzés
+  * Kedvencek lekérése
+  * Fájl + uploader + rating adatok betöltése
+  * Lista vagy empty state render
+* **DB:** `favorites`, `files`, `users`, `ratings`
+* **Visszajelzés:** empty state, auth hiba redirect
+* **Security:** paraméterezett SQL, XSS escape
+* **AC:**
+
+  * Auth nélkül redirect
+  * Kedvencek megjelennek
+  * Üres lista üzenetet mutat
+
+#### 9.6.5. Elfelejtett Jelszó
+
+* **Cél:** Elfelejtett jelszó visszaállítása biztonsági kérdéssel (2 lépcső).
+* **Route:** `.../forgotpass.php`
+* **Auth:** Guest
+* **Input:** POST (username, security_answer / new password), Session (CSRF, reset flags)
+* **Fő logika:**
+
+  * CSRF token kezelés
+  * Biztonsági válasz ellenőrzés rate limit-tel
+  * Siker esetén új jelszó mentése
+  * Session törlés
+* **DB:** `users`, `password_reset_attempts`
+* **Visszajelzés:** alert_redirect hibáknál, siker képernyő
+* **Security:** CSRF védelem, rate limit, password_hash
+* **AC:**
+
+  * Rossz válasz lockot okoz
+  * CSRF nélkül blokkol
+  * Sikeres reset frissíti a jelszót
+
+#### 9.6.6. Tanuló Csoport
+
+* **Cél:** Tanuló Csoport adatlap és kezelőfelület.
+* **Route:** `.../group.php?id=...`
+* **Auth:** Vegyes (privát csoportnál tag/tulaj)
+* **Input:** GET `id`, POST (tagság, jegyzet, moderálás)
+* **Fő logika:**
+
+  * `group_init.php` + `group_actions.php`
+  * Privát csoport gate
+  * Taglista, jegyzetek, pending kérelmek kezelése
+* **DB:** `groups`, `group_members`, `group_files`, `users`
+* **Visszajelzés:** privát figyelmeztetés, empty state-ek
+* **Security:** paraméterezett SQL, XSS escape, **CSRF nincs**
+* **AC:**
+
+  * Privát csoport tartalma csak tagoknak
+  * Tulaj tud moderálni
+  * Nem tulaj nem végez admin műveletet
+
+#### 9.6.7. Tanuló Csoportok
+
+* **Cél:** Tanulócsoportok listázása.
+* **Route:** `.../groups.php`
+* **Auth:** User
+* **Input:** nincs
+* **Fő logika:**
+
+  * Auth ellenőrzés
+  * Csoportok lekérése
+  * Lista renderelése
+* **DB:** `groups`
+* **Visszajelzés:** empty state
+* **Security:** XSS escape
+* **AC:**
+
+  * Auth nélkül redirect
+  * Csoportok megjelennek
+  * Privát/nyilvános jelölés látható
 
 #### 9.6.8. Főoldal
 
-**Oldal neve:** `index.php`
-**Cél:** Főoldal: köszöntő + névnap megjelenítése, legfrissebb feltöltések listázása, toplistás (“legjobbra értékelt") jegyzetek megjelenítése. Bejelentkezett felhasználónál kedvencek kezelése (toggle) és értékelés (1–5 csillag) közvetlenül a főoldalról.
+* **Cél:** Főoldal (névnap, friss jegyzetek, top rated).
+* **Route:** `.../index.php`
+* **Auth:** Guest / User
+* **Input:** POST (favorite toggle, rating)
+* **Fő logika:**
 
-**Elérés / route:**
+  * User állapot meghatározása
+  * Névnap lekérés
+  * Friss + top jegyzetek listázása
+  * Kedvenc és rating kezelése
+* **DB:** `files`, `ratings`, `favorites`, `users`, `namedays`
+* **Visszajelzés:** redirect POST után
+* **Security:** paraméterezett SQL, XSS escape, **CSRF nincs**
+* **AC:**
 
-* URL: `.../index.php`
-* Belépés szükséges? **Guest is elérheti**, de bizonyos funkciók **User**-hez kötöttek:
+  * Vendég nem értékel
+  * Toggle működik
+  * Rossz rating nem mentődik
 
-  * kedvenchez adás/törlés (POST)
-  * értékelés (POST)
+#### 9.6.9. Feltöltések
 
-**Bemenetek (inputok):**
+* **Cél:** Jegyzet feltöltése metaadatokkal.
+* **Route:** `.../upload.php`
+* **Auth:** User
+* **Input:** POST `name`, `description`, `subject`, `file`
+* **Fő logika:**
 
-* GET: nincs (a lap belső horgonyt használ: `index.php#file-<id>` redirect után)
-* POST:
+  * Auth + input validálás
+  * Fájl mentése
+  * `files` rekord insert
+  * Redirect siker esetén
+* **DB:** `files`
+* **Security:** fájl whitelist, paraméterezett SQL, **CSRF nincs**
+* **AC:**
 
-  * Kedvenc toggle:
-
-    * `favorite-btn` (jelző)
-    * `favorite_file_id` (int)
-  * Értékelés:
-
-    * `rate-btn` (jelző)
-    * `rate_file_id` (int)
-    * `rating` (int, 1–5)
-* Cookie:
-
-  * `id` (string/int): bejelentkezett user azonosítója (numerikus ellenőrzéssel)
-* Session: nincs ebben a fájlban
-
-**Folyamat (lépések):**
-
-1. **Jogosultság ellenőrzés / user állapot felmérése**
-
-   * Biztonsági headerek beállítása.
-   * `$isLoggedIn = isset($_COOKIE['id']) && ctype_digit($_COOKIE['id'])`
-   * Ha be van jelentkezve:
-
-     * user lekérés: `SELECT id, username FROM users WHERE id = ? LIMIT 1`
-     * értesítések száma: `SELECT id FROM notifys WHERE toid = ? AND readed = 0`
-   * Meghatározza a megjelenített nevet:
-
-     * bejelentkezve: `username`, különben `t('guest')`
-
-2. **Névnap lekérdezés**
-
-   * `$today = date("m-d")`
-   * `SELECT nevek FROM namedays WHERE datum = ? LIMIT 1`
-   * ha nincs találat: `t('nameday_none_today')`
-
-3. **Lista lekérdezések (főoldali tartalom)**
-
-   * “Top rated" (oldalsáv):
-
-     * `files` + `ratings` LEFT JOIN
-     * `AVG(r.rating)` és `COUNT(r.id)`
-     * rendezés: `avg_rating DESC`, majd `rating_count DESC`
-     * limit 8
-   * “Legfrissebb feltöltések":
-
-     * `SELECT * FROM files ORDER BY id DESC LIMIT 12`
-
-4. **Kedvencek kezelése (POST favorite-btn)**
-
-   1. Ha nincs bejelentkezve: redirect → `reglog.php`
-   2. `favorite_file_id` intre castolva
-   3. Ha `file_id > 0`:
-
-      * ellenőrzés: `SELECT id FROM favorites WHERE file_id=? AND user_id=? LIMIT 1`
-      * ha létezik → `DELETE FROM favorites ...`
-      * ha nem létezik → `INSERT INTO favorites (file_id, user_id) VALUES (?, ?)`
-   4. redirect → `index.php#file-<file_id>` + exit
-
-5. **Értékelés kezelése (POST rate-btn)**
-
-   1. Ha nincs bejelentkezve: redirect → `reglog.php`
-   2. `rate_file_id`, `rating` intre castolva
-   3. Validálás: `file_id > 0` és `rating` 1..5
-   4. Ellenőrzés: `SELECT id FROM ratings WHERE file_id=? AND user_id=? LIMIT 1`
-
-      * ha van → `UPDATE ratings SET rating=? ...`
-      * ha nincs → `INSERT INTO ratings (file_id, user_id, rating) VALUES (?, ?, ?)`
-   5. redirect → `index.php#file-<file_id>` + exit
-
-6. **Kimenet (render)**
-
-   * Hero rész: köszöntés névvel + névnap + “Feltöltés" gomb (bejelentkezve `upload.php`, különben `reglog.php`)
-   * “Új feltöltések" rács:
-
-     * kártyák fájlonként, uploader lekéréssel (`users.username`)
-     * rating átlag+db kiírás (külön query fájlonként)
-     * kedvenc gomb:
-
-       * bejelentkezve: POST toggle
-       * vendég: link `reglog.php`
-     * értékelés:
-
-       * bejelentkezve: radio csillagok (onchange submit), és “Te: X/5"
-       * vendég: “Értékeléshez jelentkezz be."
-   * Oldalsáv: top rated lista linkekkel `note.php?id=...`
-
-**UI állapotok / felhasználói visszajelzés:**
-
-* Loading: nincs
-* Empty state:
-
-  * kódban nincs külön “nincs találat" UI a friss/top listákra (csak `if ($latest_result && $latest_result->num_rows > 0)` jellegű csendes elrejtés)
-* Error state:
-
-  * bejelentkezés nélkül POST művelet → redirect `reglog.php`
-  * hibás rating (nem 1–5) vagy `file_id <= 0`: nincs üzenet, csak redirect vissza az anchorra
-* Success state:
-
-  * kedvenc toggle és értékelés után: redirect `index.php#file-<id>` (vizuálisan: kedvenc gomb állapota / csillag kijelölés változik)
-
-**Biztonság:**
-
-* SQL injection védelem:
-
-  * Paraméterezett lekérdezések `db_query` / `db_exec` használatával a user inputot érintő részeken (favorites, ratings, user, nameday, uploader).
-  * A “top rated" és “latest" lekérdezések fix SQL-lel mennek (`$conn->query`), input nélkül.
-* XSS védelem:
-
-  * Megjelenített dinamikus mezők escape-elve: `htmlspecialchars($displayName)`, fájlnév, uploader név, névnap stb.
-* CSRF token: **nincs**
-
-  * A kedvenc/értékelés POST-ok CSRF védelem nélkül futnak.
-* Fájl esetén:
-
-  * Itt nincs feltöltés; letöltés külön endpoint (`assets/php/download.php?id=...`)
-* Egyéb megjegyzés (teljesítmény):
-
-  * Listázásnál több “N+1" query van (uploader + avg rating + user rating + favorite státusz fájlonként).
-
-**Elfogadási kritériumok (tesztelhető):**
-
-* "Vendég felhasználó látja a főoldalt, de kedvenchez adás/értékelés POST esetén `reglog.php`-ra redirectelődik."
-* "Bejelentkezett usernél a köszöntés a username-et mutatja, és az értesítések száma lekérhető (navbarhoz)."
-* "A legfrissebb 12 fájl megjelenik (id szerinti csökkenő sorrendben)."
-* "Kedvenc gomb megnyomására a `favorites` táblában a rekord létrejön vagy törlődik (toggle), majd redirect `index.php#file-<id>`."
-* "Értékelés 1–5 tartományban mentésre kerül (insert vagy update), majd redirect `index.php#file-<id>`."
-* "Hibás rating vagy hibás file_id esetén nem történik DB írás."
-* "A megjelenített szövegek XSS-védetten jelennek meg (`htmlspecialchars`)."
-
-#### 9.6.9. Feltöltés
-
-**Oldal neve:** `upload.php`
-
-**Cél:**
-Az oldal célja, hogy a bejelentkezett felhasználók új jegyzeteket tölthessenek fel a rendszerbe. A feltöltés során a fájl mellett metaadatok (név, leírás, kategória) kerülnek rögzítésre, melyek alapján a jegyzet később kereshető és listázható.
-
-**Elérés / route:**
-
-* URL: `.../upload.php`
-* Belépés szükséges? **User**
-  Nem bejelentkezett felhasználók automatikusan a bejelentkezési oldalra kerülnek átirányításra.
-
-**Bemenetek (inputok):**
-
-* GET: nincs
-* POST:
-
-  * `name` – a jegyzet megjelenített neve
-  * `description` – opcionális szöveges leírás
-  * `subject` – kategória / tantárgy
-  * `file` – feltöltendő fájl
-* Session / Cookie:
-
-  * `id` – bejelentkezett felhasználó azonosítója
-
-**Folyamat (lépések):**
-
-1. Jogosultság ellenőrzés:
-   Ellenőrzi, hogy létezik-e érvényes bejelentkezett felhasználó. Ha nem, redirect történik.
-2. Input validálás:
-   Kötelező mezők ellenőrzése, fájl meglétének vizsgálata, fájlnév és méret validálása.
-3. DB műveletek:
-   A fájl elmentése a felhasználó saját könyvtárába, majd rekord beszúrása a `files` táblába `db_prepared()` használatával.
-4. Kimenet:
-
-   * siker: redirect a főoldalra vagy a feltöltött jegyzet oldalára
-   * hiba: JavaScript alert formájában megjelenített hiba
-
-**UI állapotok / felhasználói visszajelzés:**
-
-* Loading: nincs explicit
-* Empty state: nem értelmezett
-* Error state: hiányzó mezők, tiltott fájl
-* Success state: "Sikeres feltöltés" üzenet + redirect
-
-**Biztonság:**
-
-* SQL injection védelem: `db_prepared()`
-* XSS védelem: megjelenítésnél `htmlspecialchars()`
-* Fájlkezelés: whitelistelt kiterjesztések, könyvtár-szintű szeparáció
-* CSRF token: nincs (fejlesztési kompromisszum)
-
-**Elfogadási kritériumok:**
-
-* Hibás vagy hiányos input esetén nem történik adatbázis-írás
-* Sikeres feltöltés után pontos redirect történik
-* Nem bejelentkezett felhasználó nem érheti el az oldalt
+  * Hibás input → nincs DB írás
+  * Sikeres feltöltés redirectel
 
 #### 9.6.10. Kereső
 
-**Oldal neve:** `search.php`
-
-**Cél:**
-A rendszerben elérhető jegyzetek keresése és listázása kulcsszó, rendezési szempont és lapozás alapján.
-
-**Elérés / route:**
-
-* URL: `.../search.php`
-* Belépés szükséges? **Guest**
-
-**Bemenetek (inputok):**
-
-* GET:
-
-  * `q` – keresőkifejezés
-  * `sort` – rendezési mód
-  * `page` – lapozás
-* POST: nincs
-* Session: nincs
-
-**Folyamat (lépések):**
-
-1. Jogosultság ellenőrzés: nem szükséges.
-2. Input validálás:
-   A keresőkifejezés megtisztítása és hosszellenőrzése.
-3. DB művelet:
-   Paraméterezett SQL lekérdezés a `files` táblára.
-4. Kimenet:
-
-   * siker: találatok listázása
-   * hiba: "Nincs találat" állapot
-
-**UI állapotok / felhasználói visszajelzés:**
-
-* Loading: nincs
-* Empty state: nincs találat
-* Error state: nincs
-* Success state: találati lista
-
-**Biztonság:**
-
-* SQL injection védelem
-* XSS védelem
-* CSRF token: nem releváns
-
-**Elfogadási kritériumok:**
-
-* Keresés nem okoz SQL hibát
-* Üres keresés is stabilan működik
-* Találatok helyesen jelennek meg
+* **Cél:** Jegyzetek keresése.
+* **Route:** `.../search.php`
+* **Auth:** Guest
+* **Input:** GET `q`, `sort`, `page`
+* **Fő logika:** input tisztítás, paraméterezett keresés, lista render
+* **DB:** `files`
+* **Security:** SQL + XSS védelem
+* **AC:** üres keresés stabil, nincs SQL hiba
 
 #### 9.6.11. Jegyzet
 
-**Oldal neve:** `note.php`
+* **Cél:** Jegyzet részletes megjelenítése.
+* **Route:** `.../note.php?id=...`
+* **Auth:** Guest
+* **Fő logika:** ID validálás, jegyzet + rating adatok betöltése
+* **DB:** `files`, `ratings`, `users`
+* **Security:** SQL + XSS védelem
+* **AC:** nem létező jegyzet nem jelenik meg
 
-**Cél:**
-Egy adott jegyzet részletes megjelenítése, beleértve a letöltést, értékeléseket és kapcsolódó információkat.
+#### 9.6.12. Jegyzet Statisztikák
 
-**Elérés / route:**
+* **Cél:** Jegyzet statisztikák megjelenítése feltöltőnek.
+* **Route:** `.../note_stats.php?id=...`
+* **Auth:** User (tulaj)
+* **Fő logika:** jogosultság + aggregált statisztikák
+* **DB:** `files`, `ratings`
+* **Security:** SQL + XSS védelem
+* **AC:** más user nem fér hozzá
 
-* URL: `.../note.php?id=`
-* Belépés szükséges? **Guest**
+#### 9.6.13. `profile.php`
 
-**Bemenetek (inputok):**
-
-* GET:
-
-  * `id` – jegyzet azonosító
-
-* POST:
-
-  * értékelés, kedvencek
-  * Session / Cookie:
-
-  * `id` (opcionális)
-
-**Folyamat (lépések):**
-
-1. ID validálás (numerikus, létező).
-2. Jegyzet adatainak lekérdezése.
-3. Kapcsolódó adatok betöltése (feltöltő, rating).
-4. Oldal renderelése.
-
-**UI állapotok:**
-
-* Empty state: jegyzet nem található
-* Error state: hibás ID
-* Success state: teljes jegyzetoldal
-
-**Biztonság:**
-
-* SQL injection védelem
-* XSS védelem
-* Letöltés külön endpointon
-
-**Elfogadási kritériumok:**
-
-* Nem létező jegyzet nem jelenik meg
-* Jogosultság nélküli művelet nem hajtható végre
-
-#### 9.6.12. Jegyzet statisztikák
-
-**Oldal neve:** `note_stats.php`
-
-**Cél:**
-Egy jegyzet statisztikai adatainak megjelenítése a feltöltő számára.
-
-**Elérés / route:**
-
-* URL: `.../note_stats.php?id=`
-* Belépés szükséges? **User (tulajdonos)**
-
-**Bemenetek (inputok):**
-
-* GET:
-
-  * `id`
-* Session / Cookie:
-
-  * `id`
-
-**Folyamat (lépések):**
-
-1. Jogosultság ellenőrzés (csak tulajdonos).
-2. ID validálás.
-3. Aggregált statisztikák lekérdezése.
-4. Megjelenítés.
-
-**Biztonság:**
-
-* SQL injection védelem
-* XSS védelem
-
-**Elfogadási kritériumok:**
-
-* Más felhasználó nem fér hozzá
-* Statisztikák helyesek
-
-#### 9.6.13. Profil
-
-**Oldal neve:** `profile.php`
-
-**Cél:**
-Felhasználói profil nyilvános megjelenítése jegyzetekkel és jelvényekkel.
-
-**Elérés / route:**
-
-* URL: `.../profile.php?userid=`
-* Belépés szükséges? **Guest**
-
-**Bemenetek (inputok):**
-
-* GET:
-
-  * `userid`
-* Session:
-
-  * `id` (opcionális)
-
-**Folyamat (lépések):**
-
-1. User ID validálás.
-2. Profiladatok lekérdezése.
-3. Kapcsolódó jegyzetek és badge-ek betöltése.
-4. Oldal renderelése.
-
-**Biztonság:**
-
-* SQL injection védelem
-* XSS védelem
-
-**Elfogadási kritériumok:**
-
-* Nem létező profil nem jelenik meg
-* Adatok helyesen jelennek meg
+* **Cél:** Nyilvános felhasználói profil.
+* **Route:** `.../profile.php?userid=...`
+* **Auth:** Guest
+* **Fő logika:** user validálás, jegyzetek + badge-ek betöltése
+* **DB:** `users`, `files`, `user_badges`
+* **Security:** SQL + XSS védelem
+* **AC:** nem létező profil nem jelenik meg
 
 #### 9.6.14. Üzenetek
 
-**Oldal neve:** `messages.php`
-
-**Cél:**
-Privát üzenetküldés és beszélgetések kezelése felhasználók között.
-
-**Elérés / route:**
-
-* URL: `.../messages.php`
-* Belépés szükséges? **User**
-
-**Bemenetek (inputok):**
-
-* GET:
-
-  * `with`
-* POST:
-
-  * `message`
-* Session / Cookie:
-
-  * `id`
-
-**Folyamat (lépések):**
-
-1. Jogosultság ellenőrzés.
-2. Üzenet validálás.
-3. Mentés adatbázisba.
-4. Beszélgetés frissítése.
-
-**Biztonság:**
-
-* SQL injection védelem
-* XSS védelem
-
-**Elfogadási kritériumok:**
-
-* Nem bejelentkezett user nem írhat
-* Üzenet mentésre kerül
+* **Cél:** Privát üzenetküldés.
+* **Route:** `.../messages.php`
+* **Auth:** User
+* **Fő logika:** auth, üzenet validálás, mentés, lista frissítés
+* **DB:** `messages`
+* **Security:** SQL + XSS védelem
+* **AC:** nem bejelentkezett nem írhat
 
 #### 9.6.15. Értesítések
 
-**Oldal neve:** `notify.php`
+* **Cél:** Felhasználói értesítések megjelenítése.
+* **Route:** `.../notify.php`
+* **Auth:** User
+* **Fő logika:** értesítések lekérése, olvasott státusz frissítés
+* **DB:** `notifys`
+* **AC:** csak saját értesítések láthatók
 
-**Cél:**
-Felhasználói értesítések megjelenítése és olvasott státusz kezelése.
+#### 9.6.16. Bejelentkezés & Regisztráció
 
-**Elérés / route:**
-
-* URL: `.../notify.php`
-* Belépés szükséges? **User**
-
-**Bemenetek (inputok):**
-
-* GET:
-
-  * `read`
-* Session / Cookie:
-
-  * `id`
-
-**Folyamat (lépések):**
-
-1. Jogosultság ellenőrzés.
-2. Értesítések lekérdezése.
-3. Státusz frissítése.
-4. Lista megjelenítése.
-
-#### 9.6.16. Bejelentkezés és Regisztráció
-
-**Oldal neve:** `reglog.php`
-**Cél:** Regisztráció és bejelentkezés kezelése.
-
-**Elérés / route:**
-
-* URL: `.../reglog.php`
-* Belépés szükséges? **Guest**
-
-**Bemenetek (inputok):**
-
-* POST:
-
-  * `username`
-  * `password`
-  * regisztrációs adatok
-* Session: több lépcsős auth
-
-**Folyamat (lépések):**
-
-1. Input validálás.
-2. Felhasználó ellenőrzés / létrehozás.
-3. Session indítás.
-4. Redirect főoldalra.
-
-**Biztonság:**
-
-* SQL injection védelem
-* XSS védelem
-* Jelszó hash
-
-**Elfogadási kritériumok:**
-
-* "Hibás jelszó nem enged be"
-* "Sikeres login redirectel"
+* **Cél:** Bejelentkezés és regisztráció.
+* **Route:** `.../reglog.php`
+* **Auth:** Guest
+* **Fő logika:** input validálás, auth, session indítás
+* **DB:** `users`
+* **Security:** password hash, SQL + XSS védelem
+* **AC:** hibás jelszó nem enged be
 
 #### 9.6.17. Email-s visszaigazolás
 
-**Oldal neve:** `reg-ver.php`
-**Cél:** Regisztrációs e-mail vagy kód megerősítése.
+* **Cél:** E-mailes regisztráció megerősítés.
+* **Route:** `.../reg-ver.php`
+* **Auth:** Guest
+* **Fő logika:** kód validálás, user aktiválás, redirect
+* **DB:** `users`
+* **Security:** SQL + XSS védelem
+* **AC:** hibás kód nem aktivál
 
-**Elérés / route:**
 
-* URL: `.../reg-ver.php`
-* Belépés szükséges? **Guest**
+#### 9.6.18. Adatvédelmi Tájékoztató
 
-**Bemenetek (inputok):**
+* **Cél:** Adatvédelmi tájékoztató megjelenítése.
+* **Route:** `.../privacy.php`
+* **Auth:** Guest
+* **Fő logika:** statikus tartalom render
+* **Security:** XSS-safe statikus oldal
+* **AC:** mindenki számára elérhető
 
-* GET:
-
-  * `code`
-* Session: nincs
-
-**Folyamat (lépések):**
-
-1. Kód validálás.
-2. Felhasználó aktiválása.
-3. Redirect loginra.
-
-**Biztonság:**
-
-* SQL injection védelem
-* XSS védelem
-
-**Elfogadási kritériumok:**
-
-* "Hibás kód nem aktivál"
-* "Sikeres aktiválás után login"
-
-#### 9.6.18. Adatvédelmi tájékoztató
-
-**Oldal neve:** `privacy.php`
-**Cél:** Adatvédelmi tájékoztató megjelenítése.
-
-**Elérés / route:**
-
-* URL: `.../privacy.php`
-* Belépés szükséges? **Guest**
-
-**Bemenetek (inputok):**
-
-* GET: nincs
-* POST: nincs
-* Session: nincs
-
-**Folyamat (lépések):**
-
-1. Statikus tartalom betöltése.
-2. Oldal renderelése.
-
-**UI állapotok:**
-
-* Empty state: nincs
-* Success state: tartalom megjelenik
-
-**Biztonság:**
-
-* XSS védelem (statikus tartalom)
-
-**Elfogadási kritériumok:**
-
-* "Az oldal bárki számára elérhető"
-* "A tartalom helyesen jelenik meg"
-
-### 9.7 Security checklist (dev)
+### 9.7 Security checklist (dev) 
 
 #### Security checklist 
-- Minden DB lekérdezés: `db_prepared()`
-- Output escaping: HTML-ben `htmlspecialchars()`
-- File upload:
-  - MIME ellenőrzés
-  - whitelist kiterjesztés
-  - max size limit
-  - fájlnév randomizálás / path traversal védelem
-- Session:
-  - session fixation elleni védelem (login után session_regenerate_id)
-- CSRF (ha nincs): formokhoz token javasolt
+- Minden DB lekérdezés: db_prepared() 
+- Output escaping: HTML-ben htmlspecialchars() 
+- File upload: 
+- MIME ellenőrzés 
+- whitelist kiterjesztés 
+- max size limit 
+- fájlnév randomizálás / path traversal védelem 
+- Session: 
+- session fixation elleni védelem (login után session_regenerate_id) 
 
 ### 9.8 Debug / logging
 
@@ -2658,14 +1464,6 @@ A projekt fejlesztése során a csapattagok eltérő területekért feleltek, ug
 * Hirdetések megjelenítése az oldalon
 * Mobil navigáció javítása (mobil nav fix)
 * UI/Design fejlesztések a csoportos oldalaknál
-
-Íme egy **dokumentáció-kompatibilis**, hivatalos hangvételű megfogalmazás, amit **szó szerint be tudsz illeszteni**. Úgy írtam meg, hogy illeszkedjen a 11. fejezet stílusához és logikájához.
-
-### Javasolt megoldás
-
-Érdemes **külön alpontként** szerepeltetni, mert ez **külön platform (C# WinForms)** és **közös munka** volt Szekeres Levente és Baranyi Norbert részéről.
-
----
 
 ### 12.4. Szekeres Levente & Baranyi Norbert
 
