@@ -6,7 +6,7 @@
     <div class="footer-inner">
         <p>
             <?= t('footer_developers_label') ?>:
-            Baranyi Norbert, Csontos Kincső, Szekeres Levente
+            <a href="https://github.com/baranyi0" target="_blank" rel="noopener noreferrer">Baranyi Norbert</a>, <a href="https://github.com/PaladiTech" target="_blank" rel="noopener noreferrer">Szekeres Levente</a>
         </p>
         <a href="https://github.com/doomhyena/jegyzetar.eu"
            target="_blank"

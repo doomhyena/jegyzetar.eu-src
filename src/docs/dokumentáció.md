@@ -1,27 +1,24 @@
-<p align="center">
-
-<h1>
+<h1 align="center">
 "Schola Europa Akadémia" Technikum, Gimnázium és Alapfokú Művészeti Iskola  
 a Magyarországi Metodista Egyház fenntartásában
 </h1>
 
+<p align="center"><img src="img/scholalogo.png" alt="Schola Europa Akadémia logó" width="200" align="center" /></p>
 
-<img src="img/scholalogo.png" alt="Schola Europa Akadémia logó" width="200" />
+<p align="center"><strong>SZOFTVERFEJLESZTŐ ÉS -TESZTELŐ</strong></p>
 
+<p align="center">5 0613 12 03</p>
 
-<strong>SZOFTVERFEJLESZTŐ ÉS -TESZTELŐ</strong>
-5 0613 12 03
+<p align="center"><strong>Dokumentáció</strong></p>
 
-<strong>Dokumentáció</strong>
-
-Készítette:
-Baranyi Norbert 14/B
-Csontos Kincső Anasztázia 14/A
+<p align="center">
+Készítette: <br />
+Baranyi Norbert 14/B <br />
+Csontos Kincső Anasztázia 14/A <br />
 Szekeres Levente 14/A
-
-<strong>2026</strong>
-
 </p>
+
+<p align="center"><strong>2026</strong></p>
 
 <div style="page-break-before: always;"></div>
 
@@ -99,8 +96,7 @@ Szekeres Levente 14/A
            - 9.2.5. [Dátumformátum szabályok](#925-dátumformátum-szabályok)
            - 9.2.6. [Verziókezelés és Git kapcsolata](#926-verziókezelés-és-git-kapcsolata)
            - 9.2.7. [Összefoglalás](#927-összefoglalás)
-       - 9.3. [FájlStruktúra](#93-fájlstruktúra)
-       - 9.4. [Fejlesztői eszközök, script-ek és refaktorok](#94-fejlesztői-eszközök-script-ek-és-refaktorok)
+       - 9.3. [Fejlesztői eszközök, script-ek és refaktorok](#93-fejlesztői-eszközök-script-ek-és-refaktorok)
        - 9.5. [Konfiguráció](#95-konfiguráció)
        - 9.6. [Fő folyamatok](#96-fő-folyamatok)
            - 9.6.1. [2FA](#961-2fa)
@@ -324,7 +320,7 @@ A Jegyzetár egy háromrétegű architektúrát követ:
 
 Az alábbi ábra a Jegyzetár adatbázis fő tábláit és azok kapcsolatait mutatja be:
 
-[Hamarosan]
+Planned / TBD
 
 ### Jogosultsági szintek (áttekintés)
 
@@ -336,9 +332,15 @@ Az alábbi ábra a Jegyzetár adatbázis fő tábláit és azok kapcsolatait mut
 
 ### 3.1. Komponens Hierarchia
 
+Planned / TBD
+
 ### 3.2. Állapotkezelés
 
+Planned / TBD
+
 ### 3.3. Routing
+
+Planned / TBD
 
 ### 3.4. UI/UX Design
 A Jegyzetár felhasználói felülete egyszerű és intuitív, a következő szempontokat figyelembe véve:
@@ -459,13 +461,210 @@ A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját hasz
 
 ### 6.1. Autentikáció
 
+#### 6.1.1. Hitelesítési folyamat áttekintése
+
+A rendszer az alábbi lépések szerint azonosítja a felhasználókat:
+
+1. **Felhasználónév + jelszó ellenőrzés**
+
+   * A belépés a `reglog.php` oldalon történik.
+   * A jelszavak **hash-elve** (password_hash) kerülnek eltárolásra az adatbázisban.
+   * Hibás belépési adatok esetén a rendszer nem árul el részletes információt (pl. melyik mező hibás).
+
+2. **Kétlépcsős hitelesítés (2FA – e-mail alapú)**
+
+   * Sikeres jelszóellenőrzés után a rendszer egy **egyszer használatos kódot** generál.
+   * A kód e-mailben kerül kiküldésre a felhasználó regisztrált címére.
+   * A kódot a `2fa.php` oldalon kell megadni.
+   * A kód időben és próbálkozásszámban korlátozott.
+
+3. **Session + cookie alapú beléptetés**
+
+   * Sikeres 2FA után a rendszer:
+
+     * beléptető cookie-t (`id`) állít be,
+     * a korábbi session-t megszünteti,
+     * új, hitelesített állapotba lép.
+   * A cookie érvényessége időben korlátozott (pl. 1 óra).
+
+#### 6.1.2. Session és cookie kezelés
+
+* A rendszer **PHP session-t** használ az átmeneti hitelesítési állapotokhoz (pl. 2FA folyamat).
+* A végleges beléptetés **HTTP cookie** segítségével történik.
+* Bejelentkezés után a rendszer:
+
+  * session fixation elleni védelemként új azonosítót generál,
+  * ellenőrzi a cookie numerikus és érvényes voltát minden védett oldalon.
+* Hibás vagy manipulált cookie esetén a felhasználó automatikusan kijelentkeztetésre kerül.
+
+#### 6.1.3. E-mail alapú biztonsági folyamatok
+
+Az autentikáció több ponton e-mailt használ biztonsági célokra:
+
+* **Regisztráció megerősítés**
+
+  * Aktiváló link e-mailben (`reg-ver.php`)
+  * Inaktív fiók nem használható
+
+* **2FA kód küldés**
+
+  * Egyszer használatos, rövid élettartamú kód
+  * Sikertelen próbálkozások száma limitált
+
+* **Jelszó-visszaállítás**
+
+  * Biztonsági kérdés + ellenőrzési mechanizmus
+  * Rate limit alkalmazása a visszaélések megelőzésére
+
+#### 6.1.4. Vendég (Guest) mód
+
+A rendszer támogatja a **vendég módot**, amelyben:
+
+* nincs szükség regisztrációra vagy bejelentkezésre,
+* elérhetők az alap funkciók (böngészés, keresés),
+* interaktív funkciók (feltöltés, kommentelés, értékelés) **nem érhetők el**.
+
+Ez a megközelítés javítja a felhasználói élményt, miközben nem veszélyezteti a rendszer biztonságát.
+
+#### 6.1.5. Biztonsági megfontolások
+
+Az autentikáció során az alábbi védelmi elvek kerülnek alkalmazásra:
+
+* jelszavak hash-elt tárolása (plaintext soha),
+* prepared statements használata az adatbázis-lekérdezéseknél,
+* brute force támadások elleni védelem (próbálkozás limit),
+* session és cookie manipuláció elleni ellenőrzések,
+* érzékeny műveletek csak hitelesített állapotban érhetők el.
+
 ### 6.2. Jogosultságkezelés (RBAC)
+
+A Jegyzetár rendszer **szerepkör-alapú jogosultságkezelést** (Role-Based Access Control – RBAC) alkalmaz annak érdekében, hogy a felhasználók kizárólag azokat a funkciókat érhessék el, amelyek a rendszerben betöltött szerepüknek megfelelnek. Ez a megközelítés növeli a biztonságot, csökkenti a visszaélések lehetőségét, és átláthatóvá teszi a jogosultságok kezelését.
+
+#### 6.2.1. Szerepkörök áttekintése
+
+A rendszer három fő jogosultsági szintet különböztet meg:
+
+##### Guest (vendég)
+
+* Bejelentkezés nélkül elérhető állapot
+* Jogosultságok:
+
+  * nyilvános jegyzetek böngészése,
+  * keresés és szűrés,
+  * jegyzetek részleteinek megtekintése.
+* Korlátozások:
+
+  * nem tölthet fel fájlokat,
+  * nem kommentelhet és nem értékelhet,
+  * nem használhat közösségi funkciókat.
+
+##### User (felhasználó)
+
+* Bejelentkezett, hitelesített felhasználó
+* Jogosultságok:
+
+  * jegyzet feltöltése és kezelése,
+  * kommentelés, értékelés, kedvencek,
+  * profil szerkesztése,
+  * barátok hozzáadása, üzenetküldés,
+  * tanulócsoportok létrehozása és használata.
+* Korlátozások:
+
+  * más felhasználók adatainak közvetlen módosítása nem engedélyezett,
+  * adminisztrációs funkciók nem érhetők el.
+
+##### Admin (rendszergazda)
+
+* Emelt jogosultságú felhasználó
+* Jogosultságok:
+
+  * felhasználók kezelése (tiltás, törlés, jogosultság módosítás),
+  * tartalmak moderálása (jegyzetek, kommentek),
+  * jelentések (reportok) kezelése,
+  * egyedi profil CSS kérelmek jóváhagyása / elutasítása,
+  * rendszerkarbantartási műveletek.
+* Korlátozások:
+
+  * admin jog csak explicit beállítással adható,
+  * minden admin művelet naplózható (ha logging aktív).
+
+#### 6.2.2. Jogosultság-ellenőrzés megvalósítása
+
+A jogosultságkezelés **szerveroldalon** történik, minden érzékeny funkció előtt.
+
+* A rendszer:
+
+  * ellenőrzi a felhasználó hitelesített állapotát (cookie / session),
+  * betölti a felhasználó szerepkörét az adatbázisból (`users.admin` mező),
+  * a jogosultsági szint alapján engedélyezi vagy tiltja a műveletet.
+* Jogosulatlan hozzáférés esetén:
+
+  * a felhasználó redirectelésre kerül (pl. `reglog.php`),
+  * vagy HTTP 403 (Forbidden) válasz jelenik meg admin oldalaknál.
+
+#### 6.2.3. Oldalszintű és funkciószintű védelem
+
+A RBAC nem csak oldalszinten, hanem **funkciószinten** is érvényesül:
+
+* **Oldalszintű védelem**
+
+  * Admin oldalak (`admin_panel.php`) kizárólag admin szerepkörrel érhetők el.
+  * Bejelentkezést igénylő oldalak (pl. `upload.php`, `messages.php`) vendégek számára nem elérhetők.
+
+* **Funkciószintű védelem**
+
+  * Egy felhasználó csak a **saját** tartalmát módosíthatja (jegyzet, profil).
+  * Csoportokon belül:
+
+    * tulajdonos moderálhat,
+    * tagok feltölthetnek,
+    * nem tagok csak olvasási joggal rendelkeznek (ha publikus).
+
+#### 6.2.4. Admin műveletek védelme
+
+Az adminisztrációs műveletek különös védelmet élveznek:
+
+* minden admin művelet előtt kötelező:
+
+  * admin státusz ellenőrzés,
+  * cél objektum validálása (ID ellenőrzés).
+* destruktív műveletek esetén:
+
+  * megerősítő párbeszéd (frontend),
+  * szerveroldali jogosultság ellenőrzés.
+* az admin nem törölheti saját fiókját véletlenül.
+
+#### 6.2.5. Jogosultságok és adatbiztonság kapcsolata
+
+A jogosultságkezelés szorosan együttműködik az adatbiztonsági megoldásokkal:
+
+* a RBAC biztosítja, hogy:
+
+  * érzékeny adatokhoz csak jogosult felhasználók férjenek hozzá,
+  * admin funkciók ne legyenek elérhetők URL manipulációval.
+* minden adatbázis-művelet:
+
+  * előzetes jogosultságellenőrzés után fut le,
+  * prepared statement segítségével történik.
+
+#### 6.2.6. Tervezési elvek és bővíthetőség
+
+A jogosultságkezelés kialakítása során az alábbi elvek érvényesültek:
+
+* **least privilege elv**: minden felhasználó csak a szükséges minimum jogot kapja,
+* **egyszerű szerepkör modell**: könnyen érthető és karbantartható,
+* **bővíthetőség**: később új szerepkörök (pl. moderátor, tanár) könnyen bevezethetők,
+* **szerveroldali kontroll**: kliensoldali ellenőrzés nem tekinthető biztonsági védelemnek.
 
 ## 7. Tesztelés
 
 ### 7.1. Egység Tesztek
 
+Planned / TBD
+
 ### 7.2. Manuális Tesztek
+
+Planned / TBD
 
 ## 8. Felhasználói Dokumentáció
 
@@ -811,11 +1010,7 @@ v1.1.0
 * A végleges kiadás `1.0.0` verzióval történik
 * A CHANGELOG és a dokumentáció **összhangban van**
 
-### 9.3. FájlStruktúra
-
-<img src="img/file_structure.png" alt="A Webalkalmazás fájlstruktúrája" width="200" />
-
-### 9.4. Fejlesztői eszközök, script-ek és refaktorok
+### 9.3. Fejlesztői eszközök, script-ek és refaktorok
 
 - `assets/php/functions.php` - Központi helyre került a `db_prepared()` segédfüggvény, ami a mysqli prepared statements használatát segíti és csökkenti az SQL injection kockázatát. A fájlban `function_exists` ellenőrzésekkel védjük a többszörös deklarációt.
  - Include és duplikációs védelmek: Az include/require helyeken mostantól `require_once` használata ajánlott, és a központi függvényeknél `function_exists`-es feltételek alkalmazása segít elkerülni fatal hibákat többszörös include esetén.
