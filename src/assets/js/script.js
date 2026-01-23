@@ -352,3 +352,33 @@ if (bio && counter) {
     bio.addEventListener('input', updateCounter);
     updateCounter();
 }
+
+(() => {
+    const form = document.querySelector('.search-panel form');
+    if (!form) return;
+
+    const q = form.querySelector('input[name="q"]');
+    const tag = form.querySelector('input[name="tag"]');
+    const selects = form.querySelectorAll('select');
+
+    let t = null;
+    const schedule = () => {
+        clearTimeout(t);
+        t = setTimeout(() => {
+            const page = form.querySelector('input[name="page"]');
+            if (page) page.value = '1';
+            const url = new URL(window.location.href);
+            url.searchParams.delete('cursor');
+            window.history.replaceState({}, '', url.toString());
+            form.submit();
+        }, 350);
+    };
+
+    if (q) q.addEventListener('input', schedule);
+    if (tag) tag.addEventListener('input', schedule);
+    selects.forEach(s => s.addEventListener('change', () => {
+        const page = form.querySelector('input[name="page"]');
+        if (page) page.value = '1';
+        form.submit();
+    }));
+})();

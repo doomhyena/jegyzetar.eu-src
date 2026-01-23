@@ -268,3 +268,14 @@
         }
         return $safe;
     }
+
+    if (!function_exists('format_bytes')) {
+        function format_bytes(int $bytes): string {
+            if ($bytes < 1024) return $bytes . " B";
+            $units = ['KB','MB','GB','TB'];
+            $v = $bytes / 1024.0;
+            $i = 0;
+            while ($v >= 1024 && $i < count($units)-1) { $v /= 1024.0; $i++; }
+            return rtrim(rtrim(number_format($v, 2, '.', ''), '0'), '.') . " " . $units[$i];
+        }
+    }
