@@ -489,10 +489,24 @@
                 <?php endif; ?>
                 <section class="profile-column profile-column-right" id="profile-main-content">
                     <div class="profile-right-block">
+                        <?php
+                            $bio = trim((string)($profile['bio'] ?? ''));
+                            $emptyBios = [
+                                    "Ez a felhasználó még nem dobott be bemutatkozást. 👀",
+                                    "Itt lenne a bio… ha lenne bio. 🤷‍♀️",
+                                    "A bemutatkozás DLC még nem lett telepítve. 🎮",
+                                    "Csend van… túl nagy a csend. 🕵️",
+                                    "Bio nincs, de a vibe megvan. ✨",
+                            ];
+                            $fallback = $emptyBios[array_rand($emptyBios)];
+                        ?>
                         <div class="card profile-bio">
-                            <?php if (!empty($profile['bio'])): ?>
-                                <h3 data-translation-key="profile_bio"><?= t('profile_bio') ?></h3>
-                                <p><?= nl2br(htmlspecialchars($profile['bio'])) ?></p>
+                            <h3 data-translation-key="profile_bio"><?= t('profile_bio') ?></h3>
+
+                            <?php if ($bio !== ''): ?>
+                                <p><?= nl2br(htmlspecialchars($bio)) ?></p>
+                            <?php else: ?>
+                                <p class="entry-meta opacity-80"><?= htmlspecialchars($fallback) ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -501,9 +515,9 @@
                             <h3 data-translation-key="profile_uploaded_files"><?= t('profile_uploaded_files') ?></h3>
                             <span class="uploads-count">
                                 <?php
-                                $filesCountRes = db_query($conn, "SELECT COUNT(*) AS c FROM files WHERE uploaded_by = ?", "i", [(int)$profile['id']]);
-                                $filesCount = ($filesCountRes && $filesCountRes->num_rows) ? (int)($filesCountRes->fetch_assoc()['c'] ?? 0) : 0;
-                                echo $filesCount;
+                                    $filesCountRes = db_query($conn, "SELECT COUNT(*) AS c FROM files WHERE uploaded_by = ?", "i", [(int)$profile['id']]);
+                                    $filesCount = ($filesCountRes && $filesCountRes->num_rows) ? (int)($filesCountRes->fetch_assoc()['c'] ?? 0) : 0;
+                                    echo $filesCount;
                                 ?>
                             </span>
                         </div>
