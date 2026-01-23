@@ -1,5 +1,4 @@
 <?php
-
     if (!function_exists('db_log_error')) {
         function db_log_error(mysqli $conn, string $message, ?string $sql = null, array $params = []): void
         {
@@ -196,4 +195,76 @@
             'report' => ['⚑', 'Jelentés'],
             default => ['•', $type]
         };
+    }
+
+    function strip_accents(string $s): string {
+        $s = mb_strtolower($s, 'UTF-8');
+        $t = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s);
+        return $t !== false ? $t : $s;
+    }
+
+    function tokenize_query(string $q): array {
+        $q = trim($q);
+        if ($q === '') return [];
+        $q = preg_replace('/\s+/u', ' ', $q) ?? $q;
+        $raw = explode(' ', $q);
+        $stop = [
+            'a','az','és','meg','vagy','hogy','de','ha','is','nem','mint','mert','am','are','is','the','and','or','to','of','in','on','for','with'
+        ];
+        $out = [];
+        foreach ($raw as $tok) {
+            $tok = trim($tok);
+            if ($tok === '') continue;
+            if (mb_strlen($tok, 'UTF-8') < 2) continue;
+            $t = strip_accents($tok);
+            if (in_array($t, $stop, true)) continue;
+            $out[] = $tok;
+        }
+        $seen = [];
+        $uniq = [];
+        foreach ($out as $t) {
+            $k = strip_accents($t);
+            if (isset($seen[$k])) continue;
+            $seen[$k] = true;
+            $uniq[] = $t;
+        }
+        return $uniq;
+    }
+
+    function build_snippet(string $text, array $needles, int $radius = 90): string {
+        $text = trim($text);
+        if ($text === '') return '';
+        $hay = strip_accents($text);
+        $bestPos = null;
+        foreach ($needles as $n) {
+            $n = trim($n);
+            if ($n === '') continue;
+            $pos = mb_stripos($hay, strip_accents($n), 0, 'UTF-8');
+            if ($pos !== false) { $bestPos = $pos; break; }
+        }
+        $len = mb_strlen($text, 'UTF-8');
+        if ($bestPos === null) {
+            $cut = mb_substr($text, 0, min($len, 200), 'UTF-8');
+            return ($len > 200) ? ($cut . '…') : $cut;
+        }
+        $start = max(0, $bestPos - $radius);
+        $end = min($len, $bestPos + $radius + 120);
+        $snippet = mb_substr($text, $start, $end - $start, 'UTF-8');
+        if ($start > 0) $snippet = '…' . $snippet;
+        if ($end < $len) $snippet = $snippet . '…';
+        return $snippet;
+    }
+
+    function highlight_many_html(string $text, array $needles): string {
+        $safe = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        if (!$needles) return $safe;
+        usort($needles, fn($a,$b)=> mb_strlen($b,'UTF-8') <=> mb_strlen($a,'UTF-8'));
+        foreach ($needles as $needle) {
+            $needle = trim($needle);
+            if ($needle === '') continue;
+            $nSafe = htmlspecialchars($needle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            $pattern = '/' . preg_quote($nSafe, '/') . '/iu';
+            $safe = preg_replace($pattern, '<mark class="bg-pink-400/20 px-1 rounded">$0</mark>', $safe) ?? $safe;
+        }
+        return $safe;
     }
