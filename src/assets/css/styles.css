@@ -730,24 +730,28 @@ select option, .select option{ background-color:#020617; color:#e5e7eb; }
 
 .home-grid{
     display:grid;
-    grid-template-columns: 1fr;
-    grid-template-areas:
-    "hero"
-    "filters"
-    "main"
-    "aside";
-    gap:22px;
+    grid-template-columns: 300px minmax(0, 1fr);
+    grid-template-areas: "aside main";
+    gap: 28px;
+    align-items: start;
 }
 
-.home-grid{
-    display:grid;
-    grid-template-columns: 280px 1fr; /* barátlista balra, fő tartalom jobbra */
-    grid-template-areas:
-        "aside main";
-    gap:22px;
+.content-aside{
+    grid-area: aside;
 }
-.content-aside{ grid-area: aside; }
-.content-main{ grid-area: main; }
+
+.content-main{
+    grid-area: main;
+    min-width: 0; 
+}
+
+.content-aside{ 
+    grid-area: aside; 
+}
+
+.content-main{ 
+    grid-area: main; 
+}
 
 .hero{
     grid-area: hero;
@@ -1920,5 +1924,14 @@ body.theme-pastel footer{
     }
     .nav-dropdown a{
         padding: 8px 12px;
+    }
+}
+
+@media (max-width: 1024px){
+    .home-grid{
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "main"
+            "aside";
     }
 }
