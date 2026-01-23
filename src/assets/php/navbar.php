@@ -17,7 +17,9 @@
             $user = $res->fetch_assoc();
             $currentUsername = $user['username'];
 
-            $nf = $conn->prepare("SELECT COUNT(*) FROM notifys WHERE toid = ? AND readed = 0");
+            $nf = $conn->prepare(
+                    "SELECT COUNT(*) FROM notifys WHERE toid = ? AND readed = 0"
+            );
             $nf->bind_param("i", $userid);
             $nf->execute();
             $nf->bind_result($notify_number);
@@ -30,59 +32,58 @@
     }
 ?>
 
-<nav class="navbar sticky top-0 z-50 w-full">
-    <div class="navbar-content mx-auto max-w-6xl w-full px-4 md:px-6 lg:px-8 flex items-center justify-between gap-4">
-        <button class="navbar-toggler md:hidden flex-shrink-0" type="button" aria-label="Menü">
+<nav class="navbar">
+    <div class="navbar-content">
+        <button class="navbar-toggler" type="button">
             <span class="hamburger"></span>
         </button>
-        <a href="index.php" class="brand inline-flex items-center gap-2 select-none flex-shrink-0">
-            <span class="tracking-tight text-base md:text-lg">Jegyzetár</span>
-            <span class="brand-badge text-xs md:text-sm">beta</span>
-        </a>
-        <ul class="nav-links items-center gap-1 md:gap-2">
-            <li><a href="index.php" class="px-2 md:px-3 py-2 rounded-lg text-sm md:text-base whitespace-nowrap"><?= t('nav_home') ?></a></li>
-            <li><a href="search.php" class="px-2 md:px-3 py-2 rounded-lg text-sm md:text-base whitespace-nowrap"><?= t('nav_search') ?></a></li>
-            <li><a href="upload.php" class="px-2 md:px-3 py-2 rounded-lg text-sm md:text-base whitespace-nowrap"><?= t('nav_upload') ?></a></li>
-            <li><a href="groups.php" class="px-2 md:px-3 py-2 rounded-lg text-sm md:text-base whitespace-nowrap">Csoportok</a></li>
-            <li class="nav-actions-li">
-                <div class="nav-actions-pill">
-                    <?php if ($isLoggedIn && $currentUsername): ?>
-                        <div class="nav-item-has-dropdown relative">
-                            <a href="#" class="nav-account-link px-2 md:px-3 py-2 rounded-lg text-sm md:text-base flex items-center gap-1">
-                                <span class="truncate max-w-[140px] md:max-w-none"><?= '@' . htmlspecialchars($currentUsername) ?></span>
-                                <span class="nav-account-chevron">▾</span>
+        <div class="brand">
+            <span>Jegyzetár</span>
+            <span class="brand-badge">beta</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.php"><?= t('nav_home') ?></a></li>
+            <li><a href="search.php"><?= t('nav_search') ?></a></li>
+            <li><a href="upload.php"><?= t('nav_upload') ?></a></li>
+            <li><a href="groups.php">Csoportok</a></li>
+            <?php if ($isLoggedIn && $currentUsername): ?>
+                <li class="nav-item-has-dropdown">
+                    <a href="#" class="nav-account-link">
+                        <?= $isLoggedIn && $currentUsername ? '@'.htmlspecialchars($currentUsername) : t('nav_login') ?>
+                        <span class="nav-account-chevron">▾</span>
+                    </a>
+                    <div class="nav-dropdown">
+                            <a href="profile.php?username=<?= urlencode($currentUsername) ?>">
+                                <?= t('nav_profil') ?>
                             </a>
-                            <div class="nav-dropdown absolute right-0 mt-2 min-w-[200px]">
-                                <a href="profile.php?username=<?= urlencode($currentUsername) ?>" class="block px-4 py-2 text-sm hover:bg-white/10"><?= t('nav_profil') ?></a>
-                                <a href="favorites.php" class="block px-4 py-2 text-sm hover:bg-white/10">Kedvencek</a>
-                                <a href="messages.php" class="block px-4 py-2 text-sm hover:bg-white/10"><?= t('nav_messages') ?></a>
-                                <a href="notify.php" class="block px-4 py-2 text-sm hover:bg-white/10"><?= t('nav_notify') ?> (<?= (int)$notify_number ?>)</a>
-                                <?php if (!empty($user['admin']) && (int)$user['admin'] === 1): ?>
-                                    <a href="admin_panel.php" class="block px-4 py-2 text-sm hover:bg-white/10"><?= t('nav_admin') ?></a>
+                            <a href="favorites.php">Kedvencek</a>
+                            <a href="messages.php"><?= t('nav_messages') ?></a>
+                            <a href="notify.php"><?= t('nav_notify') ?> (<?= $notify_number ?>)</a>
+                                <?php if (!empty($user['admin']) && $user['admin'] == 1): ?>
+                                    <a href="admin_panel.php"><?= t('nav_admin') ?></a>
                                 <?php endif; ?>
-                                <a href="assets/php/logout.php" class="block px-4 py-2 text-sm hover:bg-white/10"><?= t('nav_logout') ?></a>
-                            </div>
-                        </div>
-                    <?php else: ?>
-                        <a href="reglog.php?mode=login" class="px-2 md:px-3 py-2 rounded-lg text-sm md:text-base whitespace-nowrap">
-                            <?= t('nav_login') ?>
-                        </a>
-                    <?php endif; ?>
-                    <span class="nav-pill-divider" aria-hidden="true"></span>
-                    <form method="get" class="m-0">
-                        <select name="lang" onchange="this.form.submit()" class="select nav-lang-select text-sm md:text-base">
-                            <option value="hu" <?= $lang === 'hu' ? 'selected' : '' ?>>HU</option>
-                            <option value="en" <?= $lang === 'en' ? 'selected' : '' ?>>EN</option>
-                            <option value="de" <?= $lang === 'de' ? 'selected' : '' ?>>DE</option>
-                        </select>
-                        <?php
-                            foreach ($_GET as $k => $v) {
-                                if ($k === 'lang') continue;
-                                echo '<input type="hidden" name="'.htmlspecialchars($k).'" value="'.htmlspecialchars($v).'">';
-                            }
-                        ?>
-                    </form>
-                </div>
+                            <a href="assets/php/logout.php"><?= t('nav_logout') ?></a>
+                    </div>
+                </li>
+            <?php else: ?>
+                <a href="reglog.php?mode=login">
+                    <?= t('nav_login') ?>
+                </a>
+            <?php endif; ?>
+            <li class="nav-lang-item">
+                <form method="get">
+                    <select name="lang" onchange="this.form.submit()" class="select">
+                        <option value="hu" <?= $lang === 'hu' ? 'selected' : '' ?>>HU</option>
+                        <option value="en" <?= $lang === 'en' ? 'selected' : '' ?>>EN</option>
+                        <option value="de" <?= $lang === 'de' ? 'selected' : '' ?>>DE</option>
+                    </select>
+                    <?php
+                    foreach ($_GET as $k => $v) {
+                        if ($k === 'lang') continue;
+                        echo '<input type="hidden" name="'.htmlspecialchars($k).'" value="'.htmlspecialchars($v).'">';
+                    }
+                    ?>
+                </form>
             </li>
         </ul>
     </div>
