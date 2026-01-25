@@ -22,7 +22,6 @@
         exit();
     }
 
-    // Admin jogosultság ellenőrzés
     if (!isset($current_user['admin']) || (int)$current_user['admin'] !== 1) {
         http_response_code(403);
         exit('Hozzáférés megtagadva. Nincs admin jogosultság.');
@@ -53,7 +52,7 @@
         a:hover { text-decoration: underline; }
     </style>
 </head>
-<body class="admin-page">
+<body class="no-ads admin-page">
 <?php
     include 'assets/php/navbar.php';
 
@@ -188,7 +187,7 @@
             db_stmt($conn, "UPDATE reports SET status = ?, handled_by = ?, handled_at = NOW() WHERE id = ?", "sii", [$newStatus, $adminId, $reportId]);
         }
 
-        echo "<script>location.href='admin_panel.php#reports';</script>";
+        echo "<script>location.href='admin_panel.php';</script>";
         exit();
     }
 
@@ -250,7 +249,6 @@
     $badges = $conn->query("SELECT * FROM badges ORDER BY id DESC");
     $reports = $conn->query("SELECT r.*, u.username AS reporter_name FROM reports r LEFT JOIN users u ON u.id = r.reporter_id ORDER BY (r.status = 'open') DESC, r.created_at DESC");
 ?>
-
 <div class="main w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6">
     <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6">Admin Panel</h1>
     <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
@@ -413,53 +411,53 @@
             <button type="submit" class="btn-cta text-sm md:text-base">Hozzáadás</button>
         </form>
         <h3 class="text-lg md:text-xl mb-3">Meglévő user_badge-ek</h3>
-        <div class="overflow-x-auto">
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Felhasználó</th>
-                <th>Badge</th>
-                <th>Adta</th>
-                <th>Dátum</th>
-                <th>Művelet</th>
-            </tr>
-            <?php while ($ub = $user_badges->fetch_assoc()) { ?>
+        <div class="badge-table-wrap">
+            <table class="badge-list-table">
                 <tr>
-                    <td><?= $ub['id'] ?></td>
-                    <td><?= htmlspecialchars($ub['username']) ?></td>
-                    <td><?= htmlspecialchars($ub['badge_name']) ?></td>
-                    <td>
-                        <?php
-                        if (!empty($ub['granted_by'])) {
-                            $gbUsername = 'ismeretlen';
-                            $gbId = (int)$ub['granted_by'];
-
-                            $gbRes = db_query(
-                                $conn,
-                                "SELECT username FROM users WHERE id = ? LIMIT 1",
-                                "i",
-                                [$gbId]
-                            );
-                            $gbRow = $gbRes ? $gbRes->fetch_assoc() : null;
-                            if ($gbRow && isset($gbRow['username'])) {
-                                $gbUsername = $gbRow['username'];
-                            }
-                            echo htmlspecialchars($gbUsername);
-                        } else {
-                            echo '—';
-                        }
-                        ?>
-                    </td>
-                    <td><?= htmlspecialchars($ub['granted_at']) ?></td>
-                    <td>
-                        <a href="?delete_type=user_badge&delete_id=<?= $ub['id'] ?>"
-                           onclick="return confirm('Biztosan törlöd ezt a user_badge sort?')">
-                            Törlés
-                        </a>
-                    </td>
+                    <th>ID</th>
+                    <th>Felhasználó</th>
+                    <th>Badge</th>
+                    <th>Adta</th>
+                    <th>Dátum</th>
+                    <th>Művelet</th>
                 </tr>
-            <?php } ?>
-        </table>
+                <?php while ($ub = $user_badges->fetch_assoc()) { ?>
+                    <tr>
+                        <td><?= $ub['id'] ?></td>
+                        <td><?= htmlspecialchars($ub['username']) ?></td>
+                        <td><?= htmlspecialchars($ub['badge_name']) ?></td>
+                        <td>
+                            <?php
+                            if (!empty($ub['granted_by'])) {
+                                $gbUsername = 'ismeretlen';
+                                $gbId = (int)$ub['granted_by'];
+
+                                $gbRes = db_query(
+                                    $conn,
+                                    "SELECT username FROM users WHERE id = ? LIMIT 1",
+                                    "i",
+                                    [$gbId]
+                                );
+                                $gbRow = $gbRes ? $gbRes->fetch_assoc() : null;
+                                if ($gbRow && isset($gbRow['username'])) {
+                                    $gbUsername = $gbRow['username'];
+                                }
+                                echo htmlspecialchars($gbUsername);
+                            } else {
+                                echo '—';
+                            }
+                            ?>
+                        </td>
+                        <td><?= htmlspecialchars($ub['granted_at']) ?></td>
+                        <td>
+                            <a href="?delete_type=user_badge&delete_id=<?= $ub['id'] ?>"
+                               onclick="return confirm('Biztosan törlöd ezt a user_badge sort?')">
+                                Törlés
+                            </a>
+                        </td>
+                    </tr>
+                <?php } ?>
+            </table>
         </div>
     </section>
     <section class="card p-4 md:p-6 mb-6">

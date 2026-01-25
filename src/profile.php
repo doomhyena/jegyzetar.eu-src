@@ -21,71 +21,44 @@
     }
 
     $res = db_query($conn, "SELECT * FROM users WHERE username = ? LIMIT 1", "s", [$username]);
-
     if (!$res || $res->num_rows === 0) {
         http_response_code(404);
         exit(t('msg_profile_not_found'));
     }
 
-    $lastCssRequest = null;
-    $cssResetDone = false;
-
     $profile = $res->fetch_assoc();
-    $profileId = $profile['id'];
+    $profileId = (int)$profile['id'];
     $isOwner = ($viewerId === $profileId);
-    $friendship = null;
 
-    if (!$isOwner) {
-        $fsRes = db_query($conn, "SELECT * FROM friends WHERE (fromid = ? AND toid = ?)  OR  (fromid = ? AND toid = ?) LIMIT 1", "iiii",  [$viewerId, $profileId, $profileId, $viewerId]);
-
-        if ($fsRes && $fsRes->num_rows > 0) {
-            $friendship = $fsRes->fetch_assoc();
-        }
-    }
-
-    $lastCssRequest = null;
-    $cssResetDone = false;
-
-    if ($isOwner) {
-        $cssRes = db_query($conn, "SELECT * FROM user_custom_css_requests WHERE user_id = ?  ORDER BY created_at DESC  LIMIT 1",  "i",  [$profileId]);
-
-        if ($cssRes && $cssRes->num_rows > 0) {
-            $lastCssRequest = $cssRes->fetch_assoc();
-        }
-    }
-
-    $needsSecuritySetup = false;
-    $securitySetupQuestion = '';
 
     $nfRes = db_query($conn, "SELECT id FROM notifys WHERE toid = ? AND readed = 0", "i", [$profileId]);
     $notify_number = $nfRes ? (int)$nfRes->num_rows : 0;
+
     $profile_theme = $profile['profile_theme'] ?: 'default';
     $is_birthday = (!empty($profile['birthdate']) && date('m-d', strtotime($profile['birthdate'])) === date('m-d'));
-    $birthdateValue = (!empty($profile['birthdate']) && $profile['birthdate'] !== '0000-00-00') ? substr($profile['birthdate'], 0, 10) : '';
-    $profileUpdateError   = '';
+    $birthdateValue = (!empty($profile['birthdate']) && $profile['birthdate'] !== '0000-00-00')
+            ? substr($profile['birthdate'], 0, 10)
+            : '';
+
+    $profileUpdateError = '';
     $profileUpdateSuccess = '';
     if (!empty($_SESSION['profile_toast'])) {
         $profileUpdateSuccess = t($_SESSION['profile_toast']);
         unset($_SESSION['profile_toast']);
     }
 
-    if ($isOwner && isset($_POST['update-basic-profile'])) {
-
-        $firstname = trim($_POST['firstname'] ?? $profile['firstname']);
-        $lastname = trim($_POST['lastname'] ?? $profile['lastname']);
-        $email = trim($_POST['email'] ?? $profile['email']);
-        $birthdate = trim($_POST['birthdate'] ?? $profile['birthdate']);
-
-        if ($firstname === '' || $lastname === '' || $email === '') {
-            $profileUpdateError = t('error_all_fields_required');
-        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $profileUpdateError = t('error_bad_email_format');
-        } else {
-            db_stmt($conn, "UPDATE users SET firstname=?, lastname=?, email=?, birthdate=? WHERE id=? LIMIT 1", "ssssi", [$firstname, $lastname, $email, $birthdate, $viewerId])->close();
-
-            $_SESSION['profile_toast'] = 'msg_profile_update_success';
-            header("Location: profile.php?user=" . urlencode($profile['username']));
-            exit;
+    $friendship = null;
+    if (!$isOwner) {
+        $fsRes = db_query(
+                $conn,
+                "SELECT * FROM friends
+             WHERE (fromid = ? AND toid = ?) OR (fromid = ? AND toid = ?)
+             LIMIT 1",
+                "iiii",
+                [$viewerId, $profileId, $profileId, $viewerId]
+        );
+        if ($fsRes && $fsRes->num_rows > 0) {
+            $friendship = $fsRes->fetch_assoc();
         }
     }
 
@@ -97,12 +70,49 @@
         }
     }
 
-    $files = db_query($conn, "SELECT * FROM files WHERE uploaded_by = ? ORDER BY id DESC", "i", [$profileId]);
     $badges = [];
-    $badgeRes = db_query($conn, "SELECT b.* FROM user_badges ub JOIN badges b ON ub.badge_id = b.id WHERE ub.user_id = ? ORDER BY ub.granted_at ASC",  "i",  [$profileId]);
+    $badgeRes = db_query($conn, "SELECT b.* FROM user_badges ub JOIN badges b ON ub.badge_id = b.id WHERE ub.user_id = ? ORDER BY ub.granted_at ASC", "i", [$profileId]);
 
-    while ($row = $badgeRes->fetch_assoc()) {
-        $badges[] = $row;
+    if ($badgeRes) {
+        while ($row = $badgeRes->fetch_assoc()) {
+            $badges[] = $row;
+        }
+    }
+
+    $lastCssRequest = null;
+    $cssResetDone = false;
+    if ($isOwner) {
+        $cssRes = db_query($conn, "SELECT * FROM user_custom_css_requests WHERE user_id = ? ORDER BY created_at DESC LIMIT 1", "i", [$profileId]);
+        if ($cssRes && $cssRes->num_rows > 0) {
+            $lastCssRequest = $cssRes->fetch_assoc();
+        }
+    }
+
+    $approvedCss = '';
+    if ($isOwner && $lastCssRequest) {
+        $status = strtolower((string)($lastCssRequest['status'] ?? ''));
+        $cssVal  = (string)($lastCssRequest['css'] ?? '');
+        if (!$cssResetDone && $status === 'approved' && trim($cssVal) !== '') {
+            $approvedCss = $cssVal;
+        }
+    }
+
+    if ($isOwner && isset($_POST['update-basic-profile'])) {
+        $firstname = trim($_POST['firstname'] ?? $profile['firstname']);
+        $lastname = trim($_POST['lastname'] ?? $profile['lastname']);
+        $email = trim($_POST['email'] ?? $profile['email']);
+        $birthdate = trim($_POST['birthdate'] ?? $profile['birthdate']);
+
+        if ($firstname === '' || $lastname === '' || $email === '') {
+            $profileUpdateError = t('error_all_fields_required');
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $profileUpdateError = t('error_bad_email_format');
+        } else {
+            db_stmt($conn, "UPDATE users SET firstname=?, lastname=?, email=?, birthdate=? WHERE id=? LIMIT 1", "ssssi", [$firstname, $lastname, $email, $birthdate, $viewerId])->close();
+            $_SESSION['profile_toast'] = 'msg_profile_update_success';
+            header("Location: profile.php?user=" . urlencode($profile['username']));
+            exit;
+        }
     }
 
     if ($isOwner && isset($_POST['pfp-btn']) && isset($_FILES['profile_picture'])) {
@@ -132,8 +142,7 @@
     }
 
     if ($isOwner && isset($_POST['save-profile-settings'])) {
-
-        $bio = trim($_POST['bio'] ?? '');
+        $bio   = trim($_POST['bio'] ?? '');
         $theme = $_POST['theme'] ?? $profile['profile_theme'];
 
         if (mb_strlen($bio, 'UTF-8') > 1500) {
@@ -148,14 +157,22 @@
 
     if ($isOwner && isset($_POST['toggle-2fa'])) {
         $enable2fa = isset($_POST['enable_2fa']) ? 1 : 0;
-
         db_stmt($conn, "UPDATE users SET twofa_enabled = ? WHERE id = ? LIMIT 1", "ii", [$enable2fa, $viewerId])->close();
-
         $_SESSION['profile_toast'] = $enable2fa ? 'msg_2fa_enabled' : 'msg_2fa_disabled';
-
         header("Location: profile.php?user=" . urlencode($profile['username']));
         exit;
     }
+
+    $bio = trim((string)($profile['bio'] ?? ''));
+    $emptyBios = [
+            "Ez a felhasználó még nem dobott be bemutatkozást.",
+            "Itt lenne a bio… ha lenne bio.",
+            "A bemutatkozás DLC még nem lett telepítve.",
+            "Csend van… túl nagy a csend.",
+            "Bio nincs, de a vibe megvan.",
+    ];
+    $fallbackBio = $emptyBios[array_rand($emptyBios)];
+
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($lang) ?>">
@@ -183,13 +200,9 @@
     <?php include "assets/php/ads.php"; ?>
     <div class="main">
         <?php if (!empty($profileUpdateError)): ?>
-            <div class="toast toast-error">
-                <?= htmlspecialchars($profileUpdateError) ?>
-            </div>
+            <div class="toast toast-error"><?= htmlspecialchars($profileUpdateError) ?></div>
         <?php elseif (!empty($profileUpdateSuccess)): ?>
-            <div class="toast toast-success">
-                <?= htmlspecialchars($profileUpdateSuccess) ?>
-            </div>
+            <div class="toast toast-success"><?= htmlspecialchars($profileUpdateSuccess) ?></div>
         <?php endif; ?>
         <h1><?= htmlspecialchars($profile['firstname']) . ' ' . t('profile_of') ?></h1>
         <div class="profile-layout">
@@ -223,22 +236,51 @@
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <div class="profile-header-actions">
+                    </div>
+                    <div class="profile-header-main">
+                        <div class="profile-identity">
+                            <h2 class="profile-name"><?= htmlspecialchars($profile['lastname'] . ' ' . $profile['firstname']) ?></h2>
+                            <span class="entry-meta profile-username">@<?= htmlspecialchars($profile['username']) ?></span>
+                            <?php if (!empty($badges)): ?>
+                                <div class="profile-badges">
+                                    <?php foreach ($badges as $badge): ?>
+                                        <span class="badge-pill"
+                                              title="<?= htmlspecialchars($badge['description'] ?? '') ?>">
+                                            <?= htmlspecialchars($badge['icon'] ?: '🏅') ?>
+                                            <?= htmlspecialchars($badge['name']) ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($isOwner): ?>
+                                <div class="profile-actions inline" aria-label="Profil műveletek">
+                                    <a href="upload.php" class="profile-action-btn" role="button">Feltöltés</a>
+                                    <a href="favorites.php" class="profile-action-btn" role="button">Kedvenceim</a>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($is_birthday && $isOwner): ?>
+                                <div class="bday-banner" role="status" aria-live="polite">
+                                    <span class="bday-emoji" aria-hidden="true">🎂</span>
+                                    <div class="bday-text">
+                                        <strong><?= t('bday_title') ?> <?= htmlspecialchars($profile['firstname']) ?>!</strong>
+                                        <?= t('bday_message') ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                             <?php if (!$isOwner): ?>
                                 <div class="profile-social-actions">
-                                <div class="profile-friendship">
-                                    <h3 class="profile-friendship-title"><?= t('profile_friendship') ?>:</h3>
-                                    <?php if ($friendship && (int)$friendship['status'] === 1): ?>
-                                        <p class="entry-meta success"><strong>barátok vagytok!</strong></p>
-                                    <?php else: ?>
-                                        <p class="entry-meta warning"><strong>Még nem vagytok barátok!</strong></p>
-                                        <form method="post" action="assets/php/add_friend.php">
-                                            <input type="hidden" name="toid" value="<?= (int)$profileId ?>">
-                                            <button type="submit" class="btn-cta"><?= t('btn_add_friend') ?></button>
-                                        </form>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="profile-moderation-actions">
+                                    <div class="profile-friendship">
+                                        <h3 class="profile-friendship-title"><?= t('profile_friendship') ?>:</h3>
+                                        <?php if ($friendship && (int)$friendship['status'] === 1): ?>
+                                            <p class="entry-meta success"><strong>barátok vagytok!</strong></p>
+                                        <?php else: ?>
+                                            <p class="entry-meta warning"><strong>Még nem vagytok barátok!</strong></p>
+                                            <form method="post" action="assets/php/add_friend.php">
+                                                <input type="hidden" name="toid" value="<?= (int)$profileId ?>">
+                                                <button type="submit" class="btn-cta"><?= t('btn_add_friend') ?></button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
                                     <div class="profile-report">
                                         <form method="post" action="assets/php/report.php" id="user-report-form">
                                             <input type="hidden" name="type" value="user">
@@ -252,52 +294,10 @@
                                         </form>
                                     </div>
                                 </div>
-                                </div>
                             <?php endif; ?>
                         </div>
                     </div>
-                    <div class="profile-header-main">
-                        <div>
-                            <div class="profile-identity">
-                                <h2 class="profile-name"><?= htmlspecialchars($profile['lastname'] . ' ' . $profile['firstname']) ?></h2>
-                                <span class="entry-meta profile-username">@<?= htmlspecialchars($profile['username']) ?></span>
-                                <?php if ($isOwner): ?>
-                                    <div class="profile-actions inline">
-                                        <form method="POST" class="profile-action">
-                                            <button type="submit" class="profile-action-btn">
-                                                Feltöltés
-                                            </button>
-                                        </form>
-                                        <a href="favorites.php"
-                                           class="profile-action-btn profile-action"
-                                           role="button">
-                                            Kedvenceim
-                                        </a>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-                            <?php if (!empty($badges)): ?>
-                                <div class="profile-badges">
-                                    <?php foreach ($badges as $badge): ?>
-                                        <span class="badge-pill" title="<?= htmlspecialchars($badge['description'] ?? '') ?>">
-                                                <?= htmlspecialchars($badge['icon'] ?: '🏅') ?>
-                                                <?= htmlspecialchars($badge['name']) ?>
-                                            </span>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
-                            <?php if ($is_birthday && $isOwner): ?>
-                                <div class="bday-banner" role="status" aria-live="polite">
-                                    <span class="bday-emoji" aria-hidden="true">🎂</span>
-                                    <div class="bday-text">
-                                        <strong><?= t('bday_title') ?> <?= htmlspecialchars($profile['firstname']) ?>!</strong>
-                                        <?= t('bday_message') ?>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
-                        </div>
-
-                    </div>
+                </div>
             </section>
             <div class="profile-main-columns">
                 <aside class="profile-column profile-column-left">
@@ -323,9 +323,7 @@
                                 </div>
                                 <div class="profile-info-item">
                                     <div class="profile-info-label"><?= t('profile_birthdate') ?></div>
-                                    <div class="profile-info-value">
-                                        <?= htmlspecialchars($birthdateValue ?: '—') ?>
-                                    </div>
+                                    <div class="profile-info-value"><?= htmlspecialchars($birthdateValue ?: '—') ?></div>
                                 </div>
                             <?php endif; ?>
                             <div class="profile-info-item">
@@ -344,28 +342,7 @@
                                 <input type="text" class="input" name="lastname" placeholder="<?= htmlspecialchars(t('label_lastname')) ?>" value="<?= htmlspecialchars($_POST['lastname'] ?? $profile['lastname']) ?>">
                                 <input type="email" class="input" name="email" placeholder="<?= htmlspecialchars(t('label_email')) ?>" value="<?= htmlspecialchars($_POST['email'] ?? $profile['email']) ?>">
                                 <input type="date" class="input" name="birthdate" placeholder="<?= htmlspecialchars(t('label_birthdate')) ?>" value="<?= htmlspecialchars($_POST['birthdate'] ?? $birthdateValue) ?>">
-                                <?php if ($needsSecuritySetup): ?>
-                                    <p class="entry-meta" style="margin-top:10px;">
-                                        <?= t('profile_security_intro') ?>
-                                    </p>
-                                    <div class="profile-info-item">
-                                        <div class="profile-info-label"><?= t('auth_field_security_question') ?></div>
-                                        <div class="profile-info-value">
-                                            <?= htmlspecialchars($securitySetupQuestion) ?>
-                                        </div>
-                                    </div>
-                                    <div class="profile-info-item">
-                                        <div class="profile-info-label"><?= t('auth_field_answer') ?></div>
-                                        <div class="profile-info-value">
-                                            <input type="text" name="security_answer" class="input" placeholder="<?= htmlspecialchars(t('placeholder_security_answer')) ?>" value="<?= htmlspecialchars($_POST['security_answer'] ?? '') ?>">
-                                        </div>
-                                    </div>
-                                    <input type="hidden" name="security_question" value="<?= htmlspecialchars($securitySetupQuestion) ?>">
-                                <?php endif; ?>
-                                <button type="submit"
-                                        name="update-basic-profile"
-                                        class="btn-cta profile-save-btn"
-                                        style="margin-top:10px;">
+                                <button type="submit" name="update-basic-profile" class="btn-cta profile-save-btn" style="margin-top:10px;">
                                     <?= t('btn_save') ?>
                                 </button>
                                 <button type="button" class="btn-ghost" id="cancel-basic-profile-edit">
@@ -377,17 +354,26 @@
                                 <div class="profile-info-item">
                                     <div class="profile-info-label">Állapot</div>
                                     <div class="profile-info-value">
-                                        <label class="checkbox-label">
-                                            <input type="checkbox" class="styled-checkbox"
-                                                   name="enable_2fa"
-                                                    <?= ((int)$profile['twofa_enabled'] === 1) ? 'checked' : '' ?>>
-                                            <span><?= ((int)$profile['twofa_enabled'] === 1) ? 'Bekapcsolva' : 'Kikapcsolva' ?></span>
-                                        </label>
+                                        <form method="post">
+                                            <label class="toggle">
+                                                <input type="checkbox"
+                                                       name="enable_2fa"
+                                                        <?= ((int)$profile['twofa_enabled'] === 1) ? 'checked' : '' ?>>
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-label">
+                                                    <?= ((int)$profile['twofa_enabled'] === 1) ? 'Bekapcsolva' : 'Kikapcsolva' ?>
+                                                </span>
+                                            </label>
+                                            <br>
+                                            <button type="submit"
+                                                    name="toggle-2fa"
+                                                    class="btn-cta profile-save-btn"
+                                                    style="margin-top:10px;">
+                                                Mentés
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
-                                <button type="submit" name="toggle-2fa" class="btn-cta profile-save-btn" style="margin-top:10px;">
-                                    <?= ((int)$profile['twofa_enabled'] === 1) ? '2FA kikapcsolása' : '2FA bekapcsolása' ?>
-                                </button>
                             </form>
                             <p class="entry-meta" style="margin-top:6px;">
                                 Bejelentkezéskor e-mailben kapsz egy egyszer használatos kódot.
@@ -395,118 +381,106 @@
                         <?php endif; ?>
                     </div>
                     <?php if ($isOwner): ?>
-                    <div class="card">
-                        <h3><?= t('profile_customization') ?></h3>
-                        <form method="post" class="profile-settings-form">
-                            <div class="profile-info-item">
-                                <div class="profile-info-label"><?= t('profile_bio') ?></div>
-                                <div class="profile-info-value">
-                                    <textarea class="profile-bio-input" rows="4" name="bio" id="profile-bio-input" maxlength="1500" placeholder="<?= htmlspecialchars(t('profile_bio')) ?>"><?= htmlspecialchars($profile['bio'] ?? '') ?></textarea>
-                                    <small id="bio-counter">0 / 1500</small>
-                                </div>
-                            </div>
-                            <div class="profile-info-item">
-                                <div class="profile-info-label"><?= t('profile_theme') ?></div>
-                                <div class="profile-info-value">
-                                    <select id="profile-theme-select" name="theme" class="profile-theme-select" data-theme="<?= htmlspecialchars($profile_theme) ?>">
-                                        <option value="default" <?= ($profile_theme === 'default') ? 'selected' : '' ?>><?= t('profile_theme_default') ?></option>
-                                        <option value="pastel" <?= ($profile_theme === 'pastel') ? 'selected' : '' ?>><?= t('profile_theme_pastel') ?></option>
-                                        <option value="forest" <?= ($profile_theme === 'forest') ? 'selected' : '' ?>><?= t('profile_theme_forest') ?></option>
-                                        <option value="light"  <?= ($profile_theme === 'light')  ? 'selected' : '' ?>><?= t('profile_theme_light') ?></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button type="submit" name="save-profile-settings" class="btn-cta profile-save-btn">
-                                <?= t('btn_save') ?>
-                            </button>
-                        </form>
-                    </div>
-                    <div class="card">
-                        <h3><?= t('profile_custom_css_request') ?></h3>
-                        <?php if ($lastCssRequest): ?>
-                            <p class="entry-meta">
-                                <?= t('profile_last_request_status') ?>
-                                <strong><?= htmlspecialchars($lastCssRequest['status']) ?></strong>
-                                <?php if (!empty($lastCssRequest['reviewed_at'])): ?>
-                                    (<?= htmlspecialchars($lastCssRequest['reviewed_at']) ?>)
-                                <?php endif; ?>
-                            </p>
-                        <?php else: ?>
-                            <p class="entry-meta"><?= t('profile_custom_css_not_requested') ?></p>
-                        <?php endif; ?>
-                        <details class="css-tutorial" id="css-tutorial">
-                            <summary><?= t('profile_css_tutorial_summary') ?></summary>
-                            <div class="css-tutorial-body">
-                                <p><?= t('profile_css_tutorial_intro') ?></p>
-                                <p><?= t('profile_css_tutorial_example') ?></p>
-                                <pre><code>
-    body {
-        background:
-            radial-gradient(circle at 0% 0%, rgba(244,114,182,.35), transparent 60%),
-            radial-gradient(circle at 100% 0%, rgba(56,189,248,.28), transparent 55%),
-            radial-gradient(circle at 50% 100%, rgba(167,139,250,.3), transparent 55%),
-            linear-gradient(180deg, #050816 0%, #020617 100%);
-        color: #e5e7eb;
-    }
-
-    .main {
-        border-radius: 28px;
-        border: 1px solid rgba(148,163,184,.35);
-        background:
-            radial-gradient(circle at 0% 0%, rgba(244,114,182,.12), transparent 55%),
-            radial-gradient(circle at 100% 0%, rgba(56,189,248,.10), transparent 55%),
-            linear-gradient(180deg, rgba(15,23,42,.96), rgba(15,23,42,.94));
-        box-shadow: 0 24px 60px rgba(0,0,0,.7);
-        padding: 40px 34px;
-    }
-                            </code></pre>
-                                <p><?= t('tip_profile_custom_css') ?></p>
-                            </div>
-                        </details>
-                        <form method="post">
-                            <div class="profile-info-item">
-                                <div class="profile-info-label"><?= t('profile_css_label') ?></div>
-                                <div class="profile-info-value">
-                                <textarea class="profile-bio-input" rows="4" id="profile-custom-css-input" name="custom_css" placeholder="<?= htmlspecialchars(t('css_placeholder')) ?>" data-i18n-css-empty="<?= htmlspecialchars(t('msg_css_empty_reset')) ?>" data-i18n-css-admin="<?= htmlspecialchars(t('msg_css_approved_by_admin')) ?>">
-                                    <?= htmlspecialchars($cssResetDone ? '' : ($lastCssRequest['css'] ?? '')) ?>
-                                </textarea>
-                                    <p class="entry-meta">
-                                        <?= t('css_approval_note') ?>
-                                    </p>
-                                    <div class="css-button-row">
-                                        <button type="submit" name="submit-custom-css" class="btn-cta profile-save-btn">
-                                            <?= t('profile_custom_css_submit') ?>
-                                        </button>
-                                        <button type="submit" name="reset-custom-css" class="btn-cta profile-save-btn">
-                                            <?= t('profile_custom_css_reset_btn') ?>
-                                        </button>
+                        <div class="card">
+                            <h3><?= t('profile_customization') ?></h3>
+                            <form method="post" class="profile-settings-form">
+                                <div class="profile-info-item">
+                                    <div class="profile-info-label"><?= t('profile_bio') ?></div>
+                                    <div class="profile-info-value">
+                                        <textarea class="profile-bio-input" rows="4" name="bio" id="profile-bio-input" maxlength="1500"
+                                                  placeholder="<?= htmlspecialchars(t('profile_bio')) ?>"><?= htmlspecialchars($profile['bio'] ?? '') ?></textarea>
+                                        <small id="bio-counter">0 / 1500</small>
                                     </div>
                                 </div>
-                            </div>
-                        </form>
-                    </div>
+                                <div class="profile-info-item">
+                                    <div class="profile-info-label"><?= t('profile_theme') ?></div>
+                                    <div class="profile-info-value">
+                                        <select id="profile-theme-select" name="theme" class="profile-theme-select" data-theme="<?= htmlspecialchars($profile_theme) ?>">
+                                            <option value="default" <?= ($profile_theme === 'default') ? 'selected' : '' ?>><?= t('profile_theme_default') ?></option>
+                                            <option value="pastel" <?= ($profile_theme === 'pastel') ? 'selected' : '' ?>><?= t('profile_theme_pastel') ?></option>
+                                            <option value="forest" <?= ($profile_theme === 'forest') ? 'selected' : '' ?>><?= t('profile_theme_forest') ?></option>
+                                            <option value="light"  <?= ($profile_theme === 'light')  ? 'selected' : '' ?>><?= t('profile_theme_light') ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button type="submit" name="save-profile-settings" class="btn-cta profile-save-btn">
+                                    <?= t('btn_save') ?>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="card">
+                            <h3><?= t('profile_custom_css_request') ?></h3>
+                            <?php if ($lastCssRequest): ?>
+                                <p class="entry-meta">
+                                    <?= t('profile_last_request_status') ?>
+                                    <strong><?= htmlspecialchars($lastCssRequest['status']) ?></strong>
+                                    <?php if (!empty($lastCssRequest['reviewed_at'])): ?>
+                                        (<?= htmlspecialchars($lastCssRequest['reviewed_at']) ?>)
+                                    <?php endif; ?>
+                                </p>
+                            <?php else: ?>
+                                <p class="entry-meta"><?= t('profile_custom_css_not_requested') ?></p>
+                            <?php endif; ?>
+                            <details class="css-tutorial" id="css-tutorial">
+                                <summary><?= t('profile_css_tutorial_summary') ?></summary>
+                                <div class="css-tutorial-body">
+                                    <p><?= t('profile_css_tutorial_intro') ?></p>
+                                    <p><?= t('profile_css_tutorial_example') ?></p>
+                                    <pre><code>
+body {
+   background:
+       radial-gradient(circle aóó 0%, rgba(244,114,182,.35), transparent 60%),
+       radial-gradient(circle at 100% 0%, rgba(56,189,248,.28), transparent 55%),
+       radial-gradient(circle at 50% 100%, rgba(167,139,250,.3), transparent 55%),
+       linear-gradient(180deg, #050816 0%, #020617 100%);
+   color: #e5e7eb;
+}
+
+.main {
+   border-radius: 28px;
+   border: 1px solid rgba(148,163,184,.35);
+   background:
+        radial-gradient(circle at 0% 0%, rgba(244,114,182,.12), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(56,189,248,.10), transparent 55%),
+        linear-gradient(180deg, rgba(15,23,42,.96), rgba(15,23,42,.94));
+   box-shadow: 0 24px 60px rgba(0,0,0,.7);
+   padding: 40px 34px;
+}
+                                    </code></pre>
+                                    <p><?= t('tip_profile_custom_css') ?></p>
+                                </div>
+                            </details>
+                            <form method="post">
+                                <div class="profile-info-item">
+                                    <div class="profile-info-label"><?= t('profile_css_label') ?></div>
+                                    <div class="profile-info-value">
+                                        <textarea class="profile-bio-input" rows="4" id="profile-custom-css-input" name="custom_css"
+                                                  placeholder="<?= htmlspecialchars(t('css_placeholder')) ?>"
+                                                  data-i18n-css-empty="<?= htmlspecialchars(t('msg_css_empty_reset')) ?>"
+                                                  data-i18n-css-admin="<?= htmlspecialchars(t('msg_css_approved_by_admin')) ?>"><?= htmlspecialchars($cssResetDone ? '' : ($lastCssRequest['css'] ?? '')) ?></textarea>
+                                        <p class="entry-meta"><?= t('css_approval_note') ?></p>
+                                        <div class="css-button-row">
+                                            <button type="submit" name="submit-custom-css" class="btn-cta profile-save-btn">
+                                                <?= t('profile_custom_css_submit') ?>
+                                            </button>
+                                            <button type="submit" name="reset-custom-css" class="btn-cta profile-save-btn">
+                                                <?= t('profile_custom_css_reset_btn') ?>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    <?php endif; ?>
                 </aside>
-                <?php endif; ?>
                 <section class="profile-column profile-column-right" id="profile-main-content">
                     <div class="profile-right-block">
-                        <?php
-                            $bio = trim((string)($profile['bio'] ?? ''));
-                            $emptyBios = [
-                                    "Ez a felhasználó még nem dobott be bemutatkozást. 👀",
-                                    "Itt lenne a bio… ha lenne bio. 🤷‍♀️",
-                                    "A bemutatkozás DLC még nem lett telepítve. 🎮",
-                                    "Csend van… túl nagy a csend. 🕵️",
-                                    "Bio nincs, de a vibe megvan. ✨",
-                            ];
-                            $fallback = $emptyBios[array_rand($emptyBios)];
-                        ?>
                         <div class="card profile-bio">
                             <h3 data-translation-key="profile_bio"><?= t('profile_bio') ?></h3>
-
                             <?php if ($bio !== ''): ?>
                                 <p><?= nl2br(htmlspecialchars($bio)) ?></p>
                             <?php else: ?>
-                                <p class="entry-meta opacity-80"><?= htmlspecialchars($fallback) ?></p>
+                                <p class="entry-meta opacity-80"><?= htmlspecialchars($fallbackBio) ?></p>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -515,26 +489,26 @@
                             <h3 data-translation-key="profile_uploaded_files"><?= t('profile_uploaded_files') ?></h3>
                             <span class="uploads-count">
                                 <?php
-                                    $filesCountRes = db_query($conn, "SELECT COUNT(*) AS c FROM files WHERE uploaded_by = ?", "i", [(int)$profile['id']]);
+                                    $filesCountRes = db_query($conn, "SELECT COUNT(*) AS c FROM files WHERE uploaded_by = ?", "i", [$profileId]);
                                     $filesCount = ($filesCountRes && $filesCountRes->num_rows) ? (int)($filesCountRes->fetch_assoc()['c'] ?? 0) : 0;
                                     echo $filesCount;
                                 ?>
                             </span>
                         </div>
                         <?php
-                        $files = db_query($conn, "SELECT * FROM files WHERE uploaded_by = ? ORDER BY id DESC", "i", [(int)$profile['id']]);
-                        if ($files && $files->num_rows > 0):
+                            $files = db_query($conn, "SELECT * FROM files WHERE uploaded_by = ? ORDER BY id DESC", "i", [$profileId]);
+                            if ($files && $files->num_rows > 0):
                             ?>
                             <div class="profile-uploads-list">
                                 <?php while ($file = $files->fetch_assoc()):
-                                    $ext = strtolower(pathinfo((string)$file['file_name'], PATHINFO_EXTENSION));
-                                    $safe_path = "users/" . htmlspecialchars($profile['username']) . "/" . htmlspecialchars($file['file_name']);
+                                        $ext = strtolower(pathinfo((string)$file['file_name'], PATHINFO_EXTENSION));
+                                        $safe_path = "users/" . htmlspecialchars($profile['username']) . "/" . htmlspecialchars($file['file_name']);
 
-                                    $desc = trim((string)($file['description'] ?? ''));
-                                    $tags = [];
-                                    if (!empty($file['tags'])) {
-                                        $tags = array_values(array_filter(array_map('trim', preg_split('/[,;]+/u', (string)$file['tags']))));
-                                    }
+                                        $desc = trim((string)($file['description'] ?? ''));
+                                        $tags = [];
+                                        if (!empty($file['tags'])) {
+                                            $tags = array_values(array_filter(array_map('trim', preg_split('/[,;]+/u', (string)$file['tags']))));
+                                        }
                                     ?>
                                     <article class="upload-item">
                                         <div class="upload-top">
@@ -587,6 +561,7 @@
                                                 <?php endif; ?>
                                             </div>
                                         <?php endif; ?>
+
                                         <?php if ($ext === 'mp4' || $ext === 'pdf'): ?>
                                             <details class="upload-preview">
                                                 <summary class="upload-preview-summary">

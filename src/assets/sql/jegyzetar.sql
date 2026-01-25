@@ -112,13 +112,15 @@ INSERT INTO `languages` (`id`, `code`, `name`) VALUES
     (2, 'en', 'English'),
     (3, 'de', 'Deutsch');
 
-CREATE TABLE IF NOT EXISTS `messages` (
-    `id` int(255) NOT NULL,
-    `fromid` int(255) NOT NULL,
-    `toid` int(255) NOT NULL,
-    `content` text NOT NULL,
-    `sent_at` date NOT NULL DEFAULT current_timestamp()
+CREATE TABLE `messages` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `fromid` INT NOT NULL,
+    `toid` INT NOT NULL,
+    `content` TEXT NOT NULL,
+    `sent_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
 
 CREATE TABLE IF NOT EXISTS `namedays` (
     `id` int(11) NOT NULL,

@@ -423,20 +423,17 @@
                     <select name="level" class="select w-full text-sm md:text-base">
                         <option value="all"  <?= ($levelRaw === 'all' || $levelRaw === '' || $levelRaw === null) ? 'selected' : '' ?>>Összes</option>
                         <option value="none" <?= ($levelRaw === 'none') ? 'selected' : '' ?>>Nincs megadva</option>
-                        <optgroup label="Középiskola (9–13)">
+                        <optgroup label="Technikum (9-13)">
                             <?php for ($y = 9; $y <= 13; $y++): $v = "hs-$y"; ?>
                                 <option value="<?= $v ?>" <?= ((string)$levelRaw === (string)$v) ? 'selected' : '' ?>><?= $y ?>. évfolyam</option>
                             <?php endfor; ?>
                         </optgroup>
-                        <optgroup label="Egyetem (1–7. félév)">
+                        <optgroup label="Egyetem (1-7. félév)">
                             <?php for ($sm = 1; $sm <= 7; $sm++): $v = "uni-$sm"; ?>
                                 <option value="<?= $v ?>" <?= ((string)$levelRaw === (string)$v) ? 'selected' : '' ?>><?= $sm ?>. félév</option>
                             <?php endfor; ?>
                         </optgroup>
                     </select>
-                    <?php if (!$useEdu): ?>
-                        <p class="text-xs opacity-70">(A DB-ben még nincs <code>files.edu_stage</code> + <code>files.edu_level</code>)</p>
-                    <?php endif; ?>
                 </div>
                 <div class="form-field">
                     <label class="text-sm md:text-base mb-2 block">Tag</label>
@@ -556,7 +553,7 @@
                     $needlesForUi = $GLOBALS['__search_tokens'] ?? [];
                 ?>
                 <div class="text-sm md:text-base opacity-80">
-                    Mutatom: <strong><?= (int)$showFrom ?>–<?= (int)$showTo ?></strong> / <?= (int)$fileTotal ?>
+                    Mutatom: <strong><?= (int)$showFrom ?>-<?= (int)$showTo ?></strong> / <?= (int)$fileTotal ?>
                 </div>
             </div>
             <?php
@@ -564,8 +561,8 @@
                 $renderEduHeader = function($s, $l) {
                     if ($s === null || $l === null || $s === '' || $l === '') return 'Nincs megadva';
                     $l = (int)$l;
-                    if ($s === 'hs') return "Középiskola – {$l}. évfolyam";
-                    if ($s === 'uni') return "Egyetem – {$l}. félév";
+                    if ($s === 'hs') return "Technikum - {$l}. évfolyam";
+                    if ($s === 'uni') return "Egyetem - {$l}. félév";
                     return 'Nincs megadva';
                 };
             ?>

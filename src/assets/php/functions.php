@@ -279,3 +279,63 @@
             return rtrim(rtrim(number_format($v, 2, '.', ''), '0'), '.') . " " . $units[$i];
         }
     }
+
+    function fav_star_row(float $avg): string {
+        $avg = max(0.0, min(5.0, $avg));
+        $full = (int)floor($avg + 1e-9);
+        $half = ($avg - $full) >= 0.5 ? 1 : 0;
+        $empty = 5 - $full - $half;
+
+        $out = '<span class="fav-stars" aria-label="Értékelés">';
+        for ($i=0; $i<$full; $i++) $out .= '★';
+        if ($half) $out .= '⯪';
+        for ($i=0; $i<$empty; $i++) $out .= '☆';
+        $out .= '</span>';
+        return $out;
+    }
+
+    function fav_file_icon_svg(string $ext): string {
+        $ext = strtolower(trim($ext));
+        $icons = [
+            'pdf'  => '<path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1v4h4"/>'
+                . '<path d="M8 14h8M8 17h6"/>',
+            'doc'  => '<path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1v4h4"/>'
+                . '<path d="M8 13h8M8 16h8M8 19h6"/>',
+            'docx' => '<path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1v4h4"/>'
+                . '<path d="M8 13h8M8 16h8M8 19h6"/>',
+            'ppt'  => '<path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1v4h4"/>'
+                . '<path d="M9 14h6M9 17h4"/>'
+                . '<path d="M12 12v8"/>',
+            'pptx' => '<path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1v4h4"/>'
+                . '<path d="M9 14h6M9 17h4"/>'
+                . '<path d="M12 12v8"/>',
+            'xls'  => '<path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1v4h4"/>'
+                . '<path d="M8 12h8M8 15h8M8 18h8"/>'
+                . '<path d="M10 12v8M14 12v8"/>',
+            'xlsx' => '<path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1v4h4"/>'
+                . '<path d="M8 12h8M8 15h8M8 18h8"/>'
+                . '<path d="M10 12v8M14 12v8"/>',
+            'mp4'  => '<path d="M7 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>'
+                . '<path d="M11 10l4 2-4 2v-4z"/>',
+            'zip'  => '<path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1v4h4"/>'
+                . '<path d="M12 10v10"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+            'rar'  => '<path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1v4h4"/>'
+                . '<path d="M12 10v10"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+            'png'  => '<path d="M7 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>'
+                . '<path d="M8 15l3-3 3 3 2-2 3 3"/>'
+                . '<path d="M9 10h.01"/>',
+            'jpg'  => '<path d="M7 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>'
+                . '<path d="M8 15l3-3 3 3 2-2 3 3"/>'
+                . '<path d="M9 10h.01"/>',
+            'jpeg' => '<path d="M7 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>'
+                . '<path d="M8 15l3-3 3 3 2-2 3 3"/>'
+                . '<path d="M9 10h.01"/>',
+            'file' => '<path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1v4h4"/>'
+                . '<path d="M8 14h8"/>'
+        ];
+
+        $path = $icons[$ext] ?? $icons['file'];
+        return '<svg class="fav-file-ic" viewBox="0 0 24 24" aria-hidden="true">'
+            . $path
+            . '</svg>';
+    }

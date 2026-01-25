@@ -45,6 +45,91 @@ Changelog by: Neved
 
 ---
 
+## [1.5.1-beta] – 2026-01-25
+
+### Added
+#### • Profil & UI
+- Felhasználói badge-ek megjelenítése „pill” stílusban (lekerekített sarkok, vastagabb körvonal)
+- Üres bio esetén automatikus, vicces fallback szöveg megjelenítése
+- Profilon „Kedvenceim” és „Feltöltés” gombok egységes stílusban
+- Felhasználási feltételek (Terms of Service) oldal hozzáadása
+- Adatkezelési tájékoztató link elhelyezése a footerben
+
+#### • Favorites
+- Új, egységes Favorites UI
+- Thumbnail nélküli fájloknál fájltípus ikon (PDF, DOCX, stb.) megjelenítése
+- Ikonok középre igazítása fallback esetén
+- Favorites oldal leválasztása a felhasználói profil témájáról
+
+### Changed
+#### • Profil oldal
+- Profil fejléc layout újrarendezése (név, username, gombok elhelyezése)
+- Profil témák kiterjesztése navbarra és footerre
+- Checkbox alapú beállítások toggle-kapcsolóra cserélése (2FA)
+- Toggle megjelenítés javítása világos és pastel témákban
+
+#### • Footer
+- Footer teljes újratervezése (brand blokk, jogi linkek, reszponzív layout)
+- GitHub, Adatkezelés és Felhasználási feltételek elkülönített megjelenítése
+
+### Fixed
+#### • Admin panel
+- Admin oldal középre igazítása reklám nélküli layout esetén
+- Táblázatok betűnkénti tördelésének megszüntetése
+- „Meglévő badge-ek” táblázat vízszintes görgetősávjának eltávolítása
+- Badge preview cellák szétesésének javítása
+
+#### • Backend / DB
+- `messages` tábla PRIMARY KEY ütközés javítása (`AUTO_INCREMENT`)
+- Duplikált `id = 0` beszúrási hiba megszüntetése
+
+### Removed
+- Felesleges, üres reklám oszlopok helyfoglalása admin és belső oldalakon
+
+### Security
+- Üzenetküldés adatbázis-integritási hibáinak javítása
+- Felhasználói adatkezelési és jogi oldalak publikálása
+- Inputok és layoutok stabilizálása admin felületen
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
+## [1.5.0-beta] – 2026-01-25
+
+### Added
+#### • Keresés
+- Évfolyam / félév alapú szűrés (középiskola 9–13, egyetem 1–7)
+- Tag alapú szűrés és keresés
+- Relevancia alapú rendezés
+- „Browse” mód keresőkifejezés nélkül
+
+#### • Fájlfeltöltés
+- Kereséssel kompatibilis feltöltési mezők (tantárgy, tagek, évfolyam/félév)
+- Edu stage + level támogatás (`hs`, `uni`)
+- Metaadatok egységesítése feltöltés és keresés között
+
+### Changed
+- `year` mező leváltása `edu_stage` + `edu_level` struktúrára
+- Search és upload logika közös adatmodellre igazítása
+
+
+### Fixed
+- Keresési szűrők együttes használatából adódó hibák
+- Upload oldali validációk és fallbackek
+
+
+### Removed
+- Elavult évfolyam-kezelési logika (`year` oszlop)
+
+### Security
+- Prepared statementek egységes használata keresésnél és feltöltésnél
+- Feltöltési inputok szigorúbb validálása
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [v1.4.5-beta] - 2026-01-17
 
 ### Added

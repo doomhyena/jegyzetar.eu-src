@@ -64,7 +64,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js"></script>
 </head>
-<body>
+<body class="no-ads admin-page">
 <?php include 'assets/php/navbar.php'; ?>
 <div class="main w-full max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-6">
     <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6"><?= t('messages_title') ?></h1>
