@@ -45,6 +45,21 @@ Changelog by: Neved
 
 ---
 
+
+## [1.5.2-beta] - 2026-01-25
+
+### Added
+#### •Profanity filter
+-Fájl és csoport létrehozás előtt eldurran a profanity filteres kódrész
+-Visszadob hogyha trágár szavat talál
+
+!! EGYELŐRE CSAK A FÁJL ÉS CSOPORT LÉTREHOZÁSNÁL VAN ÉLESITVE! (név és descriptionnal pontossabban)
+!!! HA NEM AKARJUK HOGY TELE LEGYEN A DB KÁROMKODÁSSAL, AKKOR KÉSŐBBIEKBEN A SZAVAKAT LEHASHELEM SZIVESEN.
+
+Changelog by: Norbi
+
+---
+
 ## [1.5.1-beta] – 2026-01-25
 
 ### Added
