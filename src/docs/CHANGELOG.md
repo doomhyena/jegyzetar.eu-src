@@ -45,11 +45,30 @@ Changelog by: Neved
 
 ---
 
+## [1.5.3-beta] – 2026-01-26
+
+### Added
+
+#### Payment Demo
+- Fizetési folyamat demó implementálása tesztelési célokra
+#### Premium
+-Prémium funkciók részletes ismertetése és előkészítése
+#### assets/php/premium
+- A prémium funkciók kezeléséhez szükséges PHP függvények hozzáadása
+
+### Changed
+#### Database
+-`premium_users` tábla hozzáadása a prémium jogosultságok kezeléséhez
+
+
+Changelog by: Szekeres Levente
+
+---
 
 ## [1.5.2-beta] - 2026-01-25
 
 ### Added
-#### •Profanity filter
+#### • Profanity filter
 -Fájl és csoport létrehozás előtt eldurran a profanity filteres kódrész
 -Visszadob hogyha trágár szavat talál
 
@@ -64,7 +83,7 @@ Changelog by: Norbi
 
 ### Added
 #### • Profil & UI
-- Felhasználói badge-ek megjelenítése „pill” stílusban (lekerekített sarkok, vastagabb körvonal)
+- Felhasználói badge-ek megjelenítése "pill" stílusban (lekerekített sarkok, vastagabb körvonal)
 - Üres bio esetén automatikus, vicces fallback szöveg megjelenítése
 - Profilon „Kedvenceim” és „Feltöltés” gombok egységes stílusban
 - Felhasználási feltételek (Terms of Service) oldal hozzáadása
