@@ -58,6 +58,7 @@
                             </a>
                             <a href="favorites.php">Kedvencek</a>
                             <a href="messages.php"><?= t('nav_messages') ?></a>
+                            <a href="premium.php"><?= $premium_van ? "⭐ Prémium" : "Prémium" ?></a>
                             <a href="notify.php"><?= t('nav_notify') ?> (<?= $notify_number ?>)</a>
                                 <?php if (!empty($user['admin']) && $user['admin'] == 1): ?>
                                     <a href="admin_panel.php"><?= t('nav_admin') ?></a>

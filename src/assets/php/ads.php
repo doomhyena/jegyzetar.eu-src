@@ -1,4 +1,19 @@
 <?php
+
+    require_once "premium.php";
+
+    $premium_van = false;
+
+    if (isset($_COOKIE['id'])) {
+        $aktualis_felhasznalo_id = (int)$_COOKIE['id'];
+        $premium_van = user_premium($conn, $aktualis_felhasznalo_id);
+    }
+
+    if ($premium_van) {
+        return;
+    }
+
+
     $ads_mappa = __DIR__ . "/../ads";
     $kepek = glob($ads_mappa . "/*.{jpg,jpeg,png,webp}", GLOB_BRACE);
     $baseUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
@@ -20,3 +35,5 @@
         echo '<div class="ads-left"><img src="'.$ads_url.'/'.basename($bal).'" alt="Reklám"></div>';
         echo '<div class="ads-mobile"><img src="'.$ads_url.'/'.basename($mobil).'" alt="Reklám"></div>';
     }
+	
+?>
