@@ -1,4 +1,6 @@
 <?php
+	require_once "assets/php/premium.php";
+
     $isLoggedIn = false;
     $user = null;
     $notify_number = 0;
@@ -29,6 +31,13 @@
             setcookie("id", "", time() - 3600, "/");
             $isLoggedIn = false;
         }
+    }
+	
+	$currentUserId = ($user['id'] ?? 0);
+	$premium_van = false;
+	
+	if ($isLoggedIn) {
+        $premium_van = user_premium($conn, $userid);
     }
 ?>
 
