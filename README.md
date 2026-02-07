@@ -30,9 +30,9 @@ A részletes telepítési és használati útmutató megtalálható a projekt do
 
 **Jegyzetár fejlesztőcsapat**
 
-- Baranyi Norbert
-- Csontos Kincső Anasztázia
-- Szekeres Levente
+- Baranyi Norbert 14/B
+- Csontos Kincső Anasztázia 14/A
+- Szekeres Levente 14/A
 
 ---
 
