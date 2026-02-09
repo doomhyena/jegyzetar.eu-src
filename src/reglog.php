@@ -28,22 +28,10 @@
 
     $selected_question = $security_questions[array_rand($security_questions)];
 
-    // alap form: ha discordból jön prefill, akkor reg, különben login
     $currentForm = ($prefillUsername || $prefillEmail) ? 'reg' : 'login';
     if (isset($_POST['reg-btn'])) $currentForm = 'reg';
     if (isset($_POST['login-btn'])) $currentForm = 'login';
 
-    /**
-     * Helper: biztonságos redirect (ne maradjon futó kód)
-     */
-    function go($url) {
-        header("Location: " . $url);
-        exit;
-    }
-
-    /**
-     * REGISTER
-     */
     if (isset($_POST['reg-btn'])) {
         $lastname = trim($_POST['lastname'] ?? '');
         $firstname = trim($_POST['firstname'] ?? '');
@@ -58,7 +46,6 @@
         $security_answer = password_hash(trim($_POST['security_answer']), PASSWORD_DEFAULT);
         $regCode = trim($_POST['reg_code'] ?? '');
 
-        // 1) reg kód validálás
         if ($regCode === '') {
             echo "<script>alert('A regisztrációs kód megadása kötelező.');</script>";
         } else {
@@ -69,7 +56,6 @@
             } else {
                 $codeRow = $codeRes->fetch_assoc();
 
-                // 2) username / email unique
                 $found_user = db_query($conn, "SELECT id FROM users WHERE username = ? LIMIT 1", "s", [$username]);
                 if ($found_user->num_rows > 0) {
                     echo "<script>alert('" . t('msg_username_exists') . "');</script>";
@@ -78,12 +64,10 @@
                     if ($found_email->num_rows > 0) {
                         echo "<script>alert('" . t('msg_email_exists') . "');</script>";
                     } else {
-                        // 3) password match
                         if ($password !== $password2) {
                             echo "<script>alert('" . t('msg_passwords_not_match') . "');</script>";
                         } else {
                             $hashed = password_hash($password, PASSWORD_DEFAULT);
-                            // 4) user insert
                             $stmt = db_stmt($conn, "INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)", "ssssssssss", [$lastname, $firstname, $username, $birthdate, $gender, $email, $hashed, $security_question, $security_answer, $registration_date]);
                             $stmt->close();
 
@@ -91,10 +75,8 @@
                             if ($newUserId <= 0) {
                                 echo "<script>alert('Hiba történt a regisztráció során.');</script>";
                             } else {
-                                // 5) reg kód használat növelés
                                 db_stmt($conn, "UPDATE reg_codes SET used = used + 1, active = CASE WHEN max_uses IS NOT NULL AND used + 1 >= max_uses THEN 0 ELSE active END WHERE id = ?", "i",  [$codeRow['id']])->close();
 
-                                // 6) user mappa létrehozás
                                 $folder = getcwd();
                                 $path = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
 
@@ -108,11 +90,9 @@
                                     }
                                 }
 
-                                // 7) verifikációs session (mail-regver.php használja)
                                 $_SESSION["ver_id"] = $newUserId;
                                 $_SESSION["email"]  = $email;
 
-                                // ha nálad még kell cookie is:
                                 setcookie("id", $newUserId, time() + 3600, "/");
 
                                 go("mail-regver.php");

@@ -45,6 +45,79 @@ Changelog by: Neved
 
 ---
 
+## [1.5.4-beta] - 2026-02-09
+
+### Added
+#### • Contact Form (contact.php)
+- Teljes kontakt forma implementálása
+- Email küldés az adminoknak (admin@jegyzetar.eu)
+- Automatikus megerősítő email a feladónak
+- Contact messages naplózása adatbázisban (contact_messages tábla)
+- Bejelentkezett felhasználók pre-fill (név, email)
+- Validálás minden mezőre (név, email format, min. 10 char üzenet)
+- Inline magyar szövegek (lang.php-re nem szükséges)
+
+#### • Info & Legal Oldalak
+- **team.php** - Csapattagok profiljai (Baranyi Norbert, Csontos Kincső Anasztázia, Szekeres Levente)
+- **about.php** - Rólunk oldal: projekt célja, alapelvek, fő funkciók, tech stack, NoteForge Development info, jogi nyilatkozat
+- **faq.php** - Gyakran ismételt kérdések (6 kérdés-válasz pár accordion stílusban)
+- **rules.php** - Használati szabályzat (korhatár=13 év, fiókbiztonság, tartalom szabályok, szerzői jog, közösségi viselkedés, pontok/badge-ek, moderáció, prémium, adatvédelem)
+- **partners.php** - Partnereink oldal (RangerBot Discord bot história és linkek)
+- **privacy.php** - Adatkezelési tájékoztató (GDPR compliant, adatkezelő info, adatfeldolgozók, jogok, megőrzés)
+
+### Changed
+#### • UI/CSS Konverzió
+- **contact.php**: Tailwind CDN → styles.css (.card, .form-grid, .input, .btn-primary, .toast osztályok)
+- **contact.php**: Max-width 700px wrapper, középre igazítás
+- **contact.php**: Közvetlenül magyar szövegek (lang.php hívások eltávolítva)
+- Forms és validációs üzenetek összhangban a report.php stílusával
+
+### Fixed
+#### • Contact Form Validation
+- Email validálása (filter_var FILTER_VALIDATE_EMAIL)
+- Üzenet hossz validálása (min 10, max 5000 karakter)
+- Tárgy megadása kötelezővé tétele
+- Input sanitizing a többi oldalhoz hasonlóan
+
+### Removed
+#### • Tailwind CDN hivatkozások
+- Eltávolítva a team.php, about.php, faq.php-ből (nem szükséges, mivel styles.css fedezi a szükséges stílusokat)
+- "Flex", "gap", "grid-cols-*" Tailwind classok NEM törlve (még szükségesek ezekhez!)
+
+### Security
+#### • Contact Form
+- Email formátum validálása (filter_var FILTER_VALIDATE_EMAIL)
+- Üzenet hossz validálása (min 10 karakter)
+- Input sanitizing (htmlspecialchars, trim)
+- XSS védelmi kódok (htmlspecialchars ENT_QUOTES)
+- CSRF token előkészítés (bejelentkezés nem kötelező, de lehetséges)
+- IP cím naplózása az adatbázisban (anonymize_ip())
+- User-Agent naplózása az adatbázisban
+- Privacy.php: GDPR megfelelőség (adatkezelő info, jogok, megőrzés)
+- Rules.php: Korhatár bekéri (13 év) & tiltott tartalmak listázása
+
+Database table szükséges:
+```sql
+CREATE TABLE contact_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NULL,
+    sender_name VARCHAR(255) NOT NULL,
+    sender_email VARCHAR(255) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    message LONGTEXT NOT NULL,
+    ip_address VARCHAR(45),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    read_by_admin BOOLEAN DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+    INDEX (created_at),
+    INDEX (read_by_admin)
+);
+```
+
+Changelog by: GitHub Copilot
+
+---
+
 ## [1.5.3-beta] – 2026-01-26
 
 ### Added
