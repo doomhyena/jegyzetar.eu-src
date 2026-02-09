@@ -1242,13 +1242,7 @@ A projekt fejlesztése során a csapattagok eltérő területekért feleltek, ug
 - Hirdetések megjelenítése az oldalon
 - Mobil navigáció javítása (mobil nav fix)
 - UI/Design fejlesztések a csoportos oldalaknál
-
-Íme egy **dokumentáció-kompatibilis**, hivatalos hangvételű megfogalmazás, amit **szó szerint be tudsz illeszteni**. Úgy írtam meg, hogy illeszkedjen a 11. fejezet stílusához és logikájához.
-
-### Javasolt megoldás
-
-Érdemes **külön alpontként** szerepeltetni, mert ez **külön platform (C# WinForms)** és **közös munka** volt Szekeres Levente és Baranyi Norbert részéről.
-
+- 
 ---
 
 ### 12.4. Szekeres Levente & Baranyi Norbert
