@@ -382,3 +382,50 @@ if (bio && counter) {
         form.submit();
     }));
 })();
+
+document.addEventListener("DOMContentLoaded", () => {
+    const accordion = document.getElementById("faq-accordion");
+    if (!accordion) return;
+
+    const items = [...accordion.querySelectorAll(".border")];
+
+    const closeItem = (item) => {
+      const btn = item.querySelector(".faq-btn");
+      const panel = item.querySelector(".faq-panel");
+      const icon = item.querySelector(".faq-icon");
+
+      btn.setAttribute("aria-expanded", "false");
+      panel.style.maxHeight = "0px";
+      icon.textContent = "+";
+    };
+
+    const openItem = (item) => {
+      const btn = item.querySelector(".faq-btn");
+      const panel = item.querySelector(".faq-panel");
+      const icon = item.querySelector(".faq-icon");
+
+      btn.setAttribute("aria-expanded", "true");
+      panel.style.maxHeight = panel.scrollHeight + "px";
+      icon.textContent = "–";
+    };
+
+    items.forEach((item) => {
+      const btn = item.querySelector(".faq-btn");
+      btn.addEventListener("click", () => {
+        const isOpen = btn.getAttribute("aria-expanded") === "true";
+
+        items.forEach(closeItem);
+
+        if (!isOpen) openItem(item);
+      });
+    });
+
+    window.addEventListener("resize", () => {
+      items.forEach((item) => {
+        const btn = item.querySelector(".faq-btn");
+        const panel = item.querySelector(".faq-panel");
+        const isOpen = btn.getAttribute("aria-expanded") === "true";
+        if (isOpen) panel.style.maxHeight = panel.scrollHeight + "px";
+      });
+    });
+});

@@ -2088,7 +2088,10 @@ a:hover {
     color: var(--text);
     text-decoration:none;
 }
-.upload-title-link:hover{ text-decoration: underline; }
+
+.upload-title-link:hover{ 
+    text-decoration: underline; 
+}
 
 .upload-meta{
     display:flex;
@@ -2121,6 +2124,7 @@ a:hover {
     background: rgba(255,255,255,.06);
     color: var(--text);
 }
+
 .btn-soft:hover{
     background: rgba(255,255,255,.10);
 }
@@ -2139,7 +2143,11 @@ a:hover {
     border:1px solid rgba(255,255,255,.25);
     cursor:pointer;
 }
-.btn-primary:hover{ filter: brightness(.98); transform: translateY(-1px); }
+
+.btn-primary:hover{ 
+    filter: brightness(.98); 
+    transform: translateY(-1px); 
+}
 
 .btn-danger{
     display:inline-flex;
@@ -2154,7 +2162,11 @@ a:hover {
     border:1px solid rgba(255,255,255,.18);
     cursor:pointer;
 }
-.btn-danger:hover{ filter: brightness(.98); transform: translateY(-1px); }
+
+.btn-danger:hover{ 
+    filter: brightness(.98); 
+    transform: translateY(-1px); 
+}
 
 .upload-actions{
     display:flex;
@@ -2162,13 +2174,17 @@ a:hover {
     gap:10px;
     flex-wrap:wrap;
 }
-.upload-delete{ margin:0; }
+
+.upload-delete{ 
+    margin:0; 
+}
 
 .upload-preview{
     margin-top:12px;
     border-top:1px dashed var(--stroke);
     padding-top:10px;
 }
+
 .upload-preview-summary{
     cursor:pointer;
     user-select:none;
@@ -2177,7 +2193,10 @@ a:hover {
     list-style:none;
 }
 
-.upload-preview-summary::-webkit-details-marker{ display:none; }
+.upload-preview-summary::-webkit-details-marker{ 
+    display:none; 
+}
+
 .upload-preview summary:before{
     content:'▸';
     display:inline-block;
@@ -2750,19 +2769,15 @@ body.admin-page .badge-chip *{
     white-space: nowrap !important;
 }
 
-/* ===== ADMIN: badge list table without horizontal scrollbar ===== */
-/* Target only the wrapper that contains the badge list table */
 div.overflow-x-auto:has(> table.badge-list-table){
     overflow-x: hidden !important;
 }
 
-/* Make the badge table fit the container */
 table.badge-list-table{
     width: 100% !important;
     table-layout: fixed !important;
 }
 
-/* Prevent inputs from forcing the table wider */
 table.badge-list-table .input{
     width: 100% !important;
     max-width: 100% !important;
@@ -2770,7 +2785,6 @@ table.badge-list-table .input{
     box-sizing: border-box;
 }
 
-/* Keep preview chip from stretching the column */
 table.badge-list-table .badge-chip{
     display: inline-flex;
     align-items: center;
@@ -2831,6 +2845,9 @@ table.badge-list-table td:nth-child(5){
 
 .site-footer {
     margin-top: 80px;
+    margin-left: calc(14px * -1);
+    margin-right: calc(14px * -1);
+    width: calc(100% + 14px * 2);
     padding: 28px 20px;
     background: linear-gradient(
             180deg,
@@ -2846,80 +2863,94 @@ body.theme-pastel .site-footer {
     border-top: 1px solid rgba(2,6,23,0.12);
 }
 
-.footer-inner {
-    max-width: 1200px;
-    margin: 0 auto;
-
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 24px;
-    flex-wrap: wrap;
-}
-
-.footer-brand {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-}
-
-.footer-logo {
-    font-weight: 800;
-    font-size: 1.1rem;
-}
-
 .footer-beta {
     font-size: 0.65rem;
     padding: 2px 6px;
     border-radius: 999px;
-    background: rgba(56,189,248,0.2);
-    color: #38bdf8;
+    background: rgba(125,211,252,.18);
+    color: var(--primary);
+    font-weight: 800;
+    letter-spacing: .08em;
 }
 
-.footer-devs {
-    font-size: 0.85rem;
-    opacity: 0.8;
-    max-width: 420px;
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    gap: 48px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.footer-left {
+    max-width: 320px;
 }
 
 .footer-devs a {
+    font-size: 0.8rem;
+    opacity: 0.75;
     text-decoration: none;
-    font-weight: 500;
+}
+
+.footer-meta {
+    margin-top: 6px;
+    font-size: 0.75rem;
+    opacity: 0.45;
+    line-height: 1.4;
+}
+
+.footer-meta span {
+    color: var(--accent);
 }
 
 .footer-devs a:hover {
+    opacity: 1;
     text-decoration: underline;
 }
 
 .footer-right {
-    text-align: right;
-}
-
-.footer-links {
     display: flex;
-    gap: 14px;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    margin-bottom: 6px;
+    flex-direction: column;
+    gap: 24px;
+    align-items: flex-start;
 }
 
-.footer-links a {
-    font-size: 0.85rem;
-    opacity: 0.85;
-    text-decoration: none;
+.footer-links-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
-.footer-links a:hover {
+.footer-links-group span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    opacity: 0.6;
+    margin-bottom: 4px;
+}
+
+.footer-links-group a {
+    padding-left: 2px;
+}
+
+.footer-links-group a:hover {
+    padding-left: 6px;
+    transition: padding 0.15s ease;
+}
+
+.footer-links-group a:hover {
     opacity: 1;
     text-decoration: underline;
 }
 
 .footer-copy {
-    font-size: 0.75rem;
-    opacity: 0.6;
+    font-size: 0.7rem;
+    opacity: 0.5;
+    margin-top: 16px;
 }
 
+.mobile-only {
+    display: none;
+}
 
 /* ==================================================
    13. RESPONSIVE
@@ -3190,5 +3221,12 @@ body.theme-pastel .site-footer {
 
     .footer-links {
         justify-content: center;
+    }
+}
+
+@media (max-width: 700px) {
+    .footer-meta {
+        font-size: 0.7rem;
+        opacity: 0.4;
     }
 }

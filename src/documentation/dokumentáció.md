@@ -21,55 +21,63 @@ Szekeres Levente 14/A
 <p align="center"><strong>2026</strong></p>
 
 <div style="page-break-before: always;"></div>
-0. [Dokumentum adatai](#dokumentum-adatai)
+
+0. [Dokumentum adatai](#0-dokumentum-adatai)
 
 1. [Bevezetés](#1-bevezetés)
+
    - 1.1. [A Projekt Célja](#11-a-projekt-célja)
    - 1.2. [Főbb Funkciók](#12-főbb-funkciók)
    - 1.3. [Technológiai Stack](#13-technológiai-stack)
    - 1.4. [Fogalomtár (Glossary)](#14-fogalomtár-glossary)
 
 2. [Rendszerarchitektúra](#2-rendszerarchitektúra)
+
    - 2.1. [Magas Szintű Architektúra](#21-magas-szintű-architektúra)
    - 2.2. [Komponensek](#22-komponensek)
    - 2.3. [Adatbázis Séma](#23-adatbázis-séma)
 
 3. [Frontend Architektúra](#3-frontend-architektúra)
+
    - 3.1. [Komponens Hierarchia](#31-komponens-hierarchia)
    - 3.2. [Állapotkezelés](#32-állapotkezelés)
    - 3.3. [Routing](#33-routing)
    - 3.4. [UI/UX Design](#34-uiux-design)
 
 4. [Backend Architektúra](#4-backend-architektúra)
-    - 4.1. [Backend funkciók és felelősségek](#41-backend-funkciók-és-felelősségek)
-        - 4.1.1. [Felhasználókezelés és autentikáció](#411-felhasználókezelés-és-autentikáció)
-        - 4.1.2. [Jogosultságok és szerepkörök](#412-jogosultságok-és-szerepkörök)
-        - 4.1.3. [Jegyzetek kezelése](#413-jegyzetek-kezelése-crud--metaadat)
-        - 4.1.4. [Fájlfeltöltés és validáció](#414-fájlfeltöltés-és-validáció)
-        - 4.1.5. [Közösségi funkciók](#415-közösségi-funkciók)
-        - 4.1.6. [Jelentés és moderáció](#416-jelentés-és-moderáció-report-rendszer)
-        - 4.1.7. [Profil és testreszabás](#417-profil-és-testreszabás-css-kérelmek)
-        - 4.1.8. [Üzenetek, barátok, értesítések](#418-üzenetek-barátok-értesítések)
-        - 4.1.9. [Csoport funkciók](#419-csoport-funkciók)
-        - 4.1.10. [Lokalizáció](#4110-lokalizáció-i18n)
-        - 4.1.11. [Adatbázis hozzáférési segédek és biztonság](#4111-adatbázis-hozzáférési-segédek-és-biztonság)
-    - 4.2. [Adatbázis kapcsolat](#42-adatbázis-kapcsolat)
-    - 4.3. [Fájlkezelés](#43-fájlkezelés)
+
+   - 4.1. [Backend funkciók és felelősségek](#41-backend-funkciók-és-felelősségek)
+     - 4.1.1. [Felhasználókezelés és autentikáció](#411-felhasználókezelés-és-autentikáció)
+     - 4.1.2. [Jogosultságok és szerepkörök](#412-jogosultságok-és-szerepkörök)
+     - 4.1.3. [Jegyzetek kezelése](#413-jegyzetek-kezelése-crud--metaadat)
+     - 4.1.4. [Fájlfeltöltés és validáció](#414-fájlfeltöltés-és-validáció)
+     - 4.1.5. [Közösségi funkciók](#415-közösségi-funkciók)
+     - 4.1.6. [Jelentés és moderáció](#416-jelentés-és-moderáció-report-rendszer)
+     - 4.1.7. [Profil és testreszabás](#417-profil-és-testreszabás-css-kérelmek)
+     - 4.1.8. [Üzenetek, barátok, értesítések](#418-üzenetek-barátok-értesítések)
+     - 4.1.9. [Csoport funkciók](#419-csoport-funkciók)
+     - 4.1.10. [Lokalizáció](#4110-lokalizáció-i18n)
+     - 4.1.11. [Adatbázis hozzáférési segédek és biztonság](#4111-adatbázis-hozzáférési-segédek-és-biztonság)
+   - 4.2. [Adatbázis kapcsolat](#42-adatbázis-kapcsolat)
+   - 4.3. [Fájlkezelés](#43-fájlkezelés)
 
 5. [Deployment](#5-deployment)
-    - 5.1. [Környezetek](#51-környezetek)
-    - 5.2. [Fejlesztői környezet](#52-fejlesztői-környezet-development)
-    - 5.3. [Kód commit és push](#53-kód-commit-és-push)
-    - 5.4. [Code review](#54-pull-request-és-code-review)
-    - 5.5. [Hibaelhárítás](#55-hibaelhárítás)
+
+   - 5.1. [Környezetek](#51-környezetek)
+   - 5.2. [Fejlesztői környezet](#52-fejlesztői-környezet-development)
+   - 5.3. [Kód commit és push](#53-kód-commit-és-push)
+   - 5.4. [Code review](#54-pull-request-és-code-review)
+   - 5.5. [Hibaelhárítás](#55-hibaelhárítás)
 
 6. [Biztonság](#6-biztonság)
-    - 6.1. [Autentikáció](#61-autentikáció)
-    - 6.2. [Jogosultságkezelés (RBAC)](#62-jogosultságkezelés-rbac)
+
+   - 6.1. [Autentikáció](#61-autentikáció)
+   - 6.2. [Jogosultságkezelés (RBAC)](#62-jogosultságkezelés-rbac)
 
 7. [Tesztelés](#6-tesztelés)
-    - 7.1. [Egység Tesztek](#71-egység-tesztek)
-    - 7.2. [Manuális Tesztek](#72-manuális-tesztek)
+
+   - 7.1. [Egység Tesztek](#71-egység-tesztek)
+   - 7.2. [Manuális Tesztek](#72-manuális-tesztek)
 
 8. [Felhasználói Dokumentáció](#8-felhasználói-dokumentáció)
        - 8.1. [Elérés / Használatba vétel](#81-elérés--használatba-vétel)
@@ -125,10 +133,10 @@ Szekeres Levente 14/A
 
 <div style="page-break-before: always;"></div>
 
-## Dokumentum adatai
+## 0. Dokumentum adatai
 
-| Tulajdonság | Érték |
-|--------------------------|----------------------------------------|
+| Tulajdonság              | Érték                                  |
+| ------------------------ | -------------------------------------- |
 | **Projekt neve**         | Jegyzetár                              |
 | **Dokumentum típusa**    | Fejlesztői + felhasználói dokumentáció |
 | **Dokumentum azonosító** | JEGYZETAR-DOKU-2026-01                 |
@@ -154,26 +162,25 @@ Szekeres Levente 14/A
 
 A **Jegyzetár** egy modern, közösségi alapú, oktatássegítő platform, amely lehetővé teszi a diákok számára, hogy egyszerűen és biztonságosan megosszák egymással jegyzeteiket, segédanyagaikat és tanulást támogató dokumentumaikat. A projekt célja, hogy:
 
-* **Kik használják?**
-Diákok, tanárok és oktatók, akik megosztanák egymással az oktatási anyagokat.
+- **Kik használják?**
+  Diákok, tanárok és oktatók, akik megosztanák egymással az oktatási anyagokat.
 
-* **Gyors és kényelmes fájlmegosztást biztosítson tanulóknak**
+- **Gyors és kényelmes fájlmegosztást biztosítson tanulóknak**
 
   - A felhasználók könnyedén feltölthetnek, kereshetnek és letölthetnek jegyzeteket
   - A platform reszponzív kialakítása biztosítja a mobilbarát használatot
   - Az egyszerű kezelőfelület csökkenti az informatikai tudás iránti igényt
 
-* **Rendszerezett és kereshető tananyagbázist hozzon létre**
+- **Rendszerezett és kereshető tananyagbázist hozzon létre**
 
   - Tantárgyak, évfolyamok és dokumentumtípusok szerint kategorizál
   - Kulcsszavas keresés és szűrés segíti a gyors anyagkeresést
   - Előnézeti kép vagy rövid leírás segít a tartalom gyors azonosításában
 
-* **Támogassa a közösségi tanulást**
+- **Támogassa a közösségi tanulást**
 
   - A felhasználók értékelhetik, kommentelhetik a jegyzeteket
   - A rendszer kiemeli a legnépszerűbb vagy legjobbra értékelt anyagokat
-
 
 ---
 
@@ -203,24 +210,30 @@ A Jegyzetár rendszer az alábbi kulcsfunkciókat biztosítja:
 
 - Admin felület a tartalmak, felhasználók és kategóriák kezeléséhez
 - Feltöltések jelentése és moderálása
-    - Admin eszközök kiterjesztése: Külön felület az egyedi profil CSS kérések kezelésére (jóváhagyás / elutasítás / archiválás), valamint a felhasználók és feltöltések részletes kezelése (törlés, szerkesztés, moderation logs).
+  - Admin eszközök kiterjesztése: Külön felület az egyedi profil CSS kérések kezelésére (jóváhagyás / elutasítás / archiválás), valamint a felhasználók és feltöltések részletes kezelése (törlés, szerkesztés, moderation logs).
 
 ### Profil egyedi CSS kérések
+
 Bevezetésre került a felhasználói CSS kérelmek kezelése, amely a profil felületén megadható, de csak admin jóváhagyása után érvényesül. Az előnézet a felhasználói élményt javítja és nem ment a szerverre automatikusan.
 
 ### Admin jóváhagyási UI
+
 Az admin panelben külön táblában listázhatók és jóváhagyhatók a CSS kérések; az elfogadott CSS archiválható és az előző állapot is visszaállítható.
 
 ### Frontend preview & safe background rules
+
 A preview kliens oldali (style tag injektálás), a SAFE_BG_RULE szabály megakadályozza a background képek kellemetlen ismétlődését, és a preview idején a jobboldali panel rejtésre kerül, hogy az előnézet ne rontsa el az oldalt.
 
 ### Lokalizációs módosítások
+
 A `t()` segédfüggvény és `lang.php` központi megoldással egy adatbázis-alapú fordítási rendszer lett bevezetve. A fordítások hiányzó kulcsait automatikusan lehet seed-elni. Fordítási kulcsok a `profiles`-hoz a 1543-as ID-tól készültek.
 
 ### SQL dump & seed eszközök
+
 Hozzáadtuk a `clean_translations.py`, `translations_clean.sql`, `replace_translations_in_dump.py`, `repair_translations.sql` eszközöket, amelyek a dump-ok importjának biztonságát növelik (duplikált bejegyzések eltávolítása, ON DUPLICATE használata, táblák import sorrendje). A `repair_translations.sql` script automatikus backup-ot készít, majd törli a duplikátumokat és létrehozza a megfelelő UNIQUE indexet.
 
 ### Biztonsági javítások
+
 A kód refaktorálásával `db_prepared()` használata javasolt a lekérdezésekhez, `require_once` és `function_exists` védelem bevezetésre került, a `Message()` segédfüggvény javítja az értesítések konzisztenciáját.
 
 ### 1.3. Technológiai Stack
@@ -228,22 +241,27 @@ A kód refaktorálásával `db_prepared()` használata javasolt a lekérdezések
 A Jegyzetár fejlesztése során a következő technológiákat és eszközöket használtuk, amelyek mindegyike szabadon elérhető és bármilyen modern számítógépen telepíthető:
 
 ### Frontend
+
 - **HTML5, CSS3, JavaScript**: Az alapvető webes technológiák a felhasználói felület kialakításához.
 - **Bootstrap**: Reszponzív és mobilbarát dizájn gyors fejlesztéséhez.
 - **jQuery**: Egyszerű DOM-manipulációk és AJAX-hívások kezelésére.
 
 ### Backend
+
 - **PHP (8.2+)**: A szerveroldali logika és API-k implementálásához.
 
 ### Adatbázis
+
 - **MySQL**: Relációs adatbázis-kezelő a felhasználói adatok, fájlok és egyéb információk tárolására.
 - **phpMyAdmin**: Az adatbázis adminisztrációjához.
 
 ### Verziókezelés
+
 - **Git**: Verziókövetés és csapatmunka támogatása.
 - **GitHub**: Távoli repository a kód tárolására és megosztására.
 
 ### Egyéb eszközök
+
 - **XAMPP**: Lokális fejlesztői környezet (Apache, MySQL, PHP) - ingyenesen letölthető bármely operációs rendszerre.
 - **Visual Studio Code**: Kódszerkesztő a fejlesztéshez - ingyenes és cross-platform.
 - **PHPStorm**: Integrált Fejlesztői Környezet a fejlesztéshez - fizetős verzió elérhető bármeély operációs rendszerre (opcionális).
@@ -268,7 +286,9 @@ A Jegyzetár fejlesztése során a következő technológiákat és eszközöket
 -
 
 ### Hardver követelmények
+
 A fejlesztési környezet bármilyen modern számítógépen futtatható. Minimális követelmények:
+
 - **Operációs rendszer**: Windows 10/11, macOS 10.14+ vagy Linux (Ubuntu/Debian)
 - **Processzor**: Modern többmagos CPU (pl. Intel i5, AMD Ryzen 5 vagy hasonló)
 - **Memória**: Legalább 8GB RAM (ajánlott 16GB a jobb teljesítmény érdekében)
@@ -284,16 +304,18 @@ A fejlesztési környezet bármilyen modern számítógépen futtatható. Minim�
 - **Seed:** Kezdő (teszt) adatok betöltése adatbázisba.
 - **Dump:** Adatbázis kimentés (.sql) importálható formában.
 
-
 ## 2. Rendszerarchitektúra
 
 ### 2.1. Magas Szintű Architektúra
+
 A Jegyzetár egy háromrétegű architektúrát követ:
+
 1. **Prezentációs réteg**: A felhasználói felület, amely a frontend technológiákra épül.
 2. **Alkalmazásréteg**: A backend logika, amely PHP segítségével valósul meg.
 3. **Adatbázis réteg**: A MySQL adatbázis, amely az összes adatot tárolja.
 
 ### 2.2. Komponensek
+
 - **Frontend**: A felhasználói interakciók kezelése és az adatok megjelenítése.
 - **Backend**: A logika és az adatbázis műveletek végrehajtása.
 - **Adatbázis**: A felhasználói adatok, fájlok és metaadatok tárolása.
@@ -319,12 +341,14 @@ Az alábbi ábra a Jegyzetár adatbázis fő tábláit és azok kapcsolatait mut
 ### 3.3. Routing
 
 ### 3.4. UI/UX Design
+
 A Jegyzetár felhasználói felülete egyszerű és intuitív, a következő szempontokat figyelembe véve:
+
 - **Reszponzív dizájn**: A platform minden eszközön jól használható.
 - **Egyszerű navigáció**: Könnyen elérhető funkciók és tiszta menürendszer.
 - **Konzisztens stílus**: Azonos színpaletta és tipográfia az egész alkalmazásban.
 
-#### Frontend kiegészítések 
+#### Frontend kiegészítések
 
 - A profiloldalhoz egy kliensoldali CSS előnézeti funkció került be: a felhasználó `profile.php` oldalon megadhat, és előnézhet egyedi CSS beállításokat. A preview csak kliensoldali stílus-injektálást használ és nem menti el automatikusan az adatbázisba.
 - Biztonsági frontend szabályok: a preview megakadályozza a kedvezőtlen elrendezés-befolyásolást (jobboldali oszlop eltakarása preview alatt), illetve van egy `SAFE_BG_RULE` ami megakadályozza a háttér pattern (tiling) fokozott felvillanását.
@@ -338,99 +362,105 @@ A Jegyzetár backendje PHP alapon biztosítja az alkalmazás üzleti logikáját
 
 #### 4.1.1. Felhasználókezelés és autentikáció
 
-* **Regisztráció és belépés** (`reglog.php`)
-* **E-mail aktiváció**: regisztráció után aktiváló link küldése és validálása
-  *(mail-regver.php, reg-ver.php, `tokens` tábla)*
-* **Kétlépcsős hitelesítés (2FA)**: belépés után e-mail kód küldése és ellenőrzése
-  *(mail-2fa.php, 2fa.php, `2fa_codes` tábla)*
-* **Vendég mód**: a főoldal böngészése bejelentkezés nélkül (korlátozott jogosultság)
+- **Regisztráció és belépés** (`reglog.php`)
+- **E-mail aktiváció**: regisztráció után aktiváló link küldése és validálása
+  _(mail-regver.php, reg-ver.php, `tokens` tábla)_
+- **Kétlépcsős hitelesítés (2FA)**: belépés után e-mail kód küldése és ellenőrzése
+  _(mail-2fa.php, 2fa.php, `2fa_codes` tábla)_
+- **Vendég mód**: a főoldal böngészése bejelentkezés nélkül (korlátozott jogosultság)
 
 #### 4.1.2. Jogosultságok és szerepkörök
 
-* Guest / User / Admin jogosultsági szintek alkalmazása
-* Admin funkciók elérése és védelme (moderáció, felhasználókezelés, CSS kérések)
+- Guest / User / Admin jogosultsági szintek alkalmazása
+- Admin funkciók elérése és védelme (moderáció, felhasználókezelés, CSS kérések)
 
 #### 4.1.3. Jegyzetek kezelése (CRUD + metaadat)
 
-* Jegyzetek listázása és részletek megjelenítése (`index.php`, `note.php`)
-* Metaadatok kezelése (név, leírás, tantárgy, tag-ek)
-* Letöltések kiszolgálása és hozzáférés-ellenőrzés (`download.php`)
+- Jegyzetek listázása és részletek megjelenítése (`index.php`, `note.php`)
+- Metaadatok kezelése (név, leírás, tantárgy, tag-ek)
+- Letöltések kiszolgálása és hozzáférés-ellenőrzés (`download.php`)
 
 #### 4.1.4. Fájlfeltöltés és validáció
 
-* Fájl feltöltés kezelése (`upload.php`)
-* Kiterjesztés / méret / (opcionálisan MIME) ellenőrzés
-* Fájlnévkezelés és biztonsági védelem (pl. path traversal megelőzés)
-* Feltöltött fájlok és metaadatok mentése adatbázisba
+- Fájl feltöltés kezelése (`upload.php`)
+- Kiterjesztés / méret / (opcionálisan MIME) ellenőrzés
+- Fájlnévkezelés és biztonsági védelem (pl. path traversal megelőzés)
+- Feltöltött fájlok és metaadatok mentése adatbázisba
 
 #### 4.1.5. Közösségi funkciók
 
-* **Kommentek** kezelése (`comments` tábla)
-* **Értékelés** kezelése (`ratings` tábla, egyszeri értékelés logika)
-* **Kedvencek**: mentés és lista (`favorites.php`, `favorites` tábla)
+- **Kommentek** kezelése (`comments` tábla)
+- **Értékelés** kezelése (`ratings` tábla, egyszeri értékelés logika)
+- **Kedvencek**: mentés és lista (`favorites.php`, `favorites` tábla)
 
 #### 4.1.6. Jelentés és moderáció (report rendszer)
 
-* Jelentés beküldése és tárolása (`reports` tábla, `report.php`)
-* Admin oldali kezelés: státuszok (open/dismissed/resolved), kezelő rögzítése
-* Moderációs műveletek: tartalom/tevékenység kezelése (törlés/szerkesztés, ha implementálva)
+- Jelentés beküldése és tárolása (`reports` tábla, `report.php`)
+- Admin oldali kezelés: státuszok (open/dismissed/resolved), kezelő rögzítése
+- Moderációs műveletek: tartalom/tevékenység kezelése (törlés/szerkesztés, ha implementálva)
 
 #### 4.1.7. Profil és testreszabás (CSS kérelmek)
 
-* Profiladatok kezelése (bio, profilkép, téma)
-* **Egyedi CSS kérelem** tárolása és státuszkezelése (`user_custom_css_requests`)
-* Jóváhagyás után archiválás (`user_custom_css_archive`) és admin döntési folyamat
+- Profiladatok kezelése (bio, profilkép, téma)
+- **Egyedi CSS kérelem** tárolása és státuszkezelése (`user_custom_css_requests`)
+- Jóváhagyás után archiválás (`user_custom_css_archive`) és admin döntési folyamat
 
 #### 4.1.8. Üzenetek, barátok, értesítések
 
-* Barátkérelmek és státuszok kezelése (`friends`)
-* Privát üzenetek kezelése (`messages`)
-* Rendszerértesítések (`notifys`)
+- Barátkérelmek és státuszok kezelése (`friends`)
+- Privát üzenetek kezelése (`messages`)
+- Rendszerértesítések (`notifys`)
 
 #### 4.1.9. Csoport funkciók
 
-* Csoport létrehozás és kezelés (`groups`, `group_members`)
-* Csoporton belüli fájlok: feltöltés, jóváhagyás, moderáció (`group_files`)
-* Csoportok integrációja keresésbe / navigációba / értesítésekbe (ha így van megoldva)
+- Csoport létrehozás és kezelés (`groups`, `group_members`)
+- Csoporton belüli fájlok: feltöltés, jóváhagyás, moderáció (`group_files`)
+- Csoportok integrációja keresésbe / navigációba / értesítésekbe (ha így van megoldva)
 
 #### 4.1.10. Lokalizáció (i18n)
 
-* Nyelvek kezelése (`languages`)
-* Fordítások adatbázisban (`translations`)
-* `t()` / `lang.php` alapú fordítás betöltés és missing-key seeding támogatás
+- Nyelvek kezelése (`languages`)
+- Fordítások adatbázisban (`translations`)
+- `t()` / `lang.php` alapú fordítás betöltés és missing-key seeding támogatás
 
 #### 4.1.11. Adatbázis hozzáférési segédek és biztonság
 
-* Egységes DB hozzáférés wrapper-ek: `db_prepared`, `db_stmt`, `db_query`
-* Prepared statement alapú lekérdezések preferálása (SQL injection kockázat csökkentése)
-* Include/duplikáció védelem (`require_once`, `function_exists`)
-* Egységes felhasználói üzenetek: `Message()` helper
-
+- Egységes DB hozzáférés wrapper-ek: `db_prepared`, `db_stmt`, `db_query`
+- Prepared statement alapú lekérdezések preferálása (SQL injection kockázat csökkentése)
+- Include/duplikáció védelem (`require_once`, `function_exists`)
+- Egységes felhasználói üzenetek: `Message()` helper
 
 ### 4.2. Adatbázis Kapcsolat
+
 A PHP mysqli-t használjuk az adatbázis műveletek végrehajtására.
 
 - Security & prepared statements: A kód nagy részét átdolgoztuk, hogy a `db_prepared($conn, $sql, $types, $params)` wrapper-t használjuk, amely a mysqli prepared statements használatát biztosítja. Ezzel jelentősen csökkent a kockázata az SQL injekcióknak, és egységesebbé vált a lekérdezések kezelése.
 
 ### 4.3. Fájlkezelés
+
 A feltöltött fájlokat a szerveren tároljuk, és a fájlokhoz tartozó metaadatokat az adatbázisban rögzítjük.
 
 ## 5. Deployment
 
 ### 5.1. Környezetek
+
 - **Fejlesztői környezet**: Lokális XAMPP szerver.
 - **Éles környezet**: Apache szerver MySQL adatbázissal.
 
 ### 5.2. Fejlesztői környezet
+
 A fejlesztéshez szükséges összes függőség telepítése Composer és npm segítségével történik.
 
 ### 5.3. Kód commit és push
+
 A kódot Git segítségével kezeljük, és minden változtatást a GitHub repository-ba push-olunk.
 
 ### 5.4. Code review
+
 Minden új funkciót pull request formájában integrálunk, amelyet code review előz meg.
 
 ### 5.5. Hibaelhárítás
+
 A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját használjuk.
 
 ## 6. Biztonság
@@ -452,11 +482,13 @@ A hibák nyomon követésére és kezelésére a GitHub Issues funkcióját hasz
 A **Jegyzetár** egy webes platform, ezért **felhasználóknak nincs szükség telepítésre**. Elég egy modern böngésző és internetkapcsolat.
 
 #### Előfeltételek (felhasználóknak)
+
 - Modern böngésző: Chrome / Edge / Firefox (ajánlott friss verzió)
 - Stabil internetkapcsolat
 - Érvényes e-mail cím (regisztrációhoz és 2FA-hoz)
 
 #### Első belépés előtt
+
 1. Nyisd meg a Jegyzetár weboldalt (a tanár / rendszergazda által megadott címen).
 2. Ha még nincs fiókod, regisztrálj (lásd 7.2).
 3. Ha a rendszer e-mail aktivációt használ, ellenőrizd a postafiókod és aktiváld a fiókot.
@@ -468,6 +500,7 @@ A **Jegyzetár** egy webes platform, ezért **felhasználóknak nincs szükség 
 Ebben a részben a leggyakoribb felhasználói feladatok vannak leírva.
 
 #### 8.2.1. Regisztráció
+
 1. Navigálj a `reglog.php` oldalra.
 2. Töltsd ki a szükséges mezőket:
    - vezetéknév, keresztnév
@@ -479,10 +512,12 @@ Ebben a részben a leggyakoribb felhasználói feladatok vannak leírva.
 4. (Ha szükséges) aktiváld a fiókot e-mailből a megadott linken (`reg-ver.php` / aktivációs oldal).
 
 **Tippek:**
+
 - Használj olyan jelszót, amit más oldalon nem használsz.
 - E-mail címet pontosan add meg, mert a 2FA kód is oda érkezhet.
 
 #### 8.2.2. Bejelentkezés + 2FA
+
 1. Navigálj a `reglog.php` oldalra.
 2. Kattints a `Lépj be!` linkre.
 3. Add meg a felhasználóneved és jelszavad.
@@ -492,6 +527,7 @@ Ebben a részben a leggyakoribb felhasználói feladatok vannak leírva.
    - írd be a kapott kódot a 2FA oldalon (`2fa.php`).
 
 #### 8.2.3. Jegyzet keresése és letöltése
+
 1. Nyisd meg a főoldalt (`index.php`).
 2. Használd a keresőt vagy a szűrőket:
    - kulcsszó / cím / leírás
@@ -504,6 +540,7 @@ Ebben a részben a leggyakoribb felhasználói feladatok vannak leírva.
 **Tipp:** Ha túl sok találat van, szűkíts tantárgyra vagy adj meg specifikusabb kulcsszót.
 
 #### 8.2.4. Jegyzet feltöltése
+
 1. Navigálj az `upload.php` oldalra.
 2. Add meg a fájl adatait:
    - fájl neve / cím
@@ -514,15 +551,18 @@ Ebben a részben a leggyakoribb felhasználói feladatok vannak leírva.
 4. Küldd el az űrlapot a feltöltéshez.
 
 **Fontos:**
+
 - Csak olyan fájlt tölts fel, amit megoszthatsz (saját jegyzet, saját anyag).
 - Ne tölts fel személyes adatokat tartalmazó dokumentumot (pl. lakcím, telefonszám, osztálynapló fotó).
 
 #### 8.2.5. Kommentelés, értékelés, kedvencek
+
 - **Kommentelés:** A `note.php` oldalon a komment mezőben írhatsz hozzászólást.
 - **Értékelés:** A jegyzetet csillaggal/pontszámmal értékelheted (ha a rendszer engedélyezi).
 - **Kedvencek:** Jelöld kedvencnek a jegyzetet (ha van ilyen gomb), majd a kedvenceket a `favorites.php` oldalon éred el.
 
 #### 8.2.6. Profilkezelés
+
 1. Navigálj a `profile.php` oldalra.
 2. Itt általában a következőket tudod kezelni:
    - profilkép feltöltése
@@ -531,6 +571,7 @@ Ebben a részben a leggyakoribb felhasználói feladatok vannak leírva.
    - saját feltöltések és aktivitás áttekintése
 
 ##### Profil testreszabása - Egyedi CSS (kérelem + preview)
+
 1. A profilbeállításoknál található egy `CSS kód` mező, ahova saját profil CSS-t adhatsz meg.
 2. Használhatod a `preview` gombot, amely **kliens oldali élő előnézetet** biztosít.
    - A változás ilyenkor csak előnézet, és **nem mentődik automatikusan**.
@@ -540,16 +581,20 @@ Ebben a részben a leggyakoribb felhasználói feladatok vannak leírva.
    - elutasítás esetén nem aktiválódik.
 
 **Megkötések / javaslatok:**
+
 - Ne próbálj “láthatatlan" gombokat vagy félrevezető UI-t készíteni (pl. letöltés elrejtése).
 - Ha az előnézet “szétcsúsztatja" az oldalt, kapcsold ki a preview-t és javítsd a CSS-t.
 
 #### 8.2.7. Barátok hozzáadása és üzenetek
+
 **Barát hozzáadása:**
+
 1. Nyisd meg egy felhasználó profilját (`profile.php`) vagy keress rá a `search.php` oldalon.
 2. Használd a barát hozzáadása gombot.
 3. Várd meg, míg a másik fél elfogadja.
 
 **Üzenetküldés:**
+
 1. Navigálj a `messages.php` oldalra.
 2. Válaszd ki, kinek szeretnél írni.
 3. Írd meg az üzenetet és küldd el.
@@ -571,16 +616,19 @@ Ebben a részben a leggyakoribb felhasználói feladatok vannak leírva.
 ### 8.4. Biztonsági Tippek
 
 #### 8.4.1. Fiókbiztonság
+
 - Használj erős jelszót (legalább 10-12 karakter, szám + nagybetű + speciális jel ajánlott).
 - Ne add ki a belépési adataid senkinek.
 - Ha van 2FA, mindig használd, és ellenőrizd a spam mappát is, ha nem jön meg a kód.
 
 #### 8.4.2. Adat- és tartalombiztonság
+
 - Ne tölts fel személyes adatokat tartalmazó dokumentumot (pl. lakcím, telefonszám, diákigazolvány fotó).
 - Ne tölts fel jogvédett tartalmat (pl. teljes tankönyv PDF), csak saját jegyzetet / saját készítésű anyagot.
 - Letöltés előtt nézd meg a jegyzet leírását és a feltöltő által megadott információkat.
 
 #### 8.4.3. Fájlkezelés és óvintézkedések
+
 - Csak megbízható forrásból származó fájlt nyiss meg.
 - Ha gyanús tartalmat találsz, használd a jelentés funkciót (ha elérhető).
 - Ha nyilvános gépen vagy:
@@ -588,41 +636,49 @@ Ebben a részben a leggyakoribb felhasználói feladatok vannak leírva.
   - ne mentsd el a jelszót a böngészőben.
 
 #### 8.4.4. Jogosultságok tudatos használata
+
 - Ne adj hozzá ismeretleneket barátnak.
 - Csoportoknál figyelj a “public/private" jellegre, és hogy ki láthatja a megosztott fájlokat.
 
 ### 8.5. Gyakori problémák (FAQ)
 
-**Nem tudok belépni. Mit tegyek?**  
+**Nem tudok belépni. Mit tegyek?**
+
 - Ellenőrizd a felhasználónevet és a jelszót.
 - Próbáld meg a jelszó visszaállítást a `forgotpass.php` oldalon (ha elérhető).
 
-**Nem érkezik meg a 2FA kód e-mailben.**  
+**Nem érkezik meg a 2FA kód e-mailben.**
+
 - Nézd meg a spam/promóciók mappát.
 - Várj pár percet és próbáld újrakérni (ha van ilyen opció).
 - Ellenőrizd, hogy helyes e-mail címmel regisztráltál.
 
-**Nem engedi feltölteni a fájlt.**  
+**Nem engedi feltölteni a fájlt.**
+
 - Ellenőrizd, hogy engedélyezett-e a fájltípus (pl. PDF/DOCX/MP4).
 - Lehet, hogy túl nagy a fájl (méretlimit).
 - Próbáld átnevezni a fájlt (ékezet/extra karakterek nélkül), és próbáld újra.
 
-**Feltöltöttem a fájlt, de nem látom.**  
+**Feltöltöttem a fájlt, de nem látom.**
+
 - Frissítsd az oldalt (Ctrl+F5).
 - Nézd meg a profilodnál / saját feltöltéseknél (ha van ilyen lista).
 - Ha van moderáció/jóváhagyás, lehet, hogy várni kell admin döntésre.
 
-**A CSS preview “szétcsúsztatja" az oldalt.**  
+**A CSS preview “szétcsúsztatja" az oldalt.**
+
 - Kapcsold ki a preview-t.
 - Egyszerűsítsd a CSS-t és kerüld a globális szabályokat (pl. `body { ... }` erős módosítása).
 - Az admin elutasíthatja a zavaró vagy félrevezető dizájnt.
 
-**Nem találok egy jegyzetet keresésben.**  
+**Nem találok egy jegyzetet keresésben.**
+
 - Próbálj rövidebb kulcsszót vagy tag-et.
 - Szűrők (tantárgy, tag, értékelés) visszaállítása után próbáld újra.
 - Lehet, hogy a jegyzet törölve lett / privát csoportban van.
 
-**Gyanús vagy szabálytalan tartalmat láttam.**  
+**Gyanús vagy szabálytalan tartalmat láttam.**
+
 - Használd a jelentés funkciót (ha van).
 - Ne töltsd le / ne oszd tovább, és jelezd egy adminnak vagy tanárnak.
 
@@ -639,12 +695,14 @@ Ebben a részben a leggyakoribb felhasználói feladatok vannak leírva.
 ### 9.1. Fejlesztői Környezet Beállítása
 
 #### Quickstart (5 perc)
+
 1. Repo klónozás (XAMPP/htdocs alá)
 2. DB import: `assets/sql/jegyzetar.sql` (vagy `jegyzetar_clean.sql`)
 3. `assets/php/db.php` beállítása
 4. Böngésző: `http://localhost/jegyzetar.eu-src/src/`
 
 #### Gyakori hibák
+
 - 500 error: hiányzó PHP extension / rossz include path
 - DB connection error: rossz host/user/pass/dbname
 - Duplikált fordítások: `repair_translations.sql` futtatása vagy clean dump használata
@@ -660,9 +718,7 @@ Ebben a részben a leggyakoribb felhasználói feladatok vannak leírva.
 4. Indítsd el a helyi szervert, és navigálj a `http://localhost/jegyzetar.eu-src/src/` címre a böngésződben.
 ```
 
-
 ### 9.2. Verziókezelési Stratégia
-
 
 A Jegyzetár projekt verziókezelése a **Semantikus Verziózás (Semantic Versioning – SemVer)** elveit követi, figyelembe véve, hogy a projekt jelenleg **fejlesztési / béta állapotban** van.
 
@@ -694,9 +750,9 @@ A projekt jelenleg **nem tekinthető végleges, éles kiadásnak**, ezért a ver
 
 Ez a jelölés azt fejezi ki, hogy:
 
-* a **major verzió (1)** már tervezetten rögzített,
-* a **minor és patch értékek még változhatnak**,
-* a rendszer funkciói aktív fejlesztés alatt állnak.
+- a **major verzió (1)** már tervezetten rögzített,
+- a **minor és patch értékek még változhatnak**,
+- a rendszer funkciói aktív fejlesztés alatt állnak.
 
 > Megjegyzés:
 > A `[1.X.X]` forma **nem végleges kiadást jelöl**, hanem egy **folyamatosan fejlődő verziócsaládot**.
@@ -706,9 +762,9 @@ Ez a jelölés azt fejezi ki, hogy:
 
 A projekt akkor tekinthető **első hivatalos kiadásnak**, amikor:
 
-* a fő funkciók stabilak,
-* a dokumentáció teljes,
-* nincs kritikus hiba.
+- a fő funkciók stabilak,
+- a dokumentáció teljes,
+- nincs kritikus hiba.
 
 Ekkor a verziószám például:
 
@@ -718,9 +774,9 @@ Ekkor a verziószám például:
 
 Ezt követően:
 
-* `1.1.0` = új funkciók
-* `1.0.1` = hibajavítás
-* `2.0.0` = nagy, visszafelé nem kompatibilis változás
+- `1.1.0` = új funkciók
+- `1.0.1` = hibajavítás
+- `2.0.0` = nagy, visszafelé nem kompatibilis változás
 
 #### 9.2.4. Verziózás a CHANGELOG-ban
 
@@ -756,23 +812,23 @@ YYYY-MM-DD
 
 **Példa:**
 
-* 2026-01-15
-* 2026-04-30
+- 2026-01-15
+- 2026-04-30
 
 Ez a formátum:
 
-* egyértelmű,
-* nem nyelvfüggő,
-* nem keverhető össze (pl. US/EU dátumformátumokkal).
+- egyértelmű,
+- nem nyelvfüggő,
+- nem keverhető össze (pl. US/EU dátumformátumokkal).
 
 #### 9.2.6. Verziókezelés és Git kapcsolata
 
-* A verziószám **logikai állapotot** jelöl (nem minden commit növeli).
-* Verzióváltás akkor történik, ha:
+- A verziószám **logikai állapotot** jelöl (nem minden commit növeli).
+- Verzióváltás akkor történik, ha:
 
-  * nagyobb funkció bekerül,
-  * release készül,
-  * CHANGELOG frissül.
+  - nagyobb funkció bekerül,
+  - release készül,
+  - CHANGELOG frissül.
 
 **Git tagek ajánlott formátuma:**
 
@@ -783,11 +839,11 @@ v1.1.0
 
 #### 9.2.7. Összefoglalás
 
-* A projekt jelenleg **beta / fejlesztési fázisban** van
-* A `[1.X.X]` jelölés ezt tudatosan kommunikálja
-* A verziózás a **SemVer szabályait követi**
-* A végleges kiadás `1.0.0` verzióval történik
-* A CHANGELOG és a dokumentáció **összhangban van**
+- A projekt jelenleg **beta / fejlesztési fázisban** van
+- A `[1.X.X]` jelölés ezt tudatosan kommunikálja
+- A verziózás a **SemVer szabályait követi**
+- A végleges kiadás `1.0.0` verzióval történik
+- A CHANGELOG és a dokumentáció **összhangban van**
 
 ### 9.3. FájlStruktúra
 
@@ -796,19 +852,20 @@ v1.1.0
 ### 9.4. Fejlesztői eszközök, script-ek és refaktorok
 
 - `assets/php/functions.php` - Központi helyre került a `db_prepared()` segédfüggvény, ami a mysqli prepared statements használatát segíti és csökkenti az SQL injection kockázatát. A fájlban `function_exists` ellenőrzésekkel védjük a többszörös deklarációt.
- - Include és duplikációs védelmek: Az include/require helyeken mostantól `require_once` használata ajánlott, és a központi függvényeknél `function_exists`-es feltételek alkalmazása segít elkerülni fatal hibákat többszörös include esetén.
+- Include és duplikációs védelmek: Az include/require helyeken mostantól `require_once` használata ajánlott, és a központi függvényeknél `function_exists`-es feltételek alkalmazása segít elkerülni fatal hibákat többszörös include esetén.
 - `assets/php/lang.php` - Feltölti és betölti az adatbázisban tárolt fordításokat (i18n). Egy beépített rutin gondoskodik arról, hogy a hiányzó kulcsok bekerüljenek az adatbázisba a támogatott nyelvekhez, így a `t()` segédfüggvény mindig vissza tud adni fordítást a kulcshoz.
 - `assets/js/script.js` - Új kliensoldali funkciók: a profil egyedi CSS előnézete, preview bekapcsolás/letiltás, jobb oszlop rejtése preview közben, és kliens oldali validálás (pl. üres CSS megelőzése).
- - `assets/php/functions.php` - A fejlesztés során bevezetett `Message()` segédfüggvény a felhasználói üzenetek központi kiírására szolgál; a korábbi `echo "<script>alert('...')";` szerkezeteket érdemes ezzel kiváltani a konzisztens, könnyebben tesztelhető és lokalizálható felhasználói értesítésekhez.
+- `assets/php/functions.php` - A fejlesztés során bevezetett `Message()` segédfüggvény a felhasználói üzenetek központi kiírására szolgál; a korábbi `echo "<script>alert('...')";` szerkezeteket érdemes ezzel kiváltani a konzisztens, könnyebben tesztelhető és lokalizálható felhasználói értesítésekhez.
 
 Fejlesztői script-ek az `assets/sql/scripts/` mappában:
 
 - `clean_translations.py` - Python script, ami a nagy `translations` INSERT tömbből kiszedi a duplikált (t_key, lang_code) bejegyzéseket, és előállít egy `translations_clean.sql` fájlt, amely csak egyedi fordításokat tartalmaz.
 - `replace_translations_in_dump.py` - Segédfájl, amellyel a `jegyzetar.sql` dumpból lecseréljük a translations beszúrási blokkot a `translations_clean.sql` tartalmára, és előállítjuk a `jegyzetar_clean.sql` fájlt.
 - `repair_translations.sql` - SQL script, amely a már létező adatbázison belül végrehajtható módon:
-    1) biztonsági mentést készít a `translations` tábláról (`translations_backup`),
-    2) törli a duplikált bejegyzéseket (például megtartja a `MIN(id)` vagy `MAX(id)` bejegyzéseket),
-    3) létrehozza a `UNIQUE` indexet `t_key,lang_code` mezőkre.
+
+  1. biztonsági mentést készít a `translations` tábláról (`translations_backup`),
+  2. törli a duplikált bejegyzéseket (például megtartja a `MIN(id)` vagy `MAX(id)` bejegyzéseket),
+  3. létrehozza a `UNIQUE` indexet `t_key,lang_code` mezőkre.
 
 - Import javaslat: Ha gyakran importálnak db dump-ot, importálják először a séma CREATE TABLE részt, majd az `ALTER TABLE`-okat (kulcsokkal), és végül a seed adatokat (INSERT), vagy használják a `jegyzetar_clean.sql` fájlt amely előre eltávolítja a duplikátumokat.
 
@@ -824,6 +881,7 @@ Fejlesztői script-ek az `assets/sql/scripts/` mappában:
 ### 9.6. Fő folyamatok
 
 #### Egyedi CSS kérés folyamata
+
 1. User kitölti a CSS mezőt + preview (kliensoldali)
 2. Beküldés → `user_custom_css_requests` (pending)
 3. Admin panel: approve/reject
@@ -831,7 +889,8 @@ Fejlesztői script-ek az `assets/sql/scripts/` mappában:
 
 ### 9.7 Security checklist (dev)
 
-#### Security checklist 
+#### Security checklist
+
 - Minden DB lekérdezés: `db_prepared()`
 - Output escaping: HTML-ben `htmlspecialchars()`
 - File upload:
@@ -846,6 +905,7 @@ Fejlesztői script-ek az `assets/sql/scripts/` mappában:
 ### 9.8 Debug / logging
 
 #### Logging / debug
+
 - PHP error log: XAMPP Apache/PHP log
 - App log: `assets/logs/` (ha használjátok)
 - Tipikus debug lépések:
@@ -859,23 +919,24 @@ Minden érdemi módosítást itt kell rögzíteni, hogy követhető legyen a fej
 
 #### Szabályok
 
-* **A legújabb verzió mindig felül legyen.**
-* **Minden módosítást rögzíteni kell** (feature, bugfix, refaktor, eltávolítás, security patch).
-* A bejegyzéseket az alábbi kategóriák egyikébe kell sorolni:
+- **A legújabb verzió mindig felül legyen.**
+- **Minden módosítást rögzíteni kell** (feature, bugfix, refaktor, eltávolítás, security patch).
+- A bejegyzéseket az alábbi kategóriák egyikébe kell sorolni:
 
-  * **Added** – új funkció
-  * **Changed** – módosítás meglévő funkción
-  * **Fixed** – hibajavítás
-  * **Removed** – eltávolított funkció/elem
-  * **Security** – biztonsági frissítés
-* **Dátum formátum:** `YYYY-MM-DD`
-* **Verziózás:** `major.minor.patch` (pl. `1.0.3`)
-* **Szerző megjelölése kötelező** a bejegyzés végén (`Changelog by: Név`)
+  - **Added** – új funkció
+  - **Changed** – módosítás meglévő funkción
+  - **Fixed** – hibajavítás
+  - **Removed** – eltávolított funkció/elem
+  - **Security** – biztonsági frissítés
+
+- **Dátum formátum:** `YYYY-MM-DD`
+- **Verziózás:** `major.minor.patch` (pl. `1.0.3`)
+- **Szerző megjelölése kötelező** a bejegyzés végén (`Changelog by: Név`)
 
 #### Mikor frissítjük?
 
-* **Minden merge / release után** frissíteni kell.
-* Ha több kisebb commitból áll egy változás, akkor a changelogba elég a **összefoglaló** jellegű leírás.
+- **Minden merge / release után** frissíteni kell.
+- Ha több kisebb commitból áll egy változás, akkor a changelogba elég a **összefoglaló** jellegű leírás.
 
 #### Formátum
 
@@ -914,20 +975,24 @@ Changelog by: Csontos Kincső Anasztázia
 A projekt dokumentációja a `docs/dokumentáció.md` fájlban található.
 
 #### Mikor frissítjük?
+
 - Minden nagyobb funkció (feature) hozzáadása után
 - Adatbázis módosítás (új tábla / mező / index) után
 - Biztonsági változtatás vagy refaktor után
 - Release / merge után a `docs/CHANGELOG.md` frissítése kötelező
 
 #### Mit kell ilyenkor frissíteni?
+
 - Tartalomjegyzék (ha új fejezet került be)
 - Érintett fejezet(ek) leírása (pl. Backend / Frontend / Deployment)
 - DB séma (ha változott)
 - Changelog bejegyzés (verzió + dátum + kategóriák + szerző)
 
 #### Minimum elv
+
 Ha nincs idő mindent átírni, legalább:
-1) Changelog + 2) érintett fő folyamat rövid leírása kerüljön be.
+
+1. Changelog + 2) érintett fő folyamat rövid leírása kerüljön be.
 
 Megjegyzés: A változásnapló írásának szabályai és formátuma a **8.9. Változásnapló (Changelog)** fejezetben található.
 
@@ -941,10 +1006,10 @@ A Jegyzetár közösségi aspektusának bővítése érdekében a cél, hogy a f
 
 **Lehetséges fejlesztések:**
 
-* **Valós idejű jegyzet szerkesztés:** Több felhasználó egyszerre szerkeszthet egy dokumentumot, hasonlóan a Google Docs-hoz.
-* **Csoportos tanulási szobák:** Felhasználók létrehozhatnak virtuális tanulócsoportokat, ahol fájlok megosztása, chat és feladatok követése egyszerre történhet.
-* **Komment és annotáció rendszer:** A jegyzeteken belül jelölhetnek részeket, és hozzáfűzhetnek személyes megjegyzéseket vagy kérdéseket.
-* **Közös naptár és feladatlista:** Tanulócsoportok eseményeket, határidőket és feladatokat oszthatnak meg egymással.
+- **Valós idejű jegyzet szerkesztés:** Több felhasználó egyszerre szerkeszthet egy dokumentumot, hasonlóan a Google Docs-hoz.
+- **Csoportos tanulási szobák:** Felhasználók létrehozhatnak virtuális tanulócsoportokat, ahol fájlok megosztása, chat és feladatok követése egyszerre történhet.
+- **Komment és annotáció rendszer:** A jegyzeteken belül jelölhetnek részeket, és hozzáfűzhetnek személyes megjegyzéseket vagy kérdéseket.
+- **Közös naptár és feladatlista:** Tanulócsoportok eseményeket, határidőket és feladatokat oszthatnak meg egymással.
 
 ### 11.2. API és harmadik fél integrációk
 
@@ -952,10 +1017,10 @@ A Jegyzetár platformot érdemes külső szolgáltatásokkal összekapcsolni, ho
 
 **Lehetséges fejlesztések:**
 
-* **OAuth integrációk:** Google, Microsoft, Discord vagy EduID fiókokkal történő bejelentkezés támogatása.
-* **Fájlmegosztó szolgáltatások integrálása:** Dropbox, Google Drive, OneDrive feltöltés és letöltés közvetlenül a Jegyzetárból.
-* **Tanulási eszközök API kapcsolatai:** Kahoot, Quizlet vagy egyéb oktatási platformokkal való integráció a könnyebb feladat és teszt megosztás érdekében.
-* **Push értesítések külső csatornákra:** Discord bot vagy email értesítések, ha valaki új jegyzetet tölt fel, vagy kommentel a fájlodra.
+- **OAuth integrációk:** Google, Microsoft, Discord vagy EduID fiókokkal történő bejelentkezés támogatása.
+- **Fájlmegosztó szolgáltatások integrálása:** Dropbox, Google Drive, OneDrive feltöltés és letöltés közvetlenül a Jegyzetárból.
+- **Tanulási eszközök API kapcsolatai:** Kahoot, Quizlet vagy egyéb oktatási platformokkal való integráció a könnyebb feladat és teszt megosztás érdekében.
+- **Push értesítések külső csatornákra:** Discord bot vagy email értesítések, ha valaki új jegyzetet tölt fel, vagy kommentel a fájlodra.
 
 ### 11.3. Big data analitika
 
@@ -963,11 +1028,11 @@ A platform folyamatos adatgyűjtésével és elemzésével javítható a felhasz
 
 **Lehetséges fejlesztések:**
 
-* **Felhasználói aktivitás elemzése:** Kinek milyen típusú jegyzetek tetszenek, mennyi időt töltenek az oldalon, mely tantárgyak a legnépszerűbbek.
-* **Tartalom minőség értékelése:** Legjobbra értékelt és leggyakrabban letöltött anyagok kiemelése.
-* **Tanulási szokások feltérképezése:** Időszakos jelentések készítése, hogy mikor aktívak a diákok, milyen tantárgyakhoz kell több támogatás.
-* **Prediktív ajánlások:** A felhasználók korábbi aktivitása alapján automatikus jegyzet- és csoport-ajánlások.
-* **Admin riportok:** Statisztikák a feltöltött tartalmakról, felhasználói aktivitásról és a csoportok működéséről a hatékonyabb menedzsmenthez.
+- **Felhasználói aktivitás elemzése:** Kinek milyen típusú jegyzetek tetszenek, mennyi időt töltenek az oldalon, mely tantárgyak a legnépszerűbbek.
+- **Tartalom minőség értékelése:** Legjobbra értékelt és leggyakrabban letöltött anyagok kiemelése.
+- **Tanulási szokások feltérképezése:** Időszakos jelentések készítése, hogy mikor aktívak a diákok, milyen tantárgyakhoz kell több támogatás.
+- **Prediktív ajánlások:** A felhasználók korábbi aktivitása alapján automatikus jegyzet- és csoport-ajánlások.
+- **Admin riportok:** Statisztikák a feltöltött tartalmakról, felhasználói aktivitásról és a csoportok működéséről a hatékonyabb menedzsmenthez.
 
 ### 11.4. AI-alapú keresés és javaslatok
 
@@ -991,12 +1056,14 @@ Főbb funkciók:
 A felhasználói aktivitás ösztönzése érdekében a Jegyzetár gamifikációs elemeket vezet be, amelyek játékosabbá és motiválóbbá teszik a platform használatát.
 
 **Főbb funkciók:**
+
 - **Pontgyűjtés:** A felhasználók pontokat szerezhetnek különböző tevékenységekért, például regisztrációért, jegyzetfeltöltésért, hozzászólásért vagy értékelésért.
 - **Jelvények és rangok:** Különféle mérföldkövek eléréséért (pl. első feltöltés, 100. letöltés) digitális jelvényeket és rangokat kapnak a felhasználók.
 - **Ranglisták:** A legaktívabb vagy legnépszerűbb felhasználók megjelennek a közösségi ranglistákon.
 - **Kihívások és küldetések:** Időszakos vagy tematikus kihívások teljesítésével további jutalmak szerezhetők.
 
 **Előnyök:**
+
 - Felhasználói elköteleződés növelése
 - Közösségi aktivitás ösztönzése
 - Pozitív visszacsatolás a felhasználók számára
@@ -1006,6 +1073,7 @@ A felhasználói aktivitás ösztönzése érdekében a Jegyzetár gamifikáció
 A Jegyzetár jövőbeli fejlesztési tervei között szerepel egy natív mobilalkalmazás elkészítése Android és iOS platformokra. A mobil app célja, hogy a felhasználók még kényelmesebben érhessék el a jegyzeteket, tölthessenek fel fájlokat, és kommunikálhassanak egymással útközben is.
 
 **Főbb funkciók:**
+
 - Jegyzetek böngészése, letöltése és feltöltése közvetlenül a mobilról
 - Push értesítések új üzenetekről, barátkérésekről, kommentekről
 - Felhasználói profil szerkesztése, profilkép módosítása
@@ -1013,6 +1081,7 @@ A Jegyzetár jövőbeli fejlesztési tervei között szerepel egy natív mobilal
 - Offline elérés a letöltött jegyzetekhez
 
 **Technológiai lehetőségek:**
+
 - **React Native** vagy **Flutter** a multiplatform fejlesztéshez
 - REST API integráció a meglévő backenddel
 - Biztonságos bejelentkezés és adatkezelés
@@ -1025,46 +1094,46 @@ Az interaktív tesztes modul célja, hogy a tanulók ne csak passzívan olvassá
 
 **Tervezett funkciók:**
 
-* **Interaktív kérdéssorok:**
+- **Interaktív kérdéssorok:**
   Többféle feladattípus támogatása, például:
 
-  * feleletválasztós kérdések,
-  * igaz–hamis állítások,
-  * párosító feladatok,
-  * kódrészlet-elemzéshez kapcsolódó kérdések.
+  - feleletválasztós kérdések,
+  - igaz–hamis állítások,
+  - párosító feladatok,
+  - kódrészlet-elemzéshez kapcsolódó kérdések.
 
-* **Azonnali visszajelzés:**
+- **Azonnali visszajelzés:**
   A felhasználók a válaszadás után rögtön visszajelzést kapnak:
 
-  * helyes / helytelen válasz jelzése,
-  * rövid magyarázat vagy hivatkozás a kapcsolódó jegyzetre.
+  - helyes / helytelen válasz jelzése,
+  - rövid magyarázat vagy hivatkozás a kapcsolódó jegyzetre.
 
-* **Vizsgaszimulációs mód:**
+- **Vizsgaszimulációs mód:**
   Időre kitölthető tesztek, amelyek a valódi interaktív vizsga felépítését és időkorlátait modellezik.
 
-* **Témakörönkénti gyakorlás:**
+- **Témakörönkénti gyakorlás:**
   A tesztek tantárgyakhoz vagy témakörökhöz kapcsolhatók (pl. adatbázis-kezelés, webfejlesztés, algoritmusok), így célzott felkészülést tesznek lehetővé.
 
-* **Eredmények nyomon követése:**
+- **Eredmények nyomon követése:**
   A rendszer eltárolja a korábbi teszteredményeket, amelyek alapján:
 
-  * megjeleníthető a fejlődés,
-  * azonosíthatók a gyengébb területek.
+  - megjeleníthető a fejlődés,
+  - azonosíthatók a gyengébb területek.
 
 **Kapcsolódás az írásbeli vizsgához:**
 
 Az interaktív tesztek mellett külön aloldalon elérhetők lennének az **írásbeli vizsgához kapcsolódó feladatgyűjtemények**, PDF formátumban. Ezek:
 
-* letölthetők és offline is használhatók,
-* tartalmazhatják korábbi évek feladatait,
-* kiegészíthetik az interaktív gyakorlást elméleti jellegű feladatokkal.
+- letölthetők és offline is használhatók,
+- tartalmazhatják korábbi évek feladatait,
+- kiegészíthetik az interaktív gyakorlást elméleti jellegű feladatokkal.
 
 **Előnyök:**
 
-* Aktív tanulás és gyakorlás támogatása
-* Vizsgahelyzethez hasonló környezet biztosítása
-* Egyéni haladás és fejlődés követése
-* A jegyzetek gyakorlati alkalmazásának elősegítése
+- Aktív tanulás és gyakorlás támogatása
+- Vizsgahelyzethez hasonló környezet biztosítása
+- Egyéni haladás és fejlődés követése
+- A jegyzetek gyakorlati alkalmazásának elősegítése
 
 ## 12. Ki mit készített?
 
@@ -1074,95 +1143,105 @@ A projekt fejlesztése során a csapattagok eltérő területekért feleltek, ug
 
 **Hitelesítés, jegyzetfunkciók és adatkezelés**
 
-* Kétlépcsős hitelesítés (2FA) megvalósítása
-  * e-mail alapú kódgenerálás és ellenőrzés
-  * `2fa.php`, `2fa_codes` tábla
-* 2FA-hoz kapcsolódó profil funkciók (be- és kikapcsolás)
-* Regisztrációs e-mail visszaigazoló rendszer
-  * token alapú aktiváció (`reg-ver.php`, tokens)
-* Jegyzet részletező oldal fejlesztése (`note.php`)
-  * értékelési rendszer
-  * kedvencekhez adás
-* Kedvencek mentése és kezelése
-  * adatbázis logika
-  * kedvencek megjelenítése
-* Jegyzet tagek kezelése
-  * tagek adatbázisban
-  * tagek hozzárendelése jegyzetekhez
-  * tagek megjelenítése kereséskor
-* Jegyzet tagelés továbbfejlesztése (pl. középiskola, egyetem)
-* „Ugrás jegyzetre” funkció megvalósítása
-* Adatbázis struktúra bővítése
+- Kétlépcsős hitelesítés (2FA) megvalósítása
+  - e-mail alapú kódgenerálás és ellenőrzés
+  - `2fa.php`, `2fa_codes` tábla
+- 2FA-hoz kapcsolódó profil funkciók (be- és kikapcsolás)
+- Regisztrációs e-mail visszaigazoló rendszer
+  - token alapú aktiváció (`reg-ver.php`, tokens)
+- Jegyzet részletező oldal fejlesztése (`note.php`)
+  - értékelési rendszer
+  - kedvencekhez adás
+- Kedvencek mentése és kezelése
+  - adatbázis logika
+  - kedvencek megjelenítése
+- Jegyzet tagek kezelése
+  - tagek adatbázisban
+  - tagek hozzárendelése jegyzetekhez
+  - tagek megjelenítése kereséskor
+- Jegyzet tagelés továbbfejlesztése (pl. középiskola, egyetem)
+- „Ugrás jegyzetre” funkció megvalósítása
+- Adatbázis struktúra bővítése
 
-  * tags tábla
-* Feltöltési logika javítása (`upload.php`)
+  - tags tábla
+
+- Feltöltési logika javítása (`upload.php`)
 
 ### 12.2. Csontos Kincső Anasztázia
 
 **UI/UX, biztonság, profil és rendszer szintű fejlesztések**
 
-* Teljes felület újradizájnolása
+- Teljes felület újradizájnolása
 
-  * Aurora UI stílus
-  * reszponzív layout
-* Navbar újratervezése
-* Oldal redesign és vizuális egységesítés
-* UI finomhangolások
+  - Aurora UI stílus
+  - reszponzív layout
 
-  * túlzott gradiensek csökkentése
-  * kártyák, gombok igazítása
-* Multilanguage rendszer
+- Navbar újratervezése
+- Oldal redesign és vizuális egységesítés
+- UI finomhangolások
 
-  * `lang.php`
-  * fordítások adatbázisból
-* Profil oldal fejlesztése
+  - túlzott gradiensek csökkentése
+  - kártyák, gombok igazítása
 
-  * profiladatok szerkesztése
-  * bemutatkozás karakterkorlátozása
-  * egyedi CSS kérelmek
-  * jelvények (badge-ek) megjelenítése
-  * custom profil design
-* Más felhasználó adatainak szerkesztése (JavaScript alapú megoldás)
-* Biztonsági fejlesztések
+- Multilanguage rendszer
 
-  * adatbázis helper függvények (`db_query`, `db_stmt`, `db_prepared`)
-  * SQL injection védelem
-  * adatbázis-módosítások védelme
-  * biztonsági kérdések hash-elése
-* Jelentés / report rendszer
+  - `lang.php`
+  - fordítások adatbázisból
 
-  * jelentés gombok
-  * admin oldali kezelés
-* Jegyzet statisztika megjelenítése
-* Értékelési rendszer hibajavításai (főoldalon nem működő értékelés)
-* Discord OAuth alapú bejelentkezés
-* Születésnapi „meglepetés” funkció
-* Üzenetek UI átdolgozása
-* Dokumentáció elkészítése
+- Profil oldal fejlesztése
+
+  - profiladatok szerkesztése
+  - bemutatkozás karakterkorlátozása
+  - egyedi CSS kérelmek
+  - jelvények (badge-ek) megjelenítése
+  - custom profil design
+
+- Más felhasználó adatainak szerkesztése (JavaScript alapú megoldás)
+- Biztonsági fejlesztések
+
+  - adatbázis helper függvények (`db_query`, `db_stmt`, `db_prepared`)
+  - SQL injection védelem
+  - adatbázis-módosítások védelme
+  - biztonsági kérdések hash-elése
+
+- Jelentés / report rendszer
+
+  - jelentés gombok
+  - admin oldali kezelés
+
+- Jegyzet statisztika megjelenítése
+- Értékelési rendszer hibajavításai (főoldalon nem működő értékelés)
+- Discord OAuth alapú bejelentkezés
+- Születésnapi „meglepetés” funkció
+- Üzenetek UI átdolgozása
+- Dokumentáció elkészítése
 
 ### 12.3. Szekeres Levente
 
 **Tanulócsoportok, hirdetések és mobil optimalizáció**
 
-* Tanulócsoport funkciók teljes implementációja
+- Tanulócsoport funkciók teljes implementációja
 
-  * `groups.php`
-  * `group.php`
-  * `create_group.php`
-  * `group_init.php`
-* Csoporttagság kezelése
+  - `groups.php`
+  - `group.php`
+  - `create_group.php`
+  - `group_init.php`
 
-  * tulajdonos
-  * elfogadott tagok
-  * függőben lévő jelentkezések
-* Csoporton belüli jegyzetfeltöltés
+- Csoporttagság kezelése
 
-  * jóváhagyási rendszer
-  * moderáció
-* Tanulócsoportos funkciók hibajavítása és stabilizálása
-* Hirdetések megjelenítése az oldalon
-* Mobil navigáció javítása (mobil nav fix)
-* UI/Design fejlesztések a csoportos oldalaknál
+  - tulajdonos
+  - elfogadott tagok
+  - függőben lévő jelentkezések
+
+- Csoporton belüli jegyzetfeltöltés
+
+  - jóváhagyási rendszer
+  - moderáció
+
+- Tanulócsoportos funkciók hibajavítása és stabilizálása
+- Hirdetések megjelenítése az oldalon
+- Mobil navigáció javítása (mobil nav fix)
+- UI/Design fejlesztések a csoportos oldalaknál
 
 Íme egy **dokumentáció-kompatibilis**, hivatalos hangvételű megfogalmazás, amit **szó szerint be tudsz illeszteni**. Úgy írtam meg, hogy illeszkedjen a 11. fejezet stílusához és logikájához.
 
@@ -1175,22 +1254,23 @@ A projekt fejlesztése során a csapattagok eltérő területekért feleltek, ug
 ### 12.4. Szekeres Levente & Baranyi Norbert
 
 **Offline C# WinForms asztali alkalmazás – jegyzetnézegető koncepció**
-* Offline működésre tervezett C# alapú asztali alkalmazás fejlesztése **WinForms** technológiával
-* Az alkalmazás célja egy **offline jegyzetnézegető rendszer** létrehozása volt
-* Tervezett működés:
-  * online állapotban a jegyzetek **lokális letöltése és tárolása**
-  * a letöltött jegyzetek **internetkapcsolat nélkül is megtekinthetők**
-* A megoldás lehetővé teszi a tananyagok elérését olyan környezetben is, ahol nincs folyamatos internetkapcsolat
-* A projekt célja az volt, hogy a webes rendszer kiegészítéseként egy **offline tanulást támogató kliensalkalmazás** jöjjön létre
+
+- Offline működésre tervezett C# alapú asztali alkalmazás fejlesztése **WinForms** technológiával
+- Az alkalmazás célja egy **offline jegyzetnézegető rendszer** létrehozása volt
+- Tervezett működés:
+  - online állapotban a jegyzetek **lokális letöltése és tárolása**
+  - a letöltött jegyzetek **internetkapcsolat nélkül is megtekinthetők**
+- A megoldás lehetővé teszi a tananyagok elérését olyan környezetben is, ahol nincs folyamatos internetkapcsolat
+- A projekt célja az volt, hogy a webes rendszer kiegészítéseként egy **offline tanulást támogató kliensalkalmazás** jöjjön létre
 
 ### Összegzés
 
 A fejlesztés során:
 
-* **Baranyi Norbert** elsősorban az **auth, jegyzetkezelés és adatstruktúrák** megvalósításáért felelt.
-* **Csontos Kincső Anasztázia** a **felhasználói élményért, biztonságért, profil- és rendszerfunkciókért**, valamint a dokumentációért.
-* **Szekeres Levente** a **tanulócsoportos funkciókért, mobil optimalizációért és hirdetésekért** volt felelős.
-* **Szekeres Levente és Baranyi Norbert** közösen egy **C# WinForms alapú offline jegyzetnézegető asztali alkalmazás** koncepcióját és alapjait valósították meg.
+- **Baranyi Norbert** elsősorban az **auth, jegyzetkezelés és adatstruktúrák** megvalósításáért felelt.
+- **Csontos Kincső Anasztázia** a **felhasználói élményért, biztonságért, profil- és rendszerfunkciókért**, valamint a dokumentációért.
+- **Szekeres Levente** a **tanulócsoportos funkciókért, mobil optimalizációért és hirdetésekért** volt felelős.
+- **Szekeres Levente és Baranyi Norbert** közösen egy **C# WinForms alapú offline jegyzetnézegető asztali alkalmazás** koncepcióját és alapjait valósították meg.
 
 A projekt a feladatok megosztásával és együttműködéssel valósult meg.
 
