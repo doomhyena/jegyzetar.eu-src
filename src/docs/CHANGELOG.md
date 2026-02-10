@@ -19,7 +19,7 @@ Szerző megjelölése (kötelező), sor végén:
 
 ### Formátum útmutató 
 
-## [1.X.X-beta] - 2026-0X-0X
+## [1.X.X] - 2025-0X-0X
 
 ### Added
 #### •
@@ -42,356 +42,86 @@ Szerző megjelölése (kötelező), sor végén:
 -
 
 Changelog by: Neved
+---
 
 ---
 
-## [1.5.3-beta] – 2026-01-26
+## [1.X.X-beta] - 2026-0X-0X
 
 ### Added
+#### • Csoportok szűrése az admin oldalon (valahogy úgy megoldani mint a css-t, hogy az adminnak jóvá kelljen hagynia)
+-
 
-#### Payment Demo
-- Fizetési folyamat demó implementálása tesztelési célokra
-#### Premium
--Prémium funkciók részletes ismertetése és előkészítése
-#### assets/php/premium
-- A prémium funkciók kezeléséhez szükséges PHP függvények hozzáadása
+#### • Birthday validation
+-
 
-### Changed
-#### Database
--`premium_users` tábla hozzáadása a prémium jogosultságok kezeléséhez
+#### • privát jegyzet(prémium tagoknak)
+-
+
+#### • Prémium badge(automatikusan megkapod ha előfizetsz)
+-
 
 
 Changelog by: Szekeres Levente
 
 ---
 
-## [1.5.2-beta] - 2026-01-25
+## [1.5.4-beta] - 2026-02-09
 
 ### Added
-#### • Profanity filter
--Fájl és csoport létrehozás előtt eldurran a profanity filteres kódrész
--Visszadob hogyha trágár szavat talál
+#### • Contact Form (contact.php)
+- Teljes kontakt forma implementálása
+- Email küldés az adminoknak (admin@jegyzetar.eu)
+- Automatikus megerősítő email a feladónak
+- Contact messages naplózása adatbázisban (contact_messages tábla)
+- Bejelentkezett felhasználók pre-fill (név, email)
+- Validálás minden mezőre (név, email format, min. 10 char üzenet)
+- Inline magyar szövegek (lang.php-re nem szükséges)
 
-!! EGYELŐRE CSAK A FÁJL ÉS CSOPORT LÉTREHOZÁSNÁL VAN ÉLESITVE! (név és descriptionnal pontossabban)
-!!! HA NEM AKARJUK HOGY TELE LEGYEN A DB KÁROMKODÁSSAL, AKKOR KÉSŐBBIEKBEN A SZAVAKAT LEHASHELEM SZIVESEN.
-
-Changelog by: Norbi
-
----
-
-## [1.5.1-beta] – 2026-01-25
-
-### Added
-#### • Profil & UI
-- Felhasználói badge-ek megjelenítése "pill" stílusban (lekerekített sarkok, vastagabb körvonal)
-- Üres bio esetén automatikus, vicces fallback szöveg megjelenítése
-- Profilon „Kedvenceim” és „Feltöltés” gombok egységes stílusban
-- Felhasználási feltételek (Terms of Service) oldal hozzáadása
-- Adatkezelési tájékoztató link elhelyezése a footerben
-
-#### • Favorites
-- Új, egységes Favorites UI
-- Thumbnail nélküli fájloknál fájltípus ikon (PDF, DOCX, stb.) megjelenítése
-- Ikonok középre igazítása fallback esetén
-- Favorites oldal leválasztása a felhasználói profil témájáról
+#### • Info & Legal Oldalak
+- **team.php** - Csapattagok profiljai (Baranyi Norbert, Csontos Kincső Anasztázia, Szekeres Levente)
+- **about.php** - Rólunk oldal: projekt célja, alapelvek, fő funkciók, tech stack, NoteForge Development info, jogi nyilatkozat
+- **faq.php** - Gyakran ismételt kérdések (6 kérdés-válasz pár accordion stílusban)
+- **rules.php** - Használati szabályzat (korhatár=13 év, fiókbiztonság, tartalom szabályok, szerzői jog, közösségi viselkedés, pontok/badge-ek, moderáció, prémium, adatvédelem)
+- **partners.php** - Partnereink oldal (RangerBot Discord bot história és linkek)
+- **privacy.php** - Adatkezelési tájékoztató (GDPR compliant, adatkezelő info, adatfeldolgozók, jogok, megőrzés)
 
 ### Changed
-#### • Profil oldal
-- Profil fejléc layout újrarendezése (név, username, gombok elhelyezése)
-- Profil témák kiterjesztése navbarra és footerre
-- Checkbox alapú beállítások toggle-kapcsolóra cserélése (2FA)
-- Toggle megjelenítés javítása világos és pastel témákban
-
-#### • Footer
-- Footer teljes újratervezése (brand blokk, jogi linkek, reszponzív layout)
-- GitHub, Adatkezelés és Felhasználási feltételek elkülönített megjelenítése
+#### • UI/CSS Konverzió
+- **contact.php**: Tailwind CDN → styles.css (.card, .form-grid, .input, .btn-primary, .toast osztályok)
+- **contact.php**: Max-width 700px wrapper, középre igazítás
+- **contact.php**: Közvetlenül magyar szövegek (lang.php hívások eltávolítva)
+- Forms és validációs üzenetek összhangban a report.php stílusával
 
 ### Fixed
-#### • Admin panel
-- Admin oldal középre igazítása reklám nélküli layout esetén
-- Táblázatok betűnkénti tördelésének megszüntetése
-- „Meglévő badge-ek” táblázat vízszintes görgetősávjának eltávolítása
-- Badge preview cellák szétesésének javítása
-
-#### • Backend / DB
-- `messages` tábla PRIMARY KEY ütközés javítása (`AUTO_INCREMENT`)
-- Duplikált `id = 0` beszúrási hiba megszüntetése
+#### • Contact Form Validation
+- Email validálása (filter_var FILTER_VALIDATE_EMAIL)
+- Üzenet hossz validálása (min 10, max 5000 karakter)
+- Tárgy megadása kötelezővé tétele
+- Input sanitizing a többi oldalhoz hasonlóan
 
 ### Removed
-- Felesleges, üres reklám oszlopok helyfoglalása admin és belső oldalakon
+#### • Tailwind CDN hivatkozások
+- Eltávolítva a team.php, about.php, faq.php-ből (nem szükséges, mivel styles.css fedezi a szükséges stílusokat)
+- "Flex", "gap", "grid-cols-*" Tailwind classok NEM törlve (még szükségesek ezekhez!)
 
 ### Security
-- Üzenetküldés adatbázis-integritási hibáinak javítása
-- Felhasználói adatkezelési és jogi oldalak publikálása
-- Inputok és layoutok stabilizálása admin felületen
+#### • Contact Form
+- Email formátum validálása (filter_var FILTER_VALIDATE_EMAIL)
+- Üzenet hossz validálása (min 10 karakter)
+- Input sanitizing (htmlspecialchars, trim)
+- XSS védelmi kódok (htmlspecialchars ENT_QUOTES)
+- CSRF token előkészítés (bejelentkezés nem kötelező, de lehetséges)
+- IP cím naplózása az adatbázisban (anonymize_ip())
+- User-Agent naplózása az adatbázisban
+- Privacy.php: GDPR megfelelőség (adatkezelő info, jogok, megőrzés)
+- Rules.php: Korhatár bekéri (13 év) & tiltott tartalmak listázása
 
 Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [1.5.0-beta] – 2026-01-25
-
-### Added
-#### • Keresés
-- Évfolyam / félév alapú szűrés (középiskola 9–13, egyetem 1–7)
-- Tag alapú szűrés és keresés
-- Relevancia alapú rendezés
-- „Browse” mód keresőkifejezés nélkül
-
-#### • Fájlfeltöltés
-- Kereséssel kompatibilis feltöltési mezők (tantárgy, tagek, évfolyam/félév)
-- Edu stage + level támogatás (`hs`, `uni`)
-- Metaadatok egységesítése feltöltés és keresés között
-
-### Changed
-- `year` mező leváltása `edu_stage` + `edu_level` struktúrára
-- Search és upload logika közös adatmodellre igazítása
-
-
-### Fixed
-- Keresési szűrők együttes használatából adódó hibák
-- Upload oldali validációk és fallbackek
-
-
-### Removed
-- Elavult évfolyam-kezelési logika (`year` oszlop)
-
-### Security
-- Prepared statementek egységes használata keresésnél és feltöltésnél
-- Feltöltési inputok szigorúbb validálása
-
-Changelog by: Csontos Kincső Anasztázia
-
----
-
-## [v1.4.5-beta] - 2026-01-17
-
-### Added
-#### • Tailwind CSS CDN integráció
-- Tailwind CSS 4 Browser CDN hozzáadva az összes oldalhoz
-- Főoldalak: index.php, note.php, search.php, upload.php, groups.php, messages.php, reglog.php
-- További oldalak: favorites.php, 2fa.php, group.php, create_group.php, forgotpass.php, admin_panel.php
-- Egységes reszponzív utility class rendszer bevezetése a teljes projektben
-
-### Changed
-#### • Teljes UI reszponzív refaktorálás Tailwind utility class-okkal
-- **index.php**: Mobil-first grid rendszer (1/2/3 oszlop), egységes padding/spacing, reszponzív tipográfia
-- **navbar.php**: Flexbox-alapú layout, reszponzív szövegméretek, dropdown pozicionálás javítva
-- **note.php**: Reszponzív tartalom wrapper (max-w-4xl), flexbox gombok/űrlapok, tördelés javítva (break-words)
-- **search.php**: Grid keresési űrlap (1/2/4 oszlop breakpointok), reszponzív eredménylista, kártya layout
-- **upload.php**: Függőleges form layout gap-el, egységes input/button méretek
-- **groups.php**: Grid csoport kártyák (1/2/3 oszlop), flex header mobile/desktop módban
-- **messages.php**: Sidebar/main flex layout (mobil: stack, desktop: side-by-side), üzenet UI javítva
-- **reglog.php**: Auth formok grid layout (1/2 oszlop), flexbox gombok, mobil-first spacing
-- **favorites.php**: Grid layout (1/2/3 oszlop), reszponzív kártya rendszer, egységes gombok és spacing
-- **2fa.php**: Reszponzív auth form (max-w-lg), vertikális gap-alapú layout, mobilbarát gombok
-- **group.php**: Teljes újraformázás: tagok listája flex-alapú, jegyzetek flexbox card-ok, pending kérések responsive
-- **create_group.php**: Reszponzív form layout (max-w-3xl), függőleges űrlap mezők, checkbox javítva
-- **forgotpass.php**: Auth formok (max-w-lg), responsive button layout, flex container három állapothoz
-- **admin_panel.php**: Teljes admin UI refaktorálás (max-w-7xl), grid formok (2/3/4 oszlop), overflow-x táblázatokhoz
-
-#### • Egységes konténer logika
-- Minden oldal: `w-full max-w-{size} mx-auto px-4 md:px-6 lg:px-8`
-- Konzisztens max-width értékek (max-w-3xl, max-w-4xl, max-w-6xl) oldal típusonként
-
-#### • Reszponzív tipográfia
-- Mobil: text-sm/base, Desktop: md:text-base/lg
-- Címsorok: text-2xl md:text-3xl lg:text-4xl skála
-- Gombok/inputok: egységes text-sm md:text-base
-
-### Fixed
-#### • Layout és overflow hibák
-- Vízszintes scroll megszüntetve minden oldalon
-- Hosszú szövegek/URL-ek tördelése (break-words, truncate)
-- Mobilon túlnyúló képek/videók/iframe-ek (w-full, max-w-full)
-- Navbar elemek túlcsordulása mobilon (truncate, whitespace-nowrap, flex-shrink-0)
-- Kártya tartalmak egységes elrendezése (flex-col, min-w-0, gap-*)
-- a profil mostmár teljesen szimmetrikus / valid HTML struktúrára épül
-
-#### • Spacing és elrendezés konzisztencia
-- Egységes gap/padding rendszer (gap-2/3/4/6, p-4 md:p-6)
-- Grid/flex rendszerek mobilon és desktopon
-- Form elemek full-width mobilon, auto desktop
-
-#### • Navbar mobilos működés egységesítése
-- Mobilos navbar háttér sötétítve: rgba(15, 23, 42, 0.95) + blur(20px)
-- Dropdown menü mobilon sötét háttér: rgba(30, 41, 59, 0.8)
-- script.js importálva minden oldalon (search.php, note_stats.php)
-- Navbar toggle működés azonos minden oldalon
-- Z-index javítva a mobilos menü helyes megjelenéséhez
-
-#### • jQuery függőségek javítása
-- jQuery CDN hozzáadva hiányzó oldalakhoz (search.php, note_stats.php)
-- script.js védve `typeof $ !== 'undefined'` ellenőrzéssel
-- jQuery-függő kód blokkok (messages, search-box) biztonságosan betöltve
-- "$ is not defined" konzol hiba megszüntetve minden oldalon
-
-### Removed
-#### • Inline style attribútumok
-- style="margin-top:...", style="display:flex" helyett Tailwind utility classok
-- Felesleges wrapper div-ek ahol Tailwind class elegendő
-
-### Security
-#### • Admin jogosultság ellenőrzés javítása
-- **admin_panel.php**: Admin jogosultság ellenőrzés hozzáadva (403 Forbidden, ha nem admin)
-- KRITIKUS: Korábban bárki hozzáférhetett az admin panelhez bejelentkezés után
-
-#### • IDOR (Insecure Direct Object Reference) védelem auditálva
-- **profile.php**: Minden UPDATE utasítás `$viewerId`-t használ (VÉDETT)
-  - Basic profile, profile picture, bio, theme, 2FA - mind biztonságos
-  - `$isOwner` ellenőrzés minden módosításnál
-- **note_stats.php**: Owner ellenőrzés implementálva (VÉDETT)
-  - Csak a jegyzet tulajdonosa láthatja a statisztikákat
-- **Egyéb oldalak**: Nincs közvetlen UPDATE/DELETE `$_GET`/`$_POST` paraméterekből
-
-#### • Biztonsági konklúzió
-- Profil módosítás: NEM lehet más felhasználók adatait megváltoztatni
-- URL paraméterek (`?userid=`) figyelmen kívül vannak hagyva
-- Session-alapú autentikáció mindenhol következetes
-- ⚠CSRF védelem még nincs implementálva (későbbi feladat)
-
-Changelog by: **Csontos Kincső Anasztázia**
-
-
-## [v1.4.4-beta] – 2026-01-17
-
-### Added
-
-#### • Jegyzet statisztika
-
-* Új **note_stats.php** oldal jegyzetenkénti statisztikákhoz
-* Összesített adatok megjelenítése (*views, downloads, favorites, ratings, flashcards*)
-* **14 napos trend grafikon** (views / downloads / favorites / ratings_count)
-* Olvasható **esemény feed** a `file_events` táblából (nem táblázatos, hanem kártyás megjelenítés)
-* Admin-only megjelenítés teljes IP-vel és User-Agenttel
-* Jogosultság alapú hozzáférés (csak a feltöltő látja)
-
-### Changed
-
-#### • Jogosultságkezelés
-
-* `isOwner` logika egységesítve (`uploaded_by === currentUserId`)
-* Admin felismerés egyszerűsítve (`users.admin = 1`)
-
-#### • Frontend
-
-* Táblázatos eseménylista lecserélve **reszponzív feed nézetre**
-* Grafikon canvas HiDPI-támogatással
-* Legend és színek egységesítése
-* User-Agent szöveg vágása nem admin felhasználóknál
-
-#### • Backend
-
-* `file_stats_daily` és `file_events` adatok strukturáltabb felhasználása
-* Grafikon adatainak normalizált előkészítése PHP oldalon
-
-### Fixed
-
-#### • Frontend
-
-* Hiányzó JS változók miatti grafikonhiba (`favorites`, `ratings`)
-* Hibás admin ellenőrzés (`is_admin` / `role` → `admin`)
-* Olvashatatlan, vízszintesen görgethető eseménytáblázat
-* Nem definiált grafikon-vonalak miatti runtime error
-
-### Removed
-
-#### • Frontend
-
-* Horizontálisan scrollozható `file_events` táblázat
-* Felesleges admin/role fallback logika
-
-### Security
-
-#### • IP-címek 
-
-* IP-címek **anonimizálása nem admin felhasználóknak**
-* Teljes User-Agent csak admin jogosultsággal érhető el
-* Jegyzet statisztika kizárólag a feltöltő számára elérhető
-* IPv6 és IPv4 IP-kezelés egységesítése (`INET6_NTOA`)
-
-Changelog by: **Csontos Kincső Anasztázia**
-
----
-
-## [v1.4.3-beta] - 2026-01-14
-
-### Changed
-#### • Dokumentáció
-- Fejezetekkel kibővítve, pontosabb & részletesebb leírás
-
-#### • CHANGELOG
-- A verziók pontosítása `v`-vel & `-beta`-val egészen majd a vizsgáig, vizsga napján is hivatalosan is [v1.0.0] lesz
-
-Changelog by: Csontos Kincső Anasztázia
-
----
-
-## [v1.4.2-beta] - 2025-01-13
-
-### Added
-
-#### • Biztonság és fiókkezelés
-
-* Kétlépcsős azonosítás (2FA) be- és kikapcsolásának lehetősége a profil oldalon
-* Biztonsági kérdések hash-elése az adatbiztonság növelése érdekében
-
-### Changed
-
-#### • Felhasználói felület
-
-* Navbar újratervezése (UI redesign)
-* `messages.php` felhasználói felületének átdolgozása
-* Gradientek mennyiségének csökkentése a letisztultabb megjelenés érdekében
-
-### Fixed
-
-#### • Jogosultság és adatvédelem
-
-* Más felhasználók adatainak szerkesztési lehetőségének megszüntetése (pl. jelszó módosítás adatbázison keresztül)
-* Profil bemutatkozás karakterlimitjének bevezetése (maximum 1500 karakter)
-
-### Security
-
-#### • Adatbiztonság
-
-* Jogosulatlan adatmanipuláció lehetőségének megszüntetése más felhasználók esetén
-
-Changelog by: Csontos Kincső Anasztázia
-
-
-## [v1.4.1-beta] - 2025-01-13
-
-### Added
-#### • Reklámok
-- Egyes oldalakon reklámok jelennek meg a baloldalt
-
-### Fixed
-#### • mobilos hamburger menü
-- Mostmár lenyílik és rendesen lehet használni a mobilon
-
-Changelog by: Szekeres Levente
-
----
-
-## [v1.4.0-beta] - 2026-01-09
-TAGELÉS REWORK
-
-### Added
-#### •findtag.php, kereso_tag.php
--adatbázisban lévő tagek megmutatására szolgál mindkettő php fájl
-
-### Changed
-#### •upload.php
--beraktam egy textarea-t amibe az applikált tagek kerülnek be. ennek a tartalma töltödik fel a db-be
-
-
-Changelog by: Norbi
-
----
-
-
-## [v1.3.6-beta] - 2025-12-16
+## [1.3.6] - 2025-12-16
 
 ### Added
 #### • Jelentés / Report rendszer
@@ -415,7 +145,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [v1.3.5-beta] - 2025-12-14
+## [1.3.5] - 2025-12-14
 
 ### Added
 #### •mail-regver.php
@@ -435,7 +165,7 @@ Changelog by: Csontos Kincső Anasztázia
 Changelog by: Norbi
 
 
-## [v1.3.4-beta] - 2025-12-06
+## [1.3.4] - 2025-12-06
 
 ### Added
 #### • Database helper usage
@@ -476,7 +206,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [v1.3.3-beta] – 2025-12-02
+## [1.3.3] – 2025-12-02
 
 ### Added
 
@@ -530,7 +260,7 @@ Changelog by: Szekeres Levente
 ---
 
 
-## [v1.3.2-beta] - 2025-12-01
+## [1.3.2] - 2025-12-01
 
 ### Added
 #### • Új SQL táblák
@@ -583,7 +313,7 @@ Magyarul: *"nem hagyjuk, hogy a user bemászza a query-be"*.
 
 Changelog by: Csontos Kincső Anasztázia
 
-## [v1.3.1-beta] - 2025-12-1
+## [1.3.1] - 2025-12-1
 
 ### Added
 #### • mail-2fa.php
@@ -605,7 +335,7 @@ Changelog by: Norbi
 
 ---
 
-## [v1.3.0-beta]  - 2025-11-25
+## [1.3.0]  - 2025-11-25
 
 ### Added
 #### • vendor mappa
@@ -625,7 +355,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [v1.2.2-beta] - 2025-11-23
+## [1.2.2] - 2025-11-23
 
 ### Added
 #### •favorites.php
@@ -639,7 +369,7 @@ Changelog by: Norbi
 
 ---
 
-## [v1.2.1-beta] - 2025-11-23
+## [1.2.1] - 2025-11-23
 
 ### Added
 #### •favorites.php
@@ -668,7 +398,7 @@ Changelog by: Norbi
 
 ---
 
-## [v1.2.0-beta] - 2025-11-21
+## [1.2.0] - 2025-11-21
 
 ### Added
 #### • Multilanguage
@@ -701,7 +431,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [v1.1.1-beta] - 2025-11-12
+## [1.1.1] - 2025-11-12
 
 ### Added
 #### •Uj tábla: favorites
@@ -721,7 +451,7 @@ Changelog by: Norbi
 
 ---
 
-## [v1.1.0-beta] - 2025-11-09
+## [1.1.0] - 2025-11-09
 
 ### Added
 #### • Discord login button
@@ -736,7 +466,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [v1.0.3-beta] - 2025-10-02
+## [1.0.3] - 2025-10-02
 
 ### Fixed
 #### • Születésnapi profil keret
@@ -747,7 +477,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [v1.0.2-beta] - 2025-10-02
+## [1.0.2] - 2025-10-02
 
 
 ### Added
@@ -775,7 +505,7 @@ Changelog by: Csontos Kincső Anasztázia
 
 ---
 
-## [v1.0.1-beta] - 2025-11-02
+## [1.0.1] - 2025-11-02
 
 ### Added
 - note.php
@@ -805,7 +535,7 @@ Changelog by: Norbi
 
 ---
 
-## [v1.0.1-beta] - 2025-11-02
+## [1.0.1] - 2025-11-02
 
 ### Added
 - note.php
@@ -835,7 +565,7 @@ Changelog by: Norbi
 
 ---
 
-## [v1.0.0-beta] - 2025-10-01
+## [1.0.0] - 2025-10-01
 
 ### Added
 

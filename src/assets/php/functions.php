@@ -339,20 +339,3 @@
             . $path
             . '</svg>';
     }
-
-    function safe_nl2br($text) {
-        return nl2br(htmlspecialchars($text, ENT_QUOTES, 'UTF-8'));
-    }
-
-    function clean_str($v, ?int $maxLen = null): string {
-        $v = trim((string)$v);
-        if ($maxLen !== null) {
-            $v = mb_substr($v, 0, $maxLen, 'UTF-8');
-        }
-        return $v;
-    }
-
-    function go($url) {
-        header("Location: " . $url);
-        exit;
-    }

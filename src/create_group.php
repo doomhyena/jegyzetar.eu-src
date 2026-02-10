@@ -41,13 +41,13 @@ if (isset($_POST['letrehozas'])) {
         echo "<script>alert('A csoport neve kötelező!');</script>";
     } else {
 
-        $inserted = db_exec($conn, "INSERT INTO groups (name, description, owner_id, is_private)  VALUES (?, ?, ?, ?)", "ssii", [$csoport_nev, $csoport_leiras, $tulaj_id, $privat]);
+        $inserted = db_exec($conn,"INSERT INTO groups (name, description, owner_id, is_private, status) VALUES (?, ?, ?, ?, 'pending')","ssii",[$csoport_nev, $csoport_leiras, $tulaj_id, $privat]);
         if ($inserted > 0) {
             $uj_csoport_id = $conn->insert_id;
             db_exec($conn, "INSERT INTO group_members (group_id, user_id, role, status)  VALUES (?, ?, 'owner', 'accepted')", "ii", [$uj_csoport_id, $tulaj_id]);
-            echo "<script>alert('Csoport sikeresen létrehozva!');</script>";
-            header("Location: group.php?id=" . $uj_csoport_id);
-            exit;
+            echo "<script>alert('Csoport létrehozva! Admin jóváhagyás után fog megjelenni a listában.');</script>";
+			header("Location: groups.php?pending=1");
+			exit;
         } else {
             echo "<script>alert('Hiba történt a csoport létrehozásakor.');</script>";
         }

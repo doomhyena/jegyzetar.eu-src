@@ -12,8 +12,8 @@ A **Jegyzetár** egy webalapú platform, amely lehetővé teszi a felhasználók
 
 | Rész              | Technológia  |
 | ----------------- | ------------ |
-| **Frontend**      | React.js     |
-| **Backend**       | PHP          |
+| **Frontend**      | HTML, CSS    |
+| **Backend**       | PHP 8+       |
 | **Adatbázis**     | MySQL        |
 | **Verziókezelés** | Git + GitHub |
 | **Hosting**       | Rackhost     |
@@ -24,18 +24,16 @@ A **Jegyzetár** egy webalapú platform, amely lehetővé teszi a felhasználók
 
 A részletes telepítési és használati útmutató megtalálható a projekt dokumentációjában.
 
+## Licenc
+
+Ez a projekt saját projektmunkás licensz alatt áll. A forráskód és a dokumentáció kizárólag oktatási célokra használható fel, kereskedelmi felhasználása nem engedélyezett.
+
 ---
 
 ## Készítette
 
 **Jegyzetár fejlesztőcsapat**
 
-- Baranyi Norbert 14/B
-- Csontos Kincső Anasztázia 14/A
-- Szekeres Levente 14/A
-
----
-
-## Licenc
-
-Ez a projekt saját projektmunkás licensz alatt áll. A forráskód és a dokumentáció kizárólag oktatási célokra használható fel, kereskedelmi felhasználása nem engedélyezett.
+- Baranyi Norbert
+- Csontos Kincső Anasztázia
+- Szekeres Levente

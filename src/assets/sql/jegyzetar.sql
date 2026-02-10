@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Jan 27. 09:41
+-- Létrehozás ideje: 2026. Feb 10. 03:17
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -62,7 +62,8 @@ CREATE TABLE `badges` (
 --
 
 INSERT INTO `badges` (`id`, `name`, `slug`, `description`, `icon`) VALUES
-(1, 'Tulajdonos', 'owner', 'Az oldal tulajdonosa', '🔰');
+(1, 'Tulajdonos', 'owner', 'Az oldal tulajdonosa', '🔰'),
+(2, 'Prémium tag', 'premium', 'Prémium tagsággal rendelkezik', '💎');
 
 -- --------------------------------------------------------
 
@@ -118,15 +119,17 @@ CREATE TABLE `files` (
   `download_count` int(11) NOT NULL DEFAULT 0,
   `content_text` longtext DEFAULT NULL,
   `edu_stage` enum('hs','uni') DEFAULT NULL,
-  `edu_level` tinyint(4) DEFAULT NULL
+  `edu_level` tinyint(4) DEFAULT NULL,
+  `is_private` tinyint(1) NOT NULL DEFAULT 0,
+  `is_public` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 --
 -- A tábla adatainak kiíratása `files`
 --
 
-INSERT INTO `files` (`id`, `uploaded_by`, `name`, `file_name`, `description`, `file_path`, `subject`, `tags`, `tn_name`, `file_size`, `download_count`, `content_text`, `edu_stage`, `edu_level`) VALUES
-(2, 1, 'Java zero to hero', 'JavaNotesForProfessionals.pdf', 'Ezzel a csodával megtanulsz javaul. Garantált siker!', 'C:xampphtdocsjegyzetar.eu-srcsrc/users/csontoskincso05/JavaNotesForProfessionals.pdf', 'Informatika', 'Tankönyv', NULL, NULL, 0, NULL, 'hs', 13);
+INSERT INTO `files` (`id`, `uploaded_by`, `name`, `file_name`, `description`, `file_path`, `subject`, `tags`, `tn_name`, `file_size`, `download_count`, `content_text`, `edu_stage`, `edu_level`, `is_private`, `is_public`) VALUES
+(2, 1, 'Java zero to hero', 'JavaNotesForProfessionals.pdf', 'Ezzel a csodával megtanulsz javaul. Garantált siker!', 'C:xampphtdocsjegyzetar.eu-srcsrc/users/csontoskincso05/JavaNotesForProfessionals.pdf', 'Informatika', 'Tankönyv', NULL, NULL, 0, NULL, 'hs', 13, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -207,8 +210,18 @@ CREATE TABLE `groups` (
   `description` text DEFAULT NULL,
   `owner_id` int(11) NOT NULL,
   `is_private` tinyint(1) NOT NULL DEFAULT 0,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
+  `reviewed_at` datetime DEFAULT NULL,
+  `reviewed_by` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- A tábla adatainak kiíratása `groups`
+--
+
+INSERT INTO `groups` (`id`, `name`, `description`, `owner_id`, `is_private`, `created_at`, `status`, `reviewed_at`, `reviewed_by`) VALUES
+(3, 'dolgozat felkészítő', 'nagyon szép csopi', 9, 0, '2026-02-10 02:59:51', 'approved', '2026-02-10 03:00:04', 9);
 
 -- --------------------------------------------------------
 
@@ -241,6 +254,15 @@ CREATE TABLE `group_members` (
   `status` enum('accepted','pending') NOT NULL DEFAULT 'accepted',
   `joined_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- A tábla adatainak kiíratása `group_members`
+--
+
+INSERT INTO `group_members` (`id`, `group_id`, `user_id`, `role`, `status`, `joined_at`) VALUES
+(0, 0, 9, 'owner', 'accepted', '2026-02-10 02:14:09'),
+(0, 2, 9, 'owner', 'accepted', '2026-02-10 02:38:40'),
+(0, 3, 9, 'owner', 'accepted', '2026-02-10 02:59:51');
 
 -- --------------------------------------------------------
 
@@ -718,6 +740,13 @@ CREATE TABLE `premium_users` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- A tábla adatainak kiíratása `premium_users`
+--
+
+INSERT INTO `premium_users` (`id`, `user_id`, `premium_until`, `premium_ig`, `created_at`, `updated_at`) VALUES
+(3, 9, '0000-00-00 00:00:00', '2026-03-12 01:26:00', '2026-02-10 01:26:00', '2026-02-10 01:26:00');
+
 -- --------------------------------------------------------
 
 --
@@ -781,7 +810,7 @@ CREATE TABLE `reg_codes` (
 --
 
 INSERT INTO `reg_codes` (`id`, `code`, `description`, `max_uses`, `used`, `expires_at`, `active`, `created_at`) VALUES
-(1, 'EARLY-BETA-2025', 'Nagyon korai béta tesztelő kód', 10, 3, NULL, 1, '2025-12-07 14:31:16');
+(1, 'EARLY-BETA-2025', 'Nagyon korai béta tesztelő kód', 10, 4, NULL, 1, '2025-12-07 14:31:16');
 
 -- --------------------------------------------------------
 
@@ -926,7 +955,8 @@ CREATE TABLE `tokens` (
 --
 
 INSERT INTO `tokens` (`id`, `user_id`, `token`, `created_at`) VALUES
-(1, 8, 120502, '2025-12-15 22:19:29');
+(1, 8, 120502, '2025-12-15 22:19:29'),
+(2, 9, 206237, '2026-02-09 12:38:11');
 
 -- --------------------------------------------------------
 
@@ -2179,7 +2209,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `lastname`, `firstname`, `username`, `birthdate`, `gender`, `email`, `profile_picture`, `password`, `security_question`, `security_answer`, `admin`, `registration_date`, `language`, `oauth_provider`, `oauth_sub`, `email_verified`, `bio`, `profile_theme`, `twofa_enabled`) VALUES
 (1, 'Csontos', 'Kincső', 'csontoskincso05', '2005-04-04', 'female', 'csontoskincso@doomhyena.hu', '↳ ੈ⸙͎₊ 𝐕𝐞𝐫𝐠𝐢𝐥 ˚ᬄ◞♡   ⃗.jpg', '$2y$10$ZLWnsc4oApKzTPcMkkeC8OcVEmKA3PVyV2Fu7Mn4cCKTrQR5wmLgK', 'Mi a kedvenc könyved?', 'Harry Potter', 1, '2025-12-02 08:52:05', 'hu', NULL, NULL, 1, 'I currently live and study in Budapest. I have been studying as a software developer and tester at Schola Europa Academy since September 2024, but since November 2025, I have also been a student at the Bláthy Otto Titus IT Secondary School, where I am studying to become an IT systems and application operations technician. In September 2019, I started working more actively with JavaScript, writing a Discord bot using the Discord API and creating smaller static websites. JavaScript was my main focus until December 2021, when I met my friend aki26, who introduced me to C#. Later, in 2022, I learned Python in a high school elective course. Since September 2024, I have been studying to become a software developer and tester, where I also learned Java and PHP. My favorite and main language is Java. Outside of school projects, I enjoy building things just to see how they work, from small backend systems to experimental game mechanics in Godot. I’m especially interested in clean architecture, backend development, and turning half-baked ideas into working software. When I’m not coding, I’m usually behind a camera or deep-diving into some random tech rabbit hole. I like learning by doing, breaking things, and then fixing them properly. Currently focused on Java, backend development, and building things that actually ship.', 'light', 0),
-(8, 'Teszt', 'User', 'tesztuser', '2005-12-16', 'female', 'csontoskincso05@gmail.com', NULL, '$2y$10$rsRPmF5j81OCfV3xbpkIHOCGXeKXLTOkUIb7tH4j73o74H8QQiHRK', 'Mi az édesanyád leánykori neve?', 'Harry Potter', 0, '2025-12-16 00:19:26', 'hu', NULL, NULL, 1, NULL, 'default', 0);
+(8, 'Teszt', 'User', 'tesztuser', '2005-12-16', 'female', 'csontoskincso05@gmail.com', NULL, '$2y$10$rsRPmF5j81OCfV3xbpkIHOCGXeKXLTOkUIb7tH4j73o74H8QQiHRK', 'Mi az édesanyád leánykori neve?', 'Harry Potter', 0, '2025-12-16 00:19:26', 'hu', NULL, NULL, 1, NULL, 'default', 0),
+(9, 'asd', 'asd', 'asd', '2026-02-04', 'male', 'szekilevi035@mail.com', NULL, '$2y$10$mxE4e3GyOp3VkOOweXPCceaEJgFZkazZJtQeTWu5LPf2RNjBUutKG', 'Mi a kedvenc ételed?', '$2y$10$1rpZGhaT380ZrchLJY9HFe16OUEhfGaoharQANV4dM4p3FYq7KoIO', 1, '2026-02-09 13:38:08', 'hu', NULL, NULL, 1, NULL, 'default', 0);
 
 -- --------------------------------------------------------
 
@@ -2200,7 +2231,8 @@ CREATE TABLE `user_badges` (
 --
 
 INSERT INTO `user_badges` (`id`, `user_id`, `badge_id`, `granted_by`, `granted_at`) VALUES
-(2, 1, 1, 1, '2026-01-25 18:58:27');
+(2, 1, 1, 1, '2026-01-25 18:58:27'),
+(3, 9, 2, NULL, '2026-02-10 01:26:00');
 
 -- --------------------------------------------------------
 
@@ -2309,6 +2341,14 @@ ALTER TABLE `friends`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fromid` (`fromid`),
   ADD KEY `toid` (`toid`);
+
+--
+-- A tábla indexei `groups`
+--
+ALTER TABLE `groups`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_groups_status` (`status`),
+  ADD KEY `idx_groups_reviewed_by` (`reviewed_by`);
 
 --
 -- A tábla indexei `languages`
@@ -2444,7 +2484,7 @@ ALTER TABLE `2fa_codes`
 -- AUTO_INCREMENT a táblához `badges`
 --
 ALTER TABLE `badges`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT a táblához `comments`
@@ -2477,6 +2517,12 @@ ALTER TABLE `friends`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT a táblához `groups`
+--
+ALTER TABLE `groups`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT a táblához `languages`
 --
 ALTER TABLE `languages`
@@ -2504,7 +2550,7 @@ ALTER TABLE `password_reset_attempts`
 -- AUTO_INCREMENT a táblához `premium_users`
 --
 ALTER TABLE `premium_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT a táblához `ratings`
@@ -2540,7 +2586,7 @@ ALTER TABLE `search_logs`
 -- AUTO_INCREMENT a táblához `tokens`
 --
 ALTER TABLE `tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT a táblához `translations`
@@ -2552,13 +2598,13 @@ ALTER TABLE `translations`
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT a táblához `user_badges`
 --
 ALTER TABLE `user_badges`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT a táblához `user_custom_css_archive`

@@ -195,8 +195,6 @@
                     </div>
                 </form>
             </div>
-
-            <!-- Egyéb módok az értesítéshez -->
             <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 32px;">
                 <div class="card">
                     <div class="card-head">
@@ -210,7 +208,7 @@
                         <h3>Discord</h3>
                     </div>
                     <p class="entry-meta">
-                        Discord szerverünket a főoldalon találod
+                        Discord szerverünket a Közösség menüpont alatt találod, csatlakozz és írj nekünk ott is!
                     </p>
                 </div>
             </div>

@@ -10,10 +10,12 @@
         header("Location: reglog.php");
         exit;
     }
-
+	
+	
     $aktualis_felhasznalo_id = (int)$_COOKIE['id'];
     $csoportok_sql = "SELECT * FROM groups ORDER BY id DESC";
     $csoportok_lekerdezes = $conn->query($csoportok_sql);
+	
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">
@@ -52,6 +54,7 @@
         <?php if ($csoportok_lekerdezes && $csoportok_lekerdezes->num_rows > 0): ?>
             <div class="content-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <?php while ($egy_csoport = $csoportok_lekerdezes->fetch_assoc()):
+						$csoport_statusz = $egy_csoport['status'];
                         $csoport_id = $egy_csoport['id'];
                         $csoport_nev = $egy_csoport['name'];
                         $csoport_leiras = $egy_csoport['description'];
@@ -73,6 +76,11 @@
                             <span class="entry-meta text-xs md:text-sm inline-block px-2 py-1 rounded bg-white/10">
                                 <?= htmlspecialchars($privat_szoveg) ?>
                             </span>
+							<?php if ($csoport_statusz === 'pending'): ?>
+							<span class="entry-meta text-xs md:text-sm inline-block px-2 py-1 rounded bg-yellow-500/20 text-yellow-300">
+							Jóváhagyásra vár
+							</span>
+							<?php endif; ?>
                         </div>
                         <?php if (trim($csoport_leiras) !== ""): ?>
                             <p class="entry-meta text-sm md:text-base mb-3 break-words">
@@ -84,9 +92,15 @@
                             </p>
                         <?php endif; ?>
                         <div class="mt-auto">
-                            <a href="group.php?id=<?= (int)$csoport_id ?>" class="btn-ghost text-sm md:text-base">
-                                Csoport megnyitása
-                            </a>
+						<?php if ($csoport_statusz === 'approved'): ?>
+							<a href="group.php?id=<?= (int)$csoport_id ?>" class="btn-ghost text-sm md:text-base">
+								Csoport megnyitása
+							</a>
+						<?php else: ?>
+							<span class="btn-ghost text-sm md:text-base opacity-50 cursor-not-allowed">
+								A csoport még nem elérhető
+							</span>
+						<?php endif; ?>
                         </div>
                     </article>
                 <?php endwhile; ?>

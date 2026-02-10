@@ -7,13 +7,22 @@
     require "assets/php/lang.php";
     require_once "assets/php/functions.php";
     require "assets/php/group_init.php";
+	
+	$admin = isset($user['admin']) && (int)$user['admin'] === 1;
+	$owner = isset($tulaj_id) && isset($_COOKIE['id']) && (int)$tulaj_id === (int)$_COOKIE['id'];
+	if (($csoport_statusz ?? 'approved') !== 'approved' && !$admin && !$owner) {
+		echo "<script>alert('Ez a csoport még nincs jóváhagyva az admin által.');</script>";
+		header("Location: groups.php");
+		exit;
+	}
+	
     require "assets/php/group_actions.php";
     include "assets/php/ads.php";
 
-$hiba_uzenet = "";
-    if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) {
-        $hiba_uzenet = "Ez egy privát csoport. A tartalom csak tagoknak látható.";
-    }
+	$hiba_uzenet = "";
+	if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) {
+		$hiba_uzenet = "Ez egy privát csoport. A tartalom csak tagoknak látható.";
+	}
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">

@@ -175,21 +175,40 @@
         echo "<script>location.href='admin_panel.php';</script>";
         exit();
     }
+	
+	if (isset($_GET['group_action']) && isset($_GET['group_id'])) {
+		$action = $_GET['group_action']; // approve / reject
+		$group_id = (int)$_GET['group_id'];
+		$adminId = (int)$current_user['id'];
 
-    if (isset($_POST['report_action']) && isset($_POST['report_id'])) {
-        $reportId = (int)$_POST['report_id'];
-        $action = $_POST['report_action'];
-        $adminId = (int)$current_user['id'];
-
-        if (in_array($action, ['resolve', 'dismiss'], true)) {
-            $newStatus = ($action === 'resolve') ? 'resolved' : 'dismissed';
-
-            db_stmt($conn, "UPDATE reports SET status = ?, handled_by = ?, handled_at = NOW() WHERE id = ?", "sii", [$newStatus, $adminId, $reportId]);
+		if ($group_id > 0) {
+			
+			if ($action === 'approve') {
+				db_exec($conn,"UPDATE groups SET status='approved', reviewed_at=NOW(), reviewed_by=? WHERE id=? LIMIT 1","ii",[$adminId, $group_id]);
+				
+        } elseif ($action === 'reject') {
+            db_exec($conn,"UPDATE groups SET status='rejected', reviewed_at=NOW(), reviewed_by=? WHERE id=? LIMIT 1", "ii", [$adminId, $group_id]);
         }
-
-        echo "<script>location.href='admin_panel.php';</script>";
-        exit();
     }
+
+		echo "<script>location.href='admin_panel.php';</script>";
+		exit();
+	}
+
+	if (isset($_POST['report_action']) && isset($_POST['report_id'])) {
+		$reportId = (int)$_POST['report_id'];
+		$action = $_POST['report_action'];
+		$adminId = (int)$current_user['id'];
+
+		if (in_array($action, ['resolve', 'dismiss'], true)) {
+			$newStatus = ($action === 'resolve') ? 'resolved' : 'dismissed';
+
+			db_stmt($conn, "UPDATE reports SET status = ?, handled_by = ?, handled_at = NOW() WHERE id = ?", "sii", [$newStatus, $adminId, $reportId]);
+		}
+
+		echo "<script>location.href='admin_panel.php';</script>";
+		exit();
+	}
 
     if (isset($_POST['create_reg_code'])) {
         $code = trim($_POST['code'] ?? '');
@@ -243,6 +262,7 @@
     $comments = $conn->query("SELECT comments.*, users.username FROM comments LEFT JOIN users ON comments.userid=users.id ORDER BY comments.id DESC");
     $categories = $conn->query("SELECT DISTINCT subject FROM files WHERE subject != '' ORDER BY subject ASC");
     $css_requests = $conn->query("SELECT r.*, u.username, rv.username AS reviewer_name FROM user_custom_css_requests r JOIN users u ON r.user_id = u.id LEFT JOIN users rv ON r.reviewed_by = rv.id ORDER BY (r.status = 'pending') DESC, r.id DESC");
+	$group_requests = $conn->query("SELECT g.*, u.username AS owner_name, rv.username AS reviewer_name FROM groups g LEFT JOIN users u ON u.id = g.owner_id LEFT JOIN users rv ON rv.id = g.reviewed_by ORDER BY (g.status = 'pending') DESC, g.id DESC");
     $user_badges = $conn->query("SELECT ub.*, u.username, b.name AS badge_name FROM user_badges ub JOIN users u ON ub.user_id = u.id JOIN badges b ON ub.badge_id = b.id ORDER BY ub.id DESC");
     $badge_options = $conn->query("SELECT id, name FROM badges ORDER BY name ASC");
     $user_options  = $conn->query("SELECT id, username FROM users ORDER BY username ASC");
@@ -381,6 +401,53 @@
             <?php } ?>
         </table>
     </section>
+	
+	<section class="card p-4 md:p-6 mb-6 overflow-x-auto">
+    <h2 class="text-xl md:text-2xl mb-4">Csoportok jóváhagyása</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Név</th>
+            <th>Leírás</th>
+            <th>Tulaj</th>
+            <th>Privát</th>
+            <th>Státusz</th>
+            <th>Review</th>
+            <th>Művelet</th>
+        </tr>
+
+        <?php if ($group_requests && $group_requests->num_rows > 0): ?>
+            <?php while($g = $group_requests->fetch_assoc()): ?>
+                <tr>
+                    <td><?= (int)$g['id'] ?></td>
+                    <td><?= htmlspecialchars($g['name']) ?></td>
+                    <td><?= htmlspecialchars($g['description'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($g['owner_name'] ?? 'ismeretlen') ?></td>
+                    <td><?= ((int)$g['is_private'] === 1) ? 'Igen' : 'Nem' ?></td>
+                    <td><?= htmlspecialchars($g['status']) ?></td>
+                    <td>
+                        <?php if (!empty($g['reviewed_at'])): ?>
+                            <?= htmlspecialchars($g['reviewed_at']) ?><br>
+                            <?= htmlspecialchars($g['reviewer_name'] ?? '') ?>
+                        <?php else: ?>
+                            –
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if ($g['status'] === 'pending'): ?>
+                            <a href="?group_action=approve&group_id=<?= (int)$g['id'] ?>" onclick="return confirm('Jóváhagyod ezt a csoportot?')">Jóváhagyás</a><br>
+                            <a href="?group_action=reject&group_id=<?= (int)$g['id'] ?>" onclick="return confirm('Elutasítod ezt a csoportot?')">Elutasítás</a>
+                        <?php else: ?>
+                            Nincs művelet
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <tr><td colspan="8">Nincs csoport.</td></tr>
+        <?php endif; ?>
+    </table>
+	</section>
     <section class="card p-4 md:p-6 mb-6">
         <h2 class="text-xl md:text-2xl mb-4">User badge-ek kezelése</h2>
         <h3 class="text-lg md:text-xl mb-3">Új badge hozzárendelése</h3>
