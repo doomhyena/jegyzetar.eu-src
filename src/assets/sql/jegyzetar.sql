@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Feb 10. 03:17
+-- Létrehozás ideje: 2026. Feb 11. 16:23
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -68,6 +68,27 @@ INSERT INTO `badges` (`id`, `name`, `slug`, `description`, `icon`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Tábla szerkezet ehhez a táblához `bug_reports`
+--
+
+CREATE TABLE `bug_reports` (
+  `id` int(11) NOT NULL,
+  `category` enum('bug','feature','abuse','other') NOT NULL,
+  `title` varchar(120) NOT NULL,
+  `description` text NOT NULL,
+  `page_url` varchar(255) DEFAULT NULL,
+  `steps` text DEFAULT NULL,
+  `expected_result` text DEFAULT NULL,
+  `actual_result` text DEFAULT NULL,
+  `priority` enum('low','medium','high','critical') DEFAULT 'medium',
+  `user_id` int(11) DEFAULT NULL,
+  `contact_email` varchar(190) DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `comments`
 --
 
@@ -76,6 +97,24 @@ CREATE TABLE `comments` (
   `userid` int(11) NOT NULL,
   `postid` int(11) NOT NULL,
   `text` varchar(1000) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `contact_messages`
+--
+
+CREATE TABLE `contact_messages` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `sender_name` varchar(255) NOT NULL,
+  `sender_email` varchar(255) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `message` longtext NOT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `read_by_admin` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
@@ -119,17 +158,15 @@ CREATE TABLE `files` (
   `download_count` int(11) NOT NULL DEFAULT 0,
   `content_text` longtext DEFAULT NULL,
   `edu_stage` enum('hs','uni') DEFAULT NULL,
-  `edu_level` tinyint(4) DEFAULT NULL,
-  `is_private` tinyint(1) NOT NULL DEFAULT 0,
-  `is_public` tinyint(1) NOT NULL DEFAULT 1
+  `edu_level` tinyint(4) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 --
 -- A tábla adatainak kiíratása `files`
 --
 
-INSERT INTO `files` (`id`, `uploaded_by`, `name`, `file_name`, `description`, `file_path`, `subject`, `tags`, `tn_name`, `file_size`, `download_count`, `content_text`, `edu_stage`, `edu_level`, `is_private`, `is_public`) VALUES
-(2, 1, 'Java zero to hero', 'JavaNotesForProfessionals.pdf', 'Ezzel a csodával megtanulsz javaul. Garantált siker!', 'C:xampphtdocsjegyzetar.eu-srcsrc/users/csontoskincso05/JavaNotesForProfessionals.pdf', 'Informatika', 'Tankönyv', NULL, NULL, 0, NULL, 'hs', 13, 0, 1);
+INSERT INTO `files` (`id`, `uploaded_by`, `name`, `file_name`, `description`, `file_path`, `subject`, `tags`, `tn_name`, `file_size`, `download_count`, `content_text`, `edu_stage`, `edu_level`) VALUES
+(2, 1, 'Java zero to hero', 'JavaNotesForProfessionals.pdf', 'Ezzel a csodával megtanulsz javaul. Garantált siker!', 'C:xampphtdocsjegyzetar.eu-srcsrc/users/csontoskincso05/JavaNotesForProfessionals.pdf', 'Informatika', 'Tankönyv', NULL, NULL, 0, NULL, 'hs', 13);
 
 -- --------------------------------------------------------
 
@@ -159,7 +196,9 @@ INSERT INTO `file_events` (`id`, `file_id`, `user_id`, `event_type`, `rating`, `
 (4, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36', '2026-01-17 18:09:20'),
 (5, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36', '2026-01-17 18:19:57'),
 (6, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-17 19:58:01'),
-(7, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-24 23:09:54');
+(7, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-24 23:09:54'),
+(8, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-02-08 22:58:04'),
+(9, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-02-10 09:12:17');
 
 -- --------------------------------------------------------
 
@@ -211,17 +250,17 @@ CREATE TABLE `groups` (
   `owner_id` int(11) NOT NULL,
   `is_private` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending',
   `reviewed_at` datetime DEFAULT NULL,
-  `reviewed_by` int(11) DEFAULT NULL
+  `reviewed_by` int(11) DEFAULT NULL,
+  `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 --
 -- A tábla adatainak kiíratása `groups`
 --
 
-INSERT INTO `groups` (`id`, `name`, `description`, `owner_id`, `is_private`, `created_at`, `status`, `reviewed_at`, `reviewed_by`) VALUES
-(3, 'dolgozat felkészítő', 'nagyon szép csopi', 9, 0, '2026-02-10 02:59:51', 'approved', '2026-02-10 03:00:04', 9);
+INSERT INTO `groups` (`id`, `name`, `description`, `owner_id`, `is_private`, `created_at`, `reviewed_at`, `reviewed_by`, `status`) VALUES
+(0, 'Java Dolgozat felkészítő', 'Java dolgozatokra való felkészítés zajlik itt', 1, 0, '2026-02-10 09:10:06', NULL, NULL, 'pending');
 
 -- --------------------------------------------------------
 
@@ -260,9 +299,7 @@ CREATE TABLE `group_members` (
 --
 
 INSERT INTO `group_members` (`id`, `group_id`, `user_id`, `role`, `status`, `joined_at`) VALUES
-(0, 0, 9, 'owner', 'accepted', '2026-02-10 02:14:09'),
-(0, 2, 9, 'owner', 'accepted', '2026-02-10 02:38:40'),
-(0, 3, 9, 'owner', 'accepted', '2026-02-10 02:59:51');
+(0, 0, 1, 'owner', 'accepted', '2026-02-10 09:10:06');
 
 -- --------------------------------------------------------
 
@@ -745,7 +782,7 @@ CREATE TABLE `premium_users` (
 --
 
 INSERT INTO `premium_users` (`id`, `user_id`, `premium_until`, `premium_ig`, `created_at`, `updated_at`) VALUES
-(3, 9, '0000-00-00 00:00:00', '2026-03-12 01:26:00', '2026-02-10 01:26:00', '2026-02-10 01:26:00');
+(5, 1, '0000-00-00 00:00:00', '2026-03-12 11:13:35', '2026-02-10 11:13:35', '2026-02-10 11:13:35');
 
 -- --------------------------------------------------------
 
@@ -956,7 +993,7 @@ CREATE TABLE `tokens` (
 
 INSERT INTO `tokens` (`id`, `user_id`, `token`, `created_at`) VALUES
 (1, 8, 120502, '2025-12-15 22:19:29'),
-(2, 9, 206237, '2026-02-09 12:38:11');
+(2, 9, 668874, '2026-02-11 14:15:18');
 
 -- --------------------------------------------------------
 
@@ -2210,7 +2247,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `lastname`, `firstname`, `username`, `birthdate`, `gender`, `email`, `profile_picture`, `password`, `security_question`, `security_answer`, `admin`, `registration_date`, `language`, `oauth_provider`, `oauth_sub`, `email_verified`, `bio`, `profile_theme`, `twofa_enabled`) VALUES
 (1, 'Csontos', 'Kincső', 'csontoskincso05', '2005-04-04', 'female', 'csontoskincso@doomhyena.hu', '↳ ੈ⸙͎₊ 𝐕𝐞𝐫𝐠𝐢𝐥 ˚ᬄ◞♡   ⃗.jpg', '$2y$10$ZLWnsc4oApKzTPcMkkeC8OcVEmKA3PVyV2Fu7Mn4cCKTrQR5wmLgK', 'Mi a kedvenc könyved?', 'Harry Potter', 1, '2025-12-02 08:52:05', 'hu', NULL, NULL, 1, 'I currently live and study in Budapest. I have been studying as a software developer and tester at Schola Europa Academy since September 2024, but since November 2025, I have also been a student at the Bláthy Otto Titus IT Secondary School, where I am studying to become an IT systems and application operations technician. In September 2019, I started working more actively with JavaScript, writing a Discord bot using the Discord API and creating smaller static websites. JavaScript was my main focus until December 2021, when I met my friend aki26, who introduced me to C#. Later, in 2022, I learned Python in a high school elective course. Since September 2024, I have been studying to become a software developer and tester, where I also learned Java and PHP. My favorite and main language is Java. Outside of school projects, I enjoy building things just to see how they work, from small backend systems to experimental game mechanics in Godot. I’m especially interested in clean architecture, backend development, and turning half-baked ideas into working software. When I’m not coding, I’m usually behind a camera or deep-diving into some random tech rabbit hole. I like learning by doing, breaking things, and then fixing them properly. Currently focused on Java, backend development, and building things that actually ship.', 'light', 0),
 (8, 'Teszt', 'User', 'tesztuser', '2005-12-16', 'female', 'csontoskincso05@gmail.com', NULL, '$2y$10$rsRPmF5j81OCfV3xbpkIHOCGXeKXLTOkUIb7tH4j73o74H8QQiHRK', 'Mi az édesanyád leánykori neve?', 'Harry Potter', 0, '2025-12-16 00:19:26', 'hu', NULL, NULL, 1, NULL, 'default', 0),
-(9, 'asd', 'asd', 'asd', '2026-02-04', 'male', 'szekilevi035@mail.com', NULL, '$2y$10$mxE4e3GyOp3VkOOweXPCceaEJgFZkazZJtQeTWu5LPf2RNjBUutKG', 'Mi a kedvenc ételed?', '$2y$10$1rpZGhaT380ZrchLJY9HFe16OUEhfGaoharQANV4dM4p3FYq7KoIO', 1, '2026-02-09 13:38:08', 'hu', NULL, NULL, 1, NULL, 'default', 0);
+(9, 'Csontos', 'Kincső', 'doomhyena', '2005-04-04', 'female', 'csontoskincso@proton.me', NULL, '$2y$10$i7QzVcekWMXr3DJD6BUmgeR0Wal7AmZyBjDfjjVf6eowweutMErEa', 'Mi a kedvenc könyved?', '$2y$10$c5BtBT/ODqFT/OeHGYLuCeMCsdJ5sScb2Xjgg/lkJ77I9whd323tG', 0, '2026-02-11 15:15:12', 'hu', NULL, NULL, 1, NULL, 'default', 0);
 
 -- --------------------------------------------------------
 
@@ -2232,7 +2269,7 @@ CREATE TABLE `user_badges` (
 
 INSERT INTO `user_badges` (`id`, `user_id`, `badge_id`, `granted_by`, `granted_at`) VALUES
 (2, 1, 1, 1, '2026-01-25 18:58:27'),
-(3, 9, 2, NULL, '2026-02-10 01:26:00');
+(4, 1, 2, NULL, '2026-02-10 11:13:35');
 
 -- --------------------------------------------------------
 
@@ -2293,10 +2330,25 @@ ALTER TABLE `badges`
   ADD UNIQUE KEY `slug` (`slug`);
 
 --
+-- A tábla indexei `bug_reports`
+--
+ALTER TABLE `bug_reports`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `comments`
 --
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `created_at` (`created_at`),
+  ADD KEY `read_by_admin` (`read_by_admin`);
 
 --
 -- A tábla indexei `favorites`
@@ -2346,9 +2398,7 @@ ALTER TABLE `friends`
 -- A tábla indexei `groups`
 --
 ALTER TABLE `groups`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_groups_status` (`status`),
-  ADD KEY `idx_groups_reviewed_by` (`reviewed_by`);
+  ADD KEY `reviewed_by` (`reviewed_by`);
 
 --
 -- A tábla indexei `languages`
@@ -2487,9 +2537,21 @@ ALTER TABLE `badges`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT a táblához `bug_reports`
+--
+ALTER TABLE `bug_reports`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT a táblához `comments`
 --
 ALTER TABLE `comments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT a táblához `contact_messages`
+--
+ALTER TABLE `contact_messages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -2508,19 +2570,13 @@ ALTER TABLE `files`
 -- AUTO_INCREMENT a táblához `file_events`
 --
 ALTER TABLE `file_events`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT a táblához `friends`
 --
 ALTER TABLE `friends`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT a táblához `groups`
---
-ALTER TABLE `groups`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT a táblához `languages`
@@ -2550,7 +2606,7 @@ ALTER TABLE `password_reset_attempts`
 -- AUTO_INCREMENT a táblához `premium_users`
 --
 ALTER TABLE `premium_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT a táblához `ratings`
@@ -2604,7 +2660,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT a táblához `user_badges`
 --
 ALTER TABLE `user_badges`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT a táblához `user_custom_css_archive`
@@ -2621,6 +2677,12 @@ ALTER TABLE `user_custom_css_requests`
 --
 -- Megkötések a kiírt táblákhoz
 --
+
+--
+-- Megkötések a táblához `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  ADD CONSTRAINT `contact_messages_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
 -- Megkötések a táblához `premium_users`
