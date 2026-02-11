@@ -339,3 +339,85 @@
             . $path
             . '</svg>';
     }
+
+    function rl_hit(string $key): void {
+        if (!isset($_SESSION[$key])) {
+            $_SESSION[$key] = ['count' => 0, 'start' => time()];
+        }
+        $_SESSION[$key]['count'] = (int)$_SESSION[$key]['count'] + 1;
+    }
+
+    function rl_clear(string $key): void {
+        unset($_SESSION[$key]);
+    }
+
+    function valid_username(string $u): bool {
+        return (bool)preg_match('/^[a-zA-Z0-9._-]{3,20}$/', $u);
+    }
+    function password_policy_ok(string $p): bool {
+        if (strlen($p) < 8) return false;
+        if (!preg_match('/[a-z]/', $p)) return false;
+        if (!preg_match('/[A-Z]/', $p)) return false;
+        if (!preg_match('/[0-9]/', $p)) return false;
+        return true;
+    }
+    function age_at_least_13(string $birthdate): bool {
+        $birth = DateTime::createFromFormat('Y-m-d', $birthdate);
+        if (!$birth) return false;
+
+        $errs = DateTime::getLastErrors();
+        if (!empty($errs['warning_count']) || !empty($errs['error_count'])) return false;
+
+        $today = new DateTime('today');
+        if ($birth > $today) return false;
+
+        return ($birth->diff($today)->y >= 13);
+    }
+
+        function rl_key(string $action, string $extra = ''): string {
+        $ip = client_ip();
+        return "rl:" . $action . ":" . $ip . ($extra !== '' ? ":" . $extra : '');
+    }
+
+    function rl_allow(string $key, int $maxAttempts, int $windowSeconds): array {
+        $now = time();
+        if (!isset($_SESSION[$key])) {
+            $_SESSION[$key] = ['count' => 0, 'start' => $now];
+        }
+
+        $bucket = $_SESSION[$key];
+        $elapsed = $now - (int)$bucket['start'];
+
+        if ($elapsed >= $windowSeconds) {
+            $_SESSION[$key] = ['count' => 0, 'start' => $now];
+            $bucket = $_SESSION[$key];
+            $elapsed = 0;
+        }
+
+        if ((int)$bucket['count'] >= $maxAttempts) {
+            return ['ok' => false, 'retry_after' => max(1, $windowSeconds - $elapsed)];
+        }
+
+        return ['ok' => true, 'retry_after' => 0];
+    }
+
+        function go($url) {
+        header("Location: " . $url);
+        exit;
+    }
+
+    function is_https(): bool {
+        return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    }
+
+    function client_ip(): string {
+        return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    }
+
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    function csrf_check(): bool {
+        return isset($_POST['csrf_token'], $_SESSION['csrf_token'])
+            && hash_equals($_SESSION['csrf_token'], (string)$_POST['csrf_token']);
+    }

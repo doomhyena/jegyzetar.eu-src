@@ -45,6 +45,90 @@ Changelog by: Neved
 
 ---
 
+## [1.5.6-beta] - 2026-02-11
+
+### Added
+
+#### • Hitelesítési fejlesztések
+
+* Jelszó megjelenítés lehetősége a bejelentkezési és regisztrációs űrlapon
+* Valós idejű jelszóerősség-mutató regisztráció során
+* Jelszóegyezés visszajelzés regisztráció közben
+* Kliensoldali 13+ életkor-ellenőrzés (szerveroldali ellenőrzéssel kiegészítve)
+* CSRF token védelem a bejelentkezési és regisztrációs űrlapokon
+* Alap szintű próbálkozás-korlátozás (rate limiting) bejelentkezésnél és regisztrációnál (session + IP alapú)
+
+### Changed
+
+#### • Regisztrációs űrlap
+
+* Kompaktabb, reszponzív grid alapú elrendezés (közepes képernyőtől 2 oszlopos nézet)
+* Javított űrlapszerkezet és térközök a jobb felhasználói élmény érdekében
+* Egységesített, biztonságos cookie beállítások (Secure, HttpOnly, SameSite=Lax)
+
+#### • Validáció
+
+* Kibővített szerveroldali validáció (felhasználónév formátum, email ellenőrzés, jelszóházirend)
+* Egységesített hibaüzenetek bejelentkezéskor a felhasználónév-felderítés (user enumeration) csökkentése érdekében
+
+### Fixed
+
+#### • Hitelesítési logika
+
+* Nem egységes cookie biztonsági beállítás regisztráció után
+* Jövőbeli dátum elfogadása születési dátumnál
+* Gyenge jelszavak elfogadása házirend nélküli ellenőrzés esetén
+
+#### • Frontend működés
+
+* Jelszó megjelenítés és jelszóerősség-mutató hibás inicializálása (DOMContentLoaded-ba helyezve a stabil működésért)
+* Eseménykezelési problémák, amikor az elemek még nem voltak a DOM-ban
+
+### Removed
+
+#### • Elavult / duplikált megoldások
+
+* Duplikált jelszó-megjelenítési logika
+* Kevésbé biztonságos cookie-beállítási megoldás
+
+### Security
+
+#### • Biztonsági erősítések
+
+* Alap Content Security Policy hozzáadása
+* CSRF védelem bevezetése
+* Bejelentkezési és regisztrációs próbálkozások korlátozása
+* Szigorúbb jelszókövetelmények
+* Információszivárgás csökkentése bejelentkezéskor
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
+## [1.5.5-beta] - 2026-02-10
+
+### Added
+#### • Csoportok moderálása / admin jóváhagyás
+- Új csoportok létrehozásakor a csoport státusza alapból `pending`, és csak admin jóváhagyás után jelenik meg teljes értékűen.
+- Admin panelen bekerült a „Csoportok jóváhagyása” rész (jóváhagyás / elutasítás + reviewer adatok).
+
+#### • Birthday validation
+- Regisztrációnál születési dátum validáció: hibás dátum kezelése + 13 év alatti regisztráció tiltása.
+
+#### • Privát jegyzet (prémium tagoknak)
+- Prémium felhasználók számára elérhető privát jegyzet funkció.
+
+#### • Prémium badge
+- Prémium előfizetés aktiválásakor automatikusan hozzárendelődik a „premium” badge (ha még nincs meg).
+
+### Changed
+#### • Csoportok megjelenítése
+- Nem jóváhagyott (`pending`) csoportok esetén a megnyitás korlátozva van (admin / tulaj kivételével).
+
+Changelog by: Szekeres Levente
+
+---
+
 ## [1.5.4-beta] - 2026-02-09
 
 ### Added
@@ -96,25 +180,7 @@ Changelog by: Neved
 - Privacy.php: GDPR megfelelőség (adatkezelő info, jogok, megőrzés)
 - Rules.php: Korhatár bekéri (13 év) & tiltott tartalmak listázása
 
-Database table szükséges:
-```sql
-CREATE TABLE contact_messages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NULL,
-    sender_name VARCHAR(255) NOT NULL,
-    sender_email VARCHAR(255) NOT NULL,
-    subject VARCHAR(255) NOT NULL,
-    message LONGTEXT NOT NULL,
-    ip_address VARCHAR(45),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    read_by_admin BOOLEAN DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-    INDEX (created_at),
-    INDEX (read_by_admin)
-);
-```
-
-Changelog by: GitHub Copilot
+Changelog by: Csontos Kincső Anasztázia
 
 ---
 
@@ -132,7 +198,6 @@ Changelog by: GitHub Copilot
 ### Changed
 #### Database
 -`premium_users` tábla hozzáadása a prémium jogosultságok kezeléséhez
-
 
 Changelog by: Szekeres Levente
 

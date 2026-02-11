@@ -3,6 +3,11 @@
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
 
+    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
+        header("Location: reglog.php");
+        exit;
+    }
+
     require "assets/php/db.php";
     require "assets/php/lang.php";
     require "assets/php/functions.php";

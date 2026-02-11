@@ -15,7 +15,7 @@
 
     $showSecurityForm = true;
     $showNewPassword  = false;
-    $success          = false;
+    $success = false;
 
     define('MAX_ATTEMPTS', 5);
     define('LOCK_MINUTES', 15);
@@ -134,7 +134,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js" defer></script>
 </head>
-<body>
+<body class="no-ads admin-page">
 <div class="main w-full max-w-lg mx-auto px-4 md:px-6 lg:px-8 py-6">
     <?php if ($success): ?>
         <div class="card p-6 md:p-8 flex flex-col gap-4 text-center">

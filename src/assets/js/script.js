@@ -429,3 +429,69 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.toggle-pass, [data-toggle-pass]');
+    if (!btn) return;
+
+    const id = btn.getAttribute('data-target') || btn.getAttribute('data-toggle-pass');
+    if (!id) return;
+
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    const isPw = input.type === 'password';
+    input.type = isPw ? 'text' : 'password';
+
+    // opcionális UI
+    if (btn.classList.contains('toggle-pass')) {
+      btn.textContent = isPw ? '🙈' : '👁';
+    } else {
+      btn.setAttribute('aria-pressed', isPw ? 'true' : 'false');
+    }
+  });
+
+  const p1 = document.getElementById('password1');
+  const p2 = document.getElementById('password2');
+  const bar = document.getElementById('pw_bar');
+  const label = document.getElementById('pw_label');
+  const match = document.getElementById('pw_match');
+
+  function scorePassword(pw) {
+    let score = 0;
+    if (!pw) return 0;
+    if (pw.length >= 8) score += 1;
+    if (/[a-z]/.test(pw)) score += 1;
+    if (/[A-Z]/.test(pw)) score += 1;
+    if (/[0-9]/.test(pw)) score += 1;
+    if (/[^A-Za-z0-9]/.test(pw)) score += 1;
+    return score;
+  }
+
+  function updateStrength() {
+    if (!p1 || !bar || !label) return;
+
+    const s = scorePassword(p1.value);
+    const pct = Math.min(100, Math.round((s / 5) * 100));
+    bar.style.width = pct + '%';
+
+    let txt = '—';
+    if (s <= 1) txt = 'gyenge';
+    else if (s === 2) txt = 'közepes';
+    else if (s === 3) txt = 'jó';
+    else txt = 'erős';
+
+    label.textContent = 'Jelszó erőssége: ' + txt;
+
+    if (p2 && match) {
+      if (!p2.value) match.textContent = '';
+      else if (p1.value === p2.value) match.textContent = 'A jelszavak egyeznek.';
+      else match.textContent = 'A jelszavak nem egyeznek.';
+    }
+  }
+
+  if (p1) p1.addEventListener('input', updateStrength);
+  if (p2) p2.addEventListener('input', updateStrength);
+  updateStrength();
+});
