@@ -12,14 +12,14 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js" defer></script>
 </head>
-<body>
+<body class="no-ads admin-page">
     <?php
 
         header("X-Frame-Options: DENY");
         header("X-Content-Type-Options: nosniff");
         header("Referrer-Policy: no-referrer");
 
-    // norbi: 2fa
+        // norbi: 2fa
         require "assets/php/db.php";
         require_once "assets/php/lang.php";
         require_once "assets/php/functions.php";

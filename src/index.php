@@ -2,6 +2,10 @@
     header("X-Frame-Options: DENY");
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
+    
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
 
     require_once "assets/php/db.php";
     require_once "assets/php/lang.php";

@@ -45,6 +45,32 @@ Changelog by: Neved
 
 ---
 
+## [1.X.X-beta] - 2026-0X-0X
+
+### Added
+#### •
+-
+
+### Changed
+#### •
+-
+
+### Fixed
+#### •
+-
+
+### Removed
+#### •
+-
+
+### Security
+#### •
+-
+
+Changelog by: Neved
+
+---
+
 ## [1.5.6-beta] - 2026-02-11
 
 ### Added

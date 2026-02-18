@@ -157,6 +157,7 @@
         $action = $_GET['css_action'];
         $css_id = intval($_GET['css_id']);
         $adminId = intval($current_user['id']);
+        $now = date('Y-m-d H:i:s');
 
         if ($action === 'approve') {
             $res = db_query($conn, "SELECT * FROM user_custom_css_requests WHERE id = ? LIMIT 1", "i", [$css_id]);
@@ -165,11 +166,11 @@
                 $row = $res->fetch_assoc();
                 $userId = intval($row['user_id']);
 
-                db_exec($conn, "UPDATE user_custom_css_requests  SET status = 'approved', reviewed_at = NOW(), reviewed_by = ?  WHERE id = ?  LIMIT 1", "ii", [$adminId, $css_id]);
-                db_exec($conn, "UPDATE user_custom_css_requests  SET status = 'rejected'  WHERE user_id = ? AND status = 'pending' AND id <> ?", "ii", [$userId, $css_id]);
+                db_stmt($conn, "UPDATE user_custom_css_requests  SET status = ?, reviewed_at = ?, reviewed_by = ?  WHERE id = ?  LIMIT 1", "ssii", ['approved', $now, $adminId, $css_id])->close();
+                db_stmt($conn, "UPDATE user_custom_css_requests  SET status = ?  WHERE user_id = ? AND status = 'pending' AND id <> ?", "sii", ['rejected', $userId, $css_id])->close();
             }
         } elseif ($action === 'reject') {
-            db_exec($conn, "UPDATE user_custom_css_requests  SET status = 'rejected', reviewed_at = NOW(), reviewed_by = ?  WHERE id = ?  LIMIT 1", "ii", [$adminId, $css_id]);
+            db_stmt($conn, "UPDATE user_custom_css_requests  SET status = ?, reviewed_at = ?, reviewed_by = ?  WHERE id = ?  LIMIT 1", "ssii", ['rejected', $now, $adminId, $css_id])->close();
         }
 
         echo "<script>location.href='admin_panel.php';</script>";
@@ -180,14 +181,15 @@
 		$action = $_GET['group_action']; // approve / reject
 		$group_id = (int)$_GET['group_id'];
 		$adminId = (int)$current_user['id'];
+		$now = date('Y-m-d H:i:s');
 
 		if ($group_id > 0) {
 			
 			if ($action === 'approve') {
-				db_exec($conn,"UPDATE groups SET status='approved', reviewed_at=NOW(), reviewed_by=? WHERE id=? LIMIT 1","ii",[$adminId, $group_id]);
+				db_stmt($conn,"UPDATE groups SET status=?, reviewed_at=?, reviewed_by=? WHERE id=? LIMIT 1","ssii",['approved', $now, $adminId, $group_id])->close();
 				
         } elseif ($action === 'reject') {
-            db_exec($conn,"UPDATE groups SET status='rejected', reviewed_at=NOW(), reviewed_by=? WHERE id=? LIMIT 1", "ii", [$adminId, $group_id]);
+            db_stmt($conn,"UPDATE groups SET status=?, reviewed_at=?, reviewed_by=? WHERE id=? LIMIT 1", "ssii", ['rejected', $now, $adminId, $group_id])->close();
         }
     }
 

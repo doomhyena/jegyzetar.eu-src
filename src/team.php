@@ -51,7 +51,7 @@
                     </p>
                 </section>
                 <section class="card flex flex-col items-center text-center gap-3">
-                    <img src="assets/img/default_profile_picture.jpg"
+                    <img src="assets/img/cska_profile_picture.png"
                         alt="Csontos Kincső Anasztázia profilképe"
                         class="w-28 h-28 rounded-full object-cover border-2 border-neutral-200">
                     <h3>Csontos Kincső Anasztázia</h3>

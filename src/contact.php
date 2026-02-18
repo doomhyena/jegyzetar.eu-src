@@ -3,11 +3,44 @@
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
 
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+
     session_start();
 
-    require_once "assets/php/db.php";
-    require_once "assets/php/lang.php";
-    require_once "assets/php/functions.php";
+    require __DIR__ . "/assets/php/db.php";
+    require __DIR__ . "/assets/php/lang.php";
+    require_once __DIR__ . "/assets/php/functions.php";
+
+    require_once __DIR__ . "/assets/phpmailer/src/PHPMailer.php";
+    require_once __DIR__ . "/assets/phpmailer/src/Exception.php";
+    require_once __DIR__ . "/assets/phpmailer/src/SMTP.php";
+
+    use PHPMailer\PHPMailer\PHPMailer;
+    use PHPMailer\PHPMailer\Exception;
+
+    $config = json_decode(file_get_contents('config.json'), true);
+    if (!$config) {
+        die("Error: Could not load config file!");
+    }
+
+    function send_smtp_mail(array $config, callable $setup): bool {
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host = $config['host'];
+        $mail->SMTPAuth = $config['smtp_auth'];
+        $mail->Username = $config['username'];
+        $mail->Password = $config['password'];
+        $mail->SMTPSecure = $config['smtp_secure'];
+        $mail->Port = (int)$config['port'];
+        $mail->CharSet = 'UTF-8';
+
+        $mail->setFrom($config['username'], 'Jegyzetár');
+
+        $setup($mail);
+
+        return $mail->send();
+    }
 
     $message = '';
     $message_type = '';
@@ -18,11 +51,11 @@
     if (isset($_SESSION['id']) && isset($_SESSION['email'])) {
         $userId = (int)$_SESSION['id'];
         $result = db_query($conn, "SELECT firstname, lastname, email FROM users WHERE id = ? LIMIT 1", "i", [$userId]);
-        
+
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
             $user_email = $user['email'];
-            $user_name = ($user['firstname'] ?? '') . ' ' . ($user['lastname'] ?? '');
+            $user_name = trim(($user['firstname'] ?? '') . ' ' . ($user['lastname'] ?? ''));
         }
     }
 
@@ -46,78 +79,160 @@
             $message_type = 'error';
         } else {
             $admin_email = 'admin@jegyzetar.eu';
-            $email_subject = "[Jegyzetár Üzenet] " . htmlspecialchars($subject);
-            
-            $email_body = '
-                <html>
-                <head>
-                    <meta charset="utf-8">
-                </head>
-                <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                    <h2 style="color: #2c3e50;">Új üzenet a Jegyzetár kapcsolati formból</h2>
-                    <hr>
-                    <p><strong>Feladó neve:</strong> ' . htmlspecialchars($name) . '</p>
-                    <p><strong>Feladó email:</strong> <a href="mailto:' . htmlspecialchars($email) . '">' . htmlspecialchars($email) . '</a></p>
-                    <p><strong>Tárgy:</strong> ' . htmlspecialchars($subject) . '</p>
-                    <hr>
-                    <h3>Üzenet:</h3>
-                    <div style="background-color: #f4f4f4; padding: 15px; border-left: 4px solid #3498db;">
-                        ' . nl2br(htmlspecialchars($msg_body)) . '
-                    </div>
-                    <hr>
-                    <p style="color: #7f8c8d; font-size: 12px;">
-                        IP cím: ' . htmlspecialchars($_SERVER['REMOTE_ADDR'] ?? 'N/A') . '<br>
-                        Időbélyeg: ' . date('Y-m-d H:i:s') . '
-                    </p>
-                </body>
-                </html>
-            ';
 
-            $headers = "From: Jegyzetar Contact <noreply@jegyzetar.eu>\r\n";
-            $headers .= "Reply-To: " . htmlspecialchars($email) . "\r\n";
-            $headers .= "MIME-Version: 1.0\r\n";
-            $headers .= "Content-type: text/html; charset=UTF-8\r\n";
+            $safeName = htmlspecialchars($name, ENT_QUOTES, 'UTF-8');
+            $safeEmail = htmlspecialchars($email, ENT_QUOTES, 'UTF-8');
+            $safeSubject = htmlspecialchars($subject, ENT_QUOTES, 'UTF-8');
+            $safeMsgHtml = nl2br(htmlspecialchars($msg_body, ENT_QUOTES, 'UTF-8'));
 
-            if (mail($admin_email, $email_subject, $email_body, $headers)) {
-                $user_id = isset($_SESSION['id']) ? (int)$_SESSION['id'] : null;
-                $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
-                
-                try {
-                    db_exec($conn,"INSERT INTO contact_messages (user_id, sender_name, sender_email, subject, message, ip_address, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())","isssss",[$user_id, $name, $email, $subject, $msg_body, $ip_address]);
-                } catch (Exception $e) {
-                    error_log("Hiba a contact message mentésekor: " . $e->getMessage());
+            $ip = htmlspecialchars($_SERVER['REMOTE_ADDR'] ?? 'N/A', ENT_QUOTES, 'UTF-8');
+            $timestamp = date('Y-m-d H:i:s');
+
+            $adminSubject = "[Jegyzetár Üzenet] " . $subject;
+
+            $adminHtml = '
+<!DOCTYPE html>
+<html lang="hu">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#0b0f14;font-family:Arial,Helvetica,sans-serif;">
+  <div style="max-width:740px;margin:0 auto;padding:24px;">
+    <div style="background:#111827;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:22px;color:#e5e7eb;">
+      <h2 style="margin:0 0 10px 0;color:#fff;font-size:18px;">Új üzenet a Jegyzetár kapcsolati formból</h2>
+      <p style="margin:0 0 14px 0;color:#cbd5e1;font-size:13px;line-height:1.6;">
+        Az alábbi üzenet érkezett a kapcsolati űrlapról.
+      </p>
+
+      <div style="display:block;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;">
+        <p style="margin:0 0 6px 0;font-size:13px;color:#cbd5e1;"><strong style="color:#fff;">Feladó:</strong> '.$safeName.'</p>
+        <p style="margin:0 0 6px 0;font-size:13px;color:#cbd5e1;"><strong style="color:#fff;">Email:</strong> <a style="color:#60a5fa;text-decoration:none;" href="mailto:'.$safeEmail.'">'.$safeEmail.'</a></p>
+        <p style="margin:0;font-size:13px;color:#cbd5e1;"><strong style="color:#fff;">Tárgy:</strong> '.$safeSubject.'</p>
+      </div>
+
+      <h3 style="margin:16px 0 8px 0;color:#fff;font-size:14px;">Üzenet</h3>
+      <div style="background:rgba(96,165,250,0.10);border:1px solid rgba(96,165,250,0.28);border-left:4px solid rgba(96,165,250,0.7);border-radius:12px;padding:14px;color:#e5e7eb;font-size:13px;line-height:1.6;">
+        '.$safeMsgHtml.'
+      </div>
+
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:16px 0;">
+
+      <p style="margin:0;font-size:11px;color:#94a3b8;line-height:1.6;">
+        IP: '.$ip.'<br>
+        Idő: '.$timestamp.'
+      </p>
+    </div>
+  </div>
+</body>
+</html>';
+
+            $adminText =
+                "Új üzenet a Jegyzetár kapcsolati formból\n\n" .
+                "Feladó: {$name}\n" .
+                "Email: {$email}\n" .
+                "Tárgy: {$subject}\n\n" .
+                "Üzenet:\n{$msg_body}\n\n" .
+                "IP: " . ($_SERVER['REMOTE_ADDR'] ?? 'N/A') . "\n" .
+                "Idő: {$timestamp}\n";
+
+            $userReplySubject = "[Jegyzetár] Az üzenetét megkaptuk";
+
+            $userReplyHtml = '
+<!DOCTYPE html>
+<html lang="hu">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#0b0f14;font-family:Arial,Helvetica,sans-serif;">
+  <div style="max-width:640px;margin:0 auto;padding:24px;">
+    <div style="background:#111827;border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:22px;color:#e5e7eb;">
+      <h2 style="margin:0 0 10px 0;color:#fff;font-size:18px;">Köszönjük az üzenetét!</h2>
+      <p style="margin:0 0 12px 0;color:#cbd5e1;font-size:13px;line-height:1.6;">
+        Üdv '.$safeName.',
+      </p>
+      <p style="margin:0 0 14px 0;color:#cbd5e1;font-size:13px;line-height:1.6;">
+        Megkaptuk az üzenetét a következő tárggyal:
+        <strong style="color:#fff;">'.$safeSubject.'</strong>
+      </p>
+
+      <div style="margin:14px 0;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;">
+        <div style="font-size:12px;color:#93c5fd;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px;">Az üzenete</div>
+        <div style="font-size:13px;line-height:1.6;color:#e5e7eb;">'.$safeMsgHtml.'</div>
+      </div>
+
+      <p style="margin:0;color:#cbd5e1;font-size:13px;line-height:1.6;">
+        Az adminok hamarosan válaszolni fognak rá.
+      </p>
+
+      <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:16px 0;">
+
+      <p style="margin:0;font-size:12px;line-height:1.6;color:#94a3b8;">
+        Üdvözlettel,<br>
+        <strong style="color:#e5e7eb;">Jegyzetár csapata</strong>
+      </p>
+    </div>
+
+    <p style="margin:14px 0 0 0;text-align:center;font-size:11px;color:#64748b;">
+      Ez egy automatikus üzenet, kérlek ne válaszolj rá.
+    </p>
+  </div>
+</body>
+</html>';
+
+            $userReplyText =
+                "Köszönjük az üzenetét!\n\n" .
+                "Megkaptuk az üzenetét a következő tárggyal: {$subject}\n\n" .
+                "Az üzenete:\n{$msg_body}\n\n" .
+                "Az adminok hamarosan válaszolni fognak rá.\n\n" .
+                "Üdvözlettel,\nJegyzetár csapata\n";
+
+            try {
+                $okAdmin = send_smtp_mail($config, function(PHPMailer $mail) use ($admin_email, $adminSubject, $adminHtml, $adminText, $email, $name) {
+                    $mail->addAddress($admin_email);
+                    $mail->addReplyTo($email, $name);
+                    $mail->isHTML(true);
+                    $mail->Subject = $adminSubject;
+                    $mail->Body = $adminHtml;
+                    $mail->AltBody = $adminText;
+                });
+
+                if ($okAdmin) {
+                    $user_id = isset($_SESSION['id']) ? (int)$_SESSION['id'] : null;
+                    $ip_address = $_SERVER['REMOTE_ADDR'] ?? '';
+
+                    try {
+                        db_exec(
+                            $conn,
+                            "INSERT INTO contact_messages (user_id, sender_name, sender_email, subject, message, ip_address, created_at)
+                             VALUES (?, ?, ?, ?, ?, ?, NOW())",
+                            "isssss",
+                            [$user_id, $name, $email, $subject, $msg_body, $ip_address]
+                        );
+                    } catch (Exception $e) {
+                        error_log("Hiba a contact message mentésekor: " . $e->getMessage());
+                    }
+
+                    try {
+                        send_smtp_mail($config, function(PHPMailer $mail) use ($email, $name, $userReplySubject, $userReplyHtml, $userReplyText) {
+                            $mail->addAddress($email, $name);
+                            $mail->isHTML(true);
+                            $mail->Subject = $userReplySubject;
+                            $mail->Body    = $userReplyHtml;
+                            $mail->AltBody = $userReplyText;
+                        });
+                    } catch (Exception $e) {
+                        error_log("User reply mail error: " . $e->getMessage());
+                    }
+
+                    $message = 'Az üzenetét sikeresen elküldtük! Hamarosan válaszolunk.';
+                    $message_type = 'success';
+
+                    $_POST['name'] = '';
+                    $_POST['email'] = '';
+                    $_POST['subject'] = '';
+                    $_POST['message'] = '';
+                } else {
+                    $message = 'Hiba történt az üzenet küldése során. Kérjük, próbálja később.';
+                    $message_type = 'error';
                 }
-
-                $reply_body = '
-                    <html>
-                    <head>
-                        <meta charset="utf-8">
-                    </head>
-                    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-                        <h2 style="color: #2c3e50;">Köszönjük az üzenetét!</h2>
-                        <p>Üdv,</p>
-                        <p>Megkaptuk az üzenetét: "<strong>' . htmlspecialchars($subject) . '</strong>"</p>
-                        <p>Az adminok hamarosan válaszolni fognak rá.</p>
-                        <hr>
-                        <p style="color: #7f8c8d; font-size: 12px;">Jegyzetár csapata</p>
-                    </body>
-                    </html>
-                ';
-
-                $reply_headers = "From: Jegyzetar <noreply@jegyzetar.eu>\r\n";
-                $reply_headers .= "MIME-Version: 1.0\r\n";
-                $reply_headers .= "Content-type: text/html; charset=UTF-8\r\n";
-
-                mail($email, "[Jegyzetár] Az üzenetét megkaptuk", $reply_body, $reply_headers);
-
-                $message = 'Az üzenetét sikeresen elküldtük! Hamarosan válaszolunk.';
-                $message_type = 'success';
-
-                $_POST['name'] = '';
-                $_POST['email'] = '';
-                $_POST['subject'] = '';
-                $_POST['message'] = '';
-            } else {
+            } catch (Exception $e) {
+                error_log("Contact mail error: " . $e->getMessage());
                 $message = 'Hiba történt az üzenet küldése során. Kérjük, próbálja később.';
                 $message_type = 'error';
             }
@@ -138,7 +253,7 @@
     <script src="assets/js/script.js" defer></script>
 </head>
 <body>
-    <?php include 'assets/php/navbar.php'; ?>
+    <?php include __DIR__ . '/assets/php/navbar.php'; ?>
     <main class="main">
         <div style="max-width: 700px; margin: 0 auto; width: 100%;">
             <div class="card">
@@ -214,6 +329,6 @@
             </div>
         </div>
     </main>
-    <?php include 'assets/php/footer.php'; ?>
+    <?php include __DIR__ . '/assets/php/footer.php'; ?>
 </body>
 </html>

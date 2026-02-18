@@ -1,4 +1,16 @@
 <?php
+    session_start();
+
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+
+    $errors = [];
+    $lang = $lang ?? 'hu';
+    $prefillUsername = '';
+    $prefillEmail = '';
+    $currentForm = 'login';
+    
     header("X-Frame-Options: DENY");
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
@@ -8,12 +20,19 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
 
-    require_once "assets/php/db.php";
-    require_once "assets/php/lang.php";
-    require_once "assets/php/functions.php";
+    require_once __DIR__ . "/assets/php/db.php";
+    require_once __DIR__ . "/assets/php/lang.php";
+    require_once __DIR__ . "/assets/php/functions.php";
 
-    $prefillUsername = '';
-    $prefillEmail = '';
+    require_once __DIR__ . "/assets/phpmailer/src/PHPMailer.php";
+    require_once __DIR__ . "/assets/phpmailer/src/Exception.php";
+    require_once __DIR__ . "/assets/phpmailer/src/SMTP.php";
+
+    $config = json_decode(file_get_contents("config.json"), true);
+
+    if (!function_exists('csrf_check')) {
+        die('Fatal: csrf_check function not found. Include path: ' . '/assets/php/functions.php');
+    }
 
     if (!empty($_SESSION['discord_prefill']) && is_array($_SESSION['discord_prefill'])) {
         $prefillUsername = $_SESSION['discord_prefill']['username'] ?? '';
@@ -62,6 +81,10 @@
         $security_question = (string)($_POST['security_question'] ?? '');
         $security_answer_plain = trim($_POST['security_answer'] ?? '');
         $regCode = trim($_POST['reg_code'] ?? '');
+
+        $ip = get_client_ip() ?? null;
+        $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255);
+
 
         if ($lastname === '' || $firstname === '' || $username === '' || $birthdate === '' || $gender === '' || $email === '' || $regCode === '' || $security_answer_plain === '') {
             $errors[] = "Minden mező kitöltése kötelező.";
@@ -132,16 +155,12 @@
                         $_SESSION["ver_id"] = $newUserId;
                         $_SESSION["email"]  = $email;
 
-                        setcookie("id", (string)$newUserId, [
-                            'expires' => time() + 3600,
-                            'path' => '/',
-                            'secure' => is_https(),
-                            'httponly' => true,
-                            'samesite' => 'Lax'
-                        ]);
+                        db_exec($conn,"INSERT INTO registration_code_uses (user_id, reg_code, used_ip, user_agent)VALUES (?, ?, ?, ?)","isss",[$newUserId, $regCode, $ip, $ua]);
+                        db_exec($conn, "UPDATE users SET used_reg_code=?, used_reg_code_at=NOW() WHERE id=?", "si", [$regCode, $newUserId]);
 
                         rl_clear($rlRegKey);
-                        go("mail-regver.php");
+                        flash_set('success', 'Sikeres regisztráció! Nemsokára kapsz egy aktiváló e-mailt. Nézd meg a SPAM mappát is.');
+                        go("assets/php/mail-regver.php");
                     }
                 }
             }
@@ -191,7 +210,9 @@
                             if ((int)($user['twofa_enabled'] ?? 0) === 1) {
                                 $_SESSION['id'] = $user['id'];
                                 $_SESSION['email'] = $user['email'];
-                                go("mail-2fa.php");
+                                flash_set('success', 'Elküldtük a bejelentkezési kódot e-mailben. Ha nem találod, nézd meg a SPAM mappát is.');
+                                go("assets/php/mail-2fa.php");
+
                             } else {
                                 setcookie("id", (string)((int)$user['id']), [
                                     'expires' => time() + 60 * 60 * 24 * 30,
@@ -222,9 +243,27 @@
     <link rel="stylesheet" href="assets/css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/script.js"></script>
 </head>
 <body class="no-ads admin-page">
-<?php include 'assets/php/navbar.php'; ?>
+<?php include 'assets/php/navbar.php'; $flash = flash_get(); ?>
+<?php if (!empty($errors)): ?>
+    <div class="alert alert-danger">
+        <?php foreach ($errors as $e): ?>
+            <p><?= htmlspecialchars($e) ?></p>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+<?php if (flash_has('success')): ?>
+    <div class="alert alert-success">
+        <p><?= htmlspecialchars(flash_get('success')) ?></p>
+    </div>
+<?php endif; ?>
+<?php if ($flash): ?>
+  <div class="toast <?= ($flash['type'] === 'success') ? 'toast-success' : 'toast-error'; ?>">
+    <?= htmlspecialchars((string)$flash['text'], ENT_QUOTES, 'UTF-8') ?>
+  </div>
+<?php endif; ?>
 <div class="main w-full max-w-5xl mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-12">
     <div class="auth-wrap">
         <div class="auth-head text-center mb-8">
@@ -233,7 +272,7 @@
         </div>
         <div class="auth-grid grid grid-cols-1 lg:grid-cols-2 gap-6">
             <form class="auth-card p-6 md:p-8" id="login" method="post" style="<?= $currentForm==='login' ? '' : 'display:none;' ?>">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']  ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 <h1 class="text-2xl md:text-3xl mb-4"><?= t('auth_login_heading') ?></h1>
                 <div class="grid grid-cols-1 gap-4">
                     <div>
@@ -261,7 +300,9 @@
                 </p>
             </form>
             <form class="auth-card p-6 md:p-8" id="reg" method="post" style="<?= $currentForm==='reg' ? '' : 'display:none;' ?>">
-                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+            <input type="hidden" name="security_question"
+                value="<?= htmlspecialchars((string)($selected_question ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                 <h1 class="text-2xl md:text-3xl mb-4"><?= t('auth_register_heading') ?></h1>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -360,7 +401,6 @@
         </div>
     </div>
 </div>
-<script src="assets/js/script.js"></script>
 <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>

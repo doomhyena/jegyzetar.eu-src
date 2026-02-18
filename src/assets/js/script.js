@@ -495,3 +495,25 @@ document.addEventListener('DOMContentLoaded', () => {
   if (p2) p2.addEventListener('input', updateStrength);
   updateStrength();
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const fileWrap = document.getElementById('file_wrap');
+  const mdWrap = document.getElementById('markdown_wrap');
+  const fileInput = document.querySelector('input[name="upload-file"]');
+  const mdInput = document.getElementById('markdown_note');
+
+  function syncMode() {
+    const mode = document.querySelector('input[name="content_mode"]:checked')?.value || 'file';
+    const isMd = mode === 'markdown';
+
+    if (fileWrap) fileWrap.style.display = isMd ? 'none' : '';
+    if (mdWrap) mdWrap.style.display = isMd ? '' : 'none';
+    if (fileInput) fileInput.required = !isMd;
+    if (mdInput) mdInput.required = isMd;
+  }
+
+  document.querySelectorAll('input[name="content_mode"]').forEach(r => {
+    r.addEventListener('change', syncMode);
+  });
+  syncMode();
+});

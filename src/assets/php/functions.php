@@ -86,7 +86,7 @@
             $characters = array("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
             $code = "";
         
-            for($i=0; $i<5; $i++){
+            for($i = 0; $i < 5; $i++){
         
                 $code .= $characters[rand(0, count($characters)-1)];
         
@@ -105,31 +105,32 @@
             return $fallback !== '' ? $fallback : $key;
         }
     }
+    if (!function_exists('get_client_ip')) {
+        function get_client_ip(): ?string {
+            $remote = $_SERVER['REMOTE_ADDR'] ?? null;
 
-    function get_client_ip(): ?string {
-        $remote = $_SERVER['REMOTE_ADDR'] ?? null;
+            if (!$remote) return null;
 
-        if (!$remote) return null;
+            $trustedProxies = ['127.0.0.1', '::1'];
+            if (!in_array($remote, $trustedProxies, true)) {
+                return $remote;
+            }
 
-        $trustedProxies = ['127.0.0.1', '::1'];
-        if (!in_array($remote, $trustedProxies, true)) {
+            if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+                return $_SERVER['HTTP_CF_CONNECTING_IP'];
+            }
+
+            if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+                return trim($ips[0]);
+            }
+
+            if (!empty($_SERVER['HTTP_X_REAL_IP'])) {
+                return $_SERVER['HTTP_X_REAL_IP'];
+            }
+
             return $remote;
         }
-
-        if (!empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-            return $_SERVER['HTTP_CF_CONNECTING_IP'];
-        }
-
-        if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-            $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-            return trim($ips[0]);
-        }
-
-        if (!empty($_SERVER['HTTP_X_REAL_IP'])) {
-            return $_SERVER['HTTP_X_REAL_IP'];
-        }
-
-        return $remote;
     }
 
     if (!function_exists('log_file_event')) {
@@ -163,110 +164,137 @@
             db_exec($conn, "INSERT INTO file_events (file_id, user_id, event_type, rating, ip, user_agent) VALUES (?, NULL, ?, ?, " . ($ip ? "INET6_ATON(?)" : "NULL") . ", ?)",  $ip ? "isis" . "s" : "isis",  $ip ? [$fileId, $type, $rating, $ip, $ua] : [$fileId, $type, $rating, $ua]);
         }
     }
-    function anonymize_ip(?string $ip): string {
-        if (!$ip || $ip === '—') return '—';
 
-        if (strpos($ip, '.') !== false) {
-            $parts = explode('.', $ip);
-            if (count($parts) === 4) {
-                return $parts[0] . '.' . $parts[1] . '.xxx.xxx';
+    if (!function_exists('anonymize_ip')) {
+        function anonymize_ip(?string $ip): string {
+            if (!$ip || $ip === '—') return '—';
+
+            if (strpos($ip, '.') !== false) {
+                $parts = explode('.', $ip);
+                if (count($parts) === 4) {
+                    return $parts[0] . '.' . $parts[1] . '.xxx.xxx';
+                }
+                return $ip;
             }
+
+            if (strpos($ip, ':') !== false) {
+                $chunks = explode(':', $ip);
+                $chunks = array_values(array_filter($chunks, fn($c)=>$c!=='')); 
+                $head = array_slice($chunks, 0, 3);
+                return implode(':', $head) . ':xxxx:xxxx:xxxx:xxxx:xxxx';
+            }
+
             return $ip;
         }
-
-        if (strpos($ip, ':') !== false) {
-            $chunks = explode(':', $ip);
-            $chunks = array_values(array_filter($chunks, fn($c)=>$c!=='')); // compressált címeknél
-            $head = array_slice($chunks, 0, 3);
-            return implode(':', $head) . ':xxxx:xxxx:xxxx:xxxx:xxxx';
-        }
-
-        return $ip;
     }
 
-    function fmt_event_label(string $type): array {
-        return match($type) {
-            'view' => ['👁', 'Megtekintés'],
-            'download' => ['⬇', 'Letöltés'],
-            'favorite_add' => ['⭐', 'Kedvenc hozzáadva'],
-            'favorite_remove' => ['✖', 'Kedvenc levéve'],
-            'rate' => ['★', 'Értékelés'],
-            'comment' => ['💬', 'Komment'],
-            'report' => ['⚑', 'Jelentés'],
-            default => ['•', $type]
-        };
+    if (!function_exists('fmt_event_label')) {
+        function fmt_event_label(string $type): array {
+            return match($type) {
+                'view' => ['👁', 'Megtekintés'],
+                'download' => ['⬇', 'Letöltés'],
+                'favorite_add' => ['⭐', 'Kedvenc hozzáadva'],
+                'favorite_remove' => ['✖', 'Kedvenc levéve'],
+                'rate' => ['★', 'Értékelés'],
+                'comment' => ['💬', 'Komment'],
+                'report' => ['⚑', 'Jelentés'],
+                default => ['•', $type]
+            };
+        }
+    }
+    if(!function_exists('strip_accents')) { 
+        function strip_accents(string $s): string {
+            $s = mb_strtolower($s, 'UTF-8');
+            $t = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s);
+            return $t !== false ? $t : $s;
+        }
     }
 
-    function strip_accents(string $s): string {
-        $s = mb_strtolower($s, 'UTF-8');
-        $t = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $s);
-        return $t !== false ? $t : $s;
+    if (!function_exists('tokenize_query')) {
+        function tokenize_query(string $q): array {
+            $q = trim($q);
+            if ($q === '') return [];
+            $q = preg_replace('/\s+/u', ' ', $q) ?? $q;
+            $raw = explode(' ', $q);
+
+            $stop = [
+                'a','az','és','meg','vagy','hogy','de','ha','is','nem','mint','mert',
+                'am','are','is','the','and','or','to','of','in','on','for','with'
+            ];
+
+            $out = [];
+            foreach ($raw as $tok) {
+                $tok = trim($tok);
+                if ($tok === '') continue;
+                if (mb_strlen($tok, 'UTF-8') < 2) continue;
+                $t = strip_accents($tok);
+                if (in_array($t, $stop, true)) continue;
+                $out[] = $tok;
+            }
+
+            $seen = [];
+            $uniq = [];
+            foreach ($out as $t) {
+                $k = strip_accents($t);
+                if (isset($seen[$k])) continue;
+                $seen[$k] = true;
+                $uniq[] = $t;
+            }
+
+            return $uniq;
+        }
     }
 
-    function tokenize_query(string $q): array {
-        $q = trim($q);
-        if ($q === '') return [];
-        $q = preg_replace('/\s+/u', ' ', $q) ?? $q;
-        $raw = explode(' ', $q);
-        $stop = [
-            'a','az','és','meg','vagy','hogy','de','ha','is','nem','mint','mert','am','are','is','the','and','or','to','of','in','on','for','with'
-        ];
-        $out = [];
-        foreach ($raw as $tok) {
-            $tok = trim($tok);
-            if ($tok === '') continue;
-            if (mb_strlen($tok, 'UTF-8') < 2) continue;
-            $t = strip_accents($tok);
-            if (in_array($t, $stop, true)) continue;
-            $out[] = $tok;
+    if (!function_exists('build_snippet')) {
+        function build_snippet(string $text, array $needles, int $radius = 90): string {
+            $text = trim($text);
+            if ($text === '') return '';
+
+            $hay = strip_accents($text);
+            $bestPos = null;
+
+            foreach ($needles as $n) {
+                $n = trim($n);
+                if ($n === '') continue;
+                $pos = mb_stripos($hay, strip_accents($n), 0, 'UTF-8');
+                if ($pos !== false) { $bestPos = $pos; break; }
+            }
+
+            $len = mb_strlen($text, 'UTF-8');
+            if ($bestPos === null) {
+                $cut = mb_substr($text, 0, min($len, 200), 'UTF-8');
+                return ($len > 200) ? ($cut . '…') : $cut;
+            }
+
+            $start = max(0, $bestPos - $radius);
+            $end = min($len, $bestPos + $radius + 120);
+
+            $snippet = mb_substr($text, $start, $end - $start, 'UTF-8');
+            if ($start > 0) $snippet = '…' . $snippet;
+            if ($end < $len) $snippet .= '…';
+
+            return $snippet;
         }
-        $seen = [];
-        $uniq = [];
-        foreach ($out as $t) {
-            $k = strip_accents($t);
-            if (isset($seen[$k])) continue;
-            $seen[$k] = true;
-            $uniq[] = $t;
-        }
-        return $uniq;
     }
 
-    function build_snippet(string $text, array $needles, int $radius = 90): string {
-        $text = trim($text);
-        if ($text === '') return '';
-        $hay = strip_accents($text);
-        $bestPos = null;
-        foreach ($needles as $n) {
-            $n = trim($n);
-            if ($n === '') continue;
-            $pos = mb_stripos($hay, strip_accents($n), 0, 'UTF-8');
-            if ($pos !== false) { $bestPos = $pos; break; }
-        }
-        $len = mb_strlen($text, 'UTF-8');
-        if ($bestPos === null) {
-            $cut = mb_substr($text, 0, min($len, 200), 'UTF-8');
-            return ($len > 200) ? ($cut . '…') : $cut;
-        }
-        $start = max(0, $bestPos - $radius);
-        $end = min($len, $bestPos + $radius + 120);
-        $snippet = mb_substr($text, $start, $end - $start, 'UTF-8');
-        if ($start > 0) $snippet = '…' . $snippet;
-        if ($end < $len) $snippet = $snippet . '…';
-        return $snippet;
-    }
+    if (!function_exists('highlight_many_html')) {
+        function highlight_many_html(string $text, array $needles): string {
+            $safe = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            if (!$needles) return $safe;
 
-    function highlight_many_html(string $text, array $needles): string {
-        $safe = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        if (!$needles) return $safe;
-        usort($needles, fn($a,$b)=> mb_strlen($b,'UTF-8') <=> mb_strlen($a,'UTF-8'));
-        foreach ($needles as $needle) {
-            $needle = trim($needle);
-            if ($needle === '') continue;
-            $nSafe = htmlspecialchars($needle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-            $pattern = '/' . preg_quote($nSafe, '/') . '/iu';
-            $safe = preg_replace($pattern, '<mark class="bg-pink-400/20 px-1 rounded">$0</mark>', $safe) ?? $safe;
+            usort($needles, fn($a,$b)=> mb_strlen($b,'UTF-8') <=> mb_strlen($a,'UTF-8'));
+
+            foreach ($needles as $needle) {
+                $needle = trim($needle);
+                if ($needle === '') continue;
+
+                $nSafe = htmlspecialchars($needle, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+                $pattern = '/' . preg_quote($nSafe, '/') . '/iu';
+                $safe = preg_replace($pattern, '<mark class="bg-pink-400/20 px-1 rounded">$0</mark>', $safe) ?? $safe;
+            }
+
+            return $safe;
         }
-        return $safe;
     }
 
     if (!function_exists('format_bytes')) {
@@ -280,22 +308,26 @@
         }
     }
 
-    function fav_star_row(float $avg): string {
-        $avg = max(0.0, min(5.0, $avg));
-        $full = (int)floor($avg + 1e-9);
-        $half = ($avg - $full) >= 0.5 ? 1 : 0;
-        $empty = 5 - $full - $half;
 
-        $out = '<span class="fav-stars" aria-label="Értékelés">';
-        for ($i=0; $i<$full; $i++) $out .= '★';
-        if ($half) $out .= '⯪';
-        for ($i=0; $i<$empty; $i++) $out .= '☆';
-        $out .= '</span>';
-        return $out;
+    if (!function_exists('fav_star_row')) {
+        function fav_star_row(float $avg): string {
+            $avg = max(0.0, min(5.0, $avg));
+            $full = (int)floor($avg + 1e-9);
+            $half = ($avg - $full) >= 0.5 ? 1 : 0;
+            $empty = 5 - $full - $half;
+
+            $out = '<span class="fav-stars" aria-label="Értékelés">';
+            for ($i=0; $i<$full; $i++) $out .= '★';
+            if ($half) $out .= '⯪';
+            for ($i=0; $i<$empty; $i++) $out .= '☆';
+            $out .= '</span>';
+            return $out;
+        }
     }
 
-    function fav_file_icon_svg(string $ext): string {
-        $ext = strtolower(trim($ext));
+    if (!function_exists('fav_file_icon_svg')) {
+        function fav_file_icon_svg(string $ext): string {
+            $ext = strtolower(trim($ext));
         $icons = [
             'pdf'  => '<path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm7 1v4h4"/>'
                 . '<path d="M8 14h8M8 17h6"/>',
@@ -338,86 +370,142 @@
         return '<svg class="fav-file-ic" viewBox="0 0 24 24" aria-hidden="true">'
             . $path
             . '</svg>';
-    }
-
-    function rl_hit(string $key): void {
-        if (!isset($_SESSION[$key])) {
-            $_SESSION[$key] = ['count' => 0, 'start' => time()];
         }
-        $_SESSION[$key]['count'] = (int)$_SESSION[$key]['count'] + 1;
     }
 
-    function rl_clear(string $key): void {
-        unset($_SESSION[$key]);
+    if (!function_exists('rl_hit')) {
+        function rl_hit(string $key): void {
+            if (!isset($_SESSION[$key])) {
+                $_SESSION[$key] = ['count' => 0, 'start' => time()];
+            }
+            $_SESSION[$key]['count'] = (int)$_SESSION[$key]['count'] + 1;
+        }
     }
 
-    function valid_username(string $u): bool {
-        return (bool)preg_match('/^[a-zA-Z0-9._-]{3,20}$/', $u);
-    }
-    function password_policy_ok(string $p): bool {
-        if (strlen($p) < 8) return false;
-        if (!preg_match('/[a-z]/', $p)) return false;
-        if (!preg_match('/[A-Z]/', $p)) return false;
-        if (!preg_match('/[0-9]/', $p)) return false;
-        return true;
-    }
-    function age_at_least_13(string $birthdate): bool {
-        $birth = DateTime::createFromFormat('Y-m-d', $birthdate);
-        if (!$birth) return false;
 
-        $errs = DateTime::getLastErrors();
-        if (!empty($errs['warning_count']) || !empty($errs['error_count'])) return false;
-
-        $today = new DateTime('today');
-        if ($birth > $today) return false;
-
-        return ($birth->diff($today)->y >= 13);
+    if (!function_exists('rl_clear')) {
+        function rl_clear(string $key): void {
+            unset($_SESSION[$key]);
+        }
     }
 
+    if (!function_exists('valid_username')) {
+        function valid_username(string $u): bool {
+            return (bool)preg_match('/^[a-zA-Z0-9._-]{3,20}$/', $u);
+        }
+    }
+
+    if (!function_exists('password_policy_ok')) {
+        function password_policy_ok(string $p): bool {
+            if (strlen($p) < 8) return false;
+            if (!preg_match('/[a-z]/', $p)) return false;
+            if (!preg_match('/[A-Z]/', $p)) return false;
+            if (!preg_match('/[0-9]/', $p)) return false;
+            return true;
+        }
+    }
+
+    if (!function_exists('age_at_least_13')) {
+        function age_at_least_13(string $birthdate): bool {
+            $birth = DateTime::createFromFormat('Y-m-d', $birthdate);
+            if (!$birth) return false;
+
+            $errs = DateTime::getLastErrors();
+            if (!empty($errs['warning_count']) || !empty($errs['error_count'])) return false;
+
+            $today = new DateTime('today');
+            if ($birth > $today) return false;
+
+            return ($birth->diff($today)->y >= 13);
+        }
+    }
+
+    if (!function_exists('rl_key')) {
         function rl_key(string $action, string $extra = ''): string {
-        $ip = client_ip();
-        return "rl:" . $action . ":" . $ip . ($extra !== '' ? ":" . $extra : '');
+            $ip = get_client_ip() ?? '0.0.0.0';
+            return "rl:" . $action . ":" . $ip . ($extra !== '' ? ":" . $extra : '');
+        }
     }
 
-    function rl_allow(string $key, int $maxAttempts, int $windowSeconds): array {
-        $now = time();
-        if (!isset($_SESSION[$key])) {
-            $_SESSION[$key] = ['count' => 0, 'start' => $now];
-        }
+    if (!function_exists('rl_allow')) {
+        function rl_allow(string $key, int $maxAttempts, int $windowSeconds): array {
+            $now = time();
+            if (!isset($_SESSION[$key])) {
+                $_SESSION[$key] = ['count' => 0, 'start' => $now];
+            }
 
-        $bucket = $_SESSION[$key];
-        $elapsed = $now - (int)$bucket['start'];
-
-        if ($elapsed >= $windowSeconds) {
-            $_SESSION[$key] = ['count' => 0, 'start' => $now];
             $bucket = $_SESSION[$key];
-            $elapsed = 0;
-        }
+            $elapsed = $now - (int)$bucket['start'];
 
-        if ((int)$bucket['count'] >= $maxAttempts) {
-            return ['ok' => false, 'retry_after' => max(1, $windowSeconds - $elapsed)];
-        }
+            if ($elapsed >= $windowSeconds) {
+                $_SESSION[$key] = ['count' => 0, 'start' => $now];
+                $bucket = $_SESSION[$key];
+                $elapsed = 0;
+            }
 
-        return ['ok' => true, 'retry_after' => 0];
+            if ((int)$bucket['count'] >= $maxAttempts) {
+                return ['ok' => false, 'retry_after' => max(1, $windowSeconds - $elapsed)];
+            }
+
+            return ['ok' => true, 'retry_after' => 0];
+        }
     }
 
+    if (!function_exists('go')) {
         function go($url) {
-        header("Location: " . $url);
-        exit;
+            header("Location: " . $url);
+            exit;
+        }
     }
 
-    function is_https(): bool {
-        return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+    if (!function_exists('is_https')) {
+        function is_https(): bool {
+            return !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+        }
     }
 
-    function client_ip(): string {
-        return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+    if (!function_exists('client_ip')) {
+        function client_ip(): string {
+            return get_client_ip() ?? '0.0.0.0';
+        }
     }
 
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
-    function csrf_check(): bool {
-        return isset($_POST['csrf_token'], $_SESSION['csrf_token'])
-            && hash_equals($_SESSION['csrf_token'], (string)$_POST['csrf_token']);
+
+    if (!function_exists('csrf_check')) {
+        function csrf_check(): bool {
+            return isset($_POST['csrf_token'], $_SESSION['csrf_token'])
+                && hash_equals($_SESSION['csrf_token'], (string)$_POST['csrf_token']);
+        }
+    }
+
+    if (!function_exists('flash_set')) {
+        function flash_set(string $type, string $text): void {
+            $_SESSION['flash'] = ['type' => $type, 'text' => $text];
+        }
+    }
+
+    if (!function_exists('flash_get')) {
+        function flash_get(): ?array {
+            if (empty($_SESSION['flash'])) return null;
+            $f = $_SESSION['flash'];
+            unset($_SESSION['flash']);
+            return $f;
+        }
+    }
+
+    if (!function_exists('flash_has')) {
+        function flash_has(string $key): bool {
+            return isset($_SESSION['flash'][$key]);
+        }
+    }
+
+    if (!function_exists('base_url')) {
+        function base_url(string $path = ''): string {
+            $base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\'); 
+            $base = preg_replace('#/assets/php$#', '', $base);
+            return $base . '/' . ltrim($path, '/');
+        }
     }

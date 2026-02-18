@@ -1,18 +1,21 @@
 <?php
 
-    require_once "premium.php";
+    // require_once "premium.php";
 
     $premium_van = false;
 
     if (isset($_COOKIE['id'])) {
         $aktualis_felhasznalo_id = (int)$_COOKIE['id'];
-        $premium_van = user_premium($conn, $aktualis_felhasznalo_id);
+        // $premium_van = user_premium($conn, $aktualis_felhasznalo_id);
     }
 
+    /*
+    
     if ($premium_van) {
         return;
     }
-
+    
+    */
 
     $ads_mappa = __DIR__ . "/../ads";
     $kepek = glob($ads_mappa . "/*.{jpg,jpeg,png,webp}", GLOB_BRACE);

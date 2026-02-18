@@ -11,12 +11,12 @@ A **Jegyzetár** egy webalapú platform, amely lehetővé teszi a felhasználók
 ## Használt technológiák
 
 | Rész              | Technológia  |
-| ----------------- | ------------ |
-| **Frontend**      | HTML, CSS    |
-| **Backend**       | PHP 8+       |
-| **Adatbázis**     | MySQL        |
-| **Verziókezelés** | Git + GitHub |
-| **Hosting**       | Rackhost     |
+| ----------------- | --------------------- |
+| **Frontend**      | HTML, CSS, JavaScript |
+| **Backend**       | PHP 8+                |
+| **Adatbázis**     | MySQL                 |
+| **Verziókezelés** | Git + GitHub          |
+| **Hosting**       | Rackhost              |
 
 ---
 

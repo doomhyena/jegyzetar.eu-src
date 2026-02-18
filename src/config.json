@@ -1,0 +1,8 @@
+{
+    "host": "smtp.rackhost.hu",
+    "smtp_auth": true,
+    "username": "noreply@jegyzetar.eu",
+    "password": "Keki2005",
+    "smtp_secure": "ssl",
+    "port": 465
+}
