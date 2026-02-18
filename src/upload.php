@@ -316,25 +316,19 @@
     <?php include "assets/php/ads.php"; ?>
     <div class="main w-full max-w-3xl mx-auto px-4 md:px-6 lg:px-8 py-6">
         <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6">Anyag feltöltése</h1>
-
         <?php if (isset($_GET['ok'])): ?>
             <div class="toast toast-success">A fájl sikeresen feltöltve!</div>
         <?php endif; ?>
-
         <?php if ($uploadError !== ''): ?>
             <div class="toast toast-error"><?= htmlspecialchars($uploadError) ?></div>
         <?php endif; ?>
-
         <form class="card p-4 md:p-6 flex flex-col gap-4" method="post" enctype="multipart/form-data">
             <label for="name" class="text-sm md:text-base font-semibold">Anyag neve:</label>
             <input class="input w-full text-sm md:text-base" type="text" name="name" placeholder="pl. Fizika ZH anyag" required>
-
             <label for="description" class="text-sm md:text-base font-semibold">Leírás:</label>
             <textarea class="input w-full text-sm md:text-base" name="description" placeholder="Rövid leírás az anyagról..." rows="4" required></textarea>
-
             <label for="subject" class="text-sm md:text-base font-semibold">Tárgy:</label>
             <input class="input w-full text-sm md:text-base" type="text" name="subject" placeholder="pl. fizika, történelem" required>
-
             <?php if ($hasIsPrivate): ?>
                 <label style="margin-top:6px;">
                     <input type="checkbox" name="is_private" value="1" <?= $premium_van ? '' : 'disabled' ?>>

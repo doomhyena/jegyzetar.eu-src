@@ -34,7 +34,7 @@
                 ],
                 [
                     "title" => "Újraírás - búcsúzunk a C#-tól.",
-                    "text"  => "Aki26 úgy döntött, ideje haladni a korral és újraírni a Botot egy modernebb, szélesebb körben használt nyelvben. Az újraírás jelenleg is folyamatban van, a C# Bot pedig már 2024. 05. 06-a óta offline.\n\nA Bot új nyelvét még nem áruljuk el, stay tuned, valószínűleg 2026 első negyedévében érkezik majd!"
+                    "text"  => "Aki26 úgy döntött, ideje haladni a korral és újraírni a Botot egy modernebb, szélesebb körben használt nyelvben. A C# Bot már 2024. 05. 06-a óta offline, viszont Aki26 2026. 01. 18-án kiadta az új Botot (volt egy apróbb kihagyás :D), melynek programozási nyelve a Python."
                 ],
             ]
         ]
@@ -97,7 +97,7 @@
                         </div>
                     </div>
                     <details class="partner-about" open>
-                        <summary>RangerBot × About</summary>
+                        <summary><?= htmlspecialchars($p['name'], ENT_QUOTES, 'UTF-8') ?> × About</summary>
                         <?php foreach ($p["about"] as $block): ?>
                             <div class="partner-about-block">
                                 <h3><?= htmlspecialchars($block["title"], ENT_QUOTES, 'UTF-8') ?></h3>

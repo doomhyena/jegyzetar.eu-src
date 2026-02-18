@@ -509,3 +509,9 @@
             return $base . '/' . ltrim($path, '/');
         }
     }
+
+    if (!function_exists('safe_nl2br')) {
+        function safe_nl2br(string $text): string {
+            return nl2br(htmlspecialchars($text, ENT_QUOTES, 'UTF-8'));
+        }
+    }
