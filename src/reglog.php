@@ -16,10 +16,6 @@
     header("Referrer-Policy: no-referrer");
     header("Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://code.jquery.com;");
 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
-
     require_once __DIR__ . "/assets/php/db.php";
     require_once __DIR__ . "/assets/php/lang.php";
     require_once __DIR__ . "/assets/php/functions.php";

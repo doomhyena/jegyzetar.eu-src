@@ -59,6 +59,7 @@
             <li><a href="search.php"><?= t('nav_search') ?></a></li>
             <li><a href="upload.php"><?= t('nav_upload') ?></a></li>
             <li><a href="groups.php">Csoportok</a></li>
+            <li><a href="exams.php">Vizsgák</a></li>
             <?php if ($isLoggedIn && $currentUsername): ?>
                 <li class="nav-item-has-dropdown">
                     <a href="#" class="nav-account-link">
@@ -80,9 +81,7 @@
                     </div>
                 </li>
             <?php else: ?>
-                <a href="reglog.php?mode=login">
-                    <?= t('nav_login') ?>
-                </a>
+                <li><a href="reglog.php?mode=login"><?= t('nav_login') ?></a></li>
             <?php endif; ?>
             <li class="nav-lang-item">
                 <form method="get">
@@ -92,10 +91,10 @@
                         <option value="de" <?= $lang === 'de' ? 'selected' : '' ?>>DE</option>
                     </select>
                     <?php
-                    foreach ($_GET as $k => $v) {
-                        if ($k === 'lang') continue;
-                        echo '<input type="hidden" name="'.htmlspecialchars($k).'" value="'.htmlspecialchars($v).'">';
-                    }
+                        foreach ($_GET as $k => $v) {
+                            if ($k === 'lang') continue;
+                            echo '<input type="hidden" name="'.htmlspecialchars($k).'" value="'.htmlspecialchars($v).'">';
+                        }
                     ?>
                 </form>
             </li>

@@ -30,8 +30,11 @@
                 <div class="hero-text">
                     <h1>Rólunk</h1>
                     <p class="hero-sub">
-                        A <strong>Jegyzetár</strong> egy közösségi jegyzetmegosztó platform diákoknak:
-                        ossz meg, rendszerezz és találj jegyzeteket egyszerűen – egy helyen, átláthatóan.
+                        A <strong>Jegyzetár</strong> egy közösségi jegyzetmegosztó platform, amely főként a
+                        <strong>Szoftverfejlesztő és -tesztelő</strong>, valamint az
+                        <strong>Informatikai rendszer- és alkalmazás-üzemeltető technikus</strong>
+                        ágazatok tananyagaihoz készült. Célunk, hogy a jegyzetek, kidolgozott tételek és gyakorlati anyagok
+                        egy helyen, átláthatóan legyenek elérhetők.
                     </p>
                     <div class="hero-pills">
                         <span class="pill">Közösségi tudásmegosztás</span>
@@ -41,7 +44,7 @@
                     </div>
                 </div>
                 <div class="hero-actions">
-                    <a class="btn-cta" href="faq.php">GYIK</a>
+                    <a class="btn-cta" href="faq.php">Gyakori Kérdések</a>
                     <a class="btn-ghost" href="report.php">Hibajelentés</a>
                 </div>
             </div>
@@ -50,12 +53,14 @@
             <section class="card">
                 <h3>Mi az a Jegyzetár?</h3>
                 <p class="entry-meta">
-                    A Jegyzetár egy diákok által épített, webalapú platform, amely lehetőséget ad jegyzetek
-                    megosztására, böngészésére és közös tanulásra.
+                    A Jegyzetár egy diákok által épített, webalapú tudástár, ami elsősorban a
+                    <strong>Szoftverfejlesztő és -tesztelő</strong> és az
+                    <strong>Informatikai rendszer- és alkalmazás-üzemeltető technikus</strong>
+                    képzésekhez kapcsolódó jegyzeteket és gyakorlati anyagokat gyűjti egy helyre.
                 </p>
                 <p class="entry-meta">
-                    Célunk egy olyan központi tudástár létrehozása, amely kiváltja a szétszórt Messenger-, Drive-
-                    és e-mail-alapú megoldásokat.
+                    Úgy raktuk össze, hogy gyorsan lehessen keresni tantárgyak, témák és kulcsszavak alapján, és ne kelljen
+                    többé szétszórt Messenger/Drive linkekből vadászni a tartalmakat.
                 </p>
             </section>
             <section class="card">
@@ -63,6 +68,7 @@
                 <ul class="entry-meta" style="margin: 0; padding-left: 18px;">
                     <li>Egyszerű használat</li>
                     <li>Áttekinthető felépítés</li>
+                    <li>Ágazat-központú rendszerezés (Szoftver + Üzemeltetés)</li>
                     <li>Közösségi tudásmegosztás</li>
                     <li>Biztonságos, felelős működés</li>
                 </ul>
@@ -74,14 +80,15 @@
                 <div class="card" style="box-shadow:none;">
                     <p class="entry-title">Jegyzetkezelés</p>
                     <p class="entry-meta">
-                        Jegyzetek feltöltése, rendszerezése és letöltése; gyors keresés tantárgy, évfolyam és kulcsszó alapján.
+                        Jegyzetek, kidolgozott tételek, kódpéldák és gyakorlati segédletek feltöltése és rendszerezése;
+                        gyors keresés tantárgy, ágazat és kulcsszó alapján.
                     </p>
                 </div>
                 <div class="card" style="box-shadow:none;">
                     <p class="entry-title">Közösségi funkciók</p>
                     <p class="entry-meta">
-                        Kommentelés, értékelés, kedvencek, és aktivitás-alapú közösségi visszajelzés.
-                    </p>
+                        Kommentelés, értékelés, kedvencek, és visszajelzés a feltöltött anyagokra – hogy a legjobb tartalmak előre kerüljenek.
+                    </p>                
                 </div>
                 <div class="card" style="box-shadow:none;">
                     <p class="entry-title">Gamifikáció & bővítés</p>
@@ -91,11 +98,9 @@
                 </div>
             </div>
             <p class="entry-meta" style="margin-top: 10px;">
-                Közösségi mottónk: <strong>„Tanuljunk együtt, ne külön-külön.”</strong>
+                Közösségi mottónk: <strong>"Tanuljunk együtt, ne külön-külön.”</strong>
             </p>
         </section>
-
-        <!-- TECH STACK -->
         <section class="card">
             <h3>Használt technológiák</h3>
             <table>
@@ -132,10 +137,8 @@
                 A részletes telepítési/használati útmutató a fejlesztői dokumentációban található.
             </p>
         </section>
-
-        <!-- NOTE FORGE / CSAPAT -->
         <section class="card">
-            <h3>NoteForge Development – a csapat és a megalakulás</h3>
+            <h3>NoteForge Development - a csapat és a megalakulás</h3>
             <p class="entry-meta">
                 A NoteForge Development a Jegyzetár mögött álló fejlesztői csapat. A projektet diákok indították,
                 azzal a céllal, hogy egy modern, közösségi tudástár szülessen, ami valódi problémát old meg a mindennapi tanulásban.
@@ -151,13 +154,11 @@
                 A Jegyzetár egy <strong>oktatási célú</strong>, diákok által fejlesztett projekt. A platformon megjelenő tartalmakért
                 elsődlegesen a feltöltők felelnek.
             </p>
-
             <ul class="entry-meta" style="margin: 0; padding-left: 18px;">
                 <li><strong>Jogvédett tartalom:</strong> kérünk, ne tölts fel teljes tankönyveket, fizetős anyagokat vagy más, engedélyhez kötött tartalmat.</li>
                 <li><strong>Személyes adatok:</strong> ne ossz meg érzékeny információkat (pl. lakcím, telefonszám, diákigazolvány, osztálynapló fotó).</li>
                 <li><strong>Felelősségkorlátozás:</strong> mindent ésszerű keretek között teszünk a biztonságért, de a szolgáltatást „ahogy van” alapon biztosítjuk.</li>
             </ul>
-
             <p class="entry-meta" style="margin-top: 10px;">
                 Részletekért nézd meg az <a href="terms.php">ÁSZF</a> és az <a href="privacy.php">Adatvédelem</a> oldalt.
             </p>
@@ -180,3 +181,4 @@
     <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>
+

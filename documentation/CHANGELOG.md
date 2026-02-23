@@ -71,6 +71,37 @@ Changelog by: Neved
 
 ---
 
+## [1.5.7-beta] - 2026-02-23
+
+### Added
+#### • exam.php
+- Szakmai & Ágazati alapvizsga leírások
+
+#### • exams.php
+- 2 szakma kiválasztása
+
+### Changed
+#### • about.php
+- Szövegek megváltoztatva, Szoftverfejlesztő és -tesztelő & Informatikai rendszer- és alkalmazás-üzemeltető technikus szakmákra ráfókuszálva
+
+#### • profile.php
+- Adatok nyilvános/privátra való beállítások
+
+### Fixed
+#### • note.php
+- Markdown css fix
+
+#### • index.php
+- Új jegyzet feltöltése gomb css fix
+
+### Security
+#### • admin_panel.php & functions.php
+- Az admin oldalon az emailek ki vannak csillagozva
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [1.5.6-beta] - 2026-02-11
 
 ### Added

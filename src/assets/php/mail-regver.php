@@ -1,7 +1,11 @@
 <?php
     // norbi: mail-regver (PHPMailer verzió)
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+
     require __DIR__ . "/db.php";
-    require_once __DIR__ . "functions.php";
+    require_once __DIR__ . "/functions.php";
 
     require_once __DIR__ . "/../phpmailer/src/PHPMailer.php";
     require_once __DIR__ . "/../phpmailer/src/Exception.php";
@@ -11,7 +15,7 @@
     $config = json_decode(file_get_contents(__DIR__ . "/../../config.json"), true);
 
     if (!$config) {
-        die("Error: Could not load config file!");
+        die("Hiba: Nem lehetett betölteni a konfigurációs fájlt!");
     }
 
     use PHPMailer\PHPMailer\PHPMailer;
@@ -115,12 +119,7 @@
 
         $mail->send();
 
-        db_stmt(
-            $conn,
-            "INSERT INTO tokens (user_id, token) VALUES (?, ?)",
-            "ii",
-            [$userId, $token]
-        )->close();
+        db_stmt($conn, "INSERT INTO tokens (user_id, token) VALUES (?, ?)", "ii", [$userId, $token])->close();
 
         header("Location: " . base_url("reglog.php"));
         exit;

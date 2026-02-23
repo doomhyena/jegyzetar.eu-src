@@ -1,4 +1,7 @@
 <?php
+
+    require_once __DIR__ . '/../vendor/autoload.php';
+
     if (!function_exists('db_log_error')) {
         function db_log_error(mysqli $conn, string $message, ?string $sql = null, array $params = []): void
         {
@@ -513,5 +516,36 @@
     if (!function_exists('safe_nl2br')) {
         function safe_nl2br(string $text): string {
             return nl2br(htmlspecialchars($text, ENT_QUOTES, 'UTF-8'));
+        }
+    }
+
+    function render_markdown(string $md): string {
+        $env = new \League\CommonMark\Environment\Environment([
+            'html_input' => 'strip',
+            'allow_unsafe_links' => false,
+        ]);
+        $env->addExtension(new \League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension());
+
+        $converter = new \League\CommonMark\CommonMarkConverter([], $env);
+        return (string)$converter->convert($md);
+    }
+
+    if (!function_exists('safe_nl2br')) {
+        function safe_nl2br(string $text): string {
+            return nl2br(htmlspecialchars($text, ENT_QUOTES, 'UTF-8'));
+        }
+    }
+
+    if (!function_exists('mask_email')) {
+        function mask_email(string $email): string {
+            if (!str_contains($email, '@')) {
+                return $email;
+            }
+
+            [$user, $domain] = explode('@', $email, 2);
+
+            $maskedUser = str_repeat('*', mb_strlen($user, 'UTF-8'));
+
+            return $maskedUser . '@' . $domain;
         }
     }

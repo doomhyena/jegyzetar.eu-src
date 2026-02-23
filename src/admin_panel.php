@@ -178,7 +178,7 @@
     }
 	
 	if (isset($_GET['group_action']) && isset($_GET['group_id'])) {
-		$action = $_GET['group_action']; // approve / reject
+		$action = $_GET['group_action']; 
 		$group_id = (int)$_GET['group_id'];
 		$adminId = (int)$current_user['id'];
 		$now = date('Y-m-d H:i:s');
@@ -284,7 +284,7 @@
                     <td><?= $user['id'] ?></td>
                     <td><?= htmlspecialchars($user['lastname'] . ' ' . $user['firstname']) ?></td>
                     <td><?= htmlspecialchars($user['username']) ?></td>
-                    <td><?= htmlspecialchars($user['email']) ?></td>
+                    <td><?= htmlspecialchars(mask_email($user['email'])) ?></td>
                     <td><?= $user['admin'] == 1 ? 'Igen' : 'Nem' ?></td>
                     <td>
                         <?php if ($user['id'] != $current_user['id']) { ?>

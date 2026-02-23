@@ -7,6 +7,12 @@
     require_once "assets/php/lang.php";
     require_once "assets/php/functions.php";
 
+    require_once __DIR__ . '/assets/vendor/autoload.php';
+
+    use League\CommonMark\CommonMarkConverter;
+    use League\CommonMark\Environment\Environment;
+    use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+
     if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
         header("Location: reglog.php");
         exit;
@@ -34,6 +40,7 @@
     } else {
         $noteRes = db_query($conn, "SELECT * FROM files WHERE id = ? LIMIT 1", "i", [$note_id]);
         $note = ($noteRes && $noteRes->num_rows > 0) ? $noteRes->fetch_assoc() : null;
+        $isMarkdownNote = $note && !empty(trim($note['note_markdown'] ?? ''));
     }
 
     $isOwner = false;
@@ -111,6 +118,7 @@
     if ($note && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
         log_file_event($conn, (int)$note['id'], (int)$user['id'], 'view', null);
     }
+
 ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($lang) ?>">
@@ -204,17 +212,25 @@
                         <?php endif; ?>
                     </div>
                 </header>
-                <?php if ($ext === 'docx'): ?>
-                    <p class="text-sm md:text-base mb-4"><b>Ez egy .docx fájl. A megtekintéshez töltsd le és nyisd meg Microsoft Word-ben.</b></p>
-                <?php elseif ($ext === 'mp4'): ?>
-                    <video controls class="file-preview w-full max-w-full rounded-lg mb-4">
-                        <source src="<?= htmlspecialchars($safe_path) ?>" type="video/mp4">
-                        A te böngésződ nem támogatja a videocímkét.
-                    </video>
-                <?php elseif ($ext === 'pdf'): ?>
-                    <div class="w-full overflow-hidden rounded-lg mb-4">
-                        <iframe src="<?= htmlspecialchars($safe_path) ?>" class="w-full min-h-[400px] md:min-h-[500px] border-0"></iframe>
-                    </div>
+                <?php if ($isMarkdownNote): ?>
+                    <section class="note-markdown">
+                        <?= render_markdown($note['note_markdown'] ?? ''); ?>
+                    </section>
+                <?php else: ?>
+                    <?php if ($ext === 'docx'): ?>
+                        <p class="text-sm md:text-base mb-4"><b>Ez egy .docx fájl. A megtekintéshez töltsd le és nyisd meg Microsoft Word-ben.</b></p>
+                    <?php elseif ($ext === 'mp4'): ?>
+                        <video controls class="file-preview w-full max-w-full rounded-lg mb-4">
+                            <source src="<?= htmlspecialchars($safe_path) ?>" type="video/mp4">
+                            A te böngésződ nem támogatja a videocímkét.
+                        </video>
+                    <?php elseif ($ext === 'pdf'): ?>
+                        <div class="w-full overflow-hidden rounded-lg mb-4">
+                            <iframe src="<?= htmlspecialchars($safe_path) ?>" class="w-full min-h-[400px] md:min-h-[500px] border-0"></iframe>
+                        </div>
+                    <?php else: ?>
+                        <p class="entry-meta text-sm md:text-base mb-4">Előnézet nem elérhető ehhez a fájltípushoz. Töltsd le a megnyitáshoz.</p>
+                    <?php endif; ?>
                 <?php endif; ?>
                 <p class="text-sm md:text-base mb-4">Feltöltötte:
                     <a class="uploader-name" href="profile.php?user=<?= urlencode($uploader['username'] ?? '') ?>">

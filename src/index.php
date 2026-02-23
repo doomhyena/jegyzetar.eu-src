@@ -3,9 +3,13 @@
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
     
+    /*
+    
     ini_set('display_errors', '1');
     ini_set('display_startup_errors', '1');
     error_reporting(E_ALL);
+    
+    */
 
     require_once "assets/php/db.php";
     require_once "assets/php/lang.php";
@@ -124,9 +128,11 @@
                         <p class="hero-sub text-base md:text-lg opacity-90"><?= t('hero_nameday') ?>: <strong><?= htmlspecialchars($nameday) ?></strong></p>
                     </div>
                     <div class="hero-actions mt-4 md:mt-6 lg:mt-0">
-                        <a class="btn-cta text-base md:text-lg px-6 md:px-8 py-2 md:py-3" href="<?= $isLoggedIn ? 'upload.php' : 'reglog.php' ?>">
-                            + <?= t('nav_upload') ?>
-                        </a>
+                        <div class="hero-actions">
+                            <a class="btn-cta text-base md:text-lg px-6 md:px-8 py-2 md:py-3" href="<?= $isLoggedIn ? 'upload.php' : 'reglog.php' ?>">
+                                + <?= t('nav_upload') ?>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -187,7 +193,8 @@
                                         </div>
                                     </header>
                                     <div class="card-actions">
-                                        <?php if ($isLoggedIn && $currentUserId): ?>
+                                        <div class="card-actions">
+                                            <?php if ($isLoggedIn && $currentUserId): ?>
                                             <form method="POST" style="margin:0;">
                                                 <input type="hidden" name="favorite-btn" value="1">
                                                 <input type="hidden" name="favorite_file_id" value="<?= (int)$file_id ?>">
@@ -197,17 +204,18 @@
                                                     ❤
                                                 </button>
                                             </form>
-                                        <?php else: ?>
-                                            <a class="favorite-btn" href="reglog.php" title="Jelentkezz be a kedvencekhez">
-                                                ❤
+                                            <?php else: ?>
+                                                <a class="favorite-btn" href="reglog.php" title="Jelentkezz be a kedvencekhez">
+                                                    ❤
+                                                </a>
+                                            <?php endif; ?>
+                                            <a href="note.php?id=<?= (int)$file_id ?>" class="btn-sm btn-ghost">
+                                                Részletek
                                             </a>
-                                        <?php endif; ?>
-                                        <a href="note.php?id=<?= (int)$file_id ?>" class="btn-sm btn-ghost">
-                                            Részletek
-                                        </a>
-                                        <a href="assets/php/download.php?id=<?= (int)$file_id ?>" class="btn-sm btn-cta">
-                                            Letöltés
-                                        </a>
+                                            <a href="assets/php/download.php?id=<?= (int)$file_id ?>" class="btn-sm btn-cta">
+                                                Letöltés
+                                            </a>
+                                        </div>
                                     </div>
                                     <div class="card-footer-meta">
                                         <div class="rating-display">

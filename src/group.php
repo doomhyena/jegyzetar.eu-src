@@ -17,8 +17,7 @@
 	}
 	
     require "assets/php/group_actions.php";
-    include "assets/php/ads.php";
-
+    
 	$hiba_uzenet = "";
 	if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) {
 		$hiba_uzenet = "Ez egy privát csoport. A tartalom csak tagoknak látható.";

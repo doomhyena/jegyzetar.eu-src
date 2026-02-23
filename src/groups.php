@@ -2,9 +2,18 @@
     header("X-Frame-Options: DENY");
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
+    
+    /*
+    
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+    error_reporting(E_ALL);
+    
+    */
 
-    require "assets/php/db.php";
-    require "assets/php/lang.php";
+    require_once "assets/php/db.php";
+    require_once "assets/php/lang.php";
+    require_once "assets/php/functions.php";
 
     if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
         header("Location: reglog.php");
@@ -38,14 +47,14 @@
     <?php include "assets/php/ads.php"; ?>
 
     <div class="main w-full max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-6">
-        <div class="section-titlebar flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div class="section-titlebar flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
             <div class="min-w-0">
                 <h1 class="text-2xl md:text-3xl lg:text-4xl mb-2">Tanuló csoportok</h1>
                 <p class="entry-meta text-sm md:text-base">
                     Itt találod az összes elérhető tanuló csoportot.
                 </p>
             </div>
-            <div class="hero-actions flex-shrink-0">
+            <div class="titlebar-actions">
                 <a href="create_group.php" class="btn-cta text-sm md:text-base whitespace-nowrap">
                     Új csoport létrehozása
                 </a>

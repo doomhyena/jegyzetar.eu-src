@@ -27,18 +27,18 @@
     }
 
     $profile = $res->fetch_assoc();
-    $profileId = (int)$profile['id'];
+    $profileId = $profile['id'];
     $isOwner = ($viewerId === $profileId);
-
+    $show_fullname  = ($profile['show_fullname'] ?? 1);
+    $show_email = ($profile['show_email'] ?? 0);
+    $show_birthdate = ($profile['show_birthdate'] ?? 0);
 
     $nfRes = db_query($conn, "SELECT id FROM notifys WHERE toid = ? AND readed = 0", "i", [$profileId]);
     $notify_number = $nfRes ? (int)$nfRes->num_rows : 0;
 
     $profile_theme = $profile['profile_theme'] ?: 'default';
     $is_birthday = (!empty($profile['birthdate']) && date('m-d', strtotime($profile['birthdate'])) === date('m-d'));
-    $birthdateValue = (!empty($profile['birthdate']) && $profile['birthdate'] !== '0000-00-00')
-            ? substr($profile['birthdate'], 0, 10)
-            : '';
+    $birthdateValue = (!empty($profile['birthdate']) && $profile['birthdate'] !== '0000-00-00') ? substr($profile['birthdate'], 0, 10): '';
 
     $profileUpdateError = '';
     $profileUpdateSuccess = '';
@@ -49,14 +49,7 @@
 
     $friendship = null;
     if (!$isOwner) {
-        $fsRes = db_query(
-                $conn,
-                "SELECT * FROM friends
-             WHERE (fromid = ? AND toid = ?) OR (fromid = ? AND toid = ?)
-             LIMIT 1",
-                "iiii",
-                [$viewerId, $profileId, $profileId, $viewerId]
-        );
+        $fsRes = db_query($conn, "SELECT * FROM friends WHERE (fromid = ? AND toid = ?) OR (fromid = ? AND toid = ?) LIMIT 1", "iiii", [$viewerId, $profileId, $profileId, $viewerId]);
         if ($fsRes && $fsRes->num_rows > 0) {
             $friendship = $fsRes->fetch_assoc();
         }
@@ -163,6 +156,67 @@
         exit;
     }
 
+    if ($isOwner && isset($_POST['save-visibility'])) {
+        $sf = isset($_POST['show_fullname']) ? 1 : 0;
+        $se = isset($_POST['show_email']) ? 1 : 0;
+        $sb = isset($_POST['show_birthdate']) ? 1 : 0;
+
+        db_stmt($conn, "UPDATE users SET show_fullname=?, show_email=?, show_birthdate=? WHERE id=? LIMIT 1","iiii",[$sf, $se, $sb, $viewerId])->close();
+
+        $_SESSION['profile_toast'] = 'msg_profile_update_success';
+        header("Location: profile.php?user=" . urlencode($profile['username']));
+        exit;
+    }
+
+    if ($isOwner && isset($_POST['update-username'])) {
+        $newUsername = trim($_POST['new_username'] ?? '');
+        $oldUsername = (string)$profile['username'];
+
+        if (!preg_match('/^[a-zA-Z0-9_.-]{3,32}$/', $newUsername)) {
+            $profileUpdateError = t('msg_invalid_profile');
+        } elseif (strcasecmp($newUsername, $oldUsername) === 0) {
+            $profileUpdateError = 'Ugyanazt a felhasználónevet adtad meg.';
+        } else {
+            $check = db_query($conn, "SELECT id FROM users WHERE username = ? LIMIT 1", "s", [$newUsername]);
+            if ($check && $check->num_rows > 0) {
+                $profileUpdateError = 'Ez a felhasználónév már foglalt.';
+            } else {
+                $oldDir = __DIR__ . "/users/" . $oldUsername;
+                $newDir = __DIR__ . "/users/" . $newUsername;
+
+                $conn->begin_transaction();
+                try {
+                    db_stmt($conn, "UPDATE users SET username=? WHERE id=? LIMIT 1", "si", [$newUsername, $viewerId])->close();
+
+                    if (is_dir($oldDir)) {
+                        if (file_exists($newDir)) {
+                            throw new Exception("A célmappa már létezik.");
+                        }
+                        if (!@rename($oldDir, $newDir)) {
+                            throw new Exception("Nem sikerült átnevezni a user mappát.");
+                        }
+                    } else {
+                        if (!is_dir($newDir)) {
+                            @mkdir($newDir, 0777, true);
+                        }
+                    }
+
+                    $conn->commit();
+                    $_SESSION['profile_toast'] = 'msg_profile_update_success';
+                    header("Location: profile.php?user=" . urlencode($newUsername));
+                    exit;
+
+                } catch (Throwable $e) {
+                    $conn->rollback();
+                    if (is_dir($newDir) && !is_dir($oldDir)) {
+                        @rename($newDir, $oldDir);
+                    }
+                    $profileUpdateError = "Hiba a felhasználónév módosításakor: " . $e->getMessage();
+                }
+            }
+        }
+    }
+
     $bio = trim((string)($profile['bio'] ?? ''));
     $emptyBios = [
             "Ez a felhasználó még nem dobott be bemutatkozást.",
@@ -254,11 +308,31 @@
                             <?php endif; ?>
                             <?php if ($isOwner): ?>
                                 <div class="profile-actions inline" aria-label="Profil műveletek">
-                                    <a href="upload.php" class="profile-action-btn" role="button">Feltöltés</a>
+                                    <?php if ($isOwner): ?>
+                                    <form method="post" enctype="multipart/form-data" id="pfp-form" style="display:none;">
+                                        <input type="file"
+                                            name="profile_picture"
+                                            id="pfp-input"
+                                            accept="image/png,image/jpeg,image/webp"
+                                            required>
+                                        <button type="submit" name="pfp-btn">Upload</button>
+                                    </form>
+                                    <button type="button" class="profile-action-btn" id="pfp-open-btn">Feltöltés</button>
+                                    <script>
+                                        document.getElementById('pfp-open-btn').addEventListener('click', () => {
+                                        document.getElementById('pfp-input').click();
+                                        });
+                                        document.getElementById('pfp-input').addEventListener('change', () => {
+                                        if (document.getElementById('pfp-input').files.length) {
+                                            document.getElementById('pfp-form').submit();
+                                        }
+                                        });
+                                    </script>
+                                    <?php endif; ?>
                                     <a href="favorites.php" class="profile-action-btn" role="button">Kedvenceim</a>
                                 </div>
                             <?php endif; ?>
-                            <?php if ($is_birthday && $isOwner): ?>
+                            <?php if ($is_birthday): ?>
                                 <div class="bday-banner" role="status" aria-live="polite">
                                     <span class="bday-emoji" aria-hidden="true">🎂</span>
                                     <div class="bday-text">
@@ -304,23 +378,25 @@
                     <div class="card">
                         <h3><?= t('profile_data') ?></h3>
                         <div class="profile-info-card" id="basic-profile-static">
-                            <?php if ($isOwner): ?>
-                                <div class="profile-info-item">
-                                    <div class="profile-info-label"><?= t('profile_fullname') ?></div>
-                                    <div class="profile-info-value">
-                                        <?= htmlspecialchars($profile['lastname'] . ' ' . $profile['firstname']) ?>
-                                    </div>
+                            <?php if ($isOwner || $show_fullname): ?>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label"><?= t('profile_fullname') ?></div>
+                                <div class="profile-info-value">
+                                <?= htmlspecialchars($profile['lastname'] . ' ' . $profile['firstname']) ?>
                                 </div>
+                            </div>
                             <?php endif; ?>
                             <div class="profile-info-item">
                                 <div class="profile-info-label"><?= t('profile_username') ?></div>
                                 <div class="profile-info-value">@<?= htmlspecialchars($profile['username']) ?></div>
                             </div>
-                            <?php if ($isOwner): ?>
+                            <?php if ($isOwner || $show_email): ?>
                                 <div class="profile-info-item">
                                     <div class="profile-info-label"><?= t('profile_email') ?></div>
                                     <div class="profile-info-value"><?= htmlspecialchars($profile['email']) ?></div>
                                 </div>
+                            <?php endif; ?>
+                            <?php if ($isOwner || $show_birthdate): ?>
                                 <div class="profile-info-item">
                                     <div class="profile-info-label"><?= t('profile_birthdate') ?></div>
                                     <div class="profile-info-value"><?= htmlspecialchars($birthdateValue ?: '—') ?></div>
@@ -349,6 +425,29 @@
                                     <?= t('btn_cancel') ?>
                                 </button>
                             </form>
+                            <div class="card profile-visibility-card">
+                            <h3>Adatok láthatósága</h3>
+                            <form method="post" class="profile-visibility-form">
+                                <label class="toggle privacy-toggle">
+                                <input type="checkbox" name="show_fullname" <?= $show_fullname ? 'checked' : '' ?>>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">Teljes név látható</span>
+                                </label>
+                                <label class="toggle privacy-toggle">
+                                <input type="checkbox" name="show_email" <?= $show_email ? 'checked' : '' ?>>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">Email látható</span>
+                                </label>
+                                <label class="toggle privacy-toggle">
+                                <input type="checkbox" name="show_birthdate" <?= $show_birthdate ? 'checked' : '' ?>>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">Születésnap látható</span>
+                                </label>
+                                <button type="submit" name="save-visibility" class="btn-cta profile-save-btn">
+                                Mentés
+                                </button>
+                            </form>
+                            </div>
                             <h3>Kétlépcsős azonosítás (2FA)</h3>
                             <form method="post">
                                 <div class="profile-info-item">
@@ -365,10 +464,7 @@
                                                 </span>
                                             </label>
                                             <br>
-                                            <button type="submit"
-                                                    name="toggle-2fa"
-                                                    class="btn-cta profile-save-btn"
-                                                    style="margin-top:10px;">
+                                            <button type="submit" name="toggle-2fa" class="btn-cta profile-save-btn" style="margin-top:10px;">
                                                 Mentés
                                             </button>
                                         </form>
@@ -598,3 +694,5 @@ body {
 <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>
+
+
