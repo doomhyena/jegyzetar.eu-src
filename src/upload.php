@@ -28,6 +28,8 @@
         header("Location: reglog.php");
         exit;
     }
+	
+	require_once "assets/php/require_teacher.php";
 
     $hasEduStage = false;
     $hasEduLevel = false;
@@ -35,6 +37,7 @@
     $hasIsPrivate = false;
     $hasContentType = false;
     $hasNoteMarkdown = false;
+	$hasExternalUrl = false;
     $hasNoteExcerpt = false;
 
 
@@ -49,6 +52,7 @@
             if ($f === 'content_type')   $hasContentType = true;
             if ($f === 'note_markdown')  $hasNoteMarkdown = true;
             if ($f === 'note_excerpt')   $hasNoteExcerpt = true;
+			if ($f === 'external_url')  $hasExternalUrl = true;
         }
     }
 
@@ -63,8 +67,8 @@
 
     if (isset($_POST['upload-btn'])) {
 
-        $mode = (string)($_POST['content_mode'] ?? 'file'); // 'file' | 'markdown'
-        if (!in_array($mode, ['file', 'markdown'], true)) $mode = 'file';
+		$mode = (string)($_POST['content_mode'] ?? 'file'); // 'file' | 'markdown' | 'link'
+		if (!in_array($mode, ['file', 'markdown', 'link'], true)) $mode = 'file';
 
         $lekerdezes = "SELECT * FROM profanity_filter";
         $talalt_sorok = $conn->query($lekerdezes);
@@ -203,7 +207,54 @@
                     }
                 }
             }
+		}
+		elseif ($mode === 'link') {
+
+    if (!$hasContentType || !$hasExternalUrl) {
+        $uploadError = "Hiányzik az adatbázis frissítés (content_type / external_url).";
+    } else {
+
+        $url = trim((string)($_POST['external_url'] ?? ''));
+
+        if ($url === '') {
+            $uploadError = "A videó/link mező nem lehet üres.";
+        } elseif (!filter_var($url, FILTER_VALIDATE_URL)) {
+            $uploadError = "Érvénytelen link.";
         } else {
+
+            $scheme = parse_url($url, PHP_URL_SCHEME);
+            if (!in_array($scheme, ['http','https'], true)) {
+                $uploadError = "Csak http/https link engedélyezett.";
+            } else {
+
+                $file_size = 0;
+
+				$file_name_dummy = 'link';
+				$file_path_dummy = '';
+
+				$colsIns = ['uploaded_by', 'name', 'file_name', 'description', 'file_path', 'subject', 'tags', 'file_size', 'content_type', 'external_url'];
+				$vals    = [$user['id'], $displayName, $file_name_dummy, $description, $file_path_dummy, $subject, $tags, 0, 'link', $url];
+				$types   = "issssssiss";	
+
+                if ($hasIsPrivate) { $colsIns[] = 'is_private'; $vals[] = $is_private; $types .= 'i'; }
+                if ($hasIsPublic)  { $colsIns[] = 'is_public';  $vals[] = $is_public;  $types .= 'i'; }
+                if ($hasEduStage && $hasEduLevel) {
+                    $colsIns[] = 'edu_stage'; $colsIns[] = 'edu_level';
+                    $vals[] = $edu_stage; $vals[] = $edu_level;
+                    $types .= 'si';
+                }
+
+                $placeholders = implode(',', array_fill(0, count($colsIns), '?'));
+                $sql = "INSERT INTO files (" . implode(',', $colsIns) . ") VALUES ($placeholders)";
+                db_stmt($conn, $sql, $types, $vals)->close();
+
+                header("Location: upload.php?ok=1");
+                exit;
+            }
+        }
+    }
+}
+         else {
                 if (!isset($_FILES['upload-file']) || ($_FILES['upload-file']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
                     $uploadError = 'Hiba a fájl feltöltésekor.';
                 } else {
@@ -369,6 +420,10 @@
                     <input type="radio" name="content_mode" value="markdown">
                     <span>Markdown jegyzet írása</span>
                 </label>
+				<label class="flex gap-2 items-center">
+					<input type="radio" name="content_mode" value="link">
+					<span>Videó / Link megosztása</span>
+				</label>
             </div>
             <div id="file_wrap">
                 <label for="upload-file" class="text-sm md:text-base font-semibold">Fájl kiválasztása:</label>
@@ -386,6 +441,13 @@
                     Tipp: Markdown szintaxis (#, **félkövér**, - lista, `kód` stb.). Max 2MB.
                 </p>
             </div>
+			<div id="link_wrap" style="display:none;">
+				<label for="external_url" class="text-sm md:text-base font-semibold">Videó link:</label>
+				<input class="input w-full text-sm md:text-base" type="url" name="external_url" id="external_url" placeholder="https://www.youtube.com/watch?v=... vagy más videó link">
+				<p class="entry-meta" style="margin-top:6px;">
+					Tipp: YouTube, Vimeo, TikTok, Drive megosztás - bármi jöhet, ami URL.
+				</p>
+			</div>
             <button type="submit" name="upload-btn" class="btn-cta w-full md:w-auto text-sm md:text-base mt-2">Feltöltés</button>
         </form>
     </div>
@@ -393,4 +455,3 @@
 <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>
-

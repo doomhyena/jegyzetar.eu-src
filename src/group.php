@@ -175,6 +175,116 @@
             <?php else: ?>
                 <p class="entry-meta text-sm md:text-base">A tagok listája csak tagok és a tulajdonos számára elérhető.</p>
             <?php endif; ?>
+			<?php if ($hiba_uzenet == "" && ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj)): ?>
+            <section class="card p-4 md:p-6 mb-6" id="flashcards">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl md:text-2xl">🃏 Flashcard tanulás</h2>
+                </div>
+
+                <!-- ÚJ FLASHCARD -->
+                <div class="mb-6">
+                    <h3 class="text-lg md:text-xl mb-3">Új flashcard hozzáadása</h3>
+
+                    <form method="post" class="auth-card p-4 md:p-6">
+
+                        <div class="form-field mb-3">
+                            <label class="text-sm md:text-base font-semibold">Kérdés</label>
+                            <textarea 
+                                name="flash_q" 
+                                rows="2" 
+                                class="input w-full text-sm md:text-base"
+                                placeholder="Ide ird a kérdésed"
+                                required
+                            ></textarea>
+                        </div>
+
+                        <div class="form-field mb-4">
+                            <label class="text-sm md:text-base font-semibold">Válasz</label>
+                            <textarea 
+                                name="flash_a" 
+                                rows="3" 
+                                class="input w-full text-sm md:text-base"
+                                placeholder="Válasz a kérdésre"
+                                required
+                            ></textarea>
+                        </div>
+
+                        <div class="auth-actions">
+                            <button 
+                                type="submit" 
+                                name="flashcard_add" 
+                                class="btn-cta text-sm md:text-base"
+                            >
+                                Flashcard mentése
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+                <?php
+                $flashcards = $conn->query("
+                    SELECT * FROM group_flashcards 
+                    WHERE group_id = '$csoport_id'
+                    ORDER BY RAND()
+                    LIMIT 1
+                ");
+                ?>
+
+                <?php if ($flashcards && $flashcards->num_rows > 0): ?>
+                    <?php $fc = $flashcards->fetch_assoc(); ?>
+
+                    <div class="mini-card p-6 text-center" id="study-card">
+
+                        <h3 class="text-lg mb-4">
+                            <?= htmlspecialchars($fc['question']) ?>
+                        </h3>
+
+                        <div id="flash-answer" style="display:none;" class="mb-4">
+                            <p><?= nl2br(htmlspecialchars($fc['answer'])) ?></p>
+                        </div>
+
+                        <div class="flex justify-center gap-3 mb-4">
+                            <button class="btn-ghost" onclick="showAnswer()">Mutasd a választ</button>
+                            <button class="btn-ghost" onclick="nextCard()">Következő</button>
+                        </div>
+
+                        <div class="flex justify-center gap-3">
+                            <form method="post">
+                                <input type="hidden" name="flashcard_id" value="<?= $fc['id'] ?>">
+                                <button type="submit" name="flashcard_mark" value="correct" class="btn-cta">
+                                    ✔ Tudtam
+                                </button>
+                            </form>
+
+                            <form method="post">
+                                <input type="hidden" name="flashcard_id" value="<?= $fc['id'] ?>">
+                                <button type="submit" name="flashcard_mark" value="wrong" class="btn-ghost">
+                                    ✖ Nem tudtam
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="text-xs mt-4 opacity-70">
+                            ✔ <?= (int)$fc['correct_count'] ?> |
+                            ✖ <?= (int)$fc['wrong_count'] ?>
+                        </div>
+
+                        <?php if ($aktualis_felhasznalo_tulaj): ?>
+                            <form method="post" class="mt-4">
+                                <input type="hidden" name="flashcard_id" value="<?= $fc['id'] ?>">
+                                <button type="submit" name="flashcard_delete" class="btn-ghost">
+                                    🗑 Törlés
+                                </button>
+                            </form>
+                        <?php endif; ?>
+
+                    </div>
+
+                <?php else: ?>
+                    <p>Nincs flashcard ebben a csoportban.</p>
+                <?php endif; ?>
+            <?php endif; ?>
             <?php if ($hiba_uzenet == "" && ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj)): ?>
             <section class="card p-4 md:p-6 mb-6">
                 <h2 class="text-xl md:text-2xl mb-4">Csoport jegyzetek</h2>

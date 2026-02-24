@@ -1,7 +1,7 @@
 <?php
     header("X-Frame-Options: DENY");
     header("X-Content-Type-Options: nosniff");
-    header("Referrer-Policy: no-referrer");
+	header("Referrer-Policy: strict-origin-when-cross-origin");
     
     /*
     
@@ -146,6 +146,8 @@
                         <div class="content-grid grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <?php while ($file = $latest_result->fetch_assoc()):
                                     $file_id = (int)$file['id'];
+									$contentType = $file['content_type'] ?? 'file';
+									$externalUrl = trim((string)($file['external_url'] ?? ''));
                                     $uploaderRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [(int)$file['uploaded_by']]);
                                     $uploader = ($uploaderRes && $uploaderRes->num_rows) ? $uploaderRes->fetch_assoc() : ['username' => 'ismeretlen'];
                                     $name = htmlspecialchars($file['name'] ?? '');
@@ -182,6 +184,50 @@
                             ?>
                                 <article class="card note-card" id="file-<?= (int)$file_id ?>">
                                     <header class="note-header">
+									<?php if (($contentType ?? 'file') === 'link' && !empty($externalUrl)): ?>
+										<?php
+											$url = trim((string)$externalUrl);
+											$videoId = '';
+											if (preg_match('~youtu\.be/([A-Za-z0-9_-]{6,})~', $url, $m)) {
+												$videoId = $m[1];
+											} elseif (preg_match('~[?&]v=([A-Za-z0-9_-]{6,})~', $url, $m)) {
+												$videoId = $m[1];
+											} elseif (preg_match('~youtube\.com/shorts/([A-Za-z0-9_-]{6,})~', $url, $m)) {
+												$videoId = $m[1];
+											} elseif (preg_match('~youtube\.com/embed/([A-Za-z0-9_-]{6,})~', $url, $m)) {
+												$videoId = $m[1];
+											}
+
+											$isMp4 = (bool)preg_match('~\.mp4(\?.*)?$~i', $url);
+										?>
+
+										<div class="note-media" style="margin-top:10px;">
+											<?php if ($videoId !== ''): ?>
+												<iframe
+													width="100%"
+													height="250"
+													src="https://www.youtube-nocookie.com/embed/<?= htmlspecialchars($videoId) ?>?rel=0"
+													frameborder="0"
+													allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+													allowfullscreen>
+												</iframe>
+
+											<?php elseif ($isMp4): ?>
+												<video controls width="100%">
+													<source src="<?= htmlspecialchars($url) ?>" type="video/mp4">
+													A böngésződ nem támogatja a videó lejátszást.
+												</video>
+
+											<?php else: ?>
+												<div class="entry-meta" style="margin-top:6px;">
+													Külső link megosztva:
+													<a href="<?= htmlspecialchars($url) ?>" target="_blank" rel="noopener noreferrer">
+														Megnyitás új lapon
+													</a>
+												</div>
+											<?php endif; ?>
+										</div>
+									<?php endif; ?>
                                         <div class="card-title-group">
                                             <h4 class="entry-title"><?= htmlspecialchars($file['name'] ?? '') ?></h4>
                                             <p class="uploader-info">
@@ -212,9 +258,15 @@
                                             <a href="note.php?id=<?= (int)$file_id ?>" class="btn-sm btn-ghost">
                                                 Részletek
                                             </a>
-                                            <a href="assets/php/download.php?id=<?= (int)$file_id ?>" class="btn-sm btn-cta">
-                                                Letöltés
-                                            </a>
+											<?php if ($contentType === 'link' && !empty($externalUrl)): ?>
+											<a href="<?= htmlspecialchars($externalUrl) ?>" target="_blank" class="btn-sm btn-cta">
+												Megnyitás
+											</a>
+											<?php else: ?>
+											<a href="assets/php/download.php?id=<?= (int)$file_id ?>" class="btn-sm btn-cta">
+												Letöltés
+											</a>
+											<?php endif; ?>
                                         </div>
                                     </div>
                                     <div class="card-footer-meta">

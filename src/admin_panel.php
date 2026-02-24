@@ -65,6 +65,45 @@
         exit();
     }
 
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['role_action']) && $_POST['role_action'] === 'set_role') {
+
+    $target_user_id = isset($_POST['target_user_id']) ? (int)$_POST['target_user_id'] : 0;
+    $new_role = (string)($_POST['new_role'] ?? 'diak'); // diak | tanar | admin
+
+    if ($target_user_id > 0) {
+
+
+        if ($target_user_id === (int)$current_user['id'] && $new_role !== 'admin') {
+            echo "<script>alert('A saját admin rangodat nem veheted el!');</script>";
+        } else {
+
+            $set_admin = 0;
+            $set_teacher = 0;
+
+            if ($new_role === 'admin') {
+                $set_admin = 1;   // admin=1, teacher=0
+                $set_teacher = 0;
+            } elseif ($new_role === 'tanar') {
+                $set_admin = 0;
+                $set_teacher = 1; // teacher=1, admin=0
+            } else {
+                $set_admin = 0;
+                $set_teacher = 0; // diák
+            }
+
+            db_stmt(
+                $conn,
+                "UPDATE users SET admin = ?, teacher = ? WHERE id = ? LIMIT 1",
+                "iii",
+                [$set_admin, $set_teacher, $target_user_id]
+            )->close();
+
+            echo "<script>alert('Rang frissítve!'); location.href='admin_panel.php';</script>";
+            exit();
+        }
+    }
+}
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add_user_badge') {
         $user_id  = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
         $badge_id = isset($_POST['badge_id']) ? intval($_POST['badge_id']) : 0;
@@ -297,6 +336,18 @@
             <?php } ?>
         </table>
     </section>
+	
+	<section class="card p-4 md:p-6 mb-6">
+		<h2 class="text-xl md:text-2xl mb-4">Rangok kezelése</h2>
+
+		<input class="input w-full" type="text" id="admin-user-search" placeholder="Keress felhasználóra">
+		<div id="admin-user-results"></div>
+
+		<div id="search" style="margin-top:12px;">
+		<small class="text-xs opacity-75">Írj a keresőbe, és itt megjelennek a találatok.</small>
+		</div>
+	</section>
+	
     <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
         <h2 class="text-xl md:text-2xl mb-4">Fájlok kezelése</h2>
         <table>

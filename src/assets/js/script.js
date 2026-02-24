@@ -499,21 +499,63 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
   const fileWrap = document.getElementById('file_wrap');
   const mdWrap = document.getElementById('markdown_wrap');
+  const linkWrap = document.getElementById('link_wrap');
   const fileInput = document.querySelector('input[name="upload-file"]');
   const mdInput = document.getElementById('markdown_note');
+  const linkInput = document.getElementById('external_url');
 
-  function syncMode() {
-    const mode = document.querySelector('input[name="content_mode"]:checked')?.value || 'file';
-    const isMd = mode === 'markdown';
+	function syncMode() {
+	const mode = document.querySelector('input[name="content_mode"]:checked')?.value || 'file';
 
-    if (fileWrap) fileWrap.style.display = isMd ? 'none' : '';
-    if (mdWrap) mdWrap.style.display = isMd ? '' : 'none';
-    if (fileInput) fileInput.required = !isMd;
-    if (mdInput) mdInput.required = isMd;
-  }
+	const isMd = mode === 'markdown';
+	const isLink = mode === 'link';
+
+	if (fileWrap) fileWrap.style.display = (isMd || isLink) ? 'none' : '';
+	if (mdWrap) mdWrap.style.display = isMd ? '' : 'none';
+	if (linkWrap) linkWrap.style.display = isLink ? '' : 'none';
+
+	if (fileInput) fileInput.required = !(isMd || isLink);
+	if (mdInput) mdInput.required = isMd;
+	if (linkInput) linkInput.required = isLink;
+}
 
   document.querySelectorAll('input[name="content_mode"]').forEach(r => {
     r.addEventListener('change', syncMode);
   });
   syncMode();
 });
+
+document.addEventListener('DOMContentLoaded', function(){
+
+    if (typeof $ === 'undefined') return;
+
+    const adminSearch = document.getElementById('admin-user-search');
+    const resultsBox = document.getElementById('admin-user-results');
+
+    // Ha nem admin oldalon vagyunk, ne csináljon semmit
+    if (!adminSearch || !resultsBox) return;
+
+    adminSearch.addEventListener('keyup', function(e){
+        const ertek = e.target.value;
+
+        if (ertek.trim() === '') {
+            resultsBox.innerHTML = "<p class='search-text'>Kezdj el gépelni...</p>";
+            return;
+        }
+
+        $("#admin-user-results").html("Keresés folyamatban...");
+        $("#admin-user-results").load(
+            "assets/php/findanything.php?mode=admin_users&keresett=" 
+            + encodeURIComponent(ertek)
+        );
+    });
+
+});
+
+function showAnswer() {
+    document.getElementById('flash-answer').style.display = 'block';
+}
+
+function nextCard() {
+    location.reload();
+}

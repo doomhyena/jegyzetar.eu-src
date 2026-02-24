@@ -34,6 +34,64 @@ if (isset($_POST['join_group']) && !$aktualis_felhasznalo_tag) {
     }
 }
 
+// FLASHCARD HOZZÁADÁS
+if (isset($_POST['flashcard_add']) && ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj)) {
+
+    $kerdes = trim((string)($_POST['flash_q'] ?? ''));
+    $valasz = trim((string)($_POST['flash_a'] ?? ''));
+
+    if ($kerdes === '' || $valasz === '') {
+        echo "<script>alert('A kérdés és a válasz kötelező!');</script>";
+    } else {
+
+        $maxRes = $conn->query("SELECT MAX(id) AS max_id FROM group_flashcards");
+        $maxRow = $maxRes ? $maxRes->fetch_assoc() : null;
+        $uj_id = (int)($maxRow['max_id'] ?? 0) + 1;
+
+        $kerdes_safe = $conn->real_escape_string($kerdes);
+        $valasz_safe = $conn->real_escape_string($valasz);
+
+        $sql = "INSERT INTO group_flashcards (id, group_id, created_by, question, answer, created_at) VALUES ('$uj_id', '$csoport_id', '$aktualis_felhasznalo_id','$kerdes_safe', '$valasz_safe', NOW())";
+
+        if ($conn->query($sql)) {
+            echo "<script>alert('Flashcard hozzáadva!');</script>";
+            echo "<script>location.href='group.php?id=".$csoport_id."';</script>";
+            exit;
+        } else {
+            echo "<script>alert('Hiba történt a mentés során.');</script>";
+        }
+    }
+}
+
+// FLASHCARD TÖRLÉS
+if (isset($_POST['flashcard_delete']) && $aktualis_felhasznalo_tulaj) {
+
+    $delete_id = (int)$_POST['flashcard_id'];
+
+    $conn->query("DELETE FROM group_flashcards WHERE id = '$delete_id' AND group_id = '$csoport_id'");
+
+    echo "<script>location.href='group.php?id=".$csoport_id."';</script>";
+    exit;
+}
+
+// FLASHCARD ÉRTÉKELÉS
+if (isset($_POST['flashcard_mark'])) {
+
+    $flashcard_id = (int)$_POST['flashcard_id'];
+    $type = $_POST['flashcard_mark'];
+
+    if ($type === 'correct') {
+        $conn->query("UPDATE group_flashcards SET correct_count = correct_count + 1 WHERE id = '$flashcard_id'");
+    }
+
+    if ($type === 'wrong') {
+        $conn->query("UPDATE group_flashcards SET wrong_count = wrong_count + 1 WHERE id = '$flashcard_id'");
+    }
+
+    header("Location: group.php?id=".$csoport_id."");
+    exit;
+}
+
 // Tag eltávolítása
 if (isset($_POST['remove_member']) && $aktualis_felhasznalo_tulaj) {
 

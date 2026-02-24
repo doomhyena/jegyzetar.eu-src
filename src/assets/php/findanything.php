@@ -2,6 +2,75 @@
 
 	// Adatbázis kapcsolat betöltése
 	require "db.php";
+	
+	// ADMIN USER KERESŐ MÓD (admin panelhez)
+    if (isset($_GET['mode']) && $_GET['mode'] === 'admin_users') {
+
+        $keresett_admin = isset($_GET['keresett']) ? trim((string)$_GET['keresett']) : '';
+
+        $adminId = (int)$_COOKIE['id'];
+
+        // admin jog check
+        $adminRes = $conn->query("SELECT admin FROM users WHERE id = $adminId LIMIT 1");
+        $adminRow = $adminRes ? $adminRes->fetch_assoc() : null;
+
+        if (!$adminRow || (int)$adminRow['admin'] !== 1) {
+            http_response_code(403);
+            exit("Nincs jogosultság.");
+        }
+
+        if ($keresett_admin === '') {
+            exit('<p class="search-text">Kezdj el gépelni...</p>');
+        }
+
+        $safe = $conn->real_escape_string($keresett_admin);
+
+        $sql = "
+            SELECT id, username, email, firstname, lastname, admin, teacher
+            FROM users
+            WHERE (username LIKE '%$safe%' OR email LIKE '%$safe%' OR firstname LIKE '%$safe%' OR lastname LIKE '%$safe%')
+            ORDER BY id DESC
+            LIMIT 20
+        ";
+        $res = $conn->query($sql);
+
+        if (!$res || $res->num_rows === 0) {
+            exit('<p class="search-text">Nincs találat.</p>');
+        }
+
+        while ($u = $res->fetch_assoc()) {
+
+            $nev = trim(($u['lastname'] ?? '') . ' ' . ($u['firstname'] ?? ''));
+            if ($nev === '') $nev = '—';
+
+            $rang = 'Diák';
+            if ((int)$u['admin'] === 1) $rang = 'Admin';
+            else if (isset($u['teacher']) && (int)$u['teacher'] === 1) $rang = 'Tanár';
+
+            echo '<div class="search-card search-user-card">';
+            echo '<div class="search-content">';
+            echo '<p><b>@' . htmlspecialchars($u['username']) . '</b> • ' . htmlspecialchars($nev) . '</p>';
+            echo '<small>' . htmlspecialchars($u['email']) . ' • Jelenlegi rang: <b>' . $rang . '</b></small>';
+            echo '</div>';
+
+            echo '<form method="post" action="admin_panel.php" style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">';
+            echo '<input type="hidden" name="role_action" value="set_role">';
+            echo '<input type="hidden" name="target_user_id" value="' . (int)$u['id'] . '">';
+
+            echo '<select name="new_role" class="input" required>';
+            echo '<option value="diak">Diák</option>';
+            echo '<option value="tanar">Tanár</option>';
+            echo '<option value="admin">Admin</option>';
+            echo '</select>';
+
+            echo '<button type="submit" class="btn-cta">Rang mentése</button>';
+            echo '</form>';
+
+            echo '</div>';
+        }
+
+        exit();
+    }
 
 	// Keresett kifejezés lekérése, megtisztítása
 	$keresett = isset($_GET['keresett']) ? htmlspecialchars(trim($_GET['keresett'])) : '';

@@ -2,7 +2,7 @@
     session_start();
 
     require __DIR__ . '/../vendor/autoload.php';
-    require __DIR__ . '/../php/db.php';   // itt jön a $conn
+    require __DIR__ . '/../php/db.php';
 
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
     $dotenv->load();

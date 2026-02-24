@@ -1,9 +1,58 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
+--
+-- Gép: 127.0.0.1
+-- Létrehozás ideje: 2026. Feb 24. 08:52
+-- Kiszolgáló verziója: 10.4.32-MariaDB
+-- PHP verzió: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Adatbázis: `jegyzetar`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `2fa_codes`
+--
+
 CREATE TABLE `2fa_codes` (
   `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
   `code` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `2fa_codes`
+--
+
+INSERT INTO `2fa_codes` (`id`, `userid`, `code`) VALUES
+(6, 4, 82329),
+(8, 4, 26092),
+(9, 4, 87859),
+(13, 5, 90064),
+(20, 1, 21959),
+(21, 1, 64985),
+(22, 1, 47713),
+(28, 1, 42618),
+(29, 1, 15302);
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `badges`
+--
 
 CREATE TABLE `badges` (
   `id` int(11) NOT NULL,
@@ -13,9 +62,19 @@ CREATE TABLE `badges` (
   `icon` varchar(16) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- A tábla adatainak kiíratása `badges`
+--
+
 INSERT INTO `badges` (`id`, `name`, `slug`, `description`, `icon`) VALUES
 (1, 'Tulajdonos', 'owner', 'Az oldal tulajdonosa', '🔰'),
 (2, 'Prémium tag', 'premium', 'Prémium tagsággal rendelkezik', '💎');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `bug_reports`
+--
 
 CREATE TABLE `bug_reports` (
   `id` int(11) NOT NULL,
@@ -32,6 +91,12 @@ CREATE TABLE `bug_reports` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `comments`
+--
+
 CREATE TABLE `comments` (
   `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
@@ -39,6 +104,18 @@ CREATE TABLE `comments` (
   `text` varchar(1000) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `comments`
+--
+
+INSERT INTO `comments` (`id`, `userid`, `postid`, `text`) VALUES
+(1, 1, 3, 'easy peasy');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `contact_messages`
+--
 
 CREATE TABLE `contact_messages` (
   `id` int(11) NOT NULL,
@@ -52,6 +129,12 @@ CREATE TABLE `contact_messages` (
   `read_by_admin` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `favorites`
+--
+
 CREATE TABLE `favorites` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -59,14 +142,28 @@ CREATE TABLE `favorites` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `favorites`
+--
+
+INSERT INTO `favorites` (`id`, `user_id`, `file_id`, `created_at`) VALUES
+(1, 4, 1, '2025-12-02 10:54:38'),
+(3, 1, 2, '2026-01-17 16:36:51'),
+(5, 1, 3, '2026-02-21 21:05:14');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `files`
+--
 
 CREATE TABLE `files` (
   `id` int(11) NOT NULL,
   `uploaded_by` int(11) DEFAULT NULL,
   `name` varchar(255) NOT NULL,
-  `file_name` varchar(255) NOT NULL,
+  `file_name` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
-  `file_path` varchar(255) NOT NULL,
+  `file_path` varchar(1024) DEFAULT NULL,
   `subject` varchar(100) NOT NULL,
   `tags` varchar(255) NOT NULL,
   `tn_name` varchar(255) DEFAULT NULL,
@@ -74,9 +171,25 @@ CREATE TABLE `files` (
   `download_count` int(11) NOT NULL DEFAULT 0,
   `content_text` longtext DEFAULT NULL,
   `edu_stage` enum('hs','uni') DEFAULT NULL,
-  `edu_level` tinyint(4) DEFAULT NULL
+  `edu_level` tinyint(4) DEFAULT NULL,
+  `content_type` enum('file','note') NOT NULL DEFAULT 'file',
+  `note_markdown` mediumtext DEFAULT NULL,
+  `note_excerpt` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `files`
+--
+
+INSERT INTO `files` (`id`, `uploaded_by`, `name`, `file_name`, `description`, `file_path`, `subject`, `tags`, `tn_name`, `file_size`, `download_count`, `content_text`, `edu_stage`, `edu_level`, `content_type`, `note_markdown`, `note_excerpt`) VALUES
+(2, 1, 'Java zero to hero', 'JavaNotesForProfessionals.pdf', 'Ezzel a csodával megtanulsz javaul. Garantált siker!', 'C:xampphtdocsjegyzetar.eu-srcsrc/users/csontoskincso05/JavaNotesForProfessionals.pdf', 'Informatika', 'Tankönyv', NULL, NULL, 0, NULL, 'hs', 13, 'file', NULL, NULL),
+(3, 1, 'Ez egy teszt markdown jegyzet', NULL, 'Nem tudom ide mit írjak, ez egy teszt', NULL, 'fizika', 'Budapesti Műszaki és Gazdaságtudományi Egyetem, Budapesti Műszaki SZC Bláthy Ottó Titusz Informatikai Technikum, Budapesti Műszaki SZC Egressy Gábor Két Tanítási Nyelvű Technikum, Budapesti Műszaki SZC Petrik Lajos Két Tanítási Nyelvű Technikum', NULL, 127, 0, NULL, 'hs', 9, 'note', '# Ez egy cím\n\n- Első listapont\n- Második listapont\n- Harmadik listapont\n- Negyedik listapont\n\n**Félkövér szöveg**\n`kód`', '# Ez egy cím - Első listapont - Második listapont - Harmadik listapont - Negyedik listapont **Félkövér szöveg** `kód`');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `file_events`
+--
 
 CREATE TABLE `file_events` (
   `id` bigint(20) UNSIGNED NOT NULL,
@@ -89,6 +202,43 @@ CREATE TABLE `file_events` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `file_events`
+--
+
+INSERT INTO `file_events` (`id`, `file_id`, `user_id`, `event_type`, `rating`, `ip`, `user_agent`, `created_at`) VALUES
+(1, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-17 15:50:28'),
+(2, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-17 16:04:33'),
+(3, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-17 16:34:47'),
+(4, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36', '2026-01-17 18:09:20'),
+(5, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36', '2026-01-17 18:19:57'),
+(6, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-17 19:58:01'),
+(7, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-24 23:09:54'),
+(8, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-02-08 22:58:04'),
+(9, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-02-10 09:12:17'),
+(10, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-02-11 17:02:32'),
+(11, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-18 21:21:11'),
+(12, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-18 21:39:57'),
+(13, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 00:52:53'),
+(14, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:21:08'),
+(15, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:21:19'),
+(16, 3, 1, 'favorite_add', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:27:51'),
+(17, 3, 1, 'favorite_remove', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:27:53'),
+(18, 3, 1, 'comment', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:28:06'),
+(19, 3, 1, 'rate', 4, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:28:29'),
+(20, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:37:23'),
+(21, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-21 21:00:08'),
+(22, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-21 22:27:19'),
+(23, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-21 22:49:54'),
+(24, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-21 23:07:58'),
+(25, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-23 17:48:11');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `file_stats_daily`
+--
+
 CREATE TABLE `file_stats_daily` (
   `file_id` int(11) NOT NULL,
   `day` date NOT NULL,
@@ -100,12 +250,31 @@ CREATE TABLE `file_stats_daily` (
   `flashcards` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `friends`
+--
+
 CREATE TABLE `friends` (
   `id` int(11) NOT NULL,
   `fromid` int(11) NOT NULL,
   `toid` int(11) NOT NULL,
   `status` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- A tábla adatainak kiíratása `friends`
+--
+
+INSERT INTO `friends` (`id`, `fromid`, `toid`, `status`) VALUES
+(1, 8, 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `groups`
+--
 
 CREATE TABLE `groups` (
   `id` int(11) NOT NULL,
@@ -119,6 +288,19 @@ CREATE TABLE `groups` (
   `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `groups`
+--
+
+INSERT INTO `groups` (`id`, `name`, `description`, `owner_id`, `is_private`, `created_at`, `reviewed_at`, `reviewed_by`, `status`) VALUES
+(1, 'Java Dolgozat felkészítő', 'Java dolgozatokra való felkészítés zajlik itt', 1, 0, '2026-02-10 09:10:06', '2026-02-12 10:50:42', 1, 'approved');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `group_files`
+--
+
 CREATE TABLE `group_files` (
   `id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
@@ -130,6 +312,12 @@ CREATE TABLE `group_files` (
   `is_approved` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `group_members`
+--
+
 CREATE TABLE `group_members` (
   `id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
@@ -139,8 +327,18 @@ CREATE TABLE `group_members` (
   `joined_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `group_members`
+--
+
 INSERT INTO `group_members` (`id`, `group_id`, `user_id`, `role`, `status`, `joined_at`) VALUES
 (0, 0, 1, 'owner', 'accepted', '2026-02-10 09:10:06');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `languages`
+--
 
 CREATE TABLE `languages` (
   `id` int(11) NOT NULL,
@@ -148,10 +346,20 @@ CREATE TABLE `languages` (
   `name` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `languages`
+--
+
 INSERT INTO `languages` (`id`, `code`, `name`) VALUES
 (1, 'hu', 'Magyar'),
 (2, 'en', 'English'),
 (3, 'de', 'Deutsch');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `messages`
+--
 
 CREATE TABLE `messages` (
   `id` int(11) NOT NULL,
@@ -161,22 +369,39 @@ CREATE TABLE `messages` (
   `sent_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `messages`
+--
+
+INSERT INTO `messages` (`id`, `fromid`, `toid`, `content`, `sent_at`) VALUES
+(1, 1, 8, 'Szia', '2026-01-25 19:04:32');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `namedays`
+--
+
 CREATE TABLE `namedays` (
   `id` int(11) NOT NULL,
   `datum` varchar(5) DEFAULT NULL,
   `nevek` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `namedays`
+--
+
 INSERT INTO `namedays` (`id`, `datum`, `nevek`) VALUES
-(1,  '01-01', 'Alpár, Fruzsina, Bazil'),
-(2,  '01-02', 'Ábel, Gergely, Vazul'),
-(3,  '01-03', 'Genovéva, Gyöngyvér, Benjámin, Dzsenifer, ((Jennifer))'),
-(4,  '01-04', 'Titusz, Leona, Angéla'),
-(5,  '01-05', 'Simon, Emília'),
-(6,  '01-06', 'Gáspár, Menyhért, Boldizsár'),
-(7,  '01-07', 'Attila, Etele, Ramóna, Rajmund, Bálint'),
-(8,  '01-08', 'Gyöngyvér, Keve, Szeverin, Szörény'),
-(9,  '01-09', 'Marcell, Juliánusz'),
+(1, '01-01', 'Alpár, Fruzsina, Bazil'),
+(2, '01-02', 'Ábel, Gergely, Vazul'),
+(3, '01-03', 'Genovéva, Gyöngyvér, Benjámin, Dzsenifer, ((Jennifer))'),
+(4, '01-04', 'Titusz, Leona, Angéla'),
+(5, '01-05', 'Simon, Emília'),
+(6, '01-06', 'Gáspár, Menyhért, Boldizsár'),
+(7, '01-07', 'Attila, Etele, Ramóna, Rajmund, Bálint'),
+(8, '01-08', 'Gyöngyvér, Keve, Szeverin, Szörény'),
+(9, '01-09', 'Marcell, Juliánusz'),
 (10, '01-10', 'Melánia, Vilmos, Vilma'),
 (11, '01-11', 'Ágota, Honoráta'),
 (12, '01-12', 'Ernő, Erneszta, Tatjána'),
@@ -258,15 +483,15 @@ INSERT INTO `namedays` (`id`, `datum`, `nevek`) VALUES
 (88, '03-29', 'Auguszta, Bercel, Bertold'),
 (89, '03-30', 'Zalán'),
 (90, '03-31', 'Árpád, Benjámin, Benő'),
-(91,  '04-01', 'Hugó, Agád'),
-(92,  '04-02', 'Áron, Ferenc'),
-(93,  '04-03', 'Buda, Richárd, Hóvirág, Indira'),
-(94,  '04-04', 'Izidor'),
-(95,  '04-05', 'Vince, Irén, Teodóra'),
-(96,  '04-06', 'Vilmos, Bíborka, Taksony, Celesztin'),
-(97,  '04-07', 'Herman, János'),
-(98,  '04-08', 'Dénes, Valér, Valter'),
-(99,  '04-09', 'Erhard, Ákos, Döme'),
+(91, '04-01', 'Hugó, Agád'),
+(92, '04-02', 'Áron, Ferenc'),
+(93, '04-03', 'Buda, Richárd, Hóvirág, Indira'),
+(94, '04-04', 'Izidor'),
+(95, '04-05', 'Vince, Irén, Teodóra'),
+(96, '04-06', 'Vilmos, Bíborka, Taksony, Celesztin'),
+(97, '04-07', 'Herman, János'),
+(98, '04-08', 'Dénes, Valér, Valter'),
+(99, '04-09', 'Erhard, Ákos, Döme'),
 (100, '04-10', 'Zsolt, Ezékiel'),
 (101, '04-11', 'Leó, Szaniszló, Glória'),
 (102, '04-12', 'Gyula, Baldvin, Sába, Nara'),
@@ -534,6 +759,12 @@ INSERT INTO `namedays` (`id`, `datum`, `nevek`) VALUES
 (364, '12-30', 'Dávid, Hunor, Libériusz'),
 (365, '12-31', 'Szilveszter, Donáta');
 
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `notifys`
+--
+
 CREATE TABLE `notifys` (
   `id` int(11) NOT NULL,
   `fromid` int(255) NOT NULL,
@@ -541,6 +772,19 @@ CREATE TABLE `notifys` (
   `notifytype` varchar(100) NOT NULL,
   `readed` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- A tábla adatainak kiíratása `notifys`
+--
+
+INSERT INTO `notifys` (`id`, `fromid`, `toid`, `notifytype`, `readed`) VALUES
+(1, 8, 1, 'friend', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `password_reset_attempts`
+--
 
 CREATE TABLE `password_reset_attempts` (
   `id` int(11) NOT NULL,
@@ -551,6 +795,12 @@ CREATE TABLE `password_reset_attempts` (
   `last_attempt` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `premium_users`
+--
+
 CREATE TABLE `premium_users` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -560,74 +810,36 @@ CREATE TABLE `premium_users` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- A tábla adatainak kiíratása `premium_users`
+--
+
+INSERT INTO `premium_users` (`id`, `user_id`, `premium_until`, `premium_ig`, `created_at`, `updated_at`) VALUES
+(5, 1, '0000-00-00 00:00:00', '2026-03-12 11:13:35', '2026-02-10 11:13:35', '2026-02-10 11:13:35');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `profanity_filter`
+--
 
 CREATE TABLE `profanity_filter` (
   `id` int(11) NOT NULL,
   `words` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `profanity_filter`
+--
+
 INSERT INTO `profanity_filter` (`id`, `words`) VALUES
-(1, 'kaka'),
-(2, 'szar'),
-(3, 'szarás'),
-(4, 'szaros'),
-(5, 'fos'),
-(6, 'fosás'),
-(7, 'fosni'),
-(8, 'geci'),
-(9, 'gecis'),
-(10, 'baszd'),
-(11, 'baszni'),
-(12, 'baszott'),
-(13, 'baszok'),
-(14, 'baszki'),
-(15, 'kurva'),
-(16, 'kurvázik'),
-(17, 'kurvára'),
-(18, 'picsa'),
-(19, 'pina'),
-(20, 'fasz'),
-(21, 'fasza'),
-(22, 'faszom'),
-(23, 'faszfej'),
-(24, 'lófasz'),
-(25, 'segg'),
-(26, 'seggfej'),
-(27, 'segglyuk'),
-(28, 'buzi'),
-(29, 'buziak'),
-(30, 'szop'),
-(31, 'szopás'),
-(32, 'szopni'),
-(33, 'anyád'),
-(34, 'anyádért'),
-(35, 'rohadt'),
-(36, 'rohadtul'),
-(37, 'szétbasz'),
-(38, 'szétcseszni'),
-(39, 'cseszni'),
-(40, 'cseszett'),
-(41, 'kibasz'),
-(42, 'kibaszott'),
-(43, 'elbasz'),
-(44, 'elbaszott'),
-(45, 'szétkúr'),
-(46, 'kúrni'),
-(47, 'kúrt'),
-(48, 'kúrás'),
-(49, 'szarházi'),
-(50, 'barom'),
-(51, 'idióta'),
-(52, 'hülye'),
-(53, 'hülyeség'),
-(54, 'szemét'),
-(55, 'szaralak'),
-(56, 'szarjankó'),
-(57, 'szarjancsi'),
-(58, 'szarjanni'),
-(59, 'szarjanyó'),
-(60, 'szarjanyócska'),
-(61, 'szarjanyóka');
+(1, 'kaka');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `ratings`
+--
 
 CREATE TABLE `ratings` (
   `id` int(11) NOT NULL,
@@ -638,6 +850,35 @@ CREATE TABLE `ratings` (
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `ratings`
+--
+
+INSERT INTO `ratings` (`id`, `file_id`, `user_id`, `rating`, `created_at`, `updated_at`) VALUES
+(1, 1, 4, 5, '2025-12-02 10:55:24', '2025-12-02 10:55:24'),
+(2, 2, 1, 5, '2025-12-16 01:00:56', '2026-01-17 20:16:40'),
+(3, 3, 1, 4, '2026-02-19 09:28:29', '2026-02-19 09:28:29');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `registration_code_uses`
+--
+
+CREATE TABLE `registration_code_uses` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `reg_code` varchar(64) NOT NULL,
+  `used_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `used_ip` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `reg_codes`
+--
 
 CREATE TABLE `reg_codes` (
   `id` int(11) NOT NULL,
@@ -650,8 +891,18 @@ CREATE TABLE `reg_codes` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `reg_codes`
+--
+
 INSERT INTO `reg_codes` (`id`, `code`, `description`, `max_uses`, `used`, `expires_at`, `active`, `created_at`) VALUES
-(1, 'EARLY-BETA-2025', 'Nagyon korai béta tesztelő kód', 10, 4, NULL, 1, '2025-12-07 14:31:16');
+(1, 'EARLY-BETA-2025', 'Nagyon korai béta tesztelő kód', 10, 4, NULL, 0, '2025-12-07 14:31:16');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `reports`
+--
 
 CREATE TABLE `reports` (
   `id` int(11) NOT NULL,
@@ -665,6 +916,21 @@ CREATE TABLE `reports` (
   `handled_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `reports`
+--
+
+INSERT INTO `reports` (`id`, `reporter_id`, `target_type`, `target_id`, `reason`, `status`, `created_at`, `handled_by`, `handled_at`) VALUES
+(1, 4, 'note', 2, 'Nincs megadott indok.', 'dismissed', '2025-12-07 13:43:45', 4, '2025-12-07 13:44:03'),
+(2, 8, 'note', 2, 'Ez egy teszt', 'dismissed', '2025-12-16 00:21:29', 1, '2026-01-25 18:56:51'),
+(3, 1, 'user', 8, 'Ez egy teszt jelentés egy user felé', 'dismissed', '2025-12-16 00:31:04', 1, '2026-01-25 18:58:34');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `saved_searches`
+--
+
 CREATE TABLE `saved_searches` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -672,6 +938,12 @@ CREATE TABLE `saved_searches` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `last_seen_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `search_logs`
+--
 
 CREATE TABLE `search_logs` (
   `id` bigint(20) NOT NULL,
@@ -683,10 +955,20 @@ CREATE TABLE `search_logs` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `tags`
+--
+
 CREATE TABLE `tags` (
   `id` int(11) NOT NULL,
   `tags` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- A tábla adatainak kiíratása `tags`
+--
 
 INSERT INTO `tags` (`id`, `tags`) VALUES
 (51, 'Adatbázis-kezelés'),
@@ -742,7 +1024,7 @@ INSERT INTO `tags` (`id`, `tags`) VALUES
 (42, 'Webprogramozás II.'),
 (43, 'Tesnevelési Egyetem'),
 (44, 'Schola Europa Akadémia Technikum, Gimnázium és Alapfokú Művészeti Iskola'),
-(45, 'Budapesti Műszaki SZC Bláthy Ottó Titusz Informatikai Technikum') ,
+(45, 'Budapesti Műszaki SZC Bláthy Ottó Titusz Informatikai Technikum'),
 (46, 'Budapesti Műszaki SZC Egressy Gábor Két Tanítási Nyelvű Technikum'),
 (47, 'Budapesti Műszaki SZC Petrik Lajos Két Tanítási Nyelvű Technikum'),
 (48, 'Újpesti Két Tanítási Nyelvű Műszaki Technikum'),
@@ -755,6 +1037,12 @@ INSERT INTO `tags` (`id`, `tags`) VALUES
 (54, 'Budapesti Műszaki SZC Than Károly Technikum és Szakképző Iskola'),
 (55, 'Petőfi Sándor Római Katolikus Általános Iskola és Gimnázium');
 
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `tokens`
+--
+
 CREATE TABLE `tokens` (
   `id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
@@ -762,12 +1050,30 @@ CREATE TABLE `tokens` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- A tábla adatainak kiíratása `tokens`
+--
+
+INSERT INTO `tokens` (`id`, `user_id`, `token`, `created_at`) VALUES
+(1, 8, 120502, '2025-12-15 22:19:29'),
+(2, 9, 668874, '2026-02-11 14:15:18');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `translations`
+--
+
 CREATE TABLE `translations` (
   `id` int(11) NOT NULL,
   `t_key` varchar(100) NOT NULL,
   `lang_code` varchar(5) NOT NULL,
   `text` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- A tábla adatainak kiíratása `translations`
+--
 
 INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (1, 'nav_home', 'hu', 'Főoldal'),
@@ -1968,6 +2274,12 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (1195, 'btn_cancel', 'hu', 'Mégse'),
 (1196, 'btn_cancel', 'en', 'Cancel');
 
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `users`
+--
+
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `lastname` varchar(100) DEFAULT NULL,
@@ -1981,6 +2293,7 @@ CREATE TABLE `users` (
   `security_question` varchar(255) NOT NULL,
   `security_answer` varchar(255) NOT NULL,
   `admin` tinyint(1) NOT NULL,
+  `teacher` tinyint(1) DEFAULT NULL,
   `registration_date` datetime DEFAULT NULL,
   `language` varchar(5) NOT NULL DEFAULT 'hu',
   `oauth_provider` varchar(20) DEFAULT NULL,
@@ -1988,8 +2301,28 @@ CREATE TABLE `users` (
   `email_verified` tinyint(1) NOT NULL DEFAULT 0,
   `bio` text DEFAULT NULL,
   `profile_theme` varchar(32) NOT NULL DEFAULT 'default',
-  `twofa_enabled` tinyint(1) NOT NULL DEFAULT 0
+  `twofa_enabled` tinyint(1) NOT NULL DEFAULT 0,
+  `used_reg_code` varchar(64) DEFAULT NULL,
+  `used_reg_code_at` datetime DEFAULT NULL,
+  `show_fullname` tinyint(1) NOT NULL DEFAULT 1,
+  `show_email` tinyint(1) NOT NULL DEFAULT 0,
+  `show_birthdate` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- A tábla adatainak kiíratása `users`
+--
+
+INSERT INTO `users` (`id`, `lastname`, `firstname`, `username`, `birthdate`, `gender`, `email`, `profile_picture`, `password`, `security_question`, `security_answer`, `admin`, `teacher`, `registration_date`, `language`, `oauth_provider`, `oauth_sub`, `email_verified`, `bio`, `profile_theme`, `twofa_enabled`, `used_reg_code`, `used_reg_code_at`, `show_fullname`, `show_email`, `show_birthdate`) VALUES
+(1, 'Csontos', 'Kincső', 'csontoskincso05', '2005-04-04', 'female', 'csontoskincso@doomhyena.hu', '↳ ੈ⸙͎₊ 𝐕𝐞𝐫𝐠𝐢𝐥 ˚ᬄ◞♡   ⃗.jpg', '$2y$10$ZLWnsc4oApKzTPcMkkeC8OcVEmKA3PVyV2Fu7Mn4cCKTrQR5wmLgK', 'Mi a kedvenc könyved?', 'Harry Potter', 1, NULL, '2025-12-02 08:52:05', 'hu', NULL, NULL, 1, 'I currently live and study in Budapest. I have been studying as a software developer and tester at Schola Europa Academy since September 2024, but since November 2025, I have also been a student at the Bláthy Otto Titus IT Secondary School, where I am studying to become an IT systems and application operations technician. In September 2019, I started working more actively with JavaScript, writing a Discord bot using the Discord API and creating smaller static websites. JavaScript was my main focus until December 2021, when I met my friend aki26, who introduced me to C#. Later, in 2022, I learned Python in a high school elective course. Since September 2024, I have been studying to become a software developer and tester, where I also learned Java and PHP. My favorite and main language is Java. Outside of school projects, I enjoy building things just to see how they work, from small backend systems to experimental game mechanics in Godot. I’m especially interested in clean architecture, backend development, and turning half-baked ideas into working software. When I’m not coding, I’m usually behind a camera or deep-diving into some random tech rabbit hole. I like learning by doing, breaking things, and then fixing them properly. Currently focused on Java, backend development, and building things that actually ship.', 'light', 0, NULL, NULL, 0, 0, 0),
+(8, 'Teszt', 'User', 'tesztuser', '2005-12-16', 'female', 'csontoskincso05@gmail.com', NULL, '$2y$10$rsRPmF5j81OCfV3xbpkIHOCGXeKXLTOkUIb7tH4j73o74H8QQiHRK', 'Mi az édesanyád leánykori neve?', 'Harry Potter', 0, NULL, '2025-12-16 00:19:26', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
+(9, 'Csontos', 'Kincső', 'doomhyena', '2005-04-04', 'female', 'csontoskincso@proton.me', NULL, '$2y$10$i7QzVcekWMXr3DJD6BUmgeR0Wal7AmZyBjDfjjVf6eowweutMErEa', 'Mi a kedvenc könyved?', '$2y$10$c5BtBT/ODqFT/OeHGYLuCeMCsdJ5sScb2Xjgg/lkJ77I9whd323tG', 0, NULL, '2026-02-11 15:15:12', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `user_badges`
+--
 
 CREATE TABLE `user_badges` (
   `id` int(11) NOT NULL,
@@ -1999,9 +2332,19 @@ CREATE TABLE `user_badges` (
   `granted_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
+--
+-- A tábla adatainak kiíratása `user_badges`
+--
+
 INSERT INTO `user_badges` (`id`, `user_id`, `badge_id`, `granted_by`, `granted_at`) VALUES
 (2, 1, 1, 1, '2026-01-25 18:58:27'),
 (4, 1, 2, NULL, '2026-02-10 11:13:35');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `user_custom_css_archive`
+--
 
 CREATE TABLE `user_custom_css_archive` (
   `id` int(11) NOT NULL,
@@ -2015,6 +2358,18 @@ CREATE TABLE `user_custom_css_archive` (
   `archived_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- A tábla adatainak kiíratása `user_custom_css_archive`
+--
+
+INSERT INTO `user_custom_css_archive` (`id`, `original_request_id`, `user_id`, `css`, `status`, `created_at`, `reviewed_at`, `reviewed_by`, `archived_at`) VALUES
+(1, 1, 4, 'body {\r\n    background:\r\n        radial-gradient(circle at 0% 0%, rgba(244,114,182,.35), transparent 60%),\r\n        radial-gradient(circle at 100% 0%, rgba(56,189,248,.28), transparent 55%),\r\n        radial-gradient(circle at 50% 100%, rgba(167,139,250,.3), transparent 55%),\r\n        linear-gradient(180deg, #050816 0%, #020617 100%);\r\n    color: #e5e7eb;\r\n}\r\n\r\n.main {\r\n    border-radius: 28px;\r\n    border: 1px solid rgba(148,163,184,.35);\r\n    background:\r\n        radial-gradient(circle at 0% 0%, rgba(244,114,182,.12), transparent 55%),\r\n        radial-gradient(circle at 100% 0%, rgba(56,189,248,.10), transparent 55%),\r\n        linear-gradient(180deg, rgba(15,23,42,.96), rgba(15,23,42,.94));\r\n    box-shadow: 0 24px 60px rgba(0,0,0,.7);\r\n    padding: 40px 34px;\r\n}', 'approved', '2025-12-02 10:57:19', '2025-12-02 10:58:14', 4, '2025-12-07 13:24:08');
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `user_custom_css_requests`
+--
 
 CREATE TABLE `user_custom_css_requests` (
   `id` int(11) NOT NULL,
@@ -2026,28 +2381,53 @@ CREATE TABLE `user_custom_css_requests` (
   `reviewed_by` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Indexek a kiírt táblákhoz
+--
+
+--
+-- A tábla indexei `2fa_codes`
+--
 ALTER TABLE `2fa_codes`
   ADD PRIMARY KEY (`id`);
 
+--
+-- A tábla indexei `badges`
+--
 ALTER TABLE `badges`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `slug` (`slug`);
 
+--
+-- A tábla indexei `bug_reports`
+--
 ALTER TABLE `bug_reports`
   ADD PRIMARY KEY (`id`);
 
+--
+-- A tábla indexei `comments`
+--
 ALTER TABLE `comments`
   ADD PRIMARY KEY (`id`);
 
+--
+-- A tábla indexei `contact_messages`
+--
 ALTER TABLE `contact_messages`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `created_at` (`created_at`),
   ADD KEY `read_by_admin` (`read_by_admin`);
 
+--
+-- A tábla indexei `favorites`
+--
 ALTER TABLE `favorites`
   ADD PRIMARY KEY (`id`);
 
+--
+-- A tábla indexei `files`
+--
 ALTER TABLE `files`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_files_download_count` (`download_count`),
@@ -2058,185 +2438,372 @@ ALTER TABLE `files`
   ADD KEY `idx_files_edu` (`edu_stage`,`edu_level`);
 ALTER TABLE `files` ADD FULLTEXT KEY `ft_files` (`name`,`description`,`subject`,`tags`);
 ALTER TABLE `files` ADD FULLTEXT KEY `ft_files_all` (`name`,`description`,`subject`,`content_text`);
+ALTER TABLE `files` ADD FULLTEXT KEY `ft_note_markdown` (`note_markdown`);
+ALTER TABLE `files` ADD FULLTEXT KEY `ft_note_all` (`name`,`description`,`note_markdown`);
 
+--
+-- A tábla indexei `file_events`
+--
 ALTER TABLE `file_events`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_file_time` (`file_id`,`created_at`),
   ADD KEY `idx_file_type_time` (`file_id`,`event_type`,`created_at`),
   ADD KEY `idx_user_time` (`user_id`,`created_at`);
 
+--
+-- A tábla indexei `file_stats_daily`
+--
 ALTER TABLE `file_stats_daily`
   ADD PRIMARY KEY (`file_id`,`day`),
   ADD KEY `idx_day` (`day`);
 
+--
+-- A tábla indexei `friends`
+--
 ALTER TABLE `friends`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fromid` (`fromid`),
   ADD KEY `toid` (`toid`);
 
+--
+-- A tábla indexei `groups`
+--
 ALTER TABLE `groups`
+  ADD PRIMARY KEY (`id`),
   ADD KEY `reviewed_by` (`reviewed_by`);
 
+--
+-- A tábla indexei `languages`
+--
 ALTER TABLE `languages`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `code` (`code`);
 
+--
+-- A tábla indexei `messages`
+--
 ALTER TABLE `messages`
   ADD PRIMARY KEY (`id`);
 
-ALTER TABLE `namedays`
-  ADD PRIMARY KEY (`id`);
-
+--
+-- A tábla indexei `notifys`
+--
 ALTER TABLE `notifys`
   ADD PRIMARY KEY (`id`);
 
+--
+-- A tábla indexei `password_reset_attempts`
+--
 ALTER TABLE `password_reset_attempts`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uniq_user_ip` (`username`,`ip_address`);
 
+--
+-- A tábla indexei `premium_users`
+--
 ALTER TABLE `premium_users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uq_user` (`user_id`);
 
+--
+-- A tábla indexei `ratings`
+--
 ALTER TABLE `ratings`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uniq_user_file` (`file_id`,`user_id`),
   ADD KEY `idx_file` (`file_id`),
   ADD KEY `idx_user` (`user_id`);
 
+--
+-- A tábla indexei `registration_code_uses`
+--
+ALTER TABLE `registration_code_uses`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_user` (`user_id`),
+  ADD KEY `idx_code` (`reg_code`);
+
+--
+-- A tábla indexei `reg_codes`
+--
 ALTER TABLE `reg_codes`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `code` (`code`);
 
+--
+-- A tábla indexei `reports`
+--
 ALTER TABLE `reports`
   ADD PRIMARY KEY (`id`);
 
+--
+-- A tábla indexei `saved_searches`
+--
 ALTER TABLE `saved_searches`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_saved_searches_user` (`user_id`);
 
+--
+-- A tábla indexei `search_logs`
+--
 ALTER TABLE `search_logs`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_search_logs_created` (`created_at`);
 
+--
+-- A tábla indexei `tokens`
+--
 ALTER TABLE `tokens`
   ADD PRIMARY KEY (`id`),
   ADD KEY `idx_tokens_user_id` (`user_id`);
 
+--
+-- A tábla indexei `translations`
+--
 ALTER TABLE `translations`
   ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `users`
+--
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `username` (`username`),
   ADD UNIQUE KEY `uniq_oauth` (`oauth_provider`,`oauth_sub`),
   ADD KEY `fk_user_lang` (`language`);
 
+--
+-- A tábla indexei `user_badges`
+--
 ALTER TABLE `user_badges`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_badges_ibfk_1` (`user_id`),
   ADD KEY `user_badges_ibfk_2` (`badge_id`),
   ADD KEY `user_badges_ibfk_3` (`granted_by`);
 
+--
+-- A tábla indexei `user_custom_css_archive`
+--
 ALTER TABLE `user_custom_css_archive`
   ADD PRIMARY KEY (`id`);
 
+--
+-- A tábla indexei `user_custom_css_requests`
+--
 ALTER TABLE `user_custom_css_requests`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_css_reviewer` (`reviewed_by`),
   ADD KEY `fk_css_user` (`user_id`);
 
-ALTER TABLE `2fa_codes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+--
+-- A kiírt táblák AUTO_INCREMENT értéke
+--
 
+--
+-- AUTO_INCREMENT a táblához `2fa_codes`
+--
+ALTER TABLE `2fa_codes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+
+--
+-- AUTO_INCREMENT a táblához `badges`
+--
 ALTER TABLE `badges`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
+--
+-- AUTO_INCREMENT a táblához `bug_reports`
+--
 ALTER TABLE `bug_reports`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT a táblához `comments`
+--
 ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
-
+--
+-- AUTO_INCREMENT a táblához `contact_messages`
+--
 ALTER TABLE `contact_messages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
-
+--
+-- AUTO_INCREMENT a táblához `favorites`
+--
 ALTER TABLE `favorites`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT a táblához `files`
+--
+ALTER TABLE `files`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
-ALTER TABLE `files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
+--
+-- AUTO_INCREMENT a táblához `file_events`
+--
 ALTER TABLE `file_events`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
+--
+-- AUTO_INCREMENT a táblához `friends`
+--
 ALTER TABLE `friends`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
+--
+-- AUTO_INCREMENT a táblához `groups`
+--
+ALTER TABLE `groups`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT a táblához `languages`
+--
 ALTER TABLE `languages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
+--
+-- AUTO_INCREMENT a táblához `messages`
+--
 ALTER TABLE `messages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
+--
+-- AUTO_INCREMENT a táblához `notifys`
+--
 ALTER TABLE `notifys`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
+--
+-- AUTO_INCREMENT a táblához `password_reset_attempts`
+--
 ALTER TABLE `password_reset_attempts`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT a táblához `premium_users`
+--
 ALTER TABLE `premium_users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
+--
+-- AUTO_INCREMENT a táblához `ratings`
+--
 ALTER TABLE `ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
+--
+-- AUTO_INCREMENT a táblához `registration_code_uses`
+--
+ALTER TABLE `registration_code_uses`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT a táblához `reg_codes`
+--
 ALTER TABLE `reg_codes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
+--
+-- AUTO_INCREMENT a táblához `reports`
+--
 ALTER TABLE `reports`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
+--
+-- AUTO_INCREMENT a táblához `saved_searches`
+--
 ALTER TABLE `saved_searches`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT a táblához `search_logs`
+--
 ALTER TABLE `search_logs`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
+--
+-- AUTO_INCREMENT a táblához `tokens`
+--
 ALTER TABLE `tokens`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
+--
+-- AUTO_INCREMENT a táblához `translations`
+--
 ALTER TABLE `translations`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1197;
 
+--
+-- AUTO_INCREMENT a táblához `users`
+--
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
+--
+-- AUTO_INCREMENT a táblához `user_badges`
+--
 ALTER TABLE `user_badges`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
+--
+-- AUTO_INCREMENT a táblához `user_custom_css_archive`
+--
 ALTER TABLE `user_custom_css_archive`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
+--
+-- AUTO_INCREMENT a táblához `user_custom_css_requests`
+--
 ALTER TABLE `user_custom_css_requests`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
+--
+-- Megkötések a kiírt táblákhoz
+--
+
+--
+-- Megkötések a táblához `contact_messages`
+--
 ALTER TABLE `contact_messages`
   ADD CONSTRAINT `contact_messages_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
+--
+-- Megkötések a táblához `premium_users`
+--
 ALTER TABLE `premium_users`
   ADD CONSTRAINT `fk_premium_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
+--
+-- Megkötések a táblához `registration_code_uses`
+--
+ALTER TABLE `registration_code_uses`
+  ADD CONSTRAINT `fk_regcode_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Megkötések a táblához `tokens`
+--
 ALTER TABLE `tokens`
   ADD CONSTRAINT `fk_tokens_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
+--
+-- Megkötések a táblához `user_badges`
+--
 ALTER TABLE `user_badges`
   ADD CONSTRAINT `user_badges_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `user_badges_ibfk_2` FOREIGN KEY (`badge_id`) REFERENCES `badges` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `user_badges_ibfk_3` FOREIGN KEY (`granted_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
+--
+-- Megkötések a táblához `user_custom_css_requests`
+--
 ALTER TABLE `user_custom_css_requests`
   ADD CONSTRAINT `fk_css_reviewer` FOREIGN KEY (`reviewed_by`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_css_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

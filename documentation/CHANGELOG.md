@@ -45,29 +45,27 @@ Changelog by: Neved
 
 ---
 
-## [1.X.X-beta] - 2026-0X-0X
+## [1.5.8-beta] - 2026-02-24
 
 ### Added
-#### •
--
+
+#### • Felhasználói rangok és jogosultságok
+* Új **teacher** rang hozzáadva a `user` táblához
+* Rangok kiosztásának lehetősége az admin panelen
+* Főoldalra történő feltöltéshez ezentúl minimum **teacher** rang szükséges
+* YouTube link támogatás videók feltöltéséhez és lejátszásához
+* Flashcard funkció **béta verzióban** elérhető a csoportokban
 
 ### Changed
-#### •
--
 
-### Fixed
-#### •
--
-
-### Removed
-#### •
--
+#### • Jogosultságkezelés
+* A főoldali tartalomfeltöltés jogosultsághoz kötve (teacher vagy magasabb rang szükséges)
 
 ### Security
-#### •
--
 
-Changelog by: Neved
+#### • Jogosultságok szigorítása
+* Feltöltési jogosultságok korlátozása rang alapján a nem kívánt tartalmak megelőzésére
+
 
 ---
 
