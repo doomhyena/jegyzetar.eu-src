@@ -1,7 +1,7 @@
 <?php
     header("X-Frame-Options: DENY");
     header("X-Content-Type-Options: nosniff");
-    header("Referrer-Policy: no-referrer");
+    header("Referrer-Policy: strict-origin-when-cross-origin");
 
     require_once "assets/php/db.php";
     require_once "assets/php/lang.php";
@@ -161,6 +161,9 @@
 
                 $user_dir  = "users/" . ($uploader['username'] ?? '') . "/";
                 $safe_path = $user_dir . $note['file_name'];
+				
+				$contentType = $note['content_type'] ?? 'file';
+				$externalUrl = trim((string)($note['external_url'] ?? ''));
             ?>
             <article class="card note-card break-words">
                 <header class="card-head mb-4">
@@ -179,12 +182,23 @@
                                 <span><?= $is_favorite ? 'Kedvencek' : 'Kedvencezés' ?></span>
                             </button>
                         </form>
-                        <a class="entry-download-btn text-sm md:text-base" href="assets/php/download.php?id=<?= $file_id ?>">
-                            <svg class="icon icon-download w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M5 20h14M12 3v12m0 0l-4-4m4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            <?= t('btn_download') ?>
-                        </a>
+						<?php if (($contentType ?? 'file') === 'link' && $externalUrl !== ''): ?>
+							<a class="entry-download-btn text-sm md:text-base"
+							   href="<?= htmlspecialchars($externalUrl) ?>"
+							   target="_blank" rel="noopener noreferrer">
+								Megnyitás
+							</a>
+						<?php else: ?>
+							<a class="entry-download-btn text-sm md:text-base"
+							   href="assets/php/download.php?id=<?= $file_id ?>">
+								<svg class="icon icon-download w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" aria-hidden="true">
+									<path d="M5 20h14M12 3v12m0 0l-4-4m4 4 4-4"
+										  fill="none" stroke="currentColor" stroke-width="2"
+										  stroke-linecap="round" stroke-linejoin="round" />
+								</svg>
+								<?= t('btn_download') ?>
+							</a>
+						<?php endif; ?>
                         <?php if ($isOwner): ?>
                             <a class="btn-cta text-sm md:text-base" href="note_stats.php?id=<?= $file_id ?>">Statisztikák</a>
                         <?php endif; ?>
@@ -216,22 +230,43 @@
                     <section class="note-markdown">
                         <?= render_markdown($note['note_markdown'] ?? ''); ?>
                     </section>
-                <?php else: ?>
-                    <?php if ($ext === 'docx'): ?>
-                        <p class="text-sm md:text-base mb-4"><b>Ez egy .docx fájl. A megtekintéshez töltsd le és nyisd meg Microsoft Word-ben.</b></p>
-                    <?php elseif ($ext === 'mp4'): ?>
-                        <video controls class="file-preview w-full max-w-full rounded-lg mb-4">
-                            <source src="<?= htmlspecialchars($safe_path) ?>" type="video/mp4">
-                            A te böngésződ nem támogatja a videocímkét.
-                        </video>
-                    <?php elseif ($ext === 'pdf'): ?>
-                        <div class="w-full overflow-hidden rounded-lg mb-4">
-                            <iframe src="<?= htmlspecialchars($safe_path) ?>" class="w-full min-h-[400px] md:min-h-[500px] border-0"></iframe>
-                        </div>
-                    <?php else: ?>
-                        <p class="entry-meta text-sm md:text-base mb-4">Előnézet nem elérhető ehhez a fájltípushoz. Töltsd le a megnyitáshoz.</p>
-                    <?php endif; ?>
-                <?php endif; ?>
+				<?php else: ?>
+					<?php
+					// Innen szeded a linket – állítsd arra a mezőre, ahol tárolod!
+					// Ha nálad a DB-ben külön oszlop, pl. video_url, akkor azt használd.
+					$maybeUrl = $note['external_url'] ?? '';
+					$yt = youtube_embed_url($maybeUrl);
+					?>
+
+					<?php if ($yt): ?>
+					  <div class="w-full overflow-hidden rounded-lg mb-4">
+					    <iframe
+					      class="w-full aspect-video border-0 rounded-lg"
+					      src="<?= htmlspecialchars($yt) ?>"
+					      title="YouTube videó"
+					      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+					      allowfullscreen
+					      loading="lazy"></iframe>
+					  </div>
+					<?php elseif ($ext === 'docx'): ?>
+					  <p class="text-sm md:text-base mb-4"><b>Ez egy .docx fájl. A megtekintéshez töltsd le és nyisd meg Microsoft Word-ben.</b></p>
+
+					<?php elseif ($ext === 'mp4'): ?>
+					  <video controls class="file-preview w-full max-w-full rounded-lg mb-4">
+					    <source src="<?= htmlspecialchars($safe_path) ?>" type="video/mp4">
+					    A te böngésződ nem támogatja a videocímkét.
+					  </video>
+
+					<?php elseif ($ext === 'pdf'): ?>
+					  <div class="w-full overflow-hidden rounded-lg mb-4">
+					    <iframe src="<?= htmlspecialchars($safe_path) ?>" class="w-full min-h-[400px] md:min-h-[500px] border-0"></iframe>
+					  </div>
+
+					<?php else: ?>
+					  <p class="entry-meta text-sm md:text-base mb-4">Előnézet nem elérhető ehhez a fájltípushoz. Töltsd le a megnyitáshoz.</p>
+					<?php endif; ?>
+
+				<?php endif; ?>
                 <p class="text-sm md:text-base mb-4">Feltöltötte:
                     <a class="uploader-name" href="profile.php?user=<?= urlencode($uploader['username'] ?? '') ?>">
                         <?= $username ?>

@@ -42,9 +42,16 @@
 
     $profileUpdateError = '';
     $profileUpdateSuccess = '';
+    $backupCodesGenerated = [];
     if (!empty($_SESSION['profile_toast'])) {
         $profileUpdateSuccess = t($_SESSION['profile_toast']);
         unset($_SESSION['profile_toast']);
+    }
+    
+    if (!empty($_SESSION['backup_codes_generated'])) {
+        $backupCodesGenerated = $_SESSION['backup_codes_generated'];
+        unset($_SESSION['backup_codes_generated']);
+        unset($_SESSION['backup_codes_show']);
     }
 
     $friendship = null;
@@ -74,15 +81,14 @@
 
     $lastCssRequest = null;
     $cssResetDone = false;
-    if ($isOwner) {
-        $cssRes = db_query($conn, "SELECT * FROM user_custom_css_requests WHERE user_id = ? ORDER BY created_at DESC LIMIT 1", "i", [$profileId]);
-        if ($cssRes && $cssRes->num_rows > 0) {
-            $lastCssRequest = $cssRes->fetch_assoc();
-        }
+    // Fetch approved CSS for any viewer (not just owner, so custom CSS is visible to all)
+    $cssRes = db_query($conn, "SELECT * FROM user_custom_css_requests WHERE user_id = ? ORDER BY created_at DESC LIMIT 1", "i", [$profileId]);
+    if ($cssRes && $cssRes->num_rows > 0) {
+        $lastCssRequest = $cssRes->fetch_assoc();
     }
 
     $approvedCss = '';
-    if ($isOwner && $lastCssRequest) {
+    if ($lastCssRequest) {
         $status = strtolower((string)($lastCssRequest['status'] ?? ''));
         $cssVal  = (string)($lastCssRequest['css'] ?? '');
         if (!$cssResetDone && $status === 'approved' && trim($cssVal) !== '') {
@@ -107,8 +113,7 @@
             exit;
         }
     }
-
-    if ($isOwner && isset($_POST['pfp-btn']) && isset($_FILES['profile_picture'])) {
+    if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_picture']['tmp_name'])) {
         $file_name  = basename($_FILES['profile_picture']['name']);
         $tmp_name   = $_FILES['profile_picture']['tmp_name'];
         $target_dir = __DIR__ . "/users/" . $profile['username'] . "/";
@@ -148,10 +153,65 @@
         }
     }
 
+    if ($isOwner && isset($_POST['unlink-discord'])) {
+        db_stmt($conn, "UPDATE users SET oauth_provider=NULL, oauth_sub=NULL WHERE id=? LIMIT 1", "i", [$viewerId])->close();
+        $_SESSION['profile_toast'] = 'Discord fiók sikeresen leválasztva!';
+        header("Location: profile.php?user=" . urlencode($profile['username']));
+        exit;
+    }
+
+    if ($isOwner && isset($_POST['link-discord'])) {
+        $_SESSION['oauth_link_mode'] = 1;
+        header('Location: assets/oauth/discord-login.php');
+        exit;
+    }
+
     if ($isOwner && isset($_POST['toggle-2fa'])) {
         $enable2fa = isset($_POST['enable_2fa']) ? 1 : 0;
         db_stmt($conn, "UPDATE users SET twofa_enabled = ? WHERE id = ? LIMIT 1", "ii", [$enable2fa, $viewerId])->close();
+        
+        if ($enable2fa) {
+            $backupCodes = generate_backup_codes($conn, $viewerId, 10);
+            $_SESSION['backup_codes_show'] = true;
+            $_SESSION['backup_codes_generated'] = $backupCodes;
+        } else {
+            db_exec($conn, "DELETE FROM 2fa_backup_codes WHERE userid = ?", "i", [$viewerId]);
+            unset($_SESSION['backup_codes_show']);
+            unset($_SESSION['backup_codes_generated']);
+        }
+        
         $_SESSION['profile_toast'] = $enable2fa ? 'msg_2fa_enabled' : 'msg_2fa_disabled';
+        header("Location: profile.php?user=" . urlencode($profile['username']));
+        exit;
+    }
+
+    if ($isOwner && (isset($_POST['submit-custom-css']) || isset($_POST['reset-custom-css']))) {
+        $customCss = trim($_POST['custom_css'] ?? '');
+
+        $isReset = isset($_POST['reset-custom-css']);
+        if ($isReset) {
+            $customCss = '';
+        }
+
+        if (mb_strlen($customCss, '8bit') > 20000) {
+            $_SESSION['profile_toast'] = 'A CSS túl hosszú (max 20000 byte).';
+            header("Location: profile.php?user=" . urlencode($profile['username']));
+            exit;
+        }
+
+        try {
+            if ($isReset) {
+                db_stmt($conn, "INSERT INTO user_custom_css_requests (user_id, css, status, reviewed_at, reviewed_by) VALUES (?, ?, 'approved', NOW(), ?)", "isi", [$viewerId, $customCss, $viewerId])->close();
+                db_stmt($conn, "UPDATE user_custom_css_requests SET status = 'rejected' WHERE user_id = ? AND status = 'pending'", "i", [$viewerId])->close();
+                $_SESSION['profile_toast'] = t('msg_css_empty_reset');
+            } else {
+                db_stmt($conn, "INSERT INTO user_custom_css_requests (user_id, css) VALUES (?, ?)", "is", [$viewerId, $customCss])->close();
+                $_SESSION['profile_toast'] = 'A CSS kérelmet elküldtük; várj admin jóváhagyásra.';
+            }
+        } catch (Throwable $e) {
+            $_SESSION['profile_toast'] = 'Hiba történt a CSS mentésekor.';
+        }
+
         header("Location: profile.php?user=" . urlencode($profile['username']));
         exit;
     }
@@ -258,7 +318,29 @@
         <?php elseif (!empty($profileUpdateSuccess)): ?>
             <div class="toast toast-success"><?= htmlspecialchars($profileUpdateSuccess) ?></div>
         <?php endif; ?>
-        <h1><?= htmlspecialchars($profile['firstname']) . ' ' . t('profile_of') ?></h1>
+        
+        <?php if (!empty($backupCodesGenerated)): ?>
+            <div style="margin: 20px 0; padding: 20px; border-radius: 14px; background: rgba(96, 165, 250, 0.12); border: 2px solid rgba(96, 165, 250, 0.35); color: #e5e7eb;">
+                <h2 style="margin: 0 0 16px 0; color: #93c5fd; font-size: 18px;">✅ 2FA Backup Kódok - Megmentve!</h2>
+                <p style="margin: 0 0 16px 0; color: #cbd5e1;">
+                    Az alábbi <strong><?= count($backupCodesGenerated) ?></strong> backup kód segítségével tudsz bejelentkezni, ha nem fér hozzá az emailedhez.
+                    <br><strong>Ezek a kódok csak most láthatóak! Másolhatod vagy letöltheted őket.</strong>
+                </p>
+                <div style="background: rgba(15, 23, 42, 0.6); padding: 16px; border-radius: 8px; margin-bottom: 16px; max-height: 300px; overflow-y: auto;">
+                    <div style="font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.8; color: #60a5fa;">
+                        <?php foreach ($backupCodesGenerated as $code): ?>
+                            <div style="padding: 4px 8px; word-break: break-all;">
+                                <span style="color: #93c5fd;">□</span> <?= htmlspecialchars($code) ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <p style="margin: 12px 0 0 0; color: #fde68a; font-size: 13px;">
+                    ⚠️ <strong>Fontos:</strong> Fordulj figyelmet arra, hogy ezek a kódok titkosak maradnak. Ne oszd meg őket senkivel!
+                </p>
+            </div>
+        <?php endif; ?>
+        <h1><?= htmlspecialchars($show_fullname ? $profile['firstname'] : '@' . $profile['username']) . ' ' . t('profile_of') ?></h1>
         <div class="profile-layout">
             <section class="card profile-header">
                 <div class="profile-header-grid">
@@ -293,8 +375,8 @@
                     </div>
                     <div class="profile-header-main">
                         <div class="profile-identity">
-                            <h2 class="profile-name"><?= htmlspecialchars($profile['lastname'] . ' ' . $profile['firstname']) ?></h2>
-                            <span class="entry-meta profile-username">@<?= htmlspecialchars($profile['username']) ?></span>
+                            <h2 class="profile-name"><?= htmlspecialchars($show_fullname ? ($profile['lastname'] . ' ' . $profile['firstname']) : ('@' . $profile['username'])) ?></h2>
+                            <?php if ($show_fullname): ?><span class="entry-meta profile-username">@<?= htmlspecialchars($profile['username']) ?></span><?php endif; ?>
                             <?php if (!empty($badges)): ?>
                                 <div class="profile-badges">
                                     <?php foreach ($badges as $badge): ?>
@@ -336,7 +418,7 @@
                                 <div class="bday-banner" role="status" aria-live="polite">
                                     <span class="bday-emoji" aria-hidden="true">🎂</span>
                                     <div class="bday-text">
-                                        <strong><?= t('bday_title') ?> <?= htmlspecialchars($profile['firstname']) ?>!</strong>
+                                        <strong><?= t('bday_title') ?> <?= htmlspecialchars($show_fullname ? $profile['firstname'] : $profile['username']) ?>!</strong>
                                         <?= t('bday_message') ?>
                                     </div>
                                 </div>
@@ -378,7 +460,7 @@
                     <div class="card">
                         <h3><?= t('profile_data') ?></h3>
                         <div class="profile-info-card" id="basic-profile-static">
-                            <?php if ($isOwner || $show_fullname): ?>
+                            <?php if ($show_fullname): ?>
                             <div class="profile-info-item">
                                 <div class="profile-info-label"><?= t('profile_fullname') ?></div>
                                 <div class="profile-info-value">
@@ -474,6 +556,46 @@
                             <p class="entry-meta" style="margin-top:6px;">
                                 Bejelentkezéskor e-mailben kapsz egy egyszer használatos kódot.
                             </p>
+                            <?php if ((int)$profile['twofa_enabled'] === 1): ?>
+                                <div style="margin-top: 12px; padding: 12px; border-radius: 8px; background: rgba(96, 165, 250, 0.12); border: 1px solid rgba(96, 165, 250, 0.35);">
+                                    <p class="entry-meta" style="margin: 0 0 8px 0;">
+                                        <strong>Backup kódok:</strong> Ha nem fér hozzá az emailedhez, backup kódokkal bejelentkezhetsz.
+                                    </p>
+                                    <a href="2fa-backup-codes.php" style="display: inline-block; margin-top: 8px; padding: 6px 12px; background: rgba(96, 165, 250, 0.2); border: 1px solid rgba(96, 165, 250, 0.5); border-radius: 6px; color: #93c5fd; text-decoration: none; font-size: 13px;">
+                                        Backup kódok megtekintése →
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                            <h3 style="margin-top: 24px;">Discord</h3>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Állapot</div>
+                                <div class="profile-info-value">
+                                    <?php if (!empty($profile['oauth_provider']) && $profile['oauth_provider'] === 'discord' && !empty($profile['oauth_sub'])): ?>
+                                        <div style="padding: 12px; border-radius: 8px; background: rgba(88, 101, 242, 0.12); border: 1px solid rgba(88, 101, 242, 0.35); margin-bottom: 12px;">
+                                            <p style="margin: 0 0 8px 0; color: #93c5fd;">
+                                                <strong>Discord fiók összekapcsolva</strong>
+                                            </p>
+                                            <p class="entry-meta" style="margin: 0;">
+                                                Discord ID: <code style="background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 3px;"><?= htmlspecialchars($profile['oauth_sub']) ?></code>
+                                            </p>
+                                        </div>
+                                        <form method="post" style="display: inline;">
+                                            <button type="submit" name="unlink-discord" class="btn-ghost profile-save-btn" style="margin-top: 8px;">
+                                                Discord leválasztása
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <p class="entry-meta" style="margin: 0 0 12px 0;">
+                                            Discord fiók nincs összekapcsolva. Összekapcsolva azonosítható vagy megoszthatod a Discord profilodat.
+                                        </p>
+                                        <form method="post" style="display: inline;">
+                                            <button type="submit" name="link-discord" class="btn-cta profile-save-btn">
+                                                Discord összekapcsolása
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         <?php endif; ?>
                     </div>
                     <?php if ($isOwner): ?>
@@ -694,5 +816,3 @@ body {
 <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>
-
-

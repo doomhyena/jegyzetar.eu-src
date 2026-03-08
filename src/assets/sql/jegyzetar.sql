@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Feb 24. 08:52
+-- Létrehozás ideje: 2026. Feb 25. 13:21
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -47,6 +47,21 @@ INSERT INTO `2fa_codes` (`id`, `userid`, `code`) VALUES
 (22, 1, 47713),
 (28, 1, 42618),
 (29, 1, 15302);
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `2fa_backup_codes`
+--
+
+CREATE TABLE `2fa_backup_codes` (
+  `id` int(11) NOT NULL,
+  `userid` int(11) NOT NULL,
+  `code_hash` varchar(255) NOT NULL,
+  `used` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `used_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -172,6 +187,7 @@ CREATE TABLE `files` (
   `content_text` longtext DEFAULT NULL,
   `edu_stage` enum('hs','uni') DEFAULT NULL,
   `edu_level` tinyint(4) DEFAULT NULL,
+  `external_url` varchar(255) NOT NULL,
   `content_type` enum('file','note') NOT NULL DEFAULT 'file',
   `note_markdown` mediumtext DEFAULT NULL,
   `note_excerpt` varchar(255) DEFAULT NULL
@@ -181,9 +197,8 @@ CREATE TABLE `files` (
 -- A tábla adatainak kiíratása `files`
 --
 
-INSERT INTO `files` (`id`, `uploaded_by`, `name`, `file_name`, `description`, `file_path`, `subject`, `tags`, `tn_name`, `file_size`, `download_count`, `content_text`, `edu_stage`, `edu_level`, `content_type`, `note_markdown`, `note_excerpt`) VALUES
-(2, 1, 'Java zero to hero', 'JavaNotesForProfessionals.pdf', 'Ezzel a csodával megtanulsz javaul. Garantált siker!', 'C:xampphtdocsjegyzetar.eu-srcsrc/users/csontoskincso05/JavaNotesForProfessionals.pdf', 'Informatika', 'Tankönyv', NULL, NULL, 0, NULL, 'hs', 13, 'file', NULL, NULL),
-(3, 1, 'Ez egy teszt markdown jegyzet', NULL, 'Nem tudom ide mit írjak, ez egy teszt', NULL, 'fizika', 'Budapesti Műszaki és Gazdaságtudományi Egyetem, Budapesti Műszaki SZC Bláthy Ottó Titusz Informatikai Technikum, Budapesti Műszaki SZC Egressy Gábor Két Tanítási Nyelvű Technikum, Budapesti Műszaki SZC Petrik Lajos Két Tanítási Nyelvű Technikum', NULL, 127, 0, NULL, 'hs', 9, 'note', '# Ez egy cím\n\n- Első listapont\n- Második listapont\n- Harmadik listapont\n- Negyedik listapont\n\n**Félkövér szöveg**\n`kód`', '# Ez egy cím - Első listapont - Második listapont - Harmadik listapont - Negyedik listapont **Félkövér szöveg** `kód`');
+INSERT INTO `files` (`id`, `uploaded_by`, `name`, `file_name`, `description`, `file_path`, `subject`, `tags`, `tn_name`, `file_size`, `download_count`, `content_text`, `edu_stage`, `edu_level`, `external_url`, `content_type`, `note_markdown`, `note_excerpt`) VALUES
+(5, 1, 'Tutorial: Blender MODELLING For Absolute Beginners - Simple Human', 'link', 'Jó kis blender tutorial', '', 'Informatika', 'Budapesti Műszaki SZC Bláthy Ottó Titusz Informatikai Technikum, Schola Europa Akadémia Technikum, Gimnázium és Alapfokú Művészeti Iskola', NULL, 0, 0, NULL, 'hs', 10, 'https://www.youtube.com/watch?v=9xAumJRKV6A&t', '', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -231,7 +246,13 @@ INSERT INTO `file_events` (`id`, `file_id`, `user_id`, `event_type`, `rating`, `
 (22, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-21 22:27:19'),
 (23, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-21 22:49:54'),
 (24, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-21 23:07:58'),
-(25, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-23 17:48:11');
+(25, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-23 17:48:11'),
+(26, 4, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-24 09:34:46'),
+(27, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-24 09:35:03'),
+(28, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-24 09:45:11'),
+(29, 4, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-24 09:45:16'),
+(30, 4, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:05:41'),
+(31, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:14:25');
 
 -- --------------------------------------------------------
 
@@ -311,6 +332,33 @@ CREATE TABLE `group_files` (
   `created_at` datetime NOT NULL,
   `is_approved` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `group_flashcards`
+--
+
+CREATE TABLE `group_flashcards` (
+  `id` int(11) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `question` text NOT NULL,
+  `answer` text NOT NULL,
+  `created_at` datetime NOT NULL,
+  `correct_count` int(11) NOT NULL DEFAULT 0,
+  `wrong_count` int(11) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- A tábla adatainak kiíratása `group_flashcards`
+--
+
+INSERT INTO `group_flashcards` (`id`, `group_id`, `created_by`, `question`, `answer`, `created_at`, `correct_count`, `wrong_count`) VALUES
+(1, 1, 10, 'asd', 'asd', '2026-02-24 01:48:55', 2, 0),
+(2, 1, 10, 'fgh', 'fgh', '2026-02-24 01:49:02', 2, 0),
+(3, 2, 10, 'asd', 'asd', '2026-02-24 01:49:36', 2, 0),
+(4, 2, 10, 'fgh', 'fgh', '2026-02-24 01:49:41', 2, 0);
 
 -- --------------------------------------------------------
 
@@ -2314,9 +2362,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `lastname`, `firstname`, `username`, `birthdate`, `gender`, `email`, `profile_picture`, `password`, `security_question`, `security_answer`, `admin`, `teacher`, `registration_date`, `language`, `oauth_provider`, `oauth_sub`, `email_verified`, `bio`, `profile_theme`, `twofa_enabled`, `used_reg_code`, `used_reg_code_at`, `show_fullname`, `show_email`, `show_birthdate`) VALUES
-(1, 'Csontos', 'Kincső', 'csontoskincso05', '2005-04-04', 'female', 'csontoskincso@doomhyena.hu', '↳ ੈ⸙͎₊ 𝐕𝐞𝐫𝐠𝐢𝐥 ˚ᬄ◞♡   ⃗.jpg', '$2y$10$ZLWnsc4oApKzTPcMkkeC8OcVEmKA3PVyV2Fu7Mn4cCKTrQR5wmLgK', 'Mi a kedvenc könyved?', 'Harry Potter', 1, NULL, '2025-12-02 08:52:05', 'hu', NULL, NULL, 1, 'I currently live and study in Budapest. I have been studying as a software developer and tester at Schola Europa Academy since September 2024, but since November 2025, I have also been a student at the Bláthy Otto Titus IT Secondary School, where I am studying to become an IT systems and application operations technician. In September 2019, I started working more actively with JavaScript, writing a Discord bot using the Discord API and creating smaller static websites. JavaScript was my main focus until December 2021, when I met my friend aki26, who introduced me to C#. Later, in 2022, I learned Python in a high school elective course. Since September 2024, I have been studying to become a software developer and tester, where I also learned Java and PHP. My favorite and main language is Java. Outside of school projects, I enjoy building things just to see how they work, from small backend systems to experimental game mechanics in Godot. I’m especially interested in clean architecture, backend development, and turning half-baked ideas into working software. When I’m not coding, I’m usually behind a camera or deep-diving into some random tech rabbit hole. I like learning by doing, breaking things, and then fixing them properly. Currently focused on Java, backend development, and building things that actually ship.', 'light', 0, NULL, NULL, 0, 0, 0),
+(1, 'Csontos', 'Kincső', 'csontoskincso05', '2005-04-04', 'female', 'csontoskincso@doomhyena.hu', '↳ ੈ⸙͎₊ 𝐕𝐞𝐫𝐠𝐢𝐥 ˚ᬄ◞♡   ⃗.jpg', '$2y$10$ZLWnsc4oApKzTPcMkkeC8OcVEmKA3PVyV2Fu7Mn4cCKTrQR5wmLgK', 'Mi a kedvenc könyved?', 'Harry Potter', 1, NULL, '2025-12-02 08:52:05', 'hu', NULL, NULL, 1, 'Software & Systems Engineer Student', 'light', 0, NULL, NULL, 1, 1, 1),
 (8, 'Teszt', 'User', 'tesztuser', '2005-12-16', 'female', 'csontoskincso05@gmail.com', NULL, '$2y$10$rsRPmF5j81OCfV3xbpkIHOCGXeKXLTOkUIb7tH4j73o74H8QQiHRK', 'Mi az édesanyád leánykori neve?', 'Harry Potter', 0, NULL, '2025-12-16 00:19:26', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
-(9, 'Csontos', 'Kincső', 'doomhyena', '2005-04-04', 'female', 'csontoskincso@proton.me', NULL, '$2y$10$i7QzVcekWMXr3DJD6BUmgeR0Wal7AmZyBjDfjjVf6eowweutMErEa', 'Mi a kedvenc könyved?', '$2y$10$c5BtBT/ODqFT/OeHGYLuCeMCsdJ5sScb2Xjgg/lkJ77I9whd323tG', 0, NULL, '2026-02-11 15:15:12', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0);
+(9, 'Csontos', 'Kincső', 'doomhyena', '2005-04-04', 'female', 'csontoskincso@proton.me', NULL, '$2y$10$i7QzVcekWMXr3DJD6BUmgeR0Wal7AmZyBjDfjjVf6eowweutMErEa', 'Mi a kedvenc könyved?', '$2y$10$c5BtBT/ODqFT/OeHGYLuCeMCsdJ5sScb2Xjgg/lkJ77I9whd323tG', 0, 1, '2026-02-11 15:15:12', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -2390,6 +2438,14 @@ CREATE TABLE `user_custom_css_requests` (
 --
 ALTER TABLE `2fa_codes`
   ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `2fa_backup_codes`
+--
+ALTER TABLE `2fa_backup_codes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `userid` (`userid`),
+  ADD KEY `used` (`used`);
 
 --
 -- A tábla indexei `badges`
@@ -2605,6 +2661,12 @@ ALTER TABLE `2fa_codes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
+-- AUTO_INCREMENT a táblához `2fa_backup_codes`
+--
+ALTER TABLE `2fa_backup_codes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT a táblához `badges`
 --
 ALTER TABLE `badges`
@@ -2638,13 +2700,13 @@ ALTER TABLE `favorites`
 -- AUTO_INCREMENT a táblához `files`
 --
 ALTER TABLE `files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT a táblához `file_events`
 --
 ALTER TABLE `file_events`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT a táblához `friends`
@@ -2769,6 +2831,12 @@ ALTER TABLE `user_custom_css_requests`
 --
 ALTER TABLE `contact_messages`
   ADD CONSTRAINT `contact_messages_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Megkötések a táblához `2fa_backup_codes`
+--
+ALTER TABLE `2fa_backup_codes`
+  ADD CONSTRAINT `2fa_backup_codes_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Megkötések a táblához `premium_users`

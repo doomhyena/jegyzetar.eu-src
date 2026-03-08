@@ -287,8 +287,23 @@ document.addEventListener('DOMContentLoaded', function(){
                 staticBlock.classList.remove('hidden');
             });
         }
-    });
 
+        const pfpOpenBtn = document.getElementById('pfp-open-btn');
+        const pfpForm = document.getElementById('pfp-form');
+        const pfpInput = pfpForm ? pfpForm.querySelector('input[name="profile_picture"]') : null;
+
+        if (pfpOpenBtn && pfpInput) {
+            pfpOpenBtn.addEventListener('click', function () {
+                pfpInput.click();
+            });
+
+            pfpInput.addEventListener('change', function () {
+                if (pfpInput.files.length > 0 && pfpForm) {
+                    pfpForm.submit();
+                }
+            });
+        }
+    });
 document.addEventListener("DOMContentLoaded", () => {
     const cssHelp = document.querySelector(".css-tutorial");
 

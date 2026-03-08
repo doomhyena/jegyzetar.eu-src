@@ -1,0 +1,3 @@
+RewriteEngine On
+RewriteCond %{HTTP_HOST} ^(www\.)?jegyzetar\.eu$ [NC]
+RewriteRule ^(.*)$ https://www.jegyzetar.hu/$1 [L,R=301]

@@ -43,10 +43,19 @@
             $code = trim($_POST['code']);
 
             if ($code !== '') {
+                // Először ellenőrizzük az email-ben kapott kódot
                 $talalt_sorok = db_query($conn, "SELECT id FROM 2fa_codes WHERE userid = ? AND code = ? LIMIT 1", "is", [$userid, $code]);
 
                 if ($talalt_sorok && $talalt_sorok->num_rows === 1) {
                     db_exec($conn, "DELETE FROM 2fa_codes WHERE userid = ? AND code = ?", "is", [$userid, $code]);
+                    setcookie("id", $userid, time() + 3600, "/");
+                    session_destroy();
+                    header("Location: index.php");
+                    exit;
+                }
+                
+                // Ha nem email-s kód, próbáljuk meg backup kódként
+                if (verify_backup_code($conn, $userid, $code)) {
                     setcookie("id", $userid, time() + 3600, "/");
                     session_destroy();
                     header("Location: index.php");
@@ -67,7 +76,7 @@
         <div class="auth-wrap">
             <div class="auth-head mb-6">
                 <h1 class="text-2xl md:text-3xl lg:text-4xl mb-2">Kétlépcsős azonosítás</h1>
-                <p class="auth-note text-sm md:text-base">Kérlek írd be az e-mailben kapott kódot!</p>
+                <p class="auth-note text-sm md:text-base">Kérlek írd be az e-mailben kapott kódot vagy egy backup kódot!</p>
             </div>
             <div class="auth-grid">
                 <form class="auth-card p-6 md:p-8 flex flex-col gap-4" method="post">

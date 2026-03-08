@@ -45,6 +45,36 @@ Changelog by: Neved
 
 ---
 
+## [1.5.9-beta] - 2026-03-08
+
+### Added
+#### • Videók megjelenítése a note.php oldalon
+- A jegyzet oldalán mostantól támogatottak a videó fájlok megjelenítése, beleértve a YouTube linkeket, amelyek beágyazott lejátszóval jelennek meg a felhasználók számára.
+
+#### • 2FA backup codes funkció
+- Új backup kód rendszer bevezetése a kétlépcsős azonosításhoz. A felhasználók generálhatnak egyszer használatos kódokat, amelyeket akkor használhatnak, ha nem férnek hozzá az emailjükhöz. Ezek a kódok a profile.php oldalon kezelhetők, és a 2fa.php oldalon is elfogadottak.
+
+#### • Discord fiók hozzáadása a fiókhoz
+- OAuth integráció hozzáadása Discord fiókok összekapcsolásához a felhasználói profilban. Ez lehetővé teszi a Discord adatok importálását és a fiók összekapcsolását, de jelenleg fejlesztés alatt áll, további tesztelés és bugfix szükséges a teljes működéshez.
+
+### Changed
+#### • Gombok egységesítése
+- A note.php oldalon található gombok (például letöltés, kedvencelés, értékelés) stílusa és megjelenése egységesítve lett a CSS frissítésekkel, hogy konzisztens felhasználói élményt biztosítsanak.
+
+#### • Team oldal adatainak szerkeztése
+- A team.php oldalon a csapattagok bemutatkozó szövegei frissültek új információkkal, linkekkel és részletekkel a csapatról, valamint a profilképek és adatok szerkezeti módosításaival.
+
+### Fixed
+#### • Profilkép feltöltés bugfix
+- Javítás a profilkép feltöltési folyamatában, amely megoldotta a fájl méret és típus ellenőrzési problémákat, valamint a feltöltés utáni megjelenítési hibákat a profile.php oldalon.
+
+#### • Kereső oldal title tag hozzáadása
+- A search.php oldalnak hozzáadott megfelelő title tag javítja a böngésző címsorát, a könyvjelzőket és a keresőmotor-optimalizálást (SEO).
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [1.5.8-beta] - 2026-02-24
 
 ### Added
@@ -66,6 +96,7 @@ Changelog by: Neved
 #### • Jogosultságok szigorítása
 * Feltöltési jogosultságok korlátozása rang alapján a nem kívánt tartalmak megelőzésére
 
+Changelog by: Szekeres Levente
 
 ---
 

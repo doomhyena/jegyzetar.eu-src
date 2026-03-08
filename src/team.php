@@ -41,7 +41,7 @@
                     <img src="assets/img/default_profile_picture.jpg"
                         alt="Baranyi Norbert profilképe"
                         class="w-28 h-28 rounded-full object-cover border-2 border-neutral-200">
-                    <h3>Baranyi Norbert</h3>
+                    <h3>Norbert</h3>
                     <span class="text-sm text-neutral-500"><a href="https://github.com/baranyi0">@baranyi0</a></span>
                     <p class="entry-meta">
                         Baranyi Norbert a Jegyzetár fejlesztésében elsősorban a backend és az adatkezelés kulcsterületein dolgozott. 
@@ -51,13 +51,13 @@
                     </p>
                 </section>
                 <section class="card flex flex-col items-center text-center gap-3">
-                    <img src="assets/img/cska_profile_picture.png"
-                        alt="Csontos Kincső Anasztázia profilképe"
+                    <img src="assets/img/vergil_profile_picture.jpg"
+                        alt="Anastasia profilképe"
                         class="w-28 h-28 rounded-full object-cover border-2 border-neutral-200">
-                    <h3>Csontos Kincső Anasztázia</h3>
+                    <h3>Anastasia</h3>
                     <span class="text-sm text-neutral-500"><a href="https://github.com/doomhyena">@doomhyena</a></span>
                     <p class="entry-meta">
-                        Csontos Kincső Anasztázia a Jegyzetár alapítója és vezető fejlesztője. 
+                        Anasztázia a Jegyzetár alapítója és vezető fejlesztője. 
                         A projektben a felhasználói élmény, a vizuális egység és a rendszer-szintű minőség fejlesztése volt 
                         a fő fókusza: a teljes felület újradizájnolása (Aurora UI stílus, reszponzív layout, 
                         navigáció újratervezése), a többnyelvű rendszer bevezetése, valamint a profiloldal funkcióinak bővítése 
@@ -68,12 +68,12 @@
                 </section>
                 <section class="card flex flex-col items-center text-center gap-3">
                     <img src="assets/img/default_profile_picture.jpg"
-                        alt="Szekeres Levente profilképe"
+                        alt="Paladitech profilképe"
                         class="w-28 h-28 rounded-full object-cover border-2 border-neutral-200">
-                    <h3>Szekeres Levente</h3>
+                    <h3>Paladitech</h3>
                     <span class="text-sm text-neutral-500"><a href="https://github.com/PaladiTech">@paladitech</a></span>
                     <p class="entry-meta">
-                        Szekeres Levente a Jegyzetár közösségi bővítésein és mobilos használhatóságán dolgozott. 
+                        Paladitech a Jegyzetár közösségi bővítésein és mobilos használhatóságán dolgozott. 
                         Teljes körűen megvalósította a tanulócsoport funkciókat (csoport létrehozás, tagságkezelés, jelentkezések), 
                         valamint a csoporton belüli jegyzetfeltöltést jóváhagyási és moderációs folyamattal. 
                         Emellett több hibajavítást és stabilizálást végzett a csoportos modulon, fejlesztette a mobil navigációt, 

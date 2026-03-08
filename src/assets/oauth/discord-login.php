@@ -1,4 +1,5 @@
 <?php
+    ini_set('session.cookie_samesite', 'Lax');
     session_start();
 
     require __DIR__ . '/../vendor/autoload.php';

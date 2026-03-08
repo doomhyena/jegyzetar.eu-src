@@ -1,4 +1,5 @@
 <?php
+    ini_set('session.cookie_samesite', 'Lax');
     session_start();
 
     require __DIR__ . '/../vendor/autoload.php';
@@ -7,9 +8,22 @@
     $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
     $dotenv->load();
 
-    if (!isset($_GET['code'], $_GET['state']) || $_GET['state'] !== ($_SESSION['oauth_state'] ?? '')) {
+    if (!isset($_GET['code'])) {
         http_response_code(400);
-        exit('Invalid state');
+        exit('Missing authorization code');
+    }
+
+    if (!isset($_GET['state'])) {
+        http_response_code(400);
+        exit('Missing state parameter');
+    }
+
+    $storedState = $_SESSION['oauth_state'] ?? null;
+    if (!$storedState || $_GET['state'] !== $storedState) {
+        http_response_code(400);
+        exit('Invalid state parameter (security check failed). Please try again.
+        <br><br>
+        <a href="/jegyzetar.eu-src/src/reglog.php">Back to login</a>');
     }
     unset($_SESSION['oauth_state']);
 
@@ -62,6 +76,28 @@
         $avatar = "https://cdn.discordapp.com/avatars/{$userinfo['id']}/{$userinfo['avatar']}.png?size=256";
     }
     $avatar = $conn->real_escape_string($avatar);
+
+    $linkMode = isset($_SESSION['oauth_link_mode']) && (int)$_SESSION['oauth_link_mode'] === 1;
+    if ($linkMode) {
+        unset($_SESSION['oauth_link_mode']);
+        if (isset($_COOKIE['id'])) {
+            $uid = (int)$_COOKIE['id'];
+            $userRes = $conn->query("SELECT username FROM users WHERE id=$uid LIMIT 1");
+            $userData = $userRes ? $userRes->fetch_assoc() : null;
+            $username = $userData['username'] ?? '';
+            
+            $conn->query("
+                UPDATE users 
+                SET oauth_provider='discord',
+                    oauth_sub='$sub'
+                WHERE id=$uid
+            ");
+            $_SESSION['profile_toast'] = 'Discord fiók sikeresen összekapcsolva!';
+            $redirectUrl = !empty($username) ? '/jegyzetar.eu-src/src/profile.php?user=' . urlencode($username) : '/jegyzetar.eu-src/src/index.php';
+            header('Location: ' . $redirectUrl);
+            exit;
+        }
+    }
 
     $found = $conn->query("SELECT id FROM users WHERE oauth_provider='discord' AND oauth_sub='$sub' LIMIT 1");
     if ($found && $found->num_rows) {

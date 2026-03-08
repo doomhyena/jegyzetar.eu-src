@@ -63,6 +63,12 @@
 
       <div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.35);">
         <p style="margin:0;font-size:13px;line-height:1.6;color:#fde68a;">
+          <strong>Nincs elérése az emailedhez?</strong> Használj egy backup kódot, amely a profil beállításaidban található!
+        </p>
+      </div>
+
+      <div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.35);">
+        <p style="margin:0;font-size:13px;line-height:1.6;color:#fde68a;">
           <strong>Ha nem te voltál:</strong> azonnal változtasd meg a jelszavad, és ellenőrizd a fiókod biztonsági beállításait.
         </p>
       </div>
@@ -88,6 +94,8 @@
         "Láttuk, hogy bejelentkezési kísérlet történt a fiókodba.\n" .
         "Ha ez te voltál, írd be ezt a kódot:\n\n" .
         "KÓD: {$code}\n\n" .
+        "Nincs elérése az emailedhez?\n" .
+        "Használj egy backup kódot, amely a profil beállításaidban található!\n\n" .
         "Ha nem te voltál, azonnal változtasd meg a jelszavad.\n\n" .
         "Üdvözlettel,\nJegyzetár csapata\n";
 

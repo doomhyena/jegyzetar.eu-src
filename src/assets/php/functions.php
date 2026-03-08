@@ -549,3 +549,99 @@
             return $maskedUser . '@' . $domain;
         }
     }
+
+    if (!function_exists('youtube_embed_url')) {
+        function youtube_embed_url($url) {
+            if (preg_match('~youtu\.be/([A-Za-z0-9_-]{6,})~', $url, $m)) {
+                return 'https://www.youtube-nocookie.com/embed/' . $m[1] . '?rel=0';
+            } elseif (preg_match('~[?&]v=([A-Za-z0-9_-]{6,})~', $url, $m)) {
+                return 'https://www.youtube-nocookie.com/embed/' . $m[1] . '?rel=0';
+            } elseif (preg_match('~youtube\.com/shorts/([A-Za-z0-9_-]{6,})~', $url, $m)) {
+                return 'https://www.youtube-nocookie.com/embed/' . $m[1] . '?rel=0';
+            } elseif (preg_match('~youtube\.com/embed/([A-Za-z0-9_-]{6,})~', $url, $m)) {
+                return 'https://www.youtube-nocookie.com/embed/' . $m[1] . '?rel=0';
+            }
+            return false;
+        }
+    }
+
+
+    if (!function_exists('youtube_embed_url')) {
+        function youtube_embed_url(string $url): ?string {
+            $url = trim($url);
+            if ($url === '' || !filter_var($url, FILTER_VALIDATE_URL)) return null;
+
+            $host = parse_url($url, PHP_URL_HOST) ?? '';
+            $host = strtolower(preg_replace('/^www\./', '', $host));
+
+            if ($host === 'youtu.be') {
+                $id = trim(parse_url($url, PHP_URL_PATH) ?? '', '/');
+                return $id ? "https://www.youtube.com/embed/" . rawurlencode($id) : null;
+            }
+
+            if ($host === 'youtube.com' || $host === 'm.youtube.com' || $host === 'music.youtube.com') {
+                parse_str(parse_url($url, PHP_URL_QUERY) ?? '', $q);
+                if (!empty($q['v'])) return "https://www.youtube.com/embed/" . rawurlencode($q['v']);
+
+                $path = parse_url($url, PHP_URL_PATH) ?? '';
+                if (preg_match('~^/embed/([^/?#]+)~', $path, $m)) {
+                    return "https://www.youtube.com/embed/" . rawurlencode($m[1]);
+                }
+            }
+
+            return null;
+        }
+    }
+
+    if (!function_exists('generate_backup_codes')) {
+        function generate_backup_codes(mysqli $conn, int $user_id, int $count = 10): array {
+            $backup_codes = [];
+            
+            // Régi kódok törlése
+            db_exec($conn, "DELETE FROM 2fa_backup_codes WHERE userid = ?", "i", [$user_id]);
+            
+            for ($i = 0; $i < $count; $i++) {
+                // Generálunk egy 8 karakteres kódot (formátum: XXXX-XXXX)
+                $code = strtoupper(bin2hex(random_bytes(4))) . '-' . strtoupper(bin2hex(random_bytes(4)));
+                $code_hash = password_hash($code, PASSWORD_BCRYPT);
+                
+                db_exec($conn, "INSERT INTO 2fa_backup_codes (userid, code_hash) VALUES (?, ?)", "is", [$user_id, $code_hash]);
+                $backup_codes[] = $code;
+            }
+            
+            return $backup_codes;
+        }
+    }
+
+    if (!function_exists('verify_backup_code')) {
+        function verify_backup_code(mysqli $conn, int $user_id, string $code): bool {
+            $code = trim(strtoupper($code));
+            
+            $result = db_query($conn, "SELECT id, code_hash FROM 2fa_backup_codes WHERE userid = ? AND used = 0", "i", [$user_id]);
+            
+            if (!$result || $result->num_rows === 0) {
+                return false;
+            }
+            
+            while ($row = $result->fetch_assoc()) {
+                if (password_verify($code, $row['code_hash'])) {
+                    db_exec($conn, "UPDATE 2fa_backup_codes SET used = 1, used_at = NOW() WHERE id = ?", "i", [$row['id']]);
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+    }
+
+    if (!function_exists('get_unused_backup_codes_count')) {
+        function get_unused_backup_codes_count(mysqli $conn, int $user_id): int {
+            $result = db_query($conn, "SELECT COUNT(*) as cnt FROM 2fa_backup_codes WHERE userid = ? AND used = 0", "i", [$user_id]);
+            
+            if ($result && $result->num_rows > 0) {
+                return (int)($result->fetch_assoc()['cnt'] ?? 0);
+            }
+            
+            return 0;
+        }
+    }

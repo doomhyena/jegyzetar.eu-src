@@ -370,6 +370,7 @@
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($lang) ?>">
 <head>
+    <title>Keresés</title>
     <meta charset="UTF-8">
     <meta name="description" content="<?= t('meta_description_home') ?>">
     <meta name="keywords" content="<?= t('meta_keywords_home') ?>">
