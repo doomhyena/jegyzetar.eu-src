@@ -1,5 +1,15 @@
 <?php
-    ini_set('session.cookie_samesite', 'Lax');
+    ini_set('session.gc_maxlifetime', 3600);
+    ini_set('session.cookie_lifetime', 3600);
+
+    session_set_cookie_params([
+        'lifetime' => 3600,
+        'path' => '/',
+        'domain' => '',
+        'secure' => false,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
     session_start();
 
     require __DIR__ . '/../vendor/autoload.php';
@@ -20,6 +30,24 @@
 
     $storedState = $_SESSION['oauth_state'] ?? null;
     if (!$storedState || $_GET['state'] !== $storedState) {
+        $debug = [
+            'session_state' => $storedState,
+            'get_state' => $_GET['state'] ?? 'not set',
+            'session_id' => session_id(),
+            'session_status' => session_status(),
+            'session_save_path' => session_save_path(),
+            'time' => time(),
+            'server' => $_SERVER['HTTP_HOST'] ?? 'unknown',
+            'request_uri' => $_SERVER['REQUEST_URI'] ?? 'unknown'
+        ];
+
+        $logFile = __DIR__ . '/../logs/oauth_debug.log';
+        file_put_contents($logFile, date('Y-m-d H:i:s') . ' - ' . json_encode($debug) . PHP_EOL, FILE_APPEND);
+
+        echo '<pre>Debug Info:<br>';
+        print_r($debug);
+        echo '</pre>';
+
         http_response_code(400);
         exit('Invalid state parameter (security check failed). Please try again.
         <br><br>
@@ -85,9 +113,9 @@
             $userRes = $conn->query("SELECT username FROM users WHERE id=$uid LIMIT 1");
             $userData = $userRes ? $userRes->fetch_assoc() : null;
             $username = $userData['username'] ?? '';
-            
+
             $conn->query("
-                UPDATE users 
+                UPDATE users
                 SET oauth_provider='discord',
                     oauth_sub='$sub'
                 WHERE id=$uid
@@ -112,7 +140,7 @@
         if ($sel && $sel->num_rows) {
             $uid = (int)$sel->fetch_assoc()['id'];
             $conn->query("
-                UPDATE users 
+                UPDATE users
                 SET oauth_provider='discord',
                     oauth_sub='$sub',
                     profile_picture='$avatar'
@@ -143,9 +171,9 @@
     $regdate = date('Y-m-d H:i:s');
 
     $conn->query("
-        INSERT INTO users 
+        INSERT INTO users
             (username, email, firstname, lastname, password, oauth_provider, oauth_sub, email_verified, profile_picture, registration_date)
-        VALUES 
+        VALUES
             ('$username', '$email', '$display', '', '', 'discord', '$sub', 1, '$avatar', '$regdate')
     ");
 

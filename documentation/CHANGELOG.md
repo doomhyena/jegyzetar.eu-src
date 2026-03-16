@@ -45,12 +45,132 @@ Changelog by: Neved
 
 ---
 
-## [1.5.9-beta] - 2026-03-08
+## [1.6.1-beta] - 2026-03-16
 
 ### Added
-#### • Videók megjelenítése a note.php oldalon
-- A jegyzet oldalán mostantól támogatottak a videó fájlok megjelenítése, beleértve a YouTube linkeket, amelyek beágyazott lejátszóval jelennek meg a felhasználók számára.
+#### • `report_action.php` – Egységes report POST handler
+- Új fájl a gyökérkönyvtárban, amely fogadja a felhasználó / jegyzet / csoport jelentéseit
+- Duplikált jelentés védelem: ugyanarra a célra nyitott státuszú report nem küldhető be kétszer
+- Redirect validáció: csak saját oldalakra (`note.php`, `profile.php`, `group.php`, `index.php`) irányít vissza
 
+#### • `_report_widget.php` – Újrafelhasználható report widget include
+- Egységes jelentés UI komponens, amelyet `note.php`, `profile.php` és `group.php` egyaránt használ
+- Visszajelzés toast üzenettel: sikeres küldés, duplikált report és hiba esetén egyaránt
+
+### Changed
+#### • `note.php` – Report szekció egységesítve
+- Az inline report form helyett mostantól a `_report_widget.php` include-ot használja
+
+#### • `profile.php` – Report szekció egységesítve
+- Az inline report form helyett mostantól a `_report_widget.php` include-ot használja
+
+#### • `group.php` – Report szekció egységesítve
+- Az inline report form helyett mostantól a `_report_widget.php` include-ot használja
+
+#### • `script.js` – Report widget JS egységesítve
+- A korábbi töredezett, `id`-alapú toggle (két különálló `DOMContentLoaded` + inline függvények) helyett egyetlen osztályalapú, minden `.report-widget` példányra működő handler
+
+#### • `styles.css` – Report widget stílusok hozzáadva
+- `.report-widget`, `.report-box`, `.report-textarea`, `.report-actions` osztályok definiálva
+
+#### • `search.php` – Teljes név keresés és megjelenítés a láthatósági beállításhoz igazítva
+- A keresési lekérdezés mostantól csak akkor keres `firstname` / `lastname` mezőkben, ha az adott felhasználónál `show_fullname = 1`
+- A találati kártyán a teljes név csak akkor jelenik meg, ha `show_fullname = 1`; egyébként a `@username` látható
+
+### Fixed
+#### • `report.php` – Autentikáció javítva
+- `$_SESSION['user_id']` helyett `$_COOKIE['id']` alapján azonosítja a bejelentkezett felhasználót, összhangban a többi oldallal
+- `assets/php/` prefix eltávolítva a `require` hívásokból
+
+#### • `admin_panel.php` – Törött profil link javítva
+- A jelentések táblájában a felhasználóra mutató link `profile.php?userid=` helyett mostantól `profile.php?user=` paramétert használ (felhasználónévvel), ahogy a `profile.php` elvárja
+
+#### • `note.php` – Saját jegyzeten nem jelenik meg a jelentés gomb
+- A report widget mostantól csak akkor jelenik meg, ha a bejelentkezett felhasználó nem a jegyzet tulajdonosa (`!$isOwner`)
+
+### Removed
+#### • `script.js` – Elavult report függvények eltávolítva
+- `openReportBox()`, `cancelReport()` globális függvények eltávolítva
+- `getElementById('report-toggle-btn')` alapú toggle handler eltávolítva
+
+### Security
+#### • `report_action.php` – Bemeneti validáció
+- `target_type` értéke csak az engedélyezett listából (`user`, `note`, `group`) fogadható el
+- `redirect` paraméter validálva, csak ismert saját oldalra irányíthat vissza (open redirect védelem)
+
+Changelog by: Csontos Kincső Anasztázia
+
+## [1.6.0-beta] - 2026-03-10
+
+### Added
+
+#### • Csoporton belüli kommunikációs funkciók
+
+* Új **csoport üzenőfal / komment fal** került bevezetésre a csoportoldalon.
+* A csoporttagok mostantól **üzeneteket küldhetnek** a csoport számára.
+* A kommentek megjelenítik az **író felhasználónevét** és a **létrehozás időpontját**.
+
+#### • Csoport események / határidők
+
+* Új **csoport események** modul került hozzáadásra.
+* A csoport tulajdonosa mostantól **eseményeket és határidőket hozhat létre**.
+* Az eseményekhez **név, dátum/idő és opcionális leírás** is megadható.
+* Az események **időrendben rendezve** jelennek meg a csoport oldalsávjában.
+
+#### • Csoport szavazás / poll rendszer
+
+* Bevezetésre került a **csoporton belüli szavazás (poll)** funkció.
+* A csoport tulajdonosa új **szavazást hozhat létre** több válaszlehetőséggel.
+* A tagok **egy alkalommal szavazhatnak** az aktuális szavazásban.
+* A tulajdonos a szavazást **lezárhatja**, lezárás után az eredmények százalékos formában jelennek meg.
+
+### Changed
+
+#### • Csoport oldal redesign
+
+* A **csoport oldal teljes elrendezése átdolgozásra került**.
+* A felület mostantól **kártya alapú (card / mini-card / sidebar-card)** megjelenítést használ.
+* A tartalmak **bal oldali fő tartalom** és **jobb oldali oldalsáv** struktúrában jelennek meg.
+* A csoport főbb funkciói (tagok, komment fal, jegyzetek, események, szavazás, flashcardok) **logikusan szekciókra bontva** érhetők el.
+* Javult az oldal **áttekinthetősége, reszponzív szerkezete és vizuális egységessége**.
+
+### Fixed
+
+#### • Csoport komment fal törlés gomb
+
+* Hozzáadásra került a **komment törlés lehetősége** a csoport üzenőfalon.
+* A kommentet **a saját írója**, a **csoport tulajdonosa**, illetve **adminisztrátor** törölheti.
+* A törlés jogosultsági ellenőrzése biztosítja, hogy **illetéktelen felhasználó ne tudjon kommentet eltávolítani**.
+
+#### • Jogosultság és hozzáférési működés finomítása
+
+* A privát csoportok tartalma mostantól **csak tagok és tulajdonos számára látható**.
+* A nem jóváhagyott csoportok megtekintése **korlátozásra került**, kivéve admin és tulajdonos esetén.
+* A taglista és bizonyos csoporttartalmak megjelenítése **jogosultság alapján szűrve** történik.
+
+Changelog by: Szekeres Levente
+
+---
+
+### Formátum útmutató 
+
+## [1.5.10-beta] - 2026-03-09
+
+
+### Fixed
+#### • Discord fiók & Jegyzetár fiók összekötése
+- Mostantól össze lehet kötni a 2 fiókot
+
+#### • Toast üzenetek a profil oldalon
+- Már alkalmazkodnak a profil (alapértelmezett) témájához
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
+## [1.5.9-beta] - 2026-03-08
+
+### Added 
 #### • 2FA backup codes funkció
 - Új backup kód rendszer bevezetése a kétlépcsős azonosításhoz. A felhasználók generálhatnak egyszer használatos kódokat, amelyeket akkor használhatnak, ha nem férnek hozzá az emailjükhöz. Ezek a kódok a profile.php oldalon kezelhetők, és a 2fa.php oldalon is elfogadottak.
 

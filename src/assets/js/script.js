@@ -2,7 +2,6 @@ let friendId = new URLSearchParams(window.location.search).get('friendid');
 let lastMessageCount = 0;
 
 document.addEventListener('DOMContentLoaded', function () {
-    // jQuery-függő keresés
     if (typeof $ !== 'undefined') {
         const searchBox = document.getElementById("search-box");
         if (searchBox) {
@@ -62,7 +61,6 @@ function checkNewMessages() {
 }
 setInterval(checkNewMessages, 1000);
 
-// jQuery-függő kód - csak akkor fut, ha jQuery be van töltve
 if (typeof $ !== 'undefined') {
     $('form.message-form').submit(function (e) {
         e.preventDefault();
@@ -318,45 +316,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-function openReportBox(button) {
-    const form = button.closest('form');
-    if (!form) return;
-    const box = form.querySelector('.report-box');
-    if (!box) return;
-    box.style.display = 'block';
-    button.style.display = 'none';
-}
-function cancelReport(button) {
-    const box = button.closest('.report-box');
-    if (!box) return;
-    const form = box.closest('form');
-    if (!form) return;
-    const trigger = form.querySelector('.report-trigger');
-    const textarea = form.querySelector('textarea[name="reason"]');
-    if (textarea) textarea.value = '';
-    if (trigger) trigger.style.display = 'inline-block';
-    box.style.display = 'none';
-}
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.report-widget').forEach(widget => {
+        const trigger  = widget.querySelector('.report-trigger');
+        const box      = widget.querySelector('.report-box');
+        const cancelBtn = widget.querySelector('.report-cancel');
+
+        if (!trigger || !box) return;
+
+        trigger.addEventListener('click', () => {
+            const isHidden = box.hasAttribute('hidden');
+            if (isHidden) {
+                box.removeAttribute('hidden');
+                trigger.setAttribute('aria-expanded', 'true');
+                const ta = box.querySelector('textarea');
+                if (ta) ta.focus();
+            } else {
+                box.setAttribute('hidden', '');
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                box.setAttribute('hidden', '');
+                trigger.setAttribute('aria-expanded', 'false');
+                const ta = box.querySelector('textarea');
+                if (ta) ta.value = '';
+            });
+        }
+    });
+});
+
 function confirmReportSubmit(form) {
     return confirm('Biztosan elküldöd a jelentést?');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const toggleBtn = document.getElementById('report-toggle-btn');
-  const box = document.getElementById('report-box');
-
-  if (!toggleBtn || !box) return;
-
-  toggleBtn.addEventListener('click', () => {
-    const isHidden = (box.style.display === 'none' || box.style.display === '');
-    box.style.display = isHidden ? 'block' : 'none';
-
-    if (isHidden) {
-      const ta = box.querySelector('textarea');
-      if (ta) ta.focus();
-    }
-  });
-});
 const bio = document.getElementById('profile-bio-input');
 const counter = document.getElementById('bio-counter');
 

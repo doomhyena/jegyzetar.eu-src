@@ -81,7 +81,6 @@
 
     $lastCssRequest = null;
     $cssResetDone = false;
-    // Fetch approved CSS for any viewer (not just owner, so custom CSS is visible to all)
     $cssRes = db_query($conn, "SELECT * FROM user_custom_css_requests WHERE user_id = ? ORDER BY created_at DESC LIMIT 1", "i", [$profileId]);
     if ($cssRes && $cssRes->num_rows > 0) {
         $lastCssRequest = $cssRes->fetch_assoc();
@@ -115,7 +114,7 @@
     }
     if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_picture']['tmp_name'])) {
         $file_name  = basename($_FILES['profile_picture']['name']);
-        $tmp_name   = $_FILES['profile_picture']['tmp_name'];
+        $tmp_name = $_FILES['profile_picture']['tmp_name'];
         $target_dir = __DIR__ . "/users/" . $profile['username'] . "/";
         $target_file = $target_dir . $file_name;
 
@@ -438,16 +437,13 @@
                                         <?php endif; ?>
                                     </div>
                                     <div class="profile-report">
-                                        <form method="post" action="assets/php/report.php" id="user-report-form">
-                                            <input type="hidden" name="type" value="user">
-                                            <input type="hidden" name="target_id" value="<?= (int)$profileId ?>">
-                                            <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
-                                            <button type="button" class="btn-ghost danger" id="report-toggle-btn">Felhasználó jelentése</button>
-                                            <div id="report-box" style="display:none; margin-top:8px;">
-                                                <textarea name="reason" rows="3" required placeholder="Írd le, miért jelented..." style="width:100%; resize:vertical; margin-bottom:8px;"></textarea>
-                                                <button type="submit" class="btn-cta danger" onclick="return confirm('Biztosan elküldöd a jelentést?');">Jelentés elküldése</button>
-                                            </div>
-                                        </form>
+                                        <?php
+                                            $report_type = 'user';
+                                            $report_target_id = $profileId;
+                                            $report_label = 'Felhasználó jelentése';
+                                            $report_extra_class = '';
+                                            include 'assets/php/_report_widget.php';
+                                        ?>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -779,7 +775,6 @@ body {
                                                 <?php endif; ?>
                                             </div>
                                         <?php endif; ?>
-
                                         <?php if ($ext === 'mp4' || $ext === 'pdf'): ?>
                                             <details class="upload-preview">
                                                 <summary class="upload-preview-summary">

@@ -49,10 +49,10 @@
             if ($f === 'edu_level')  $hasEduLevel = true;
             if ($f === 'is_public')  $hasIsPublic = true;
             if ($f === 'is_private') $hasIsPrivate = true;
-            if ($f === 'content_type')   $hasContentType = true;
-            if ($f === 'note_markdown')  $hasNoteMarkdown = true;
-            if ($f === 'note_excerpt')   $hasNoteExcerpt = true;
-			if ($f === 'external_url')  $hasExternalUrl = true;
+            if ($f === 'content_type') $hasContentType = true;
+            if ($f === 'note_markdown') $hasNoteMarkdown = true;
+            if ($f === 'note_excerpt') $hasNoteExcerpt = true;
+			if ($f === 'external_url') $hasExternalUrl = true;
         }
     }
 
@@ -207,54 +207,51 @@
                     }
                 }
             }
-		}
-		elseif ($mode === 'link') {
-
-    if (!$hasContentType || !$hasExternalUrl) {
-        $uploadError = "Hiányzik az adatbázis frissítés (content_type / external_url).";
-    } else {
-
-        $url = trim((string)($_POST['external_url'] ?? ''));
-
-        if ($url === '') {
-            $uploadError = "A videó/link mező nem lehet üres.";
-        } elseif (!filter_var($url, FILTER_VALIDATE_URL)) {
-            $uploadError = "Érvénytelen link.";
-        } else {
-
-            $scheme = parse_url($url, PHP_URL_SCHEME);
-            if (!in_array($scheme, ['http','https'], true)) {
-                $uploadError = "Csak http/https link engedélyezett.";
+		} elseif ($mode === 'link') {
+            if (!$hasContentType || !$hasExternalUrl) {
+                $uploadError = "Hiányzik az adatbázis frissítés (content_type / external_url).";
             } else {
 
-                $file_size = 0;
+                $url = trim((string)($_POST['external_url'] ?? ''));
 
-				$file_name_dummy = 'link';
-				$file_path_dummy = '';
+                if ($url === '') {
+                    $uploadError = "A videó/link mező nem lehet üres.";
+                } elseif (!filter_var($url, FILTER_VALIDATE_URL)) {
+                    $uploadError = "Érvénytelen link.";
+                } else {
 
-				$colsIns = ['uploaded_by', 'name', 'file_name', 'description', 'file_path', 'subject', 'tags', 'file_size', 'content_type', 'external_url'];
-				$vals    = [$user['id'], $displayName, $file_name_dummy, $description, $file_path_dummy, $subject, $tags, 0, 'link', $url];
-				$types   = "issssssiss";	
+                    $scheme = parse_url($url, PHP_URL_SCHEME);
+                    if (!in_array($scheme, ['http','https'], true)) {
+                        $uploadError = "Csak http/https link engedélyezett.";
+                    } else {
 
-                if ($hasIsPrivate) { $colsIns[] = 'is_private'; $vals[] = $is_private; $types .= 'i'; }
-                if ($hasIsPublic)  { $colsIns[] = 'is_public';  $vals[] = $is_public;  $types .= 'i'; }
-                if ($hasEduStage && $hasEduLevel) {
-                    $colsIns[] = 'edu_stage'; $colsIns[] = 'edu_level';
-                    $vals[] = $edu_stage; $vals[] = $edu_level;
-                    $types .= 'si';
+                        $file_size = 0;
+
+                        $file_name_dummy = 'link';
+                        $file_path_dummy = '';
+
+                        $colsIns = ['uploaded_by', 'name', 'file_name', 'description', 'file_path', 'subject', 'tags', 'file_size', 'content_type', 'external_url'];
+                        $vals = [$user['id'], $displayName, $file_name_dummy, $description, $file_path_dummy, $subject, $tags, 0, 'link', $url];
+                        $types = "issssssiss";	
+
+                        if ($hasIsPrivate) { $colsIns[] = 'is_private'; $vals[] = $is_private; $types .= 'i'; }
+                        if ($hasIsPublic)  { $colsIns[] = 'is_public';  $vals[] = $is_public;  $types .= 'i'; }
+                        if ($hasEduStage && $hasEduLevel) {
+                            $colsIns[] = 'edu_stage'; $colsIns[] = 'edu_level';
+                            $vals[] = $edu_stage; $vals[] = $edu_level;
+                            $types .= 'si';
+                        }
+
+                        $placeholders = implode(',', array_fill(0, count($colsIns), '?'));
+                        $sql = "INSERT INTO files (" . implode(',', $colsIns) . ") VALUES ($placeholders)";
+                        db_stmt($conn, $sql, $types, $vals)->close();
+
+                        header("Location: upload.php?ok=1");
+                        exit;
+                    }
                 }
-
-                $placeholders = implode(',', array_fill(0, count($colsIns), '?'));
-                $sql = "INSERT INTO files (" . implode(',', $colsIns) . ") VALUES ($placeholders)";
-                db_stmt($conn, $sql, $types, $vals)->close();
-
-                header("Location: upload.php?ok=1");
-                exit;
             }
-        }
-    }
-}
-         else {
+            } else {
                 if (!isset($_FILES['upload-file']) || ($_FILES['upload-file']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
                     $uploadError = 'Hiba a fájl feltöltésekor.';
                 } else {
@@ -349,7 +346,7 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-    <title>Feltöltés</title>
+    <title><?= htmlspecialchars(t('upload_page_title', 'Fájl feltöltése')) ?></title>
     <meta charset='UTF-8'>
     <meta name='description' content='Iskolai jegyzeteket megosztó oldal'>
     <meta name='keywords' content='iskola, jegyzet, megosztás, tanulás'>
@@ -374,81 +371,115 @@
             <div class="toast toast-error"><?= htmlspecialchars($uploadError) ?></div>
         <?php endif; ?>
         <form class="card p-4 md:p-6 flex flex-col gap-4" method="post" enctype="multipart/form-data">
-            <label for="name" class="text-sm md:text-base font-semibold">Anyag neve:</label>
-            <input class="input w-full text-sm md:text-base" type="text" name="name" placeholder="pl. Fizika ZH anyag" required>
-            <label for="description" class="text-sm md:text-base font-semibold">Leírás:</label>
-            <textarea class="input w-full text-sm md:text-base" name="description" placeholder="Rövid leírás az anyagról..." rows="4" required></textarea>
-            <label for="subject" class="text-sm md:text-base font-semibold">Tárgy:</label>
-            <input class="input w-full text-sm md:text-base" type="text" name="subject" placeholder="pl. fizika, történelem" required>
-            <?php if ($hasIsPrivate): ?>
+            <h1><?= htmlspecialchars(t('upload_page_title')) ?></h1>
+            <label for="name" class="text-sm md:text-base font-semibold">
+                <?= htmlspecialchars(t('upload_label_name')) ?>
+            </label>
+            <input class="input w-full text-sm md:text-base" type="text" name="name" id="name" placeholder="<?= htmlspecialchars(t('upload_placeholder_name')) ?>" required>
+
+            <label for="description" class="text-sm md:text-base font-semibold">
+                <?= htmlspecialchars(t('upload_label_description')) ?>
+            </label>
+            <textarea class="input w-full text-sm md:text-base" name="description" id="description" placeholder="<?= htmlspecialchars(t('upload_placeholder_description')) ?>" rows="4" required>
+            </textarea>
+
+            <label for="subject" class="text-sm md:text-base font-semibold">
+                <?= htmlspecialchars(t('upload_label_subject')) ?>
+            </label>
+            <input class="input w-full text-sm md:text-base" type="text" name="subject" id="subject" placeholder="<?= htmlspecialchars(t('upload_placeholder_subject')) ?>" required>
+            <?php if (!empty($hasIsPrivate)): ?>
                 <label style="margin-top:6px;">
-                    <input type="checkbox" name="is_private" value="1" <?= $premium_van ? '' : 'disabled' ?>>
-                    Privát jegyzet (csak te látod) – prémium
+                    <input type="checkbox" name="is_private" value="1" <?= !empty($premium_van) ? '' : 'disabled' ?>>
+                    <?= htmlspecialchars(t('upload_private_note')) ?>
                 </label>
-                <?php if (!$premium_van): ?>
-                    <p class="entry-meta">A privát feltöltéshez prémium szükséges.</p>
+                <?php if (empty($premium_van)): ?>
+                    <p class="entry-meta"><?= htmlspecialchars(t('upload_private_premium_required')) ?></p>
                 <?php endif; ?>
             <?php endif; ?>
-
-            <?php if ($hasEduStage && $hasEduLevel): ?>
-                <label for="level" class="text-sm md:text-base font-semibold">Évfolyam / félév:</label>
-                <select class="input w-full text-sm md:text-base" name="level" id="level">
-                    <?php foreach ($levelOptions as $opt): ?>
-                        <option value="<?= htmlspecialchars($opt[0]) ?>"><?= htmlspecialchars($opt[1]) ?></option>
-                    <?php endforeach; ?>
+            <?php if (!empty($hasEduStage) && !empty($hasEduLevel)): ?>
+                <label for="level" class="text-sm md:text-base font-semibold">
+                    <?= htmlspecialchars(t('upload_label_level')) ?>
+                </label>
+                <select name="level" id="level" class="select w-full text-sm md:text-base">
+                    <option value=""><?= htmlspecialchars(t('search_level_all')) ?></option>
+                    <optgroup label="<?= htmlspecialchars(t('search_level_group_hs')) ?>">
+                        <?php for ($y = 9; $y <= 13; $y++): ?>
+                            <option value="hs-<?= $y ?>">
+                                <?= htmlspecialchars(sprintf(t('search_hs_year_fmt'), $y)) ?>
+                            </option>
+                        <?php endfor; ?>
+                    </optgroup>
+                    <optgroup label="<?= htmlspecialchars(t('search_level_group_uni')) ?>">
+                        <?php for ($s = 1; $s <= 7; $s++): ?>
+                            <option value="uni-<?= $s ?>">
+                                <?= htmlspecialchars(sprintf(t('search_uni_semester_fmt'), $s)) ?>
+                            </option>
+                        <?php endfor; ?>
+                    </optgroup>
                 </select>
             <?php endif; ?>
-            <?php if ($hasIsPublic): ?>
+            <?php if (!empty($hasIsPublic)): ?>
                 <label class="checkbox-fancy" style="margin-top:6px;">
                     <input type="checkbox" name="is_public" checked>
                     <span class="checkbox-box"></span>
-                    <span>Nyilvános (megjelenjen a keresőben)</span>
+                    <span><?= htmlspecialchars(t('upload_public_visible')) ?></span>
                 </label>
             <?php endif; ?>
-            <label for="tag" class="text-sm md:text-base font-semibold">Címkék:</label>
-            <textarea class="input w-full text-sm md:text-base" id="tag" name="applied_tags" placeholder="Címkék..." rows="3" readonly></textarea>
-            <?php include 'assets/php/kereso_tag.php'; ?>
-            <label class="text-sm md:text-base font-semibold">
-                Feltöltés típusa:
+            <label for="tag" class="text-sm md:text-base font-semibold">
+                <?= htmlspecialchars(t('upload_label_tags')) ?>
             </label>
-            <div class="flex gap-4 items-center">
+            <textarea class="input w-full text-sm md:text-base" id="tag" name="applied_tags" placeholder="<?= htmlspecialchars(t('upload_placeholder_tags')) ?>" rows="3" readonly>
+            </textarea>
+            <label class="text-sm md:text-base font-semibold">
+                <?= htmlspecialchars(t('upload_label_content_type')) ?>
+            </label>
+            <div class="flex gap-4 items-center flex-wrap">
                 <label class="flex gap-2 items-center">
                     <input type="radio" name="content_mode" value="file" checked>
-                    <span>Fájl feltöltése</span>
+                    <span><?= htmlspecialchars(t('upload_mode_file')) ?></span>
                 </label>
                 <label class="flex gap-2 items-center">
                     <input type="radio" name="content_mode" value="markdown">
-                    <span>Markdown jegyzet írása</span>
+                    <span><?= htmlspecialchars(t('upload_mode_markdown')) ?></span>
                 </label>
-				<label class="flex gap-2 items-center">
-					<input type="radio" name="content_mode" value="link">
-					<span>Videó / Link megosztása</span>
-				</label>
+                <label class="flex gap-2 items-center">
+                    <input type="radio" name="content_mode" value="link">
+                    <span><?= htmlspecialchars(t('upload_mode_link')) ?></span>
+                </label>
             </div>
             <div id="file_wrap">
-                <label for="upload-file" class="text-sm md:text-base font-semibold">Fájl kiválasztása:</label>
+                <label for="upload-file" class="text-sm md:text-base font-semibold">
+                    <?= htmlspecialchars(t('upload_label_file')) ?>
+                </label>
                 <div class="file-input-wrapper w-full">
-                    <input class="input w-full text-sm md:text-base" type="file" name="upload-file">
+                    <input class="input w-full text-sm md:text-base" type="file" name="upload-file" id="upload-file">
                     <p class="entry-meta" style="margin-top:6px;">
-                        Engedélyezett: PDF, MP4, DOCX • Max: <?= $premium_van ? '60MB' : '5MB' ?>
+                        <?= htmlspecialchars(sprintf(t('upload_allowed_types_fmt'), !empty($premium_van) ? '60MB' : '5MB')) ?>
                     </p>
                 </div>
             </div>
             <div id="markdown_wrap" style="display:none;">
-                <label for="markdown_note" class="text-sm md:text-base font-semibold">Markdown jegyzet:</label>
-                <textarea class="input w-full text-sm md:text-base" name="markdown_note" id="markdown_note" rows="10" placeholder="# Cím&#10;&#10;- Lista&#10;- **Félkövér**&#10;- ```kód```&#10;&#10;Ide írd a jegyzetet..."></textarea>
+                <label for="markdown_note" class="text-sm md:text-base font-semibold">
+                    <?= htmlspecialchars(t('upload_label_markdown')) ?>
+                </label>
+                <textarea class="input w-full text-sm md:text-base" name="markdown_note" id="markdown_note" rows="10" placeholder="<?= htmlspecialchars(t('upload_placeholder_markdown')) ?>">
+                </textarea>
                 <p class="entry-meta" style="margin-top:6px;">
-                    Tipp: Markdown szintaxis (#, **félkövér**, - lista, `kód` stb.). Max 2MB.
+                    <?= htmlspecialchars(t('upload_markdown_tip')) ?>
                 </p>
             </div>
-			<div id="link_wrap" style="display:none;">
-				<label for="external_url" class="text-sm md:text-base font-semibold">Videó link:</label>
-				<input class="input w-full text-sm md:text-base" type="url" name="external_url" id="external_url" placeholder="https://www.youtube.com/watch?v=... vagy más videó link">
-				<p class="entry-meta" style="margin-top:6px;">
-					Tipp: YouTube, Vimeo, TikTok, Drive megosztás - bármi jöhet, ami URL.
-				</p>
-			</div>
-            <button type="submit" name="upload-btn" class="btn-cta w-full md:w-auto text-sm md:text-base mt-2">Feltöltés</button>
+            <div id="link_wrap" style="display:none;">
+                <label for="external_url" class="text-sm md:text-base font-semibold">
+                    <?= htmlspecialchars(t('upload_label_video_link')) ?>
+                </label>
+                <input class="input w-full text-sm md:text-base" type="url" name="external_url" id="external_url" placeholder="<?= htmlspecialchars(t('upload_placeholder_video_link')) ?>">
+                <p class="entry-meta" style="margin-top:6px;">
+                    <?= htmlspecialchars(t('upload_video_tip')) ?>
+                </p>
+            </div>
+            <button type="submit" name="upload-btn" class="btn-cta w-full md:w-auto text-sm md:text-base mt-2">
+                <?= htmlspecialchars(t('upload_submit')) ?>
+            </button>
         </form>
     </div>
 </div>

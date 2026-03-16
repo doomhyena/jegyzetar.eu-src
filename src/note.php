@@ -202,27 +202,14 @@
                         <?php if ($isOwner): ?>
                             <a class="btn-cta text-sm md:text-base" href="note_stats.php?id=<?= $file_id ?>">Statisztikák</a>
                         <?php endif; ?>
-                        <?php if ($isLoggedIn): ?>
-                            <div class="profile-report w-full md:w-auto min-w-0 md:min-w-[240px]">
-                                <form method="post" action="assets/php/report.php" id="note-report-form">
-                                    <input type="hidden" name="type" value="note">
-                                    <input type="hidden" name="target_id" value="<?= (int)$file_id ?>">
-                                    <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
-                                    <button type="button" class="btn-ghost danger text-sm md:text-base w-full md:w-auto" id="report-toggle-btn">
-                                        Jegyzet jelentése
-                                    </button>
-                                    <div id="report-box" class="hidden mt-2 w-full">
-                                        <textarea name="reason" rows="3" required
-                                                  placeholder="Írd le, miért jelented..."
-                                                  class="w-full resize-y mb-2 p-2 rounded"></textarea>
-
-                                        <button type="submit" class="btn-cta danger text-sm md:text-base w-full"
-                                                onclick="return confirm('Biztosan elküldöd a jelentést?');">
-                                            Jelentés elküldése
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
+                        <?php if ($isLoggedIn && !$isOwner): ?>
+                            <?php
+                                $report_type = 'note';
+                                $report_target_id = $file_id;
+                                $report_label = 'Jegyzet jelentése';
+                                $report_extra_class = 'w-full md:w-auto';
+                                include '_report_widget.php';
+                            ?>
                         <?php endif; ?>
                     </div>
                 </header>
@@ -232,12 +219,9 @@
                     </section>
 				<?php else: ?>
 					<?php
-					// Innen szeded a linket – állítsd arra a mezőre, ahol tárolod!
-					// Ha nálad a DB-ben külön oszlop, pl. video_url, akkor azt használd.
-					$maybeUrl = $note['external_url'] ?? '';
-					$yt = youtube_embed_url($maybeUrl);
+                        $maybeUrl = $note['external_url'] ?? '';
+                        $yt = youtube_embed_url($maybeUrl);
 					?>
-
 					<?php if ($yt): ?>
 					  <div class="w-full overflow-hidden rounded-lg mb-4">
 					    <iframe

@@ -14,7 +14,7 @@
 
     $BUG_TABLE = "bug_reports";
 
-    $currentUserId = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null;
+    $currentUserId = (int)$_COOKIE['id'];
 
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

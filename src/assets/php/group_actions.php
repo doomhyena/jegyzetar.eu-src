@@ -34,6 +34,91 @@ if (isset($_POST['join_group']) && !$aktualis_felhasznalo_tag) {
     }
 }
 
+// KOMMENT FAL
+if (isset($_POST['uj_komment'])) {
+    $komment_szoveg = trim($_POST['komment_szoveg'] ?? '');
+
+    if (($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj) && $komment_szoveg !== '') {
+        db_exec(
+            $conn,
+            "INSERT INTO group_comments (group_id, user_id, comment_text) VALUES (?, ?, ?)",
+            "iis",
+            [$csoport_id, $aktualis_felhasznalo_id, $komment_szoveg]
+        );
+    }
+
+    header("Location: group.php?id=" . $csoport_id);
+    exit;
+}
+
+// KOMMENT TÖRLÉS
+if (isset($_POST['komment_torles'])) {
+
+    $torlendo_komment_id = (int)($_POST['komment_id'] ?? 0);
+
+    if ($torlendo_komment_id > 0) {
+
+        $komment_lekerdezes = db_query(
+            $conn,
+            "SELECT * FROM group_comments WHERE id = ? AND group_id = ? LIMIT 1",
+            "ii",
+            [$torlendo_komment_id, $csoport_id]
+        );
+
+        if ($komment_lekerdezes && $komment_lekerdezes->num_rows > 0) {
+            $komment_sor = $komment_lekerdezes->fetch_assoc();
+
+            $komment_iro_id = (int)$komment_sor['user_id'];
+            $aktualis_id = (int)$aktualis_felhasznalo_id;
+
+            $sajat_komment = ($komment_iro_id === $aktualis_id);
+            $tulaj_torolhet = $aktualis_felhasznalo_tulaj;
+            $admin_torolhet = (isset($user['admin']) && (int)$user['admin'] === 1);
+
+            if ($sajat_komment || $tulaj_torolhet || $admin_torolhet) {
+                db_exec(
+                    $conn,
+                    "DELETE FROM group_comments WHERE id = ? AND group_id = ?",
+                    "ii",
+                    [$torlendo_komment_id, $csoport_id]
+                );
+
+                echo "<script>alert('A komment törölve lett.');</script>";
+            } else {
+                echo "<script>alert('Nincs jogosultságod ennek a kommentnek a törléséhez.');</script>";
+            }
+        }
+    }
+
+    header("Location: group.php?id=" . $csoport_id);
+    exit;
+}
+
+// ESEMÉNY HOZZÁADÁS
+if (isset($_POST['uj_esemeny']) && ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj)) {
+
+    $title = trim($_POST['event_title'] ?? '');
+    $description = trim($_POST['event_desc'] ?? '');
+    $date = $_POST['event_date'] ?? '';
+
+    if ($title == "" || $date == "") {
+        echo "<script>alert('Az esemény neve és dátuma kötelező!');</script>";
+    } else {
+
+        db_exec(
+            $conn,
+            "INSERT INTO group_events (group_id, created_by, title, description, event_date) VALUES (?, ?, ?, ?, ?)",
+            "iisss",
+            [$csoport_id, $aktualis_felhasznalo_id, $title, $description, $date]
+        );
+
+        echo "<script>alert('Esemény hozzáadva!');</script>";
+    }
+
+    header("Location: group.php?id=".$csoport_id);
+    exit;
+}
+
 // FLASHCARD HOZZÁADÁS
 if (isset($_POST['flashcard_add']) && ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj)) {
 
@@ -89,6 +174,85 @@ if (isset($_POST['flashcard_mark'])) {
     }
 
     header("Location: group.php?id=".$csoport_id."");
+    exit;
+}
+
+// POLL LÉTREHOZÁS
+if (isset($_POST['uj_poll']) && $aktualis_felhasznalo_tulaj) {
+
+    $kerdes = trim($_POST['poll_question'] ?? '');
+    $opt1 = trim($_POST['opt1'] ?? '');
+    $opt2 = trim($_POST['opt2'] ?? '');
+    $opt3 = trim($_POST['opt3'] ?? '');
+
+    if ($kerdes == "" || $opt1 == "" || $opt2 == "") {
+        echo "<script>alert('Legalább 2 opció kell!');</script>";
+    } else {
+
+        $conn->query("
+            INSERT INTO group_polls (group_id, created_by, question)
+            VALUES ('$csoport_id', '$aktualis_felhasznalo_id', '$kerdes')
+        ");
+
+        $poll_id = $conn->insert_id;
+
+        $conn->query("INSERT INTO group_poll_options (poll_id, option_text) VALUES ('$poll_id','$opt1')");
+        $conn->query("INSERT INTO group_poll_options (poll_id, option_text) VALUES ('$poll_id','$opt2')");
+
+        if ($opt3 != "") {
+            $conn->query("INSERT INTO group_poll_options (poll_id, option_text) VALUES ('$poll_id','$opt3')");
+        }
+
+        echo "<script>alert('Szavazás létrehozva!');</script>";
+    }
+
+    header("Location: group.php?id=".$csoport_id);
+    exit;
+}
+
+// POLL LEZÁRÁSA
+if (isset($_POST['poll_close']) && $aktualis_felhasznalo_tulaj) {
+
+    $poll_id = (int)$_POST['poll_id'];
+
+    $conn->query("
+        UPDATE group_polls
+        SET closed = 1
+        WHERE id='$poll_id'
+        AND group_id='$csoport_id'
+    ");
+
+    echo "<script>alert('Szavazás lezárva!');</script>";
+
+    header("Location: group.php?id=".$csoport_id);
+    exit;
+}
+
+// SZAVAZÁS
+if (isset($_POST['poll_vote'])) {
+
+    $option_id = (int)$_POST['option_id'];
+    $poll_id = (int)$_POST['poll_id'];
+
+    $ellenorzes = $conn->query("
+        SELECT id FROM group_poll_votes
+        WHERE poll_id='$poll_id'
+        AND user_id='$aktualis_felhasznalo_id'
+    ");
+
+    if ($ellenorzes->num_rows == 0) {
+
+        $conn->query("
+            INSERT INTO group_poll_votes (poll_id, option_id, user_id)
+            VALUES ('$poll_id','$option_id','$aktualis_felhasznalo_id')
+        ");
+
+        echo "<script>alert('Szavazat rögzítve!');</script>";
+    } else {
+        echo "<script>alert('Már szavaztál!');</script>";
+    }
+
+    header("Location: group.php?id=".$csoport_id);
     exit;
 }
 

@@ -79,17 +79,17 @@
             $like  = '%' . $q . '%';
             $start = $q . '%';
 
-            $where = "WHERE u.username LIKE ? OR u.firstname LIKE ? OR u.lastname LIKE ?";
+            $where = "WHERE u.username LIKE ? OR (u.show_fullname = 1 AND (u.firstname LIKE ? OR u.lastname LIKE ?))";
             $types = 'sss';
             $params = [$like, $like, $like];
 
-            $order = "ORDER BY CASE WHEN u.username LIKE ? THEN 0 WHEN u.firstname LIKE ? THEN 1 WHEN u.lastname LIKE ? THEN 2 ELSE 3 END, u.username ASC";
+            $order = "ORDER BY CASE WHEN u.username LIKE ? THEN 0 WHEN u.show_fullname = 1 AND u.firstname LIKE ? THEN 1 WHEN u.show_fullname = 1 AND u.lastname LIKE ? THEN 2 ELSE 3 END, u.username ASC";
 
             $types .= 'sss';
             array_push($params, $start, $start, $start);
         }
 
-        $sqlUsers = "SELECT u.id, u.username, u.firstname, u.lastname, u.profile_picture FROM users u $where $order LIMIT 50";
+        $sqlUsers = "SELECT u.id, u.username, u.firstname, u.lastname, u.profile_picture, u.show_fullname FROM users u $where $order LIMIT 50";
         $userResult = db_query($conn, $sqlUsers, $types, $params);
     }
 
@@ -370,13 +370,13 @@
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($lang) ?>">
 <head>
-    <title>Keresés</title>
+    <title><?= htmlspecialchars(t('search_page_title', 'Keresés')) ?></title>
     <meta charset="UTF-8">
     <meta name="description" content="<?= t('meta_description_home') ?>">
     <meta name="keywords" content="<?= t('meta_keywords_home') ?>">
     <meta name='author' content='Baranyi Norbert, Csontos Kincső, Szekeres Levente'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-iconre" href="assets/img/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -391,10 +391,18 @@
             <form method="GET" class="search-form-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <input type="hidden" name="page" value="1">
                 <div class="form-field md:col-span-2 lg:col-span-4">
-                    <label for="q" class="text-sm md:text-base mb-2 block"><?= t('search_placeholder') ?? 'Keresés...' ?></label>
+                    <label for="q" class="text-sm md:text-base mb-2 block">
+                        <?= htmlspecialchars(t('search_input_label', 'Keresés')) ?>
+                    </label>
                     <div class="search-input-wrapper flex gap-2">
-                        <input type="text" name="q" id="q" value="<?= htmlspecialchars($q) ?>" class="input flex-1 text-sm md:text-base" placeholder="Írd be mit keresel...">
-                        <button type="submit" class="btn-cta flex-shrink-0">
+                        <input
+                            type="text"
+                            name="q"
+                            id="q"
+                            value="<?= htmlspecialchars($q) ?>"
+                            class="input flex-1 text-sm md:text-base"
+                            placeholder="<?= htmlspecialchars(t('search_input_placeholder', 'Írd be mit keresel...')) ?>">
+                        <button type="submit" class="btn-cta flex-shrink-0" title="<?= htmlspecialchars(t('search_page_title', 'Keresés')) ?>">
                             <svg class="icon icon-search w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -403,61 +411,100 @@
                     </div>
                 </div>
                 <div class="form-field">
-                    <label class="text-sm md:text-base mb-2 block"><?= t('label_scope') ?? 'Hol keressünk?' ?></label>
+                    <label class="text-sm md:text-base mb-2 block"><?= htmlspecialchars(t('label_scope', 'Hol keressünk?')) ?></label>
                     <select name="scope" class="select w-full text-sm md:text-base">
-                        <option value="all" <?= $scope === 'all' ? 'selected' : '' ?>>Mindenhol</option>
-                        <option value="files" <?= $scope === 'files' ? 'selected' : '' ?>>Csak fájlok</option>
-                        <option value="users" <?= $scope === 'users' ? 'selected' : '' ?>>Csak felhasználók</option>
+                        <option value="all" <?= $scope === 'all' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_scope_all_everywhere', 'Mindenhol')) ?>
+                        </option>
+                        <option value="files" <?= $scope === 'files' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_scope_files_only', 'Csak fájlok')) ?>
+                        </option>
+                        <option value="users" <?= $scope === 'users' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_scope_users_only', 'Csak felhasználók')) ?>
+                        </option>
                     </select>
                 </div>
                 <div class="form-field">
-                    <label class="text-sm md:text-base mb-2 block"><?= t('label_type') ?? 'Fájltípus' ?></label>
+                    <label class="text-sm md:text-base mb-2 block"><?= htmlspecialchars(t('label_type', 'Fájltípus')) ?></label>
                     <select name="type" class="select w-full text-sm md:text-base">
-                        <option value="all" <?= $type === 'all' ? 'selected' : '' ?>>Összes típus</option>
+                        <option value="all" <?= $type === 'all' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_type_all_types', 'Összes típus')) ?>
+                        </option>
                         <option value="pdf" <?= $type === 'pdf' ? 'selected' : '' ?>>PDF</option>
-                        <option value="mp4" <?= $type === 'mp4' ? 'selected' : '' ?>>Videó (MP4)</option>
-                        <option value="docx" <?= $type === 'docx' ? 'selected' : '' ?>>Word (DOCX)</option>
+                        <option value="mp4" <?= $type === 'mp4' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_type_video_mp4', 'Videó (MP4)')) ?>
+                        </option>
+                        <option value="docx" <?= $type === 'docx' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t ('search_type_word_docx', 'Word (DOCX)')) ?>
+                        </option>
                     </select>
                 </div>
                 <div class="form-field">
-                    <label class="text-sm md:text-base mb-2 block">Szint</label>
+                    <label class="text-sm md:text-base mb-2 block"><?= htmlspecialchars(t('search_level_label', 'Szint')) ?></label>
                     <select name="level" class="select w-full text-sm md:text-base">
-                        <option value="all"  <?= ($levelRaw === 'all' || $levelRaw === '' || $levelRaw === null) ? 'selected' : '' ?>>Összes</option>
-                        <option value="none" <?= ($levelRaw === 'none') ? 'selected' : '' ?>>Nincs megadva</option>
-                        <optgroup label="Technikum (9-13)">
+                        <option value="all" <?= ($levelRaw === 'all' || $levelRaw === '' || $levelRaw === null) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_level_all', 'Összes')) ?>
+                        </option>
+                        <option value="none" <?= ($levelRaw === 'none') ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_level_none', 'Nincs megadva')) ?>
+                        </option>
+                        <optgroup label="<?= htmlspecialchars(t('search_level_group_hs', 'Technikum (9-13)')) ?>">
                             <?php for ($y = 9; $y <= 13; $y++): $v = "hs-$y"; ?>
-                                <option value="<?= $v ?>" <?= ((string)$levelRaw === (string)$v) ? 'selected' : '' ?>><?= $y ?>. évfolyam</option>
+                                <option value="<?= $v ?>" <?= ((string)$levelRaw === (string)$v) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars(sprintf(t('search_hs_year_fmt', '%d. évfolyam'), $y)) ?>
+                                </option>
                             <?php endfor; ?>
                         </optgroup>
-                        <optgroup label="Egyetem (1-7. félév)">
+                        <optgroup label="<?= htmlspecialchars(t('search_level_group_uni', 'Egyetem (1-7. félév)')) ?>">
                             <?php for ($sm = 1; $sm <= 7; $sm++): $v = "uni-$sm"; ?>
-                                <option value="<?= $v ?>" <?= ((string)$levelRaw === (string)$v) ? 'selected' : '' ?>><?= $sm ?>. félév</option>
+                                <option value="<?= $v ?>" <?= ((string)$levelRaw === (string)$v) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars(sprintf(t('search_uni_semester_fmt', '%d. félév'), $sm)) ?>
+                                </option>
                             <?php endfor; ?>
                         </optgroup>
                     </select>
                 </div>
                 <div class="form-field">
-                    <label class="text-sm md:text-base mb-2 block">Tag</label>
-                    <input type="text" name="tag" value="<?= htmlspecialchars($tagRaw) ?>" class="input w-full text-sm md:text-base" placeholder="pl. Tankönyv">
+                    <label class="text-sm md:text-base mb-2 block"><?= htmlspecialchars(t('search_tag_label', 'Tag')) ?></label>
+                    <input
+                        type="text"
+                        name="tag"
+                        value="<?= htmlspecialchars($tagRaw) ?>"
+                        class="input w-full text-sm md:text-base"
+                        placeholder="<?= htmlspecialchars(t('search_tag_placeholder', 'pl. Tankönyv')) ?>">
                 </div>
                 <div class="form-field">
-                    <label class="text-sm md:text-base mb-2 block">Keresési mód</label>
+                    <label class="text-sm md:text-base mb-2 block"><?= htmlspecialchars(t('search_mode_label', 'Keresési mód')) ?></label>
                     <select name="mode" class="select w-full text-sm md:text-base">
-                        <option value="all" <?= $mode === 'all' ? 'selected' : '' ?>>Minden szó (AND)</option>
-                        <option value="any" <?= $mode === 'any' ? 'selected' : '' ?>>Bármely szó (OR)</option>
+                        <option value="all" <?= $mode === 'all' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_mode_all_words', 'Minden szó (AND)')) ?>
+                        </option>
+                        <option value="any" <?= $mode === 'any' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_mode_any_word', 'Bármely szó (OR)')) ?>
+                        </option>
                     </select>
                 </div>
                 <div class="form-field md:col-span-2 lg:col-span-1">
-                    <label class="text-sm md:text-base mb-2 block"><?= t('label_sort') ?? 'Rendezés' ?></label>
+                    <label class="text-sm md:text-base mb-2 block"><?= htmlspecialchars(t('label_sort', 'Rendezés')) ?></label>
                     <select name="sort" class="select w-full text-sm md:text-base">
-                        <option value="relevance" <?= $sort === 'relevance' ? 'selected' : '' ?>>Relevancia</option>
-                        <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Legújabb elöl</option>
-                        <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>Legrégebbi elöl</option>
-                        <option value="downloads" <?= $sort === 'downloads' ? 'selected' : '' ?>>Legtöbb letöltés</option>
-                        <option value="rating" <?= $sort === 'rating' ? 'selected' : '' ?>>Legjobb értékelés</option>
+                        <option value="relevance" <?= $sort === 'relevance' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_sort_relevance', 'Relevancia')) ?>
+                        </option>
+                        <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_sort_newest', 'Legújabb elöl')) ?>
+                        </option>
+                        <option value="oldest" <?= $sort === 'oldest' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_sort_oldest', 'Legrégebbi elöl')) ?>
+                        </option>
+                        <option value="downloads" <?= $sort === 'downloads' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_sort_downloads', 'Legtöbb letöltés')) ?>
+                        </option>
+                        <option value="rating" <?= $sort === 'rating' ? 'selected' : '' ?>>
+                            <?= htmlspecialchars(t('search_sort_rating', 'Legjobb értékelés')) ?>
+                        </option>
                     </select>
                     <?php if ($sort === 'downloads' && !$hasDownloads): ?>
-                        <p class="text-xs opacity-70">(Nincs letöltésszámláló oszlop a <code>files</code>-ban)</p>
+                        <p class="text-xs opacity-70"><?= htmlspecialchars(t('search_download_counter_missing', '(Nincs letöltésszámláló oszlop a files táblában)')) ?></p>
                     <?php endif; ?>
                 </div>
             </form>
@@ -472,14 +519,15 @@
             ?>
             <?php if (!empty($eduFacet) && $useEdu): ?>
                 <div class="mb-6 -mt-2 flex flex-wrap gap-2 items-center">
-                    <span class="text-sm opacity-70 mr-2">Szint:</span>
+                    <span class="text-sm opacity-70 mr-2"><?= htmlspecialchars(t('search_facet_level', 'Szint:')) ?></span>
+
                     <?php
                         $allCnt = array_sum($eduFacet);
                         $isAllActive = ($levelRaw === 'all' || $levelRaw === '' || $levelRaw === null);
                     ?>
                     <a href="<?= htmlspecialchars($facetBuildUrl('all')) ?>"
                        class="px-3 py-1 rounded-full border text-sm transition-colors <?= $isAllActive ? 'bg-sky-400/20 border-sky-400/40 text-sky-200' : 'bg-white/5 hover:bg-white/10 border-white/10' ?>">
-                        Összes (<?= (int)$allCnt ?>)
+                        <?= htmlspecialchars(sprintf(t('search_facet_all_fmt', 'Összes (%d)'), (int)$allCnt)) ?>
                     </a>
                     <?php
                         $noneCnt = (int)($eduFacet['none'] ?? 0);
@@ -487,17 +535,17 @@
                     ?>
                     <a href="<?= htmlspecialchars($facetBuildUrl('none')) ?>"
                        class="px-3 py-1 rounded-full border text-sm transition-colors <?= $noneActive ? 'bg-sky-400/20 border-sky-400/40 text-sky-200' : 'bg-white/5 hover:bg-white/10 border-white/10' ?>">
-                        Nincs megadva (<?= $noneCnt ?>)
+                        <?= htmlspecialchars(sprintf(t('search_facet_none_fmt', 'Nincs megadva (%d)'), $noneCnt)) ?>
                     </a>
                     <?php for ($y = 9; $y <= 13; $y++):
                         $k = "hs-$y";
                         $cnt = (int)($eduFacet[$k] ?? 0);
                         $active = ((string)$levelRaw === (string)$k);
                         $disabled = ($cnt === 0);
-                        ?>
+                    ?>
                         <a href="<?= htmlspecialchars($facetBuildUrl($k)) ?>"
                            class="px-3 py-1 rounded-full border text-sm transition-colors <?= $active ? 'bg-sky-400/20 border-sky-400/40 text-sky-200' : ($disabled ? 'opacity-40 pointer-events-none bg-white/5 border-white/10' : 'bg-white/5 hover:bg-white/10 border-white/10') ?>">
-                            <?= $y ?>. évf. (<?= $cnt ?>)
+                            <?= htmlspecialchars(sprintf(t('search_hs_year_fmt', '%d. évfolyam'), $y)) ?> (<?= $cnt ?>)
                         </a>
                     <?php endfor; ?>
 
@@ -506,22 +554,24 @@
                         $cnt = (int)($eduFacet[$k] ?? 0);
                         $active = ((string)$levelRaw === (string)$k);
                         $disabled = ($cnt === 0);
-                        ?>
+                    ?>
                         <a href="<?= htmlspecialchars($facetBuildUrl($k)) ?>"
                            class="px-3 py-1 rounded-full border text-sm transition-colors <?= $active ? 'bg-sky-400/20 border-sky-400/40 text-sky-200' : ($disabled ? 'opacity-40 pointer-events-none bg-white/5 border-white/10' : 'bg-white/5 hover:bg-white/10 border-white/10') ?>">
-                            <?= $sm ?>. félév (<?= $cnt ?>)
+                            <?= htmlspecialchars(sprintf(t('search_uni_semester_fmt', '%d. félév'), $sm)) ?> (<?= $cnt ?>)
                         </a>
                     <?php endfor; ?>
                 </div>
             <?php endif; ?>
         </section>
         <?php if ($userResult && $userResult->num_rows > 0): ?>
-            <h3 class="text-xl md:text-2xl mb-4"><?= t('result_users') ?></h3>
+            <h3 class="text-xl md:text-2xl mb-4"><?= htmlspecialchars(t('result_users', 'Felhasználók')) ?></h3>
             <div class="list-compact flex flex-col gap-3 mb-6">
                 <?php while ($u = $userResult->fetch_assoc()):
                     $usernameRaw = $u['username'];
                     $username = htmlspecialchars($usernameRaw);
-                    $fullname = htmlspecialchars(trim(($u['lastname'] ?? '').' '.($u['firstname'] ?? '')));
+                    $fullname = ((int)($u['show_fullname'] ?? 0) === 1)
+                        ? htmlspecialchars(trim(($u['lastname'] ?? '').' '.($u['firstname'] ?? '')))
+                        : '';
                     $pfp = "assets/img/default_profile_picture.jpg";
                     if (!empty($u['profile_picture'])) {
                         $fs = __DIR__ . "/users/$usernameRaw/{$u['profile_picture']}";
@@ -529,7 +579,7 @@
                             $pfp = "users/$usernameRaw/{$u['profile_picture']}";
                         }
                     }
-                    ?>
+                ?>
                     <article class="mini-card flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
                         <img src="<?= htmlspecialchars($pfp) ?>" alt="" class="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-white/10 flex-shrink-0">
                         <div class="mini-main flex-1 min-w-0">
@@ -538,33 +588,33 @@
                         </div>
                         <a href="profile.php?username=<?= urlencode($usernameRaw) ?>"
                            class="btn-ghost text-sm md:text-base flex-shrink-0"
-                           title="<?= t('open_profile') ?>">
-                            <?= t('open_profile') ?>
+                           title="<?= htmlspecialchars(t('open_profile', 'Profil megnyitása')) ?>">
+                            <?= htmlspecialchars(t('open_profile', 'Profil megnyitása')) ?>
                         </a>
                     </article>
                 <?php endwhile; ?>
             </div>
         <?php endif; ?>
-        <?php if (is_array($fileResult) && count($fileResult) > 0): ?>
+        <?php if (is_array($fileResult) && count($fileResult) > 0): ?>B
             <div class="flex flex-wrap items-end justify-between gap-3 mt-6 md:mt-8 mb-4">
-                <h3 class="text-xl md:text-2xl"><?= t('result_files') ?></h3>
+                <h3 class="text-xl md:text-2xl"><?= htmlspecialchars(t('result_files', 'Fájlok')) ?></h3>
                 <?php
                     $showFrom = ($page - 1) * $perPage + 1;
                     $showTo   = min($fileTotal, $page * $perPage);
                     $needlesForUi = $GLOBALS['__search_tokens'] ?? [];
                 ?>
                 <div class="text-sm md:text-base opacity-80">
-                    Mutatom: <strong><?= (int)$showFrom ?>-<?= (int)$showTo ?></strong> / <?= (int)$fileTotal ?>
+                    <?= sprintf(t('search_results_showing_fmt', 'Mutatom: <strong>%d-%d</strong> / %d'), (int)$showFrom, (int)$showTo, (int)$fileTotal) ?>
                 </div>
             </div>
             <?php
                 $currentEduHeader = '__init__';
                 $renderEduHeader = function($s, $l) {
-                    if ($s === null || $l === null || $s === '' || $l === '') return 'Nincs megadva';
+                    if ($s === null || $l === null || $s === '' || $l === '') return t('search_edu_none', 'Nincs megadva');
                     $l = (int)$l;
-                    if ($s === 'hs') return "Technikum - {$l}. évfolyam";
-                    if ($s === 'uni') return "Egyetem - {$l}. félév";
-                    return 'Nincs megadva';
+                    if ($s === 'hs') return sprintf(t('search_edu_hs_fmt', 'Technikum - %d. évfolyam'), $l);
+                    if ($s === 'uni') return sprintf(t('search_edu_uni_fmt', 'Egyetem - %d. félév'), $l);
+                    return t('search_edu_none', 'Nincs megadva');
                 };
             ?>
             <div class="content-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -574,9 +624,10 @@
                     $stVal = ($useEdu ? ($f['edu_stage'] ?? null) : null);
                     $lvVal = ($useEdu ? ($f['edu_level'] ?? null) : null);
                     $eduKey = ($useEdu ? (($stVal === null || $lvVal === null) ? '__null__' : ((string)$stVal . '-' . (string)$lvVal)) : '__nogroup__');
+
                     if ($useEdu && $eduKey !== $currentEduHeader):
                         $currentEduHeader = $eduKey;
-                        ?>
+                ?>
                         <div class="md:col-span-2 lg:col-span-3">
                             <div class="sticky top-0 z-10 mb-3 rounded-xl bg-white/5 backdrop-blur border border-white/10 px-4 py-2">
                                 <h4 class="text-base md:text-lg font-semibold">
@@ -591,20 +642,19 @@
                         </h4>
                         <?php if (!empty($f['description'])):
                             $snippet = build_snippet((string)$f['description'], $needlesForUi, 90);
-                            ?>
+                        ?>
                             <p class="text-sm md:text-base opacity-80 mb-3 line-clamp-3">
                                 <?= highlight_many_html($snippet, $needlesForUi) ?>
                             </p>
                         <?php endif; ?>
                         <?php if ($uploader): ?>
                             <p class="entry-meta text-sm md:text-base mb-4">
-                                <?= t('label_uploaded_by') ?>
+                                <?= htmlspecialchars(t('label_uploaded_by', 'Feltöltötte:')) ?>
                                 <a class="uploader-name" href="profile.php?username=<?= urlencode($uploader) ?>">
                                     @<?= htmlspecialchars($uploader) ?>
                                 </a>
                             </p>
                         <?php endif; ?>
-
                         <div class="mt-auto flex flex-wrap gap-2 items-center">
                             <?php if ($sort === 'rating' && isset($f['avg_rating'])): ?>
                                 <span class="text-sm opacity-80">⭐ <?= number_format((float)$f['avg_rating'], 2) ?> (<?= (int)($f['rating_count'] ?? 0) ?>)</span>
@@ -614,11 +664,14 @@
                                         score=<?= (int)$f['score'] ?> (title=<?= (int)($f['s_title'] ?? 0) ?>, desc=<?= (int)($f['s_desc'] ?? 0) ?>, subj=<?= (int)($f['s_subject'] ?? 0) ?>)
                                     </span>
                                 <?php else: ?>
-                                    <span class="text-sm opacity-80">Pont: <?= (int)$f['score'] ?></span>
+                                    <span class="text-sm opacity-80">
+                                        <?= htmlspecialchars(sprintf(t('search_score_fmt', 'Pont: %d'), (int)$f['score'])) ?>
+                                    </span>
                                 <?php endif; ?>
                             <?php endif; ?>
+
                             <a class="note-link text-sm md:text-base ml-auto" href="note.php?id=<?= (int)$f['id'] ?>">
-                                <?= t('btn_details') ?>
+                                <?= htmlspecialchars(t('btn_details', 'Részletek')) ?>
                             </a>
                         </div>
                     </article>
@@ -627,7 +680,6 @@
             <?php
                 $useKeyset = $GLOBALS['__search_keyset'] ?? false;
                 $lastCursor = $GLOBALS['__search_lastCursor'] ?? null;
-
                 $totalPages = (int)max(1, ceil($fileTotal / max(1, $perPage)));
                 $buildUrl = function(int $targetPage) {
                     $params = $_GET;
@@ -635,7 +687,6 @@
                     unset($params['cursor']);
                     return 'search.php?' . http_build_query($params);
                 };
-
                 $buildCursorUrl = function($cursorVal) {
                     $params = $_GET;
                     $params['page'] = 1;
@@ -645,36 +696,51 @@
             ?>
             <?php if ($useKeyset && $lastCursor !== null): ?>
                 <div class="flex items-center justify-center gap-3 mt-8">
-                    <a class="btn-sm btn-ghost" href="<?= htmlspecialchars($buildCursorUrl((int)$lastCursor)) ?>">Továbbiak →</a>
-                    <a class="btn-sm btn-ghost opacity-70" href="<?= htmlspecialchars($buildUrl(1)) ?>">Vissza lapozáshoz</a>
+                    <a class="btn-sm btn-ghost" href="<?= htmlspecialchars($buildCursorUrl((int)$lastCursor)) ?>">
+                        <?= htmlspecialchars(t('search_more', 'Továbbiak →')) ?>
+                    </a>
+                    <a class="btn-sm btn-ghost opacity-70" href="<?= htmlspecialchars($buildUrl(1)) ?>">
+                        <?= htmlspecialchars(t('search_back_to_paging', 'Vissza lapozáshoz')) ?>
+                    </a>
                 </div>
             <?php elseif ($totalPages > 1): ?>
                 <div class="flex items-center justify-center gap-3 mt-8">
-                    <a class="btn-sm btn-ghost <?= $page <= 1 ? 'opacity-50 pointer-events-none' : '' ?>" href="<?= htmlspecialchars($buildUrl(max(1, $page - 1))) ?>">← Előző</a>
-                    <span class="text-sm opacity-80">Oldal <?= (int)$page ?> / <?= (int)$totalPages ?></span>
-                    <a class="btn-sm btn-ghost <?= $page >= $totalPages ? 'opacity-50 pointer-events-none' : '' ?>" href="<?= htmlspecialchars($buildUrl(min($totalPages, $page + 1))) ?>">Következő →</a>
+                    <a class="btn-sm btn-ghost <?= $page <= 1 ? 'opacity-50 pointer-events-none' : '' ?>" href="<?= htmlspecialchars($buildUrl(max(1, $page - 1))) ?>">
+                        <?= htmlspecialchars(t('search_prev', '← Előző')) ?>
+                    </a>
+                    <span class="text-sm opacity-80">
+                        <?= htmlspecialchars(sprintf(t('search_page_fmt', 'Oldal %d / %d'), (int)$page, (int)$totalPages)) ?>
+                    </span>
+                    <a class="btn-sm btn-ghost <?= $page >= $totalPages ? 'opacity-50 pointer-events-none' : '' ?>" href="<?= htmlspecialchars($buildUrl(min($totalPages, $page + 1))) ?>">
+                        <?= htmlspecialchars(t('search_next', 'Következő →')) ?>
+                    </a>
                 </div>
             <?php endif; ?>
         <?php elseif ($scope !== 'users'): ?>
             <div class="mt-6 md:mt-8 card p-4 md:p-6 opacity-90">
-                <h3 class="text-xl md:text-2xl mb-2">Nincs találat</h3>
+                <h3 class="text-xl md:text-2xl mb-2"><?= htmlspecialchars(t('search_no_results_title', 'Nincs találat')) ?></h3>
                 <?php
-                $didYouMean = $GLOBALS['__search_didYouMean'] ?? [];
-                $qNorm = $q !== '' ? strip_accents($q) : '';
-                $suggestLinks = [];
-                foreach ($didYouMean as $sug) {
-                    $p = $_GET;
-                    $p['q'] = $sug;
-                    $p['page'] = 1;
-                    $suggestLinks[] = ['label'=>$sug, 'url'=>'search.php?' . http_build_query($p)];
-                }
+                    $didYouMean = $GLOBALS['__search_didYouMean'] ?? [];
+                    $qNorm = $q !== '' ? strip_accents($q) : '';
+                    $suggestLinks = [];
+                    foreach ($didYouMean as $sug) {
+                        $p = $_GET;
+                        $p['q'] = $sug;
+                        $p['page'] = 1;
+                        $suggestLinks[] = ['label'=>$sug, 'url'=>'search.php?' . http_build_query($p)];
+                    }
                 ?>
                 <?php if ($q !== '' && $qNorm !== '' && $qNorm !== mb_strtolower($q, 'UTF-8')): ?>
-                    <p class="mb-3 opacity-80">Tipp: próbáld ékezetek nélkül: <a class="underline" href="<?= htmlspecialchars('search.php?' . http_build_query(array_merge($_GET, ['q'=>$qNorm,'page'=>1]))) ?>"><?= htmlspecialchars($qNorm) ?></a></p>
+                    <p class="mb-3 opacity-80">
+                        <?= htmlspecialchars(sprintf(t('search_no_results_accent_tip_fmt', 'Tipp: próbáld ékezetek nélkül: %s'), $qNorm)) ?>
+                        <a class="underline" href="<?= htmlspecialchars('search.php?' . http_build_query(array_merge($_GET, ['q'=>$qNorm,'page'=>1]))) ?>">
+                            <?= htmlspecialchars($qNorm) ?>
+                        </a>
+                    </p>
                 <?php endif; ?>
                 <?php if (!empty($suggestLinks)): ?>
                     <div class="mb-3">
-                        <p class="opacity-80 mb-2">Erre gondoltál?</p>
+                        <p class="opacity-80 mb-2"><?= htmlspecialchars(t('search_did_you_mean', 'Erre gondoltál?')) ?></p>
                         <div class="flex flex-wrap gap-2">
                             <?php foreach ($suggestLinks as $sl): ?>
                                 <a class="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm" href="<?= htmlspecialchars($sl['url']) ?>">
@@ -685,9 +751,9 @@
                     </div>
                 <?php endif; ?>
                 <ul class="list-disc pl-5 opacity-80">
-                    <li>Próbáld meg rövidebb kulcsszóval.</li>
-                    <li>Töröld a szűrőket (szint / tag / típus), és nézd meg úgy.</li>
-                    <li>Ha csak böngésznél, hagyd üresen a keresést.</li>
+                    <li><?= htmlspecialchars(t('search_no_results_try_shorter', 'Próbáld meg rövidebb kulcsszóval.')) ?></li>
+                    <li><?= htmlspecialchars(t('search_no_results_clear_filters', 'Töröld a szűrőket (szint / tag / típus), és nézd meg úgy.')) ?></li>
+                    <li><?= htmlspecialchars(t('search_no_results_browse_empty', 'Ha csak böngésznél, hagyd üresen a keresést.')) ?></li>
                 </ul>
             </div>
         <?php endif; ?>

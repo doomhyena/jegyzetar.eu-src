@@ -703,14 +703,14 @@
                         $targetLabel = 'Ismeretlen cél';
 
                         if ($targetType === 'user') {
-                            $targetUrl = 'profile.php?userid=' . $targetId;
-
                             $uRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [$targetId]);
                             $uRow = $uRes ? $uRes->fetch_assoc() : null;
 
                             if ($uRow && isset($uRow['username'])) {
+                                $targetUrl   = 'profile.php?user=' . urlencode($uRow['username']);
                                 $targetLabel = 'Felhasználó: @' . $uRow['username'];
                             } else {
+                                $targetUrl   = '#';
                                 $targetLabel = 'Felhasználó ID: ' . $targetId;
                             }
 
@@ -758,11 +758,11 @@
                         <td>
                             <?php
                                 if ($rep['status'] === 'open') {
-                                    echo 'Nyitott';
+                                    echo '<span class="badge badge-active">Nyitott</span>';
                                 } elseif ($rep['status'] === 'resolved') {
-                                    echo 'Megoldva';
+                                    echo '<span class="badge badge-inactive">Megoldva</span>';
                                 } else {
-                                    echo 'Elutasítva';
+                                    echo '<span class="badge badge-expired">Elutasítva</span>';
                                 }
                             ?>
                         </td>
