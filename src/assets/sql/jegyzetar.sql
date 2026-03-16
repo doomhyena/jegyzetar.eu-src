@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Már 10. 03:09
+-- Létrehozás ideje: 2026. Már 16. 18:09
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -20,21 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Adatbázis: `jegyzetar`
 --
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `2fa_backup_codes`
---
-
-CREATE TABLE `2fa_backup_codes` (
-  `id` int(11) NOT NULL,
-  `userid` int(11) NOT NULL,
-  `code_hash` varchar(255) NOT NULL,
-  `used` tinyint(1) NOT NULL DEFAULT 0,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `used_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -164,7 +149,8 @@ CREATE TABLE `favorites` (
 INSERT INTO `favorites` (`id`, `user_id`, `file_id`, `created_at`) VALUES
 (1, 4, 1, '2025-12-02 10:54:38'),
 (3, 1, 2, '2026-01-17 16:36:51'),
-(5, 1, 3, '2026-02-21 21:05:14');
+(5, 1, 3, '2026-02-21 21:05:14'),
+(6, 1, 5, '2026-02-25 13:21:43');
 
 -- --------------------------------------------------------
 
@@ -252,7 +238,13 @@ INSERT INTO `file_events` (`id`, `file_id`, `user_id`, `event_type`, `rating`, `
 (28, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-24 09:45:11'),
 (29, 4, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-24 09:45:16'),
 (30, 4, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:05:41'),
-(31, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:14:25');
+(31, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:14:25'),
+(32, 5, 1, 'rate', 5, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:21:40'),
+(33, 5, 1, 'favorite_add', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:21:43'),
+(34, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:30:33'),
+(35, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-26 20:55:35'),
+(36, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-02 02:40:26'),
+(37, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-09 22:14:53');
 
 -- --------------------------------------------------------
 
@@ -315,7 +307,7 @@ CREATE TABLE `groups` (
 
 INSERT INTO `groups` (`id`, `name`, `description`, `owner_id`, `is_private`, `created_at`, `reviewed_at`, `reviewed_by`, `status`) VALUES
 (1, 'Java Dolgozat felkészítő', 'Java dolgozatokra való felkészítés zajlik itt', 1, 0, '2026-02-10 09:10:06', '2026-02-12 10:50:42', 1, 'approved'),
-(2, 'Technika ora felkeszito', 'fel kell keszulni a dolgozatra', 11, 0, '2026-03-10 00:26:15', '2026-03-10 00:26:23', 11, 'approved');
+(2, 'C# dolgozat felkészítő', 'Gyertek szísárpozni', 1, 0, '2026-03-16 10:46:37', '2026-03-16 10:46:45', 1, 'approved');
 
 -- --------------------------------------------------------
 
@@ -330,14 +322,6 @@ CREATE TABLE `group_comments` (
   `comment_text` text NOT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- A tábla adatainak kiíratása `group_comments`
---
-
-INSERT INTO `group_comments` (`id`, `group_id`, `user_id`, `comment_text`, `created_at`) VALUES
-(1, 2, 11, 'Nagyon nehéz lesz a dolgozat!', '2026-03-10 00:38:42'),
-(4, 2, 12, 'igen az lesz', '2026-03-10 01:10:35');
 
 -- --------------------------------------------------------
 
@@ -354,13 +338,6 @@ CREATE TABLE `group_events` (
   `event_date` datetime NOT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- A tábla adatainak kiíratása `group_events`
---
-
-INSERT INTO `group_events` (`id`, `group_id`, `created_by`, `title`, `description`, `event_date`, `created_at`) VALUES
-(2, 2, 11, 'Dolgozat 2.0', '', '2026-03-19 15:34:00', '2026-03-10 01:32:42');
 
 -- --------------------------------------------------------
 
@@ -401,10 +378,10 @@ CREATE TABLE `group_flashcards` (
 --
 
 INSERT INTO `group_flashcards` (`id`, `group_id`, `created_by`, `question`, `answer`, `created_at`, `correct_count`, `wrong_count`) VALUES
-(1, 1, 10, 'asd', 'asd', '2026-02-24 01:48:55', 2, 2),
-(2, 1, 10, 'fgh', 'fgh', '2026-02-24 01:49:02', 4, 2),
-(3, 2, 10, 'asd', 'asd', '2026-02-24 01:49:36', 2, 1),
-(4, 2, 10, 'fgh', 'fgh', '2026-02-24 01:49:41', 2, 1);
+(1, 1, 10, 'asd', 'asd', '2026-02-24 01:48:55', 2, 0),
+(2, 1, 10, 'fgh', 'fgh', '2026-02-24 01:49:02', 2, 0),
+(3, 2, 10, 'asd', 'asd', '2026-02-24 01:49:36', 2, 0),
+(4, 2, 10, 'fgh', 'fgh', '2026-02-24 01:49:41', 2, 0);
 
 -- --------------------------------------------------------
 
@@ -427,10 +404,7 @@ CREATE TABLE `group_members` (
 
 INSERT INTO `group_members` (`id`, `group_id`, `user_id`, `role`, `status`, `joined_at`) VALUES
 (0, 0, 1, 'owner', 'accepted', '2026-02-10 09:10:06'),
-(0, 1, 11, 'member', 'accepted', '2026-03-10 00:19:50'),
-(0, 2, 11, 'owner', 'accepted', '2026-03-10 00:26:15'),
-(0, 1, 12, 'member', 'accepted', '2026-03-10 00:45:24'),
-(0, 2, 12, 'member', 'accepted', '2026-03-10 00:49:00');
+(0, 2, 1, 'owner', 'accepted', '2026-03-16 10:46:37');
 
 -- --------------------------------------------------------
 
@@ -995,7 +969,8 @@ CREATE TABLE `ratings` (
 INSERT INTO `ratings` (`id`, `file_id`, `user_id`, `rating`, `created_at`, `updated_at`) VALUES
 (1, 1, 4, 5, '2025-12-02 10:55:24', '2025-12-02 10:55:24'),
 (2, 2, 1, 5, '2025-12-16 01:00:56', '2026-01-17 20:16:40'),
-(3, 3, 1, 4, '2026-02-19 09:28:29', '2026-02-19 09:28:29');
+(3, 3, 1, 4, '2026-02-19 09:28:29', '2026-02-19 09:28:29'),
+(4, 5, 1, 5, '2026-02-25 13:21:40', '2026-02-25 13:21:40');
 
 -- --------------------------------------------------------
 
@@ -1011,14 +986,6 @@ CREATE TABLE `registration_code_uses` (
   `used_ip` varchar(45) DEFAULT NULL,
   `user_agent` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- A tábla adatainak kiíratása `registration_code_uses`
---
-
-INSERT INTO `registration_code_uses` (`id`, `user_id`, `reg_code`, `used_at`, `used_ip`, `user_agent`) VALUES
-(2, 11, 'EARLY-BETA-2025', '2026-03-10 00:18:21', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36'),
-(3, 12, 'EARLY-BETA-2025', '2026-03-10 00:43:57', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36');
 
 -- --------------------------------------------------------
 
@@ -1042,7 +1009,7 @@ CREATE TABLE `reg_codes` (
 --
 
 INSERT INTO `reg_codes` (`id`, `code`, `description`, `max_uses`, `used`, `expires_at`, `active`, `created_at`) VALUES
-(1, 'EARLY-BETA-2025', 'Nagyon korai béta tesztelő kód', 10, 3, NULL, 1, '2025-12-07 14:31:16');
+(1, 'EARLY-BETA-2025', 'Nagyon korai béta tesztelő kód', 10, 4, NULL, 0, '2025-12-07 14:31:16');
 
 -- --------------------------------------------------------
 
@@ -1202,9 +1169,7 @@ CREATE TABLE `tokens` (
 
 INSERT INTO `tokens` (`id`, `user_id`, `token`, `created_at`) VALUES
 (1, 8, 120502, '2025-12-15 22:19:29'),
-(2, 9, 668874, '2026-02-11 14:15:18'),
-(4, 11, 728254, '2026-03-09 23:18:22'),
-(5, 12, 496063, '2026-03-09 23:43:58');
+(2, 9, 668874, '2026-02-11 14:15:18');
 
 -- --------------------------------------------------------
 
@@ -2420,7 +2385,259 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (1193, 'msg_profile_update_success', 'en', 'Profile updated ✅'),
 (1194, 'msg_profile_update_success', 'de', 'Profil aktualisiert ✅'),
 (1195, 'btn_cancel', 'hu', 'Mégse'),
-(1196, 'btn_cancel', 'en', 'Cancel');
+(1196, 'btn_cancel', 'en', 'Cancel'),
+(1197, 'search_page_title', 'hu', 'Keresés'),
+(1198, 'search_page_title', 'en', 'Search'),
+(1199, 'search_page_title', 'de', 'Suche'),
+(1200, 'search_input_label', 'hu', 'Keresés'),
+(1201, 'search_input_label', 'en', 'Search'),
+(1202, 'search_input_label', 'de', 'Suche'),
+(1203, 'search_input_placeholder', 'hu', 'Írd be mit keresel...'),
+(1204, 'search_input_placeholder', 'en', 'Type what you are looking for...'),
+(1205, 'search_input_placeholder', 'de', 'Gib ein, wonach du suchst...'),
+(1206, 'search_scope_all_everywhere', 'hu', 'Mindenhol'),
+(1207, 'search_scope_all_everywhere', 'en', 'Everywhere'),
+(1208, 'search_scope_all_everywhere', 'de', 'Überall'),
+(1209, 'search_scope_files_only', 'hu', 'Csak fájlok'),
+(1210, 'search_scope_files_only', 'en', 'Files only'),
+(1211, 'search_scope_files_only', 'de', 'Nur Dateien'),
+(1212, 'search_scope_users_only', 'hu', 'Csak felhasználók'),
+(1213, 'search_scope_users_only', 'en', 'Users only'),
+(1214, 'search_scope_users_only', 'de', 'Nur Benutzer'),
+(1215, 'search_type_all_types', 'hu', 'Összes típus'),
+(1216, 'search_type_all_types', 'en', 'All types'),
+(1217, 'search_type_all_types', 'de', 'Alle Typen'),
+(1218, 'search_type_video_mp4', 'hu', 'Videó (MP4)'),
+(1219, 'search_type_video_mp4', 'en', 'Video (MP4)'),
+(1220, 'search_type_video_mp4', 'de', 'Video (MP4)'),
+(1221, 'search_type_word_docx', 'hu', 'Word (DOCX)'),
+(1222, 'search_type_word_docx', 'en', 'Word (DOCX)'),
+(1223, 'search_type_word_docx', 'de', 'Word (DOCX)'),
+(1224, 'search_level_label', 'hu', 'Szint'),
+(1225, 'search_level_label', 'en', 'Level'),
+(1226, 'search_level_label', 'de', 'Stufe'),
+(1227, 'search_level_all', 'hu', 'Összes'),
+(1228, 'search_level_all', 'en', 'All'),
+(1229, 'search_level_all', 'de', 'Alle'),
+(1230, 'search_level_none', 'hu', 'Nincs megadva'),
+(1231, 'search_level_none', 'en', 'Not specified'),
+(1232, 'search_level_none', 'de', 'Nicht angegeben'),
+(1233, 'search_level_group_hs', 'hu', 'Technikum (9-13)'),
+(1234, 'search_level_group_hs', 'en', 'Technical school (9-13)'),
+(1235, 'search_level_group_hs', 'de', 'Technikum (9-13)'),
+(1236, 'search_level_group_uni', 'hu', 'Egyetem (1-7. félév)'),
+(1237, 'search_level_group_uni', 'en', 'University (semester 1-7)'),
+(1238, 'search_level_group_uni', 'de', 'Universität (1.-7. Semester)'),
+(1239, 'search_hs_year_fmt', 'hu', '%d. évfolyam'),
+(1240, 'search_hs_year_fmt', 'en', 'Year %d'),
+(1241, 'search_hs_year_fmt', 'de', '%d. Jahrgang'),
+(1242, 'search_uni_semester_fmt', 'hu', '%d. félév'),
+(1243, 'search_uni_semester_fmt', 'en', 'Semester %d'),
+(1244, 'search_uni_semester_fmt', 'de', '%d. Semester'),
+(1245, 'search_tag_label', 'hu', 'Tag'),
+(1246, 'search_tag_label', 'en', 'Tag'),
+(1247, 'search_tag_label', 'de', 'Tag'),
+(1248, 'search_tag_placeholder', 'hu', 'pl. Tankönyv'),
+(1249, 'search_tag_placeholder', 'en', 'e.g. Textbook'),
+(1250, 'search_tag_placeholder', 'de', 'z. B. Lehrbuch'),
+(1251, 'search_mode_label', 'hu', 'Keresési mód'),
+(1252, 'search_mode_label', 'en', 'Search mode'),
+(1253, 'search_mode_label', 'de', 'Suchmodus'),
+(1254, 'search_mode_all_words', 'hu', 'Minden szó (AND)'),
+(1255, 'search_mode_all_words', 'en', 'All words (AND)'),
+(1256, 'search_mode_all_words', 'de', 'Alle Wörter (UND)'),
+(1257, 'search_mode_any_word', 'hu', 'Bármely szó (OR)'),
+(1258, 'search_mode_any_word', 'en', 'Any word (OR)'),
+(1259, 'search_mode_any_word', 'de', 'Beliebiges Wort (ODER)'),
+(1260, 'search_sort_relevance', 'hu', 'Relevancia'),
+(1261, 'search_sort_relevance', 'en', 'Relevance'),
+(1262, 'search_sort_relevance', 'de', 'Relevanz'),
+(1263, 'search_sort_newest', 'hu', 'Legújabb elöl'),
+(1264, 'search_sort_newest', 'en', 'Newest first'),
+(1265, 'search_sort_newest', 'de', 'Neueste zuerst'),
+(1266, 'search_sort_oldest', 'hu', 'Legrégebbi elöl'),
+(1267, 'search_sort_oldest', 'en', 'Oldest first'),
+(1268, 'search_sort_oldest', 'de', 'Älteste zuerst'),
+(1269, 'search_sort_downloads', 'hu', 'Legtöbb letöltés'),
+(1270, 'search_sort_downloads', 'en', 'Most downloads'),
+(1271, 'search_sort_downloads', 'de', 'Meiste Downloads'),
+(1272, 'search_sort_rating', 'hu', 'Legjobb értékelés'),
+(1273, 'search_sort_rating', 'en', 'Best rated'),
+(1274, 'search_sort_rating', 'de', 'Beste Bewertung'),
+(1275, 'search_download_counter_missing', 'hu', '(Nincs letöltésszámláló oszlop a files táblában)'),
+(1276, 'search_download_counter_missing', 'en', '(No download counter column in the files table)'),
+(1277, 'search_download_counter_missing', 'de', '(Keine Download-Zähler-Spalte in der files-Tabelle vorhanden)'),
+(1278, 'search_facet_level', 'hu', 'Szint:'),
+(1279, 'search_facet_level', 'en', 'Level:'),
+(1280, 'search_facet_level', 'de', 'Stufe:'),
+(1281, 'search_facet_all_fmt', 'hu', 'Összes (%d)'),
+(1282, 'search_facet_all_fmt', 'en', 'All (%d)'),
+(1283, 'search_facet_all_fmt', 'de', 'Alle (%d)'),
+(1284, 'search_facet_none_fmt', 'hu', 'Nincs megadva (%d)'),
+(1285, 'search_facet_none_fmt', 'en', 'Not specified (%d)'),
+(1286, 'search_facet_none_fmt', 'de', 'Nicht angegeben (%d)'),
+(1287, 'search_results_showing_fmt', 'hu', 'Mutatom: <strong>%d-%d</strong> / %d'),
+(1288, 'search_results_showing_fmt', 'en', 'Showing: <strong>%d-%d</strong> / %d'),
+(1289, 'search_results_showing_fmt', 'de', 'Angezeigt: <strong>%d-%d</strong> / %d'),
+(1290, 'search_edu_none', 'hu', 'Nincs megadva'),
+(1291, 'search_edu_none', 'en', 'Not specified'),
+(1292, 'search_edu_none', 'de', 'Nicht angegeben'),
+(1293, 'search_edu_hs_fmt', 'hu', 'Technikum - %d. évfolyam'),
+(1294, 'search_edu_hs_fmt', 'en', 'Technical school - Year %d'),
+(1295, 'search_edu_hs_fmt', 'de', 'Technikum - %d. Jahrgang'),
+(1296, 'search_edu_uni_fmt', 'hu', 'Egyetem - %d. félév'),
+(1297, 'search_edu_uni_fmt', 'en', 'University - Semester %d'),
+(1298, 'search_edu_uni_fmt', 'de', 'Universität - %d. Semester'),
+(1299, 'search_score_fmt', 'hu', 'Pont: %d'),
+(1300, 'search_score_fmt', 'en', 'Score: %d'),
+(1301, 'search_score_fmt', 'de', 'Punktzahl: %d'),
+(1302, 'search_more', 'hu', 'Továbbiak →'),
+(1303, 'search_more', 'en', 'Load more →'),
+(1304, 'search_more', 'de', 'Mehr laden →'),
+(1305, 'search_back_to_paging', 'hu', 'Vissza lapozáshoz'),
+(1306, 'search_back_to_paging', 'en', 'Back to paging'),
+(1307, 'search_back_to_paging', 'de', 'Zur Seitennavigation zurück'),
+(1308, 'search_prev', 'hu', '← Előző'),
+(1309, 'search_prev', 'en', '← Previous'),
+(1310, 'search_prev', 'de', '← Zurück'),
+(1311, 'search_next', 'hu', 'Következő →'),
+(1312, 'search_next', 'en', 'Next →'),
+(1313, 'search_next', 'de', 'Weiter →'),
+(1314, 'search_page_fmt', 'hu', 'Oldal %d / %d'),
+(1315, 'search_page_fmt', 'en', 'Page %d / %d'),
+(1316, 'search_page_fmt', 'de', 'Seite %d / %d'),
+(1317, 'search_no_results_title', 'hu', 'Nincs találat'),
+(1318, 'search_no_results_title', 'en', 'No results'),
+(1319, 'search_no_results_title', 'de', 'Keine Treffer'),
+(1320, 'search_no_results_accent_tip_fmt', 'hu', 'Tipp: próbáld ékezetek nélkül: %s'),
+(1321, 'search_no_results_accent_tip_fmt', 'en', 'Tip: try without accents: %s'),
+(1322, 'search_no_results_accent_tip_fmt', 'de', 'Tipp: versuche es ohne Akzente: %s'),
+(1323, 'search_did_you_mean', 'hu', 'Erre gondoltál?'),
+(1324, 'search_did_you_mean', 'en', 'Did you mean?'),
+(1325, 'search_did_you_mean', 'de', 'Meintest du?'),
+(1326, 'search_no_results_try_shorter', 'hu', 'Próbáld meg rövidebb kulcsszóval.'),
+(1327, 'search_no_results_try_shorter', 'en', 'Try a shorter keyword.'),
+(1328, 'search_no_results_try_shorter', 'de', 'Versuche ein kürzeres Stichwort.'),
+(1329, 'search_no_results_clear_filters', 'hu', 'Töröld a szűrőket (szint / tag / típus), és nézd meg úgy.'),
+(1330, 'search_no_results_clear_filters', 'en', 'Clear the filters (level / tag / type) and try again.'),
+(1331, 'search_no_results_clear_filters', 'de', 'Entferne die Filter (Stufe / Tag / Typ) und versuche es erneut.'),
+(1332, 'search_no_results_browse_empty', 'hu', 'Ha csak böngésznél, hagyd üresen a keresést.'),
+(1333, 'search_no_results_browse_empty', 'en', 'If you just want to browse, leave the search empty.'),
+(1334, 'search_no_results_browse_empty', 'de', 'Wenn du nur stöbern möchtest, lasse die Suche leer.'),
+(1335, 'result_users', 'de', 'Benutzer'),
+(1336, 'result_files', 'de', 'Dateien'),
+(1337, 'open_profile', 'de', 'Profil öffnen'),
+(1338, 'btn_details', 'de', 'Details'),
+(1339, 'label_uploaded_by', 'de', 'Hochgeladen von:'),
+(1340, 'label_scope', 'de', 'Wo soll gesucht werden?'),
+(1341, 'label_type', 'de', 'Dateityp'),
+(1342, 'label_sort', 'de', 'Sortierung'),
+(1343, 'search_placeholder', 'de', 'Suche…'),
+(1344, 'upload_page_title', 'hu', 'Új jegyzet feltöltése'),
+(1345, 'upload_page_title', 'en', 'Upload new note'),
+(1346, 'upload_page_title', 'de', 'Neue Notiz hochladen'),
+(1347, 'upload_label_name', 'hu', 'Anyag neve:'),
+(1348, 'upload_label_name', 'en', 'Title:'),
+(1349, 'upload_label_name', 'de', 'Titel:'),
+(1350, 'upload_placeholder_name', 'hu', 'pl. Fizika ZH anyag'),
+(1351, 'upload_placeholder_name', 'en', 'e.g. Physics test material'),
+(1352, 'upload_placeholder_name', 'de', 'z. B. Physik-Testmaterial'),
+(1353, 'upload_label_description', 'hu', 'Leírás:'),
+(1354, 'upload_label_description', 'en', 'Description:'),
+(1355, 'upload_label_description', 'de', 'Beschreibung:'),
+(1356, 'upload_placeholder_description', 'hu', 'Rövid leírás az anyagról...'),
+(1357, 'upload_placeholder_description', 'en', 'Short description of the material...'),
+(1358, 'upload_placeholder_description', 'de', 'Kurze Beschreibung des Materials...'),
+(1359, 'upload_label_subject', 'hu', 'Tárgy:'),
+(1360, 'upload_label_subject', 'en', 'Subject:'),
+(1361, 'upload_label_subject', 'de', 'Fach:'),
+(1362, 'upload_placeholder_subject', 'hu', 'pl. fizika, történelem'),
+(1363, 'upload_placeholder_subject', 'en', 'e.g. physics, history'),
+(1364, 'upload_placeholder_subject', 'de', 'z. B. Physik, Geschichte'),
+(1365, 'upload_private_note', 'hu', 'Privát jegyzet (csak te látod) – prémium'),
+(1366, 'upload_private_note', 'en', 'Private note (only visible to you) – premium'),
+(1367, 'upload_private_note', 'de', 'Private Notiz (nur für dich sichtbar) – Premium'),
+(1368, 'upload_private_premium_required', 'hu', 'A privát feltöltéshez prémium szükséges.'),
+(1369, 'upload_private_premium_required', 'en', 'Premium is required for private uploads.'),
+(1370, 'upload_private_premium_required', 'de', 'Für private Uploads ist Premium erforderlich.'),
+(1371, 'upload_label_level', 'hu', 'Évfolyam / félév:'),
+(1372, 'upload_label_level', 'en', 'Year / semester:'),
+(1373, 'upload_label_level', 'de', 'Jahrgang / Semester:'),
+(1374, 'upload_public_visible', 'hu', 'Nyilvános (megjelenjen a keresőben)'),
+(1375, 'upload_public_visible', 'en', 'Public (visible in search)'),
+(1376, 'upload_public_visible', 'de', 'Öffentlich (in der Suche sichtbar)'),
+(1377, 'upload_label_tags', 'hu', 'Címkék:'),
+(1378, 'upload_label_tags', 'en', 'Tags:'),
+(1379, 'upload_label_tags', 'de', 'Tags:'),
+(1380, 'upload_placeholder_tags', 'hu', 'Címkék.'),
+(1381, 'upload_placeholder_tags', 'en', 'Tags.'),
+(1382, 'upload_placeholder_tags', 'de', 'Tags.'),
+(1383, 'upload_label_content_type', 'hu', 'Feltöltés típusa:'),
+(1384, 'upload_label_content_type', 'en', 'Upload type:'),
+(1385, 'upload_label_content_type', 'de', 'Upload-Typ:'),
+(1386, 'upload_mode_file', 'hu', 'Fájl feltöltése'),
+(1387, 'upload_mode_file', 'en', 'Upload file'),
+(1388, 'upload_mode_file', 'de', 'Datei hochladen'),
+(1389, 'upload_mode_markdown', 'hu', 'Markdown jegyzet írása'),
+(1390, 'upload_mode_markdown', 'en', 'Write markdown note'),
+(1391, 'upload_mode_markdown', 'de', 'Markdown-Notiz schreiben'),
+(1392, 'upload_mode_link', 'hu', 'Videó / Link megosztása'),
+(1393, 'upload_mode_link', 'en', 'Share video / link'),
+(1394, 'upload_mode_link', 'de', 'Video / Link teilen'),
+(1395, 'upload_label_file', 'hu', 'Fájl kiválasztása:'),
+(1396, 'upload_label_file', 'en', 'Choose file:'),
+(1397, 'upload_label_file', 'de', 'Datei auswählen:'),
+(1398, 'upload_allowed_types_fmt', 'hu', 'Engedélyezett: PDF, MP4, DOCX • Max: %s'),
+(1399, 'upload_allowed_types_fmt', 'en', 'Allowed: PDF, MP4, DOCX • Max: %s'),
+(1400, 'upload_allowed_types_fmt', 'de', 'Erlaubt: PDF, MP4, DOCX • Max: %s'),
+(1401, 'upload_label_markdown', 'hu', 'Markdown jegyzet:'),
+(1402, 'upload_label_markdown', 'en', 'Markdown note:'),
+(1403, 'upload_label_markdown', 'de', 'Markdown-Notiz:'),
+(1404, 'upload_placeholder_markdown', 'hu', '# Cím\r\n\r\n- Lista\r\n- **Félkövér**\r\n- `kód`\r\n\r\nIde írd a jegyzetet...'),
+(1405, 'upload_placeholder_markdown', 'en', '# Title\r\n\r\n- List\r\n- **Bold**\r\n- `code`\r\n\r\nWrite your note here...'),
+(1406, 'upload_placeholder_markdown', 'de', '# Titel\r\n\r\n- Liste\r\n- **Fett**\r\n- `Code`\r\n\r\nSchreibe hier deine Notiz...'),
+(1407, 'upload_markdown_tip', 'hu', 'Tipp: Markdown szintaxis (#, **félkövér**, - lista, `kód` stb.). Max 2MB.'),
+(1408, 'upload_markdown_tip', 'en', 'Tip: Markdown syntax (#, **bold**, - list, `code`, etc.). Max 2MB.'),
+(1409, 'upload_markdown_tip', 'de', 'Tipp: Markdown-Syntax (#, **fett**, - Liste, `Code` usw.). Max. 2MB.'),
+(1410, 'upload_label_video_link', 'hu', 'Videó link:'),
+(1411, 'upload_label_video_link', 'en', 'Video link:'),
+(1412, 'upload_label_video_link', 'de', 'Videolink:'),
+(1413, 'upload_placeholder_video_link', 'hu', 'https://www.youtube.com/watch?v=... vagy más videó link'),
+(1414, 'upload_placeholder_video_link', 'en', 'https://www.youtube.com/watch?v=... or another video link'),
+(1415, 'upload_placeholder_video_link', 'de', 'https://www.youtube.com/watch?v=... oder ein anderer Videolink'),
+(1416, 'upload_video_tip', 'hu', 'Tipp: YouTube, Vimeo, TikTok, Drive megosztás - bármi jöhet, ami URL.'),
+(1417, 'upload_video_tip', 'en', 'Tip: YouTube, Vimeo, TikTok, Drive share - any valid URL works.'),
+(1418, 'upload_video_tip', 'de', 'Tipp: YouTube, Vimeo, TikTok, Drive-Freigabe - jede gültige URL funktioniert.'),
+(1419, 'upload_submit', 'hu', 'Feltöltés'),
+(1420, 'upload_submit', 'en', 'Upload'),
+(1421, 'upload_submit', 'de', 'Hochladen'),
+(1422, 'upload_ok', 'hu', 'A feltöltés sikeres volt.'),
+(1423, 'upload_ok', 'en', 'Upload was successful.'),
+(1424, 'upload_ok', 'de', 'Der Upload war erfolgreich.'),
+(1425, 'upload_err_missing_migration', 'hu', 'Hiányzik az adatbázis frissítés (content_type / external_url).'),
+(1426, 'upload_err_missing_migration', 'en', 'Database update is missing (content_type / external_url).'),
+(1427, 'upload_err_missing_migration', 'de', 'Datenbank-Update fehlt (content_type / external_url).'),
+(1428, 'upload_err_link_empty', 'hu', 'A videó/link mező nem lehet üres.'),
+(1429, 'upload_err_link_empty', 'en', 'The video/link field cannot be empty.'),
+(1430, 'upload_err_link_empty', 'de', 'Das Video-/Link-Feld darf nicht leer sein.'),
+(1431, 'upload_err_invalid_link', 'hu', 'Érvénytelen link.'),
+(1432, 'upload_err_invalid_link', 'en', 'Invalid link.'),
+(1433, 'upload_err_invalid_link', 'de', 'Ungültiger Link.'),
+(1434, 'upload_err_only_http', 'hu', 'Csak http/https link engedélyezett.'),
+(1435, 'upload_err_only_http', 'en', 'Only http/https links are allowed.'),
+(1436, 'upload_err_only_http', 'de', 'Nur http/https-Links sind erlaubt.'),
+(1437, 'upload_err_file_upload', 'hu', 'Hiba a fájl feltöltésekor.'),
+(1438, 'upload_err_file_upload', 'en', 'Error while uploading the file.'),
+(1439, 'upload_err_file_upload', 'de', 'Fehler beim Hochladen der Datei.'),
+(1440, 'upload_err_empty_file', 'hu', 'Üres fájl vagy ismeretlen fájlméret.'),
+(1441, 'upload_err_empty_file', 'en', 'Empty file or unknown file size.'),
+(1442, 'upload_err_empty_file', 'de', 'Leere Datei oder unbekannte Dateigröße.'),
+(1443, 'upload_err_file_too_large_fmt', 'hu', 'Túl nagy a fájl. Maximum %d MB-os fájlt tölthetsz fel.'),
+(1444, 'upload_err_file_too_large_fmt', 'en', 'The file is too large. Maximum allowed size is %d MB.'),
+(1445, 'upload_err_file_too_large_fmt', 'de', 'Die Datei ist zu groß. Maximale Dateigröße: %d MB.'),
+(1446, 'upload_err_quota_fmt', 'hu', 'Nincs elég hely a felhasználói kvótádban. Max %d MB-ot használhatsz. Jelenleg ~%d MB-ot használsz, a fájl mérete ~%d MB.'),
+(1447, 'upload_err_quota_fmt', 'en', 'There is not enough space in your user quota. You may use up to %d MB. Currently you use ~%d MB, and the file size is ~%d MB.'),
+(1448, 'upload_err_quota_fmt', 'de', 'Nicht genug Speicher in deinem Benutzerkontingent. Du darfst maximal %d MB verwenden. Aktuell nutzt du ~%d MB, die Datei ist ~%d MB groß.');
 
 -- --------------------------------------------------------
 
@@ -2462,11 +2679,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `lastname`, `firstname`, `username`, `birthdate`, `gender`, `email`, `profile_picture`, `password`, `security_question`, `security_answer`, `admin`, `teacher`, `registration_date`, `language`, `oauth_provider`, `oauth_sub`, `email_verified`, `bio`, `profile_theme`, `twofa_enabled`, `used_reg_code`, `used_reg_code_at`, `show_fullname`, `show_email`, `show_birthdate`) VALUES
-(1, 'Csontos', 'Kincső', 'csontoskincso05', '2005-04-04', 'female', 'csontoskincso@doomhyena.hu', '↳ ੈ⸙͎₊ 𝐕𝐞𝐫𝐠𝐢𝐥 ˚ᬄ◞♡   ⃗.jpg', '$2y$10$ZLWnsc4oApKzTPcMkkeC8OcVEmKA3PVyV2Fu7Mn4cCKTrQR5wmLgK', 'Mi a kedvenc könyved?', 'Harry Potter', 1, NULL, '2025-12-02 08:52:05', 'hu', NULL, NULL, 1, 'Software & Systems Engineer Student', 'light', 0, NULL, NULL, 1, 1, 1),
+(1, 'Csontos', 'Kincső', 'csontoskincso05', '2005-04-04', 'female', 'csontoskincso@doomhyena.hu', 'Vergil.jpg', '$2y$10$ZLWnsc4oApKzTPcMkkeC8OcVEmKA3PVyV2Fu7Mn4cCKTrQR5wmLgK', 'Mi a kedvenc könyved?', 'Harry Potter', 1, NULL, '2025-12-02 08:52:05', 'hu', 'discord', '864583234158460938', 1, 'Software & Systems Engineer Student', 'light', 0, NULL, NULL, 0, 0, 0),
 (8, 'Teszt', 'User', 'tesztuser', '2005-12-16', 'female', 'csontoskincso05@gmail.com', NULL, '$2y$10$rsRPmF5j81OCfV3xbpkIHOCGXeKXLTOkUIb7tH4j73o74H8QQiHRK', 'Mi az édesanyád leánykori neve?', 'Harry Potter', 0, NULL, '2025-12-16 00:19:26', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
-(9, 'Csontos', 'Kincső', 'doomhyena', '2005-04-04', 'female', 'csontoskincso@proton.me', NULL, '$2y$10$i7QzVcekWMXr3DJD6BUmgeR0Wal7AmZyBjDfjjVf6eowweutMErEa', 'Mi a kedvenc könyved?', '$2y$10$c5BtBT/ODqFT/OeHGYLuCeMCsdJ5sScb2Xjgg/lkJ77I9whd323tG', 0, 1, '2026-02-11 15:15:12', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
-(11, 'Szekeres', 'Levente', 'Paladin', '2001-03-20', 'male', 'szekilevi035@gmail.com', NULL, '$2y$10$/XbAz42Y93GLK64H.e1X4uwhiv898fh4ub7WKCAACbHUOsMeVFxIC', 'Mi a születési városod?', '$2y$10$q5eVNLnbZ07JiqZxsFLJgOGnTJfaQFXbxRBefDyod9j4qlegBCIy.', 1, NULL, '2026-03-10 00:18:20', 'hu', NULL, NULL, 1, NULL, 'default', 0, 'EARLY-BETA-2025', '2026-03-10 00:18:21', 1, 0, 0),
-(12, 'Halmai', 'Luca', 'teszt', '2001-03-20', 'male', 'halmaitluca@gmail.com', NULL, '$2y$10$7D2MmeLe/f0xgy5qOJqz7e.1is1Q0NG8kqc3TLyUz3BhkNfPTUJAG', 'Mi volt az első háziállatod neve?', '$2y$10$mfU6xYQm/JzZgJ3msSkW4OKxJBoY6vrx08V6ptjNmjEf8.Goyxu66', 1, NULL, '2026-03-10 00:43:57', 'hu', NULL, NULL, 1, NULL, 'default', 0, 'EARLY-BETA-2025', '2026-03-10 00:43:57', 1, 0, 0);
+(9, 'Csontos', 'Kincső', 'doomhyena', '2005-04-04', 'female', 'csontoskincso@proton.me', NULL, '$2y$10$i7QzVcekWMXr3DJD6BUmgeR0Wal7AmZyBjDfjjVf6eowweutMErEa', 'Mi a kedvenc könyved?', '$2y$10$c5BtBT/ODqFT/OeHGYLuCeMCsdJ5sScb2Xjgg/lkJ77I9whd323tG', 0, 1, '2026-02-11 15:15:12', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -2534,14 +2749,6 @@ CREATE TABLE `user_custom_css_requests` (
 --
 -- Indexek a kiírt táblákhoz
 --
-
---
--- A tábla indexei `2fa_backup_codes`
---
-ALTER TABLE `2fa_backup_codes`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `userid` (`userid`),
-  ADD KEY `used` (`used`);
 
 --
 -- A tábla indexei `2fa_codes`
@@ -2629,36 +2836,6 @@ ALTER TABLE `friends`
 ALTER TABLE `groups`
   ADD PRIMARY KEY (`id`),
   ADD KEY `reviewed_by` (`reviewed_by`);
-
---
--- A tábla indexei `group_comments`
---
-ALTER TABLE `group_comments`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_events`
---
-ALTER TABLE `group_events`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_polls`
---
-ALTER TABLE `group_polls`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_poll_options`
---
-ALTER TABLE `group_poll_options`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_poll_votes`
---
-ALTER TABLE `group_poll_votes`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- A tábla indexei `languages`
@@ -2787,12 +2964,6 @@ ALTER TABLE `user_custom_css_requests`
 --
 
 --
--- AUTO_INCREMENT a táblához `2fa_backup_codes`
---
-ALTER TABLE `2fa_backup_codes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT a táblához `2fa_codes`
 --
 ALTER TABLE `2fa_codes`
@@ -2826,7 +2997,7 @@ ALTER TABLE `contact_messages`
 -- AUTO_INCREMENT a táblához `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT a táblához `files`
@@ -2838,7 +3009,7 @@ ALTER TABLE `files`
 -- AUTO_INCREMENT a táblához `file_events`
 --
 ALTER TABLE `file_events`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
 
 --
 -- AUTO_INCREMENT a táblához `friends`
@@ -2850,36 +3021,6 @@ ALTER TABLE `friends`
 -- AUTO_INCREMENT a táblához `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT a táblához `group_comments`
---
-ALTER TABLE `group_comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT a táblához `group_events`
---
-ALTER TABLE `group_events`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT a táblához `group_polls`
---
-ALTER TABLE `group_polls`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT a táblához `group_poll_options`
---
-ALTER TABLE `group_poll_options`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT a táblához `group_poll_votes`
---
-ALTER TABLE `group_poll_votes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
@@ -2916,13 +3057,13 @@ ALTER TABLE `premium_users`
 -- AUTO_INCREMENT a táblához `ratings`
 --
 ALTER TABLE `ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT a táblához `registration_code_uses`
 --
 ALTER TABLE `registration_code_uses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT a táblához `reg_codes`
@@ -2952,19 +3093,19 @@ ALTER TABLE `search_logs`
 -- AUTO_INCREMENT a táblához `tokens`
 --
 ALTER TABLE `tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT a táblához `translations`
 --
 ALTER TABLE `translations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1197;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1449;
 
 --
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT a táblához `user_badges`
@@ -2987,12 +3128,6 @@ ALTER TABLE `user_custom_css_requests`
 --
 -- Megkötések a kiírt táblákhoz
 --
-
---
--- Megkötések a táblához `2fa_backup_codes`
---
-ALTER TABLE `2fa_backup_codes`
-  ADD CONSTRAINT `2fa_backup_codes_ibfk_1` FOREIGN KEY (`userid`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Megkötések a táblához `contact_messages`
