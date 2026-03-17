@@ -1,5 +1,5 @@
 <?php
-	// require_once "assets/php/premium.php";
+	require_once "assets/php/premium.php";
 
     $isLoggedIn = false;
     $user = null;
@@ -35,14 +35,12 @@
 	
 	$currentUserId = ($user['id'] ?? 0);
 
-    /*
     $premium_van = false;
     
     if ($isLoggedIn) {
         $premium_van = user_premium($conn, $userid);
     }
-    
-    */
+
 ?>
 
 <nav class="navbar">
@@ -72,7 +70,7 @@
                             </a>
                             <a href="favorites.php"><?= t('nav_favorites') ?></a>
                             <a href="messages.php"><?= t('nav_messages') ?></a>
-                            <!-- <a href="premium.php"><?= $premium_van ? "⭐ Prémium" : "Prémium" ?></a> -->
+                            <a href="premium.php"><?= $premium_van ? "⭐ Prémium" : "Prémium" ?></a>
                             <a href="notify.php"><?= t('nav_notify') ?> (<?= $notify_number ?>)</a>
                                 <?php if (!empty($user['admin']) && $user['admin'] == 1): ?>
                                     <a href="admin_panel.php"><?= t('nav_admin') ?></a>
