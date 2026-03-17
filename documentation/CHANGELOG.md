@@ -47,7 +47,7 @@ Changelog by: Neved
 
 ### Formátum útmutató 
 
-## [1.6.2.1-beta] - 2026-0X-0X
+## [1.x.x-beta] - 2026-0X-0X
 
 ### Added
 #### •
@@ -70,6 +70,16 @@ Changelog by: Neved
 -
 
 Changelog by: Neved
+
+---
+
+## [1.6.2.2-beta] - 2026-03-17
+
+### Fixed
+#### • Értékelés
+- A főoldalon mostmár a csillagokat nem lehet megnyomni, "statikusan" jelennek meg
+
+Changelog by: Csontos Kincső Anasztázia
 
 ---
 

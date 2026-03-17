@@ -274,31 +274,7 @@
                                             ⭐ <span class="rating-value"><?= htmlspecialchars($avg) ?></span>
                                             <span class="rating-count">(<?= (int)$cnt ?> ért.)</span>
                                         </div>
-                                        <?php if ($isLoggedIn && $currentUserId): ?>
-                                            <form class="rating-form" method="POST" action="index.php">
-                                                <input type="hidden" name="rate-btn" value="1">
-                                                <input type="hidden" name="rate_file_id" value="<?= (int)$file_id ?>">
 
-                                                <div class="star-rating" aria-label="Értékelés">
-                                                    <?php for ($i = 5; $i >= 1; $i--): ?>
-                                                        <input
-                                                                type="radio"
-                                                                id="rate-<?= (int)$file_id ?>-<?= $i ?>"
-                                                                name="rating"
-                                                                value="<?= $i ?>"
-                                                                <?= ((int)$userRating === $i) ? 'checked' : '' ?>
-                                                                onchange="this.form.submit()"
-                                                        >
-                                                        <label for="rate-<?= (int)$file_id ?>-<?= $i ?>" title="<?= $i ?> csillag">★</label>
-                                                    <?php endfor; ?>
-                                                </div>
-                                                <?php if ((int)$userRating > 0): ?>
-                                                    <span class="rating-count">Te: <?= (int)$userRating ?>/5</span>
-                                                <?php endif; ?>
-                                            </form>
-                                        <?php else: ?>
-                                            <span class="rating-count">Értékeléshez jelentkezz be.</span>
-                                        <?php endif; ?>
                                     </div>
                                 </article>
                             <?php endwhile; ?>
