@@ -2,6 +2,7 @@ let friendId = new URLSearchParams(window.location.search).get('friendid');
 let lastMessageCount = 0;
 
 document.addEventListener('DOMContentLoaded', function () {
+    // jQuery-függő keresés
     if (typeof $ !== 'undefined') {
         const searchBox = document.getElementById("search-box");
         if (searchBox) {
@@ -61,6 +62,7 @@ function checkNewMessages() {
 }
 setInterval(checkNewMessages, 1000);
 
+// jQuery-függő kód - csak akkor fut, ha jQuery be van töltve
 if (typeof $ !== 'undefined') {
     $('form.message-form').submit(function (e) {
         e.preventDefault();
@@ -316,42 +318,45 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.report-widget').forEach(widget => {
-        const trigger  = widget.querySelector('.report-trigger');
-        const box      = widget.querySelector('.report-box');
-        const cancelBtn = widget.querySelector('.report-cancel');
-
-        if (!trigger || !box) return;
-
-        trigger.addEventListener('click', () => {
-            const isHidden = box.hasAttribute('hidden');
-            if (isHidden) {
-                box.removeAttribute('hidden');
-                trigger.setAttribute('aria-expanded', 'true');
-                const ta = box.querySelector('textarea');
-                if (ta) ta.focus();
-            } else {
-                box.setAttribute('hidden', '');
-                trigger.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        if (cancelBtn) {
-            cancelBtn.addEventListener('click', () => {
-                box.setAttribute('hidden', '');
-                trigger.setAttribute('aria-expanded', 'false');
-                const ta = box.querySelector('textarea');
-                if (ta) ta.value = '';
-            });
-        }
-    });
-});
-
+function openReportBox(button) {
+    const form = button.closest('form');
+    if (!form) return;
+    const box = form.querySelector('.report-box');
+    if (!box) return;
+    box.style.display = 'block';
+    button.style.display = 'none';
+}
+function cancelReport(button) {
+    const box = button.closest('.report-box');
+    if (!box) return;
+    const form = box.closest('form');
+    if (!form) return;
+    const trigger = form.querySelector('.report-trigger');
+    const textarea = form.querySelector('textarea[name="reason"]');
+    if (textarea) textarea.value = '';
+    if (trigger) trigger.style.display = 'inline-block';
+    box.style.display = 'none';
+}
 function confirmReportSubmit(form) {
     return confirm('Biztosan elküldöd a jelentést?');
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleBtn = document.getElementById('report-toggle-btn');
+  const box = document.getElementById('report-box');
+
+  if (!toggleBtn || !box) return;
+
+  toggleBtn.addEventListener('click', () => {
+    const isHidden = (box.style.display === 'none' || box.style.display === '');
+    box.style.display = isHidden ? 'block' : 'none';
+
+    if (isHidden) {
+      const ta = box.querySelector('textarea');
+      if (ta) ta.focus();
+    }
+  });
+});
 const bio = document.getElementById('profile-bio-input');
 const counter = document.getElementById('bio-counter');
 
@@ -367,28 +372,16 @@ if (bio && counter) {
     const form = document.querySelector('.search-panel form');
     if (!form) return;
 
-    const q = form.querySelector('input[name="q"]');
-    const tag = form.querySelector('input[name="tag"]');
     const selects = form.querySelectorAll('select');
 
-    let t = null;
-    const schedule = () => {
-        clearTimeout(t);
-        t = setTimeout(() => {
-            const page = form.querySelector('input[name="page"]');
-            if (page) page.value = '1';
-            const url = new URL(window.location.href);
-            url.searchParams.delete('cursor');
-            window.history.replaceState({}, '', url.toString());
-            form.submit();
-        }, 350);
-    };
-
-    if (q) q.addEventListener('input', schedule);
-    if (tag) tag.addEventListener('input', schedule);
     selects.forEach(s => s.addEventListener('change', () => {
         const page = form.querySelector('input[name="page"]');
         if (page) page.value = '1';
+
+        const url = new URL(window.location.href);
+        url.searchParams.delete('cursor');
+        window.history.replaceState({}, '', url.toString());
+
         form.submit();
     }));
 })();
@@ -542,7 +535,6 @@ document.addEventListener('DOMContentLoaded', function(){
     const adminSearch = document.getElementById('admin-user-search');
     const resultsBox = document.getElementById('admin-user-results');
 
-    // Ha nem admin oldalon vagyunk, ne csináljon semmit
     if (!adminSearch || !resultsBox) return;
 
     adminSearch.addEventListener('keyup', function(e){
@@ -569,3 +561,92 @@ function showAnswer() {
 function nextCard() {
     location.reload();
 }
+
+(function () {
+    const MAX_TAGS = 10;
+
+    const widget    = document.getElementById('tag-widget');
+    const pillsWrap = document.getElementById('tag-pills');
+    const textInput = document.getElementById('tag-input');
+    const hidden    = document.getElementById('applied_tags');
+
+    if (!widget || !pillsWrap || !textInput || !hidden) return;
+
+    let tags = [];
+
+    function syncHidden() {
+        hidden.value = tags.join(',');
+    }
+
+    function renderPills() {
+        pillsWrap.innerHTML = '';
+        tags.forEach((tag, i) => {
+            const pill = document.createElement('span');
+            pill.className = 'tag-pill-item';
+            pill.textContent = tag;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'tag-pill-remove';
+            btn.setAttribute('aria-label', 'Törlés: ' + tag);
+            btn.textContent = '×';
+            btn.addEventListener('click', () => {
+                tags.splice(i, 1);
+                renderPills();
+                syncHidden();
+            });
+
+            pill.appendChild(btn);
+            pillsWrap.appendChild(pill);
+        });
+    }
+
+    function addTag(raw) {
+        const parts = raw.split(/[,;]+/).map(t => t.trim()).filter(Boolean);
+        parts.forEach(part => {
+            if (
+                part.length > 0 &&
+                tags.length < MAX_TAGS &&
+                !tags.includes(part)
+            ) {
+                tags.push(part);
+            }
+        });
+        renderPills();
+        syncHidden();
+    }
+
+    textInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ',' || e.key === ';') {
+            e.preventDefault();
+            const val = textInput.value.trim();
+            if (val) addTag(val);
+            textInput.value = '';
+        }
+        if (e.key === 'Backspace' && textInput.value === '' && tags.length > 0) {
+            tags.pop();
+            renderPills();
+            syncHidden();
+        }
+    });
+
+    textInput.addEventListener('input', () => {
+        const datalist = document.getElementById('tag-datalist');
+        if (!datalist) return;
+        const options = Array.from(datalist.options).map(o => o.value);
+        if (options.includes(textInput.value.trim())) {
+            addTag(textInput.value.trim());
+            textInput.value = '';
+        }
+    });
+
+    textInput.addEventListener('blur', () => {
+        const val = textInput.value.trim();
+        if (val) {
+            addTag(val);
+            textInput.value = '';
+        }
+    });
+
+    widget.addEventListener('click', () => textInput.focus());
+})();

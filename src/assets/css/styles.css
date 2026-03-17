@@ -3811,26 +3811,86 @@ body.theme-pastel .site-footer {
     justify-content: center;
   }
 }
-/* ── Report widget ─────────────────────────────────────────────────────────── */
-.report-widget {
-    display: inline-block;
-}
-.report-box {
-    margin-top: 10px;
-}
-.report-box[hidden] {
-    display: none;
-}
-.report-textarea {
-    width: 100%;
-    resize: vertical;
-    min-height: 80px;
-    margin-bottom: 8px;
-}
-.report-actions {
+
+.tag-widget {
     display: flex;
-    gap: 8px;
     flex-wrap: wrap;
     align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(148,163,184,.55);
+    background: rgba(0,0,0,.16);
+    color: var(--text);
+    box-shadow: 0 6px 18px rgba(0,0,0,.22);
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease, transform .12s ease;
+    cursor: text;
 }
-/* ─────────────────────────────────────────────────────────────────────────── */
+
+.tag-widget:hover {
+    border-color: var(--primary-2);
+    background: rgba(0,0,0,.20);
+}
+
+.tag-widget:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(125,211,252,.28);
+    transform: translateY(-1px);
+}
+
+.tag-pills-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.tag-pill-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 8px 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--stroke);
+    background: rgba(96,165,250,.10);
+    color: var(--text);
+    font-weight: 700;
+    font-size: .82rem;
+    white-space: nowrap;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tag-pill-remove {
+    background: none;
+    border: none;
+    color: inherit;
+    opacity: 0.55;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0 2px;
+    flex-shrink: 0;
+    transition: opacity .12s;
+}
+
+.tag-pill-remove:hover { 
+    opacity: 1; 
+}
+
+.tag-text-input {
+    flex: 1;
+    min-width: 140px;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: .95rem;
+    padding: 0;
+}
+
+.tag-text-input::placeholder {
+    color: rgba(148,163,184,.85);
+}

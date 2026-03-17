@@ -114,7 +114,7 @@
     }
     if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_picture']['tmp_name'])) {
         $file_name  = basename($_FILES['profile_picture']['name']);
-        $tmp_name = $_FILES['profile_picture']['tmp_name'];
+        $tmp_name   = $_FILES['profile_picture']['tmp_name'];
         $target_dir = __DIR__ . "/users/" . $profile['username'] . "/";
         $target_file = $target_dir . $file_name;
 
@@ -317,7 +317,6 @@
         <?php elseif (!empty($profileUpdateSuccess)): ?>
             <div class="toast toast-success"><?= htmlspecialchars($profileUpdateSuccess) ?></div>
         <?php endif; ?>
-        
         <?php if (!empty($backupCodesGenerated)): ?>
             <div style="margin: 20px 0; padding: 20px; border-radius: 14px; background: rgba(96, 165, 250, 0.12); border: 2px solid rgba(96, 165, 250, 0.35); color: #e5e7eb;">
                 <h2 style="margin: 0 0 16px 0; color: #93c5fd; font-size: 18px;">✅ 2FA Backup Kódok - Megmentve!</h2>
@@ -387,6 +386,21 @@
                                     <?php endforeach; ?>
                                 </div>
                             <?php endif; ?>
+                            <div class="profile-badges">
+                                <?php if ((int)($profile['admin'] ?? 0) === 1): ?>
+                                    <span class="badge-pill badge-pill--admin" title="<?= t('role_badge_admin_title') ?>">
+                                        <?= t('role_badge_admin') ?>
+                                    </span>
+                                <?php elseif ((int)($profile['teacher'] ?? 0) === 1): ?>
+                                    <span class="badge-pill badge-pill--teacher" title="<?= t('role_badge_teacher_title') ?>">
+                                        <?= t('role_badge_teacher') ?>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="badge-pill badge-pill--student" title="<?= t('role_badge_student_title') ?>">
+                                        <?= t('role_badge_student') ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
                             <?php if ($isOwner): ?>
                                 <div class="profile-actions inline" aria-label="Profil műveletek">
                                     <?php if ($isOwner): ?>
@@ -437,13 +451,16 @@
                                         <?php endif; ?>
                                     </div>
                                     <div class="profile-report">
-                                        <?php
-                                            $report_type = 'user';
-                                            $report_target_id = $profileId;
-                                            $report_label = 'Felhasználó jelentése';
-                                            $report_extra_class = '';
-                                            include 'assets/php/_report_widget.php';
-                                        ?>
+                                        <form method="post" action="assets/php/report.php" id="user-report-form">
+                                            <input type="hidden" name="type" value="user">
+                                            <input type="hidden" name="target_id" value="<?= (int)$profileId ?>">
+                                            <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
+                                            <button type="button" class="btn-ghost danger" id="report-toggle-btn">Felhasználó jelentése</button>
+                                            <div id="report-box" style="display:none; margin-top:8px;">
+                                                <textarea name="reason" rows="3" required placeholder="Írd le, miért jelented..." style="width:100%; resize:vertical; margin-bottom:8px;"></textarea>
+                                                <button type="submit" class="btn-cta danger" onclick="return confirm('Biztosan elküldöd a jelentést?');">Jelentés elküldése</button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -698,6 +715,87 @@ body {
                             <?php endif; ?>
                         </div>
                     </div>
+                    <?php if ($isOwner):
+                        $savedSearches = [];
+                        $ssRes = db_query($conn,
+                            "SELECT id, params_json, created_at FROM saved_searches WHERE user_id = ? ORDER BY created_at DESC LIMIT 20",
+                            "i", [$profileId]
+                        );
+                        if ($ssRes) {
+                            while ($ssRow = $ssRes->fetch_assoc()) {
+                                $decoded = json_decode((string)($ssRow['params_json'] ?? '{}'), true);
+                                if (is_array($decoded)) {
+                                    $savedSearches[] = ['id' => (int)$ssRow['id'], 'params' => $decoded, 'created_at' => $ssRow['created_at']];
+                                }
+                            }
+                        }
+                    ?>
+                    <section class="card profile-saved-searches" id="profile-saved-searches">
+                        <div class="section-titlebar">
+                            <h3><?= htmlspecialchars(t('profile_saved_searches_title')) ?></h3>
+                            <?php if (!empty($savedSearches)): ?>
+                                <span class="uploads-count"><?= count($savedSearches) ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <?php if (empty($savedSearches)): ?>
+                            <p class="entry-meta opacity-80"><?= htmlspecialchars(t('profile_saved_searches_empty')) ?></p>
+                        <?php else: ?>
+                            <ul class="saved-searches-list" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;">
+                                <?php foreach ($savedSearches as $ss):
+                                    $p = $ss['params'];
+                                    $parts = [];
+                                    if (!empty($p['q']))     $parts[] = '🔍 ' . htmlspecialchars($p['q']);
+                                    if (!empty($p['scope']) && $p['scope'] !== 'all') $parts[] = htmlspecialchars(t('label_scope')) . ': ' . htmlspecialchars($p['scope']);
+                                    if (!empty($p['type'])  && $p['type']  !== 'all') $parts[] = htmlspecialchars(t('label_type'))  . ': ' . htmlspecialchars(strtoupper($p['type']));
+                                    if (!empty($p['level']) && $p['level'] !== 'all') $parts[] = htmlspecialchars(t('search_level_label')) . ': ' . htmlspecialchars($p['level']);
+                                    if (!empty($p['tag']))   $parts[] = '#' . htmlspecialchars($p['tag']);
+                                    if (!empty($p['mode'])  && $p['mode']  !== 'all') $parts[] = htmlspecialchars(t('search_mode_label')) . ': ' . htmlspecialchars($p['mode']);
+                                    if (!empty($p['sort'])  && $p['sort']  !== 'newest') $parts[] = htmlspecialchars(t('label_sort')) . ': ' . htmlspecialchars($p['sort']);
+                                    $label = implode(' · ', $parts) ?: t('save_search_no_label');
+                                    $url = 'search.php?' . http_build_query(array_merge($p, ['page' => 1]));
+                                ?>
+                                <li class="saved-search-item" id="ssi-<?= $ss['id'] ?>"
+                                    style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);">
+                                    <a href="<?= htmlspecialchars($url) ?>" style="flex:1;min-width:0;font-size:.93rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                        <?= $label ?>
+                                    </a>
+                                    <span style="font-size:.78rem;opacity:.5;flex-shrink:0;"><?= htmlspecialchars(substr($ss['created_at'], 0, 10)) ?></span>
+                                    <button
+                                        type="button"
+                                        class="btn-danger"
+                                        style="padding:3px 10px;font-size:.8rem;flex-shrink:0;"
+                                        onclick="deleteSavedSearch(<?= $ss['id'] ?>, this)"
+                                        title="<?= htmlspecialchars(t('save_search_delete')) ?>">
+                                        ✕
+                                    </button>
+                                </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </section>
+                    <script>
+                    function deleteSavedSearch(id, btn) {
+                        if (!confirm('<?= addslashes(t('save_search_delete_confirm')) ?>')) return;
+                        btn.disabled = true;
+                        fetch('save_search.php', {
+                            method : 'POST',
+                            body   : new URLSearchParams({ action: 'delete', id: id })
+                        })
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.ok) {
+                                const li = document.getElementById('ssi-' + id);
+                                if (li) li.remove();
+                            } else {
+                                btn.disabled = false;
+                                alert('<?= addslashes(t('save_search_error')) ?>');
+                            }
+                        })
+                        .catch(() => { btn.disabled = false; });
+                    }
+                    </script>
+                    <?php endif; ?>
+
                     <section class="card profile-uploads">
                         <div class="section-titlebar profile-uploads-titlebar">
                             <h3 data-translation-key="profile_uploaded_files"><?= t('profile_uploaded_files') ?></h3>
@@ -811,3 +909,4 @@ body {
 <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>
+

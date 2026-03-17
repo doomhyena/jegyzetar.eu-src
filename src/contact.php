@@ -240,13 +240,14 @@
     }
 ?>
 <!DOCTYPE html>
-<html lang="hu">
+<html lang="<?= htmlspecialchars($lang ?? 'hu') ?>">
 <head>
-    <title>Kapcsolatfelvétel</title>
-    <meta name='description' content='Iskolai jegyzeteket megosztó oldal'>
-    <meta name='keywords' content='iskola, jegyzet, megosztás, tanulás'>
-    <meta name='author' content='Baranyi Norbert, Csontos Kincső, Szekeres Levente'>
-    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title><?= t('contact_title') ?></title>
+    <meta charset="UTF-8">
+    <meta name="description" content="<?= t('meta_description_home') ?>">
+    <meta name="keywords" content="<?= t('meta_keywords_home') ?>">
+    <meta name="author" content="Baranyi Norbert, Csontos Kincső, Szekeres Levente">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
     <link rel="stylesheet" href="assets/css/styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -259,10 +260,8 @@
             <div class="card">
                 <div class="card-head">
                     <div>
-                        <h1 style="margin:0;">Kapcsolatfelvétel</h1>
-                        <p class="entry-meta" style="margin:6px 0 0;">
-                            Van kérdésed vagy javaslat? Írj nekünk!
-                        </p>
+                        <h1 style="margin:0;"><?= t('contact_h1') ?></h1>
+                        <p class="entry-meta" style="margin:6px 0 0;"><?= t('contact_sub') ?></p>
                     </div>
                 </div>
 
@@ -274,57 +273,54 @@
 
                 <form method="POST" class="form-grid" autocomplete="off">
                     <div class="form-field">
-                        <label for="name">Név *</label>
-                        <input type="text" id="name" name="name" class="input" maxlength="255" required 
+                        <label for="name"><?= t('contact_label_name') ?></label>
+                        <input type="text" id="name" name="name" class="input" maxlength="255" required
                             value="<?php echo htmlspecialchars($user_name ?? $_POST['name'] ?? ''); ?>"
-                            placeholder="Teljes neved">
+                            placeholder="<?= t('contact_placeholder_name') ?>">
                     </div>
 
                     <div class="form-field">
-                        <label for="email">Email cím *</label>
+                        <label for="email"><?= t('contact_label_email') ?></label>
                         <input type="email" id="email" name="email" class="input" maxlength="190" required
                             value="<?php echo htmlspecialchars($user_email ?? $_POST['email'] ?? ''); ?>"
                             placeholder="email@example.com">
                     </div>
 
                     <div class="form-field">
-                        <label for="subject">Tárgy *</label>
+                        <label for="subject"><?= t('contact_label_subject') ?></label>
                         <input type="text" id="subject" name="subject" class="input" maxlength="255" required
                             value="<?php echo htmlspecialchars($_POST['subject'] ?? ''); ?>"
-                            placeholder="Miről szeretnél írni?">
+                            placeholder="<?= t('contact_placeholder_subject') ?>">
                     </div>
 
                     <div class="form-field">
-                        <label for="message">Üzenet *</label>
+                        <label for="message"><?= t('contact_label_message') ?></label>
                         <textarea id="message" name="message" class="input" maxlength="5000" required
-                            placeholder="Írd ide az üzenedet..."
+                            placeholder="<?= t('contact_placeholder_message') ?>"
                             style="min-height: 200px; resize: vertical;"><?php echo htmlspecialchars($_POST['message'] ?? ''); ?></textarea>
-                        <small class="entry-meta">Minimum 10 karakter, maximum 5000.</small>
+                        <small class="entry-meta"><?= t('contact_hint_chars') ?></small>
                     </div>
 
                     <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:6px;">
                         <button type="submit" name="send_message" class="btn-primary">
-                            Üzenet küldése
+                            <?= t('contact_btn_send') ?>
                         </button>
-                        <span class="entry-meta">Ne adj meg jelszót vagy érzékeny adatot.</span>
+                        <span class="entry-meta"><?= t('contact_hint_no_sensitive') ?></span>
                     </div>
                 </form>
             </div>
             <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-top: 32px;">
                 <div class="card">
                     <div class="card-head">
-                        <h3>E-mail</h3>
+                        <h3><?= t('contact_card_email_title') ?></h3>
                     </div>
                     <p class="entry-meta">admin@jegyzetar.eu</p>
                 </div>
-
                 <div class="card">
                     <div class="card-head">
-                        <h3>Discord</h3>
+                        <h3><?= t('contact_card_discord_title') ?></h3>
                     </div>
-                    <p class="entry-meta">
-                        Discord szerverünket a Közösség menüpont alatt találod, csatlakozz és írj nekünk ott is!
-                    </p>
+                    <p class="entry-meta"><?= t('contact_card_discord_text') ?></p>
                 </div>
             </div>
         </div>

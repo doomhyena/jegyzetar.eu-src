@@ -40,7 +40,7 @@
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $postedToken = $_POST['csrf_token'] ?? '';
         if (!hash_equals($_SESSION['csrf_token'], (string)$postedToken)) {
-            $errors[] = "Érvénytelen munkamenet (CSRF). Frissítsd az oldalt és próbáld újra.";
+            $errors[] = t('report_err_csrf');
         }
 
         $form['type'] = clean_str($_POST['type'] ?? 'bug', 32);
@@ -57,22 +57,22 @@
         $allowedSeverity = ['low', 'medium', 'high', 'critical'];
 
         if (!in_array($form['type'], $allowedTypes, true)) {
-            $errors[] = "Érvénytelen kategória.";
+            $errors[] = t('report_err_invalid_type');
         }
         if (!in_array($form['severity'], $allowedSeverity, true)) {
-            $errors[] = "Érvénytelen prioritás.";
+            $errors[] = t('report_err_invalid_severity');
         }
         if ($form['title'] === '' || mb_strlen($form['title'], 'UTF-8') < 4) {
-            $errors[] = "A cím legyen legalább 4 karakter.";
+            $errors[] = t('report_err_title_short');
         }
         if ($form['description'] === '' || mb_strlen($form['description'], 'UTF-8') < 10) {
-            $errors[] = "A leírás legyen legalább 10 karakter.";
+            $errors[] = t('report_err_desc_short');
         }
         if ($form['contact_email'] !== '' && !filter_var($form['contact_email'], FILTER_VALIDATE_EMAIL)) {
-            $errors[] = "A megadott e-mail cím formátuma nem megfelelő.";
+            $errors[] = t('report_err_email_invalid');
         }
         if ($form['page_url'] !== '' && !filter_var($form['page_url'], FILTER_VALIDATE_URL)) {
-            $errors[] = "Az oldal linkje nem tűnik érvényes URL-nek.";
+            $errors[] = t('report_err_url_invalid');
         }
 
         if (empty($errors)) {
@@ -94,14 +94,10 @@
                     ($form['expected_result'] !== '' ? $form['expected_result'] : null),
                     ($form['actual_result'] !== '' ? $form['actual_result'] : null),
                     ($form['contact_email'] !== '' ? $form['contact_email'] : null),
-                    ($currentUserId !== null ? $currentUserId : null),
+                    $currentUserId,
                     ($ua !== '' ? $ua : null),
                     ($ipHash !== null ? $ipHash : null),
                 ];
-
-                foreach ($params as $k => $v) {
-                    if ($v === null) $params[$k] = null;
-                }
 
                 db_exec($conn, $sql, $types, $params);
 
@@ -120,7 +116,7 @@
                     'contact_email' => ''
                 ];
             } catch (Throwable $e) {
-                $errors[] = "Nem sikerült menteni a hibajelentést. Próbáld újra később.";
+                $errors[] = t('report_err_save_failed');
             }
         }
     }
@@ -128,10 +124,10 @@
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($lang, ENT_QUOTES, 'UTF-8') ?>">
 <head>
-    <title>Hibajelentés</title>
+    <title><?= t('report_page_title') ?></title>
     <meta charset="UTF-8">
-    <meta name="description" content="Hibajelentés és visszajelzés a Jegyzetárhoz">
-    <meta name="keywords" content="hibajelentés, visszajelzés, jegyzetár">
+    <meta name="description" content="<?= t('report_meta_desc') ?>">
+    <meta name="keywords" content="<?= t('report_meta_keywords') ?>">
     <meta name="author" content="Baranyi Norbert, Csontos Kincső, Szekeres Levente">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico">
@@ -145,20 +141,22 @@
     <div class="card">
         <div class="card-head">
             <div>
-                <h1 style="margin:0;">Hibajelentés / Visszajelzés</h1>
+                <h1 style="margin:0;"><?= t('report_h1') ?></h1>
                 <p class="entry-meta" style="margin:6px 0 0;">
-                    Írd le röviden, mit tapasztalsz. Minél pontosabb (eszköz, lépések), annál gyorsabb a javítás.
+                    <?= t('report_sub') ?>
                 </p>
             </div>
         </div>
+
         <?php if ($success): ?>
             <div class="toast toast-success">
-                Köszi! A jelentést megkaptuk.
+                <?= t('report_success') ?>
             </div>
         <?php endif; ?>
+
         <?php if (!empty($errors)): ?>
             <div class="toast toast-error">
-                <strong>Hiba történt:</strong>
+                <strong><?= t('report_error_heading') ?></strong>
                 <ul style="margin:8px 0 0; padding-left:18px;">
                     <?php foreach ($errors as $err): ?>
                         <li><?= htmlspecialchars($err, ENT_QUOTES, 'UTF-8') ?></li>
@@ -166,64 +164,75 @@
                 </ul>
             </div>
         <?php endif; ?>
+
         <form method="POST" action="report.php" class="form-grid" autocomplete="off">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
             <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
                 <div class="form-field">
-                    <label for="type">Kategória</label>
+                    <label for="type"><?= t('report_label_type') ?></label>
                     <select id="type" name="type" class="select" required>
-                        <option value="bug" <?= $form['type']==='bug'?'selected':''; ?>>Hiba</option>
-                        <option value="feature" <?= $form['type']==='feature'?'selected':''; ?>>Javaslat</option>
-                        <option value="abuse" <?= $form['type']==='abuse'?'selected':''; ?>>Szabályszegés / visszaélés</option>
-                        <option value="other" <?= $form['type']==='other'?'selected':''; ?>>Egyéb</option>
+                        <option value="bug"     <?= $form['type']==='bug'     ? 'selected' : '' ?>><?= t('report_type_bug') ?></option>
+                        <option value="feature" <?= $form['type']==='feature' ? 'selected' : '' ?>><?= t('report_type_feature') ?></option>
+                        <option value="abuse"   <?= $form['type']==='abuse'   ? 'selected' : '' ?>><?= t('report_type_abuse') ?></option>
+                        <option value="other"   <?= $form['type']==='other'   ? 'selected' : '' ?>><?= t('report_type_other') ?></option>
                     </select>
                 </div>
                 <div class="form-field">
-                    <label for="severity">Prioritás</label>
+                    <label for="severity"><?= t('report_label_severity') ?></label>
                     <select id="severity" name="severity" class="select" required>
-                        <option value="low" <?= $form['severity']==='low'?'selected':''; ?>>Alacsony</option>
-                        <option value="medium" <?= $form['severity']==='medium'?'selected':''; ?>>Közepes</option>
-                        <option value="high" <?= $form['severity']==='high'?'selected':''; ?>>Magas</option>
-                        <option value="critical" <?= $form['severity']==='critical'?'selected':''; ?>>Kritikus</option>
+                        <option value="low"      <?= $form['severity']==='low'      ? 'selected' : '' ?>><?= t('report_severity_low') ?></option>
+                        <option value="medium"   <?= $form['severity']==='medium'   ? 'selected' : '' ?>><?= t('report_severity_medium') ?></option>
+                        <option value="high"     <?= $form['severity']==='high'     ? 'selected' : '' ?>><?= t('report_severity_high') ?></option>
+                        <option value="critical" <?= $form['severity']==='critical' ? 'selected' : '' ?>><?= t('report_severity_critical') ?></option>
                     </select>
                 </div>
             </div>
             <div class="form-field">
-                <label for="title">Rövid cím</label>
-                <input id="title" name="title" type="text" class="input" maxlength="120" required placeholder="Pl.: Letöltés gomb nem működik mobilon" value="<?= htmlspecialchars($form['title'], ENT_QUOTES, 'UTF-8') ?>">
+                <label for="title"><?= t('report_label_title') ?></label>
+                <input id="title" name="title" type="text" class="input" maxlength="120" required
+                    placeholder="<?= htmlspecialchars(t('report_placeholder_title'), ENT_QUOTES, 'UTF-8') ?>"
+                    value="<?= htmlspecialchars($form['title'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="form-field">
-                <label for="description">Leírás</label>
-                <textarea id="description" name="description" class="input" maxlength="5000" required placeholder="Írd le részletesen, mit tapasztalsz..."><?= htmlspecialchars($form['description'], ENT_QUOTES, 'UTF-8') ?></textarea>
+                <label for="description"><?= t('report_label_description') ?></label>
+                <textarea id="description" name="description" class="input" maxlength="5000" required
+                    placeholder="<?= htmlspecialchars(t('report_placeholder_description'), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($form['description'], ENT_QUOTES, 'UTF-8') ?></textarea>
             </div>
             <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
                 <div class="form-field">
-                    <label for="page_url">Érintett oldal linkje (opcionális)</label>
-                    <input id="page_url" name="page_url" type="url" class="input" maxlength="255" placeholder="https://..." value="<?= htmlspecialchars($form['page_url'], ENT_QUOTES, 'UTF-8') ?>">
-                    <small class="entry-meta">Tipp: másold be a címsorból.</small>
+                    <label for="page_url"><?= t('report_label_page_url') ?></label>
+                    <input id="page_url" name="page_url" type="url" class="input" maxlength="255"
+                        placeholder="https://..."
+                        value="<?= htmlspecialchars($form['page_url'], ENT_QUOTES, 'UTF-8') ?>">
+                    <small class="entry-meta"><?= t('report_hint_page_url') ?></small>
                 </div>
                 <div class="form-field">
-                    <label for="contact_email">Kapcsolati e-mail (opcionális)</label>
-                    <input id="contact_email" name="contact_email" type="email" class="input" maxlength="190" placeholder="ha szeretnél választ" value="<?= htmlspecialchars($form['contact_email'], ENT_QUOTES, 'UTF-8') ?>">
+                    <label for="contact_email"><?= t('report_label_contact_email') ?></label>
+                    <input id="contact_email" name="contact_email" type="email" class="input" maxlength="190"
+                        placeholder="<?= htmlspecialchars(t('report_placeholder_contact_email'), ENT_QUOTES, 'UTF-8') ?>"
+                        value="<?= htmlspecialchars($form['contact_email'], ENT_QUOTES, 'UTF-8') ?>">
                 </div>
             </div>
             <div class="form-field">
-                <label for="steps">Lépések a reprodukáláshoz (opcionális)</label>
-                <textarea id="steps" name="steps" class="input" maxlength="5000" placeholder="1) ... 2) ... 3) ..."><?= htmlspecialchars($form['steps'], ENT_QUOTES, 'UTF-8') ?></textarea>
+                <label for="steps"><?= t('report_label_steps') ?></label>
+                <textarea id="steps" name="steps" class="input" maxlength="5000"
+                    placeholder="1) ... 2) ... 3) ..."><?= htmlspecialchars($form['steps'], ENT_QUOTES, 'UTF-8') ?></textarea>
             </div>
             <div class="content-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
                 <div class="form-field">
-                    <label for="expected_result">Elvárt eredmény (opcionális)</label>
-                    <textarea id="expected_result" name="expected_result" class="input" maxlength="3000" placeholder="Mit kellett volna történnie?"><?= htmlspecialchars($form['expected_result'], ENT_QUOTES, 'UTF-8') ?></textarea>
+                    <label for="expected_result"><?= t('report_label_expected') ?></label>
+                    <textarea id="expected_result" name="expected_result" class="input" maxlength="3000"
+                        placeholder="<?= htmlspecialchars(t('report_placeholder_expected'), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($form['expected_result'], ENT_QUOTES, 'UTF-8') ?></textarea>
                 </div>
                 <div class="form-field">
-                    <label for="actual_result">Tényleges eredmény (opcionális)</label>
-                    <textarea id="actual_result" name="actual_result" class="input" maxlength="3000" placeholder="Mi történt helyette?"><?= htmlspecialchars($form['actual_result'], ENT_QUOTES, 'UTF-8') ?></textarea>
+                    <label for="actual_result"><?= t('report_label_actual') ?></label>
+                    <textarea id="actual_result" name="actual_result" class="input" maxlength="3000"
+                        placeholder="<?= htmlspecialchars(t('report_placeholder_actual'), ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($form['actual_result'], ENT_QUOTES, 'UTF-8') ?></textarea>
                 </div>
             </div>
             <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:6px;">
-                <button type="submit" class="btn-primary">Jelentés elküldése</button>
-                <span class="entry-meta">Ne adj meg jelszót vagy érzékeny adatot.</span>
+                <button type="submit" class="btn-primary"><?= t('report_btn_submit') ?></button>
+                <span class="entry-meta"><?= t('report_hint_no_sensitive') ?></span>
             </div>
         </form>
     </div>

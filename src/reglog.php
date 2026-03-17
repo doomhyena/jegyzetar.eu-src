@@ -77,6 +77,8 @@
         $security_question = (string)($_POST['security_question'] ?? '');
         $security_answer_plain = trim($_POST['security_answer'] ?? '');
         $regCode = trim($_POST['reg_code'] ?? '');
+        $role = trim($_POST['role'] ?? 'student');
+        $isTeacher = ($role === 'teacher') ? 1 : 0;
 
         $ip = get_client_ip() ?? null;
         $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255);
@@ -84,6 +86,10 @@
 
         if ($lastname === '' || $firstname === '' || $username === '' || $birthdate === '' || $gender === '' || $email === '' || $regCode === '' || $security_answer_plain === '') {
             $errors[] = "Minden mező kitöltése kötelező.";
+        }
+
+        if (!in_array($role, ['student', 'teacher'], true)) {
+            $errors[] = "Érvénytelen szerepkör.";
         }
 
         if ($username !== '' && !valid_username($username)) {
@@ -132,7 +138,7 @@
                     $security_answer = password_hash($security_answer_plain, PASSWORD_DEFAULT);
                     $hashed = password_hash($password, PASSWORD_DEFAULT);
 
-                    $stmt = db_stmt($conn, "INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)", "ssssssssss", [$lastname, $firstname, $username, $birthdate, $gender, $email, $hashed, $security_question, $security_answer, $registration_date]);
+                    $stmt = db_stmt($conn, "INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin, teacher) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)", "ssssssssssi", [$lastname, $firstname, $username, $birthdate, $gender, $email, $hashed, $security_question, $security_answer, $registration_date, $isTeacher]);
                     $stmt->close();
 
                     $newUserId = (int)$conn->insert_id;
@@ -337,6 +343,25 @@
                     <div class="md:col-span-2">
                         <label for="reg_code" class="text-sm md:text-base font-semibold">Regisztrációs kód</label>
                         <input class="input w-full text-sm md:text-base" type="text" name="reg_code" id="reg_code" required>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="role" class="text-sm md:text-base font-semibold"><?= t('label_role') ?></label>
+                        <div class="grid grid-cols-2 gap-3 mt-1">
+                            <label class="role-option flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors has-[:checked]:border-sky-400/60 has-[:checked]:bg-sky-400/10">
+                                <input type="radio" name="role" value="student" class="accent-sky-400" checked>
+                                <span class="flex flex-col">
+                                    <span class="font-semibold text-sm md:text-base"><?= t('role_student') ?></span>
+                                    <span class="text-xs opacity-70"><?= t('role_student_desc') ?></span>
+                                </span>
+                            </label>
+                            <label class="role-option flex items-center gap-3 p-3 rounded-xl border border-white/10 bg-white/5 cursor-pointer hover:bg-white/10 transition-colors has-[:checked]:border-sky-400/60 has-[:checked]:bg-sky-400/10">
+                                <input type="radio" name="role" value="teacher" class="accent-sky-400">
+                                <span class="flex flex-col">
+                                    <span class="font-semibold text-sm md:text-base"><?= t('role_teacher') ?></span>
+                                    <span class="text-xs opacity-70"><?= t('role_teacher_desc') ?></span>
+                                </span>
+                            </label>
+                        </div>
                     </div>
                     <div>
                         <label for="password1" class="text-sm md:text-base font-semibold"><?= t('label_password') ?></label>

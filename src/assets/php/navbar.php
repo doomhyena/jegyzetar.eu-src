@@ -58,8 +58,8 @@
             <li><a href="index.php"><?= t('nav_home') ?></a></li>
             <li><a href="search.php"><?= t('nav_search') ?></a></li>
             <li><a href="upload.php"><?= t('nav_upload') ?></a></li>
-            <li><a href="groups.php">Csoportok</a></li>
-            <li><a href="exams.php">Vizsgák</a></li>
+            <li><a href="groups.php"><?= t('nav_groups') ?></a></li>
+            <li><a href="exams.php"><?= t('nav_exams') ?></a></li>
             <?php if ($isLoggedIn && $currentUsername): ?>
                 <li class="nav-item-has-dropdown">
                     <a href="#" class="nav-account-link">
@@ -70,7 +70,7 @@
                             <a href="profile.php?username=<?= urlencode($currentUsername) ?>">
                                 <?= t('nav_profil') ?>
                             </a>
-                            <a href="favorites.php">Kedvencek</a>
+                            <a href="favorites.php"><?= t('nav_favorites') ?></a>
                             <a href="messages.php"><?= t('nav_messages') ?></a>
                             <!-- <a href="premium.php"><?= $premium_van ? "⭐ Prémium" : "Prémium" ?></a> -->
                             <a href="notify.php"><?= t('nav_notify') ?> (<?= $notify_number ?>)</a>

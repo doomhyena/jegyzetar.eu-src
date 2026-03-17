@@ -1,0 +1,4 @@
+[2026-03-17 13:14:11] db_query: get_result() false-t adott vissza | SQL: INSERT INTO saved_searches (user_id, params_json, created_at) VALUES (?, ?, NOW()) | PARAMS: [1,"{\"q\":\"Csontos\"}"] | MYSQL: (0) 
+[2026-03-17 13:16:43] db_query: get_result() false-t adott vissza | SQL: UPDATE saved_searches SET last_seen_at = NOW() WHERE id = ? | PARAMS: [1] | MYSQL: (0) 
+[2026-03-17 13:16:46] db_query: get_result() false-t adott vissza | SQL: UPDATE saved_searches SET last_seen_at = NOW() WHERE id = ? | PARAMS: [1] | MYSQL: (0) 
+[2026-03-17 13:20:23] db_query: get_result() false-t adott vissza | SQL: UPDATE saved_searches SET last_seen_at = NOW() WHERE id = ? | PARAMS: [1] | MYSQL: (0) 

@@ -342,6 +342,15 @@
         for ($i = 9; $i <= 13; $i++) $levelOptions[] = ["hs-$i", "Technikum - $i. évfolyam"];
         for ($i = 1; $i <= 7; $i++) $levelOptions[] = ["uni-$i", "Egyetem - $i. félév"];
     }
+
+    // Előre definiált tagek a tags táblából
+    $availableTags = [];
+    $tagRes = $conn->query("SELECT id, tags FROM tags ORDER BY tags ASC");
+    if ($tagRes) {
+        while ($row = $tagRes->fetch_assoc()) {
+            $availableTags[] = htmlspecialchars($row['tags'], ENT_QUOTES, 'UTF-8');
+        }
+    }
 ?>
 <!DOCTYPE html>
 <html lang="hu">
@@ -363,7 +372,7 @@
 <div class="content-wrapper w-full">
     <?php include "assets/php/ads.php"; ?>
     <div class="main w-full max-w-3xl mx-auto px-4 md:px-6 lg:px-8 py-6">
-        <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6">Anyag feltöltése</h1>
+        <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6"><?= htmlspecialchars(t('upload_page_title')) ?></h1>
         <?php if (isset($_GET['ok'])): ?>
             <div class="toast toast-success">A fájl sikeresen feltöltve!</div>
         <?php endif; ?>
@@ -371,7 +380,6 @@
             <div class="toast toast-error"><?= htmlspecialchars($uploadError) ?></div>
         <?php endif; ?>
         <form class="card p-4 md:p-6 flex flex-col gap-4" method="post" enctype="multipart/form-data">
-            <h1><?= htmlspecialchars(t('upload_page_title')) ?></h1>
             <label for="name" class="text-sm md:text-base font-semibold">
                 <?= htmlspecialchars(t('upload_label_name')) ?>
             </label>
@@ -425,11 +433,27 @@
                     <span><?= htmlspecialchars(t('upload_public_visible')) ?></span>
                 </label>
             <?php endif; ?>
-            <label for="tag" class="text-sm md:text-base font-semibold">
+            <label class="text-sm md:text-base font-semibold">
                 <?= htmlspecialchars(t('upload_label_tags')) ?>
             </label>
-            <textarea class="input w-full text-sm md:text-base" id="tag" name="applied_tags" placeholder="<?= htmlspecialchars(t('upload_placeholder_tags')) ?>" rows="3" readonly>
-            </textarea>
+            <div class="tag-widget" id="tag-widget">
+                <div class="tag-pills-wrap" id="tag-pills"></div>
+                <input
+                    type="text"
+                    id="tag-input"
+                    class="tag-text-input"
+                    placeholder="<?= htmlspecialchars(t('upload_placeholder_tags')) ?>"
+                    autocomplete="off"
+                    maxlength="100"
+                    list="tag-datalist">
+                <datalist id="tag-datalist">
+                    <?php foreach ($availableTags as $at): ?>
+                        <option value="<?= $at ?>">
+                    <?php endforeach; ?>
+                </datalist>
+            </div>
+            <p class="entry-meta text-xs" style="margin-top:4px;"><?= htmlspecialchars(t('upload_tags_hint')) ?></p>
+            <input type="hidden" name="applied_tags" id="applied_tags">
             <label class="text-sm md:text-base font-semibold">
                 <?= htmlspecialchars(t('upload_label_content_type')) ?>
             </label>
@@ -486,3 +510,4 @@
 <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>
+
