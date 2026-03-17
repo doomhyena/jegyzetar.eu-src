@@ -1585,6 +1585,7 @@ a:not(.btn-cta):not(.btn-ghost):not(.btn-primary):not(.btn-soft):not(.btn-danger
 
 .profile-header{
     padding:22px 20px;
+    max-width:860px;
 }
 
 .profile-header-grid {
@@ -3893,4 +3894,1061 @@ body.theme-pastel .site-footer {
 
 .tag-text-input::placeholder {
     color: rgba(148,163,184,.85);
+}
+
+/* ==================================================
+   PROFILE PAGE REDESIGN
+   ================================================== */
+
+/* --- Layout --- */
+.profile-layout {
+    display: grid;
+    gap: 28px;
+    max-width: 1200px;
+}
+
+.profile-main-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+    gap: 20px;
+    align-items: flex-start;
+}
+
+/* --- Header card --- */
+.profile-header {
+    max-width: 860px;
+    padding: 28px 32px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(255,255,255,.065) 0%, rgba(255,255,255,.025) 100%);
+    border: 1px solid rgba(255,255,255,.10);
+    box-shadow: 0 2px 40px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+    backdrop-filter: saturate(160%) blur(12px);
+    -webkit-backdrop-filter: saturate(160%) blur(12px);
+    position: relative;
+    overflow: hidden;
+}
+
+.profile-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 0% 0%, rgba(125,211,252,.07), transparent 60%),
+                radial-gradient(ellipse 40% 60% at 100% 100%, rgba(244,114,182,.05), transparent 55%);
+    pointer-events: none;
+}
+
+.profile-header-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 28px;
+    align-items: center;
+    position: relative;
+}
+
+.profile-header-avatar { text-align: center; }
+
+.profile-picture {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,.14);
+    box-shadow: 0 8px 32px rgba(0,0,0,.45);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.profile-picture:hover {
+    transform: scale(1.03);
+    box-shadow: 0 12px 40px rgba(0,0,0,.55);
+}
+
+.profile-identity {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 480px;
+}
+
+.profile-name {
+    font-size: clamp(1.5rem, 2vw + .5rem, 2.2rem) !important;
+    font-weight: 800 !important;
+    line-height: 1.1 !important;
+    letter-spacing: -.3px !important;
+    color: var(--profile-name-color, var(--text)) !important;
+    margin: 0 !important;
+}
+
+.profile-username {
+    font-size: .9rem !important;
+    font-weight: 500 !important;
+    color: var(--profile-username-color, var(--primary)) !important;
+    opacity: .85 !important;
+    margin: 0 !important;
+}
+
+.profile-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.profile-badges .badge-pill {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px !important;
+    border-radius: 999px !important;
+    font-size: .8rem !important;
+    font-weight: 700 !important;
+    border: 1px solid rgba(255,255,255,.16) !important;
+    background: rgba(255,255,255,.08) !important;
+    box-shadow: none !important;
+    letter-spacing: .2px;
+}
+
+/* Role badges */
+.badge-pill--admin  { background: linear-gradient(135deg, rgba(250,204,21,.18), rgba(251,191,36,.08)) !important; border-color: rgba(250,204,21,.35) !important; color: #fde68a !important; }
+.badge-pill--teacher{ background: linear-gradient(135deg, rgba(167,139,250,.18), rgba(139,92,246,.08)) !important; border-color: rgba(167,139,250,.35) !important; color: #ddd6fe !important; }
+.badge-pill--student{ background: linear-gradient(135deg, rgba(52,211,153,.15), rgba(16,185,129,.07)) !important; border-color: rgba(52,211,153,.30) !important; color: #a7f3d0 !important; }
+
+/* Action buttons in header */
+.profile-actions.inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 14px;
+}
+
+.profile-actions.inline form { margin: 0; display: contents; }
+
+.profile-action-btn {
+    all: unset;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: .9rem;
+    font-weight: 700;
+    white-space: nowrap;
+    background: rgba(125,211,252,.15);
+    color: var(--primary);
+    border: 1px solid rgba(125,211,252,.30);
+    transition: background .15s ease, transform .12s ease, border-color .15s ease;
+    text-decoration: none;
+}
+
+.profile-action-btn:hover {
+    background: rgba(125,211,252,.24);
+    border-color: rgba(125,211,252,.5);
+    transform: translateY(-1px);
+}
+
+/* --- Sidebar cards --- */
+.profile-column-left .card {
+    padding: 20px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 2px 20px rgba(0,0,0,.25);
+}
+
+.profile-column-left .card h3 {
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .9px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 14px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+/* Info items */
+.profile-info-card { display: grid; gap: 6px; }
+
+.profile-info-item {
+    padding: 10px 12px;
+    background: rgba(255,255,255,.03);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,.06);
+    transition: background .12s ease;
+}
+
+.profile-info-item:hover { background: rgba(255,255,255,.055); }
+
+.profile-info-label {
+    color: var(--muted);
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .4px;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.profile-info-value {
+    color: var(--text);
+    font-weight: 600;
+    font-size: .92rem;
+    word-break: break-word;
+}
+
+/* Visibility toggles */
+.profile-visibility-card {
+    margin-top: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.profile-visibility-card h3 {
+    border-bottom: 1px solid rgba(255,255,255,.07) !important;
+    margin-top: 4px !important;
+}
+
+.profile-visibility-form {
+    display: grid;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.profile-visibility-form .privacy-toggle {
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.07);
+    background: rgba(255,255,255,.03);
+    transition: background .12s ease;
+    width: 100%;
+}
+
+.profile-visibility-form .privacy-toggle:hover {
+    background: rgba(255,255,255,.06);
+    transform: none;
+    border-color: rgba(255,255,255,.12);
+}
+
+.profile-visibility-form .toggle-label {
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Save buttons */
+.profile-save-btn {
+    margin-top: 10px !important;
+    width: 100% !important;
+    padding: 10px 16px !important;
+    font-size: .88rem !important;
+    border-radius: 12px !important;
+    justify-content: center;
+}
+
+/* Settings form */
+.profile-settings-form {
+    display: grid;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.profile-settings-form textarea,
+.profile-settings-form select,
+.profile-bio-input,
+.profile-theme-select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: .9rem;
+    font-family: inherit;
+    border: 1px solid rgba(255,255,255,.09);
+    background: rgba(255,255,255,.04);
+    color: var(--text);
+    resize: vertical;
+    transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+    box-sizing: border-box;
+}
+
+.profile-settings-form textarea:focus,
+.profile-settings-form select:focus,
+.profile-bio-input:focus,
+.profile-theme-select:focus {
+    outline: none;
+    border-color: rgba(125,211,252,.45);
+    background: rgba(255,255,255,.07);
+    box-shadow: 0 0 0 3px rgba(125,211,252,.12);
+}
+
+/* --- Right column --- */
+.profile-column-right { display: grid; gap: 20px; }
+
+.profile-column-right .card {
+    padding: 22px;
+    border-radius: 18px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: 0 2px 20px rgba(0,0,0,.22);
+}
+
+.profile-column-right .card h3 {
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .9px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 14px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+/* Bio */
+.profile-bio p {
+    font-size: .95rem;
+    line-height: 1.65;
+    color: var(--text);
+    opacity: .9;
+    margin: 0;
+}
+
+/* Upload items */
+.profile-uploads-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.profile-uploads-titlebar h3 { margin: 0 !important; border-bottom: none !important; padding-bottom: 0 !important; }
+
+.uploads-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 26px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: rgba(125,211,252,.12);
+    border: 1px solid rgba(125,211,252,.22);
+    color: var(--primary);
+    font-weight: 800;
+    font-size: .82rem;
+}
+
+.profile-uploads-list { display: grid; gap: 12px; }
+
+.upload-item {
+    border: 1px solid rgba(255,255,255,.07);
+    background: rgba(255,255,255,.03);
+    border-radius: 14px;
+    padding: 14px 16px;
+    transition: background .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.upload-item:hover {
+    background: rgba(255,255,255,.055);
+    border-color: rgba(255,255,255,.12);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 24px rgba(0,0,0,.28);
+}
+
+.upload-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.upload-main { min-width: 0; flex: 1; }
+
+.upload-title {
+    margin: 0 0 6px 0;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+.upload-title-link {
+    color: var(--text);
+    text-decoration: none;
+    transition: color .12s ease;
+}
+
+.upload-title-link:hover { color: var(--primary); text-decoration: none; }
+
+.upload-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.meta-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: rgba(255,255,255,.04);
+    color: var(--muted);
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+.meta-chip strong { color: var(--text); font-weight: 700; }
+
+.upload-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.upload-desc {
+    margin: 10px 0 0 0;
+    color: var(--muted);
+    font-size: .88rem;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+.upload-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.upload-hint {
+    margin-top: 10px;
+    color: var(--muted);
+    font-size: .85rem;
+}
+
+/* Profile page h1 */
+.profile-layout + h1,
+.main > h1 {
+    font-size: clamp(1.1rem, 1.5vw + .4rem, 1.5rem);
+    font-weight: 700;
+    opacity: .6;
+    margin-bottom: 16px;
+    letter-spacing: -.1px;
+}
+
+/* Profile empty state */
+.profile-empty {
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: .92rem;
+}
+
+/* Social actions (friend / report) */
+.profile-social-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,.07);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .profile-main-columns {
+        grid-template-columns: 1fr;
+    }
+    .profile-header {
+        padding: 20px;
+    }
+    .profile-header-grid {
+        grid-template-columns: auto 1fr;
+        column-gap: 18px;
+    }
+    .profile-picture {
+        width: 90px;
+        height: 90px;
+    }
+}
+
+/* ==================================================
+   PROFILE REDESIGN – FIXES
+   ================================================== */
+
+/* Header fix – ne húzódjon teljesen szét */
+.profile-header {
+    max-width: 700px !important;
+}
+
+.profile-header-grid {
+    grid-template-columns: auto 1fr !important;
+    column-gap: 22px !important;
+}
+
+.profile-picture {
+    width: 110px !important;
+    height: 110px !important;
+}
+
+.profile-identity {
+    max-width: 360px !important;
+    gap: 5px !important;
+}
+
+.profile-name {
+    font-size: clamp(1.3rem, 1.8vw + .3rem, 1.8rem) !important;
+}
+
+.profile-actions.inline {
+    margin-top: 10px !important;
+    gap: 8px !important;
+}
+
+.profile-action-btn {
+    height: 36px !important;
+    padding: 0 16px !important;
+    font-size: .85rem !important;
+    border-radius: 10px !important;
+}
+
+/* Mentett keresések – kompaktabb */
+.search-card {
+    padding: 10px 14px !important;
+    margin-bottom: 8px !important;
+    border-radius: 10px !important;
+}
+
+.search-card .search-content p {
+    font-size: .88rem !important;
+}
+
+/* ==================================================
+   SAVED SEARCHES – kompakt lista
+   ================================================== */
+
+.profile-saved-searches {
+    padding: 18px 20px !important;
+}
+
+.profile-saved-searches .section-titlebar {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.profile-saved-searches .section-titlebar h3 {
+    font-size: .75rem !important;
+    font-weight: 700 !important;
+    letter-spacing: .9px !important;
+    text-transform: uppercase !important;
+    color: var(--muted) !important;
+    margin: 0 !important;
+    padding-bottom: 0 !important;
+    border-bottom: none !important;
+}
+
+.saved-searches-list {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+}
+
+.saved-search-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 8px 12px !important;
+    border-radius: 10px !important;
+    background: rgba(255,255,255,.03) !important;
+    border: 1px solid rgba(255,255,255,.07) !important;
+    transition: background .12s ease !important;
+}
+
+.saved-search-item:hover {
+    background: rgba(255,255,255,.06) !important;
+}
+
+.saved-search-item a {
+    flex: 1;
+    min-width: 0;
+    font-size: .88rem !important;
+    font-weight: 600;
+    color: var(--primary) !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.saved-search-item a:hover {
+    text-decoration: underline;
+}
+
+.saved-search-item span {
+    font-size: .75rem !important;
+    opacity: .45 !important;
+    flex-shrink: 0;
+}
+
+.saved-search-item .btn-danger {
+    padding: 3px 9px !important;
+    font-size: .75rem !important;
+    height: 26px !important;
+    border-radius: 7px !important;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.saved-search-date {
+    font-size: .75rem !important;
+    opacity: .45 !important;
+    flex-shrink: 0;
+    color: var(--muted);
+}
+
+.saved-search-delete {
+    padding: 3px 9px !important;
+    font-size: .75rem !important;
+    height: 26px !important;
+    border-radius: 7px !important;
+    flex-shrink: 0;
+    line-height: 1;
+    min-width: 0 !important;
+}
+
+/* ==================================================
+   SIDEBAR ACCORDION (details/summary)
+   ================================================== */
+
+/* Kártyán belüli összecsukható szekciók (Láthatóság, 2FA, Discord) */
+.sidebar-accordion {
+    border-top: 1px solid rgba(255,255,255,.07);
+    margin-top: 10px;
+    padding-top: 4px;
+}
+
+.sidebar-accordion-summary {
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+    padding: 10px 4px;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: color .15s ease;
+}
+
+.sidebar-accordion-summary::-webkit-details-marker { display: none; }
+
+.sidebar-accordion-summary::after {
+    content: '›';
+    font-size: 1.1rem;
+    font-weight: 400;
+    opacity: .5;
+    transition: transform .2s ease;
+    display: inline-block;
+}
+
+.sidebar-accordion[open] > .sidebar-accordion-summary {
+    color: var(--primary);
+}
+
+.sidebar-accordion[open] > .sidebar-accordion-summary::after {
+    transform: rotate(90deg);
+}
+
+.sidebar-accordion-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 6px 0 12px 0;
+}
+
+/* Egész kártya összecsukható (Profil testreszabása, Egyedi CSS) */
+.sidebar-card-accordion {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.sidebar-card-summary {
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .7px;
+    text-transform: uppercase;
+    color: var(--muted);
+    transition: color .15s ease, background .15s ease;
+}
+
+.sidebar-card-summary::-webkit-details-marker { display: none; }
+
+.sidebar-card-summary::after {
+    content: '›';
+    font-size: 1.1rem;
+    font-weight: 400;
+    opacity: .5;
+    transition: transform .2s ease;
+    display: inline-block;
+}
+
+.sidebar-card-accordion[open] > .sidebar-card-summary {
+    color: var(--primary);
+    border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+.sidebar-card-accordion[open] > .sidebar-card-summary::after {
+    transform: rotate(90deg);
+}
+
+.sidebar-card-body {
+    padding: 16px 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* Backup kódok link gomb */
+.sidebar-link-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(96,165,250,.12);
+    border: 1px solid rgba(96,165,250,.28);
+    color: var(--primary);
+    text-decoration: none;
+    font-size: .82rem;
+    font-weight: 600;
+    transition: background .15s ease;
+    margin-top: 4px;
+    width: fit-content;
+}
+
+.sidebar-link-btn:hover {
+    background: rgba(96,165,250,.22);
+}
+
+/* Discord ID code chip */
+.sidebar-code {
+    background: rgba(0,0,0,.25);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: .82rem;
+    color: var(--muted);
+}
+
+/* ==================================================
+   PROFILE HEADER – identity kitölti a teret
+   ================================================== */
+
+.profile-header-main {
+    width: 100%;
+    align-self: center;
+}
+
+.profile-identity {
+    max-width: 100% !important;
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto auto auto;
+    column-gap: 20px;
+    row-gap: 6px;
+    align-items: start;
+}
+
+/* Név és username bal oszlop, teljes szélességen */
+.profile-name {
+    grid-column: 1 / -1;
+}
+
+.entry-meta.profile-username {
+    grid-column: 1 / -1;
+}
+
+/* Badge sorok bal oszlop */
+.profile-identity > .profile-badges {
+    grid-column: 1 / -1;
+}
+
+/* Akciógombok és info a második sor jobb oldalára */
+.profile-identity > .profile-actions.inline {
+    grid-column: 1 / -1;
+    margin-top: 6px !important;
+}
+
+/* ==================================================
+   PROFILE HEADER STATS
+   ================================================== */
+
+.profile-header-grid {
+    grid-template-columns: auto 1fr auto !important;
+    column-gap: 24px !important;
+    align-items: center !important;
+}
+
+.profile-header-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-self: center;
+    padding-left: 24px;
+    border-left: 1px solid rgba(255,255,255,.09);
+    flex-shrink: 0;
+}
+
+.profile-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    min-width: 64px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.06);
+    transition: background .15s ease;
+}
+
+.profile-stat-item:hover {
+    background: rgba(255,255,255,.07);
+}
+
+.profile-stat-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--primary);
+    letter-spacing: -.5px;
+}
+
+.profile-stat-label {
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: .8;
+}
+
+@media (max-width: 768px) {
+    .profile-header-grid {
+        grid-template-columns: auto 1fr !important;
+    }
+    .profile-header-stats {
+        display: none;
+    }
+}
+
+/* ==================================================
+   PROFILE HEADER – social actions (másik profil)
+   ================================================== */
+
+.profile-header-social {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding-bottom: 10px;
+}
+
+.profile-stats-divider {
+    height: 1px;
+    background: rgba(255,255,255,.08);
+    margin-bottom: 4px;
+}
+
+.profile-action-btn--danger {
+    background: rgba(220,38,38,.12) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(220,38,38,.28) !important;
+}
+
+.profile-action-btn--danger:hover {
+    background: rgba(220,38,38,.22) !important;
+    border-color: rgba(220,38,38,.45) !important;
+}
+
+.friend-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.friend-status-badge--yes {
+    background: rgba(52,211,153,.12);
+    border: 1px solid rgba(52,211,153,.28);
+    color: #6ee7b7;
+}
+
+/* ==================================================
+   PROFILE SOCIAL BLOCK (badge-k alatt)
+   ================================================== */
+
+.profile-social-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.profile-social-block form {
+    margin: 0;
+}
+
+/* Barátság státusz pill */
+.friend-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: .82rem;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.friend-status-pill--yes {
+    background: rgba(52,211,153,.10);
+    border: 1px solid rgba(52,211,153,.25);
+    color: #6ee7b7;
+}
+
+.friend-status-pill--no {
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.09);
+    color: var(--muted);
+}
+
+.friend-status-icon {
+    font-size: .9rem;
+    opacity: .75;
+}
+
+/* Gombok vízszintes sorban */
+.profile-social-block .profile-actions-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* ==================================================
+   AVATAR WRAP + BIRTHDAY RING + BDAY BANNER
+   ================================================== */
+
+.profile-header-avatar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+}
+
+.avatar-wrap {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+}
+
+.avatar-box {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.avatar-box .profile-picture {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Birthday ring – abszolút pozícióban a kép fölé */
+.avatar-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 134px;
+    height: 134px;
+    pointer-events: none;
+    animation: ring-spin 12s linear infinite;
+}
+
+@keyframes ring-spin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.ring-stars use {
+    fill: #ffdd55;
+    filter: drop-shadow(0 0 3px rgba(255,220,80,.8));
+}
+
+/* Birthday banner a profilkép alatt */
+.bday-banner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(255,221,85,.12), rgba(255,110,199,.10));
+    border: 1px solid rgba(255,221,85,.25);
+    max-width: 160px;
+    text-align: left;
+}
+
+.bday-emoji {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.bday-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.bday-text strong {
+    font-size: .78rem;
+    font-weight: 700;
+    color: #fde68a;
+    line-height: 1.2;
+}
+
+.bday-text span {
+    font-size: .72rem;
+    color: var(--muted);
+    line-height: 1.2;
 }

@@ -45,6 +45,158 @@ Changelog by: Neved
 
 ---
 
+### Formátum útmutató 
+
+## [1.6.2.1-beta] - 2026-0X-0X
+
+### Added
+#### •
+-
+
+### Changed
+#### •
+-
+
+### Fixed
+#### •
+-
+
+### Removed
+#### •
+-
+
+### Security
+#### •
+-
+
+Changelog by: Neved
+
+---
+
+## [1.6.2.1-beta] - 2026-03-17
+
+### Added
+
+#### • Profil header – statisztika blokk
+- Új jobb oldali stat panel a headerben: feltöltések, letöltések, kedvencek és barátok száma
+- Minden stat egy kis kártyában jelenik meg (érték + felirat), hover effekttel
+- Mobilon automatikusan elrejtve
+
+#### • Profil header – barátság státusz blokk
+- Pill-szerű státuszjelző a badge-k alatt: „✓ Barátok vagytok" (zöld) vagy „○ Még nem vagytok barátok" (szürke)
+- Barát hozzáadása gomb és Jelentés gomb közvetlenül alatta, csak idegen profil megtekintésekor
+
+#### • Bal oldali sidebar – összecsukható szekciók
+- Az „Adatok láthatósága", „Kétlépcsős azonosítás (2FA)" és „Discord" szekciók `<details>`/`<summary>` alapú accordion-ná alakítva az Adatok kártyán belül
+- A „Profil testreszabása" és „Egyedi CSS kérés" kártyák szintén teljes egészében összecsukhatók
+- Az összecsukás csak saját profil megtekintésekor jelenik meg
+
+#### • Mentett keresések szekció – `profile.php`
+- Új `profile-saved-searches` szekció a jobb oldali oszlopban, csak saját profil esetén
+- Listázza az elmentett kereséseket (kulcsszó, szűrők, dátum), törölhetők AJAX-szal
+- A szekció a `saved_searches` táblából tölt be, max. 20 bejegyzés
+
+### Changed
+
+#### • Profil header – layout átstrukturálás
+- A header grid `auto 1fr` → `auto 1fr auto` lett, a harmadik oszlop a stat blokk
+- A barátság/report gombok és státusz átkerültek a stat oszlopból vissza a badge-k alá
+- `profile-header` max-width: 700px, profilkép mérete 110px-re csökkentve
+
+#### • Profil header – születésnapi gyűrű és banner
+- Az `.avatar-ring` SVG `position: absolute`-ba kerülve pontosan a profilkép köré illeszkedik, lassú forgó animációval (`ring-spin 12s linear infinite`)
+- A születésnapi köszöntő banner átkerült a profilkép *alá* (korábban a név mellé nyomódott)
+
+#### • `report.php` gomb és form – profil oldalon
+- A Jelentés gomb és textarea a `profile-social-block`-ba integrálva, inline stílusok helyett CSS osztályokkal
+
+#### • Bal oldali sidebar – inline style-ok eltávolítva
+- A `profile-visibility-card` beágyazott kártya eltávolítva, tartalma accordion-ba migrálva
+- A 2FA és Discord szekciók dupla `<form>` nesting és inline `style=""` attribútumok megszüntetve
+
+#### • Mentett keresések – inline style-ok eltávolítva
+- Az `<ul>`, `<li>`, `<a>`, `<span>`, `<button>` elemekről az inline `style=""` attribútumok CSS osztályokra cserélve (`saved-searches-list`, `saved-search-item`, `saved-search-date`, `saved-search-delete`)
+
+### Fixed
+
+#### • `styles.css` – hiányzó avatar/bday CSS pótolva
+- `.avatar-wrap`, `.avatar-box`, `.avatar-ring`, `.bday-banner` osztályok nem voltak definiálva, ezért a születésnapi gyűrű és banner elcsúszott
+
+#### • `profile.php` – `profile-header` szélességi probléma
+- A header card az egész `.main` szélességét kitöltötte; `max-width: 700px` hozzáadva
+
+#### • `profile.php` – admin panel törött profil link (átvéve 1.6.1-ből)
+- `profile.php?userid=` → `profile.php?user=` javítás érvényes marad
+
+### Removed
+
+#### • Barátság/report inline szekció a `profile-identity`-ből
+- A korábbi `profile-social-actions` div (`profile-friendship` + `profile-report` belső struktúrával) eltávolítva, helyét a `profile-social-block` vette át
+
+#### • Duplikált `<form>` nesting a 2FA szekciókban
+- A 2FA toggle form egymásba ágyazott `<form>` tagei megszüntetve
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
+## [1.6.2-beta] - 2026-03-17
+
+### Added
+
+#### • Egységes report widget – `_report_widget.php`
+- Újrafelhasználható jelentés UI komponens (`note.php`, `profile.php`, `group.php`)
+- Toast visszajelzés: sikeres küldés, duplikált report és hiba esetén
+
+#### • Egységes report POST handler – `report_action.php`
+- Felhasználó / jegyzet / csoport jelentések fogadása
+- Duplikált jelentés védelem és open redirect védelem
+
+#### • Elmentett keresések – `search.php`
+- Bejelentkezett felhasználók elmenthetik az aktuális keresési paramétereik kombinációját (szűrők, kulcsszó, scope)
+- Az elmentett keresések a profil oldalon tekinthetők meg és törölhetők
+
+#### • Szerepkör badge – `profile.php`
+- Admin: arany, Tanár: lila, Diák: zöld badge; sötét és pasztell téma variánssal
+
+#### • Szerepkör választó – `reglog.php`
+- Regisztrációs formban „Diák / Tanár" radio-gomb; `teacher` mező az INSERT-ben
+
+#### • Profanity filter – `DirtyWords.xml` import
+- 364 soros SQL generálva; `word` és `type` oszlopok (`m` = mild, `f` = erős)
+
+#### • Upload oldal – interaktív tag widget
+- Pill-alapú tag bevitel autocomplete-tel a `tags` táblából (`<datalist>`)
+- Enter / vessző / pontosvessző hozzáadás, `×` törlés; max. 10 tag, duplikátum-védelem
+
+#### • Fordítások – teljes lefedés
+- Footer, navbar, search oldal, footer oldalak (`about`, `faq`, `rules`, `terms`, `contact`, `privacy`, stb.), `report.php`: ~970 új fordítási sor (hu / en / de)
+- Minden beégetett szöveg `t()` hívásra cserélve
+
+### Changed
+- `note.php`, `profile.php`, `group.php`: inline report form → `_report_widget.php` include
+- `script.js`: töredezett id-alapú report toggle → egységes osztályalapú handler
+- `styles.css`: report widget és tag widget stílusok hozzáadva
+- `faq.php`: ismétlődő blokkok tömbből renderelve
+- `about.php` és további footer oldalak: `lang="hu"` → dinamikus `lang` attribútum
+
+### Fixed
+- `admin_panel.php`: törött `profile.php?userid=` → `profile.php?user=` link
+- `report.php`: `$_SESSION['user_id']` → `$_COOKIE['id']` autentikáció
+- `note.php`: saját jegyzeten nem jelenik meg a report gomb
+
+### Removed
+- `script.js`: `openReportBox()`, `cancelReport()` és `getElementById`-alapú toggle eltávolítva
+- `upload.php`: readonly textarea eltávolítva, interaktív widget váltotta fel
+
+### Security
+- `report_action.php`: `target_type` whitelist validáció, redirect validáció
+- `reglog.php`: `role` értéke csak `student` / `teacher` lehet
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [1.6.1-beta] - 2026-03-16
 
 ### Added
