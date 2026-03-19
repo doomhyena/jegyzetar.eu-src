@@ -19,34 +19,6 @@ Szerző megjelölése (kötelező), sor végén:
 
 ### Formátum útmutató 
 
-## [1.X.X-beta] - 2026-0X-0X
-
-### Added
-#### •
--
-
-### Changed
-#### •
--
-
-### Fixed
-#### •
--
-
-### Removed
-#### •
--
-
-### Security
-#### •
--
-
-Changelog by: Neved
-
----
-
-### Formátum útmutató 
-
 ## [1.x.x-beta] - 2026-0X-0X
 
 ### Added
@@ -73,11 +45,18 @@ Changelog by: Neved
 
 ---
 
-## [1.6.2.2-beta] - 2026-03-17
+## [1.6.2.2-beta] - 2026-03-19
 
 ### Fixed
 #### • Értékelés
 - A főoldalon mostmár a csillagokat nem lehet megnyomni, "statikusan" jelennek meg
+
+#### • Profil oldal
+-  Mostmár a "Segítség: hogyan írj saját CSS-t a profilodhoz?" szekció megint szétnyílik
+
+### Changed
+#### • Payment Demo
+- Az oldal kapott rendes dizájnt
 
 Changelog by: Csontos Kincső Anasztázia
 

@@ -286,7 +286,6 @@
     ];
     $fallbackBio = $emptyBios[array_rand($emptyBios)];
 
-    // Profil statisztikák
     $statUploads   = 0;
     $statDownloads = 0;
     $statFavorites = 0;
@@ -331,7 +330,6 @@
         <?php elseif (!empty($profileUpdateSuccess)): ?>
             <div class="toast toast-success"><?= htmlspecialchars($profileUpdateSuccess) ?></div>
         <?php endif; ?>
-        
         <?php if (!empty($backupCodesGenerated)): ?>
             <div style="margin: 20px 0; padding: 20px; border-radius: 14px; background: rgba(96, 165, 250, 0.12); border: 2px solid rgba(96, 165, 250, 0.35); color: #e5e7eb;">
                 <h2 style="margin: 0 0 16px 0; color: #93c5fd; font-size: 18px;">✅ 2FA Backup Kódok - Megmentve!</h2>
@@ -349,7 +347,7 @@
                     </div>
                 </div>
                 <p style="margin: 12px 0 0 0; color: #fde68a; font-size: 13px;">
-                    ⚠️ <strong>Fontos:</strong> Fordulj figyelmet arra, hogy ezek a kódok titkosak maradnak. Ne oszd meg őket senkivel!
+                    <strong>Fontos:</strong> Fordulj figyelmet arra, hogy ezek a kódok titkosak maradnak. Ne oszd meg őket senkivel!
                 </p>
             </div>
         <?php endif; ?>
@@ -397,7 +395,6 @@
                     </div>
                     <div class="profile-header-main">
                         <div class="profile-identity">
-
                             <h2 class="profile-name"><?= htmlspecialchars($show_fullname ? ($profile['lastname'] . ' ' . $profile['firstname']) : ('@' . $profile['username'])) ?></h2>
                             <?php if ($show_fullname): ?><span class="entry-meta profile-username">@<?= htmlspecialchars($profile['username']) ?></span><?php endif; ?>
                             <?php if (!empty($badges)): ?>
@@ -446,7 +443,6 @@
                                     <a href="favorites.php" class="profile-action-btn" role="button">Kedvenceim</a>
                                 </div>
                             <?php endif; ?>
-
                             <?php if (!$isOwner): ?>
                                 <div class="profile-social-block">
                                     <?php if ($friendship && (int)$friendship['status'] === 1): ?>
@@ -476,7 +472,6 @@
                                     </form>
                                 </div>
                             <?php endif; ?>
-
                         </div>
                     </div>
                     <div class="profile-header-stats">
@@ -501,8 +496,6 @@
             </section>
             <div class="profile-main-columns">
                 <aside class="profile-column profile-column-left">
-
-
                     <div class="card">
                         <h3><?= t('profile_data') ?></h3>
                         <div class="profile-info-card" id="basic-profile-static">
@@ -547,8 +540,6 @@
                                 <button type="submit" name="update-basic-profile" class="btn-cta profile-save-btn"><?= t('btn_save') ?></button>
                                 <button type="button" class="btn-ghost" id="cancel-basic-profile-edit"><?= t('btn_cancel') ?></button>
                             </form>
-
-
                             <details class="sidebar-accordion">
                                 <summary class="sidebar-accordion-summary">Adatok láthatósága</summary>
                                 <div class="sidebar-accordion-body">
@@ -572,8 +563,6 @@
                                     </form>
                                 </div>
                             </details>
-
-
                             <details class="sidebar-accordion">
                                 <summary class="sidebar-accordion-summary">Kétlépcsős azonosítás (2FA)</summary>
                                 <div class="sidebar-accordion-body">
@@ -583,6 +572,7 @@
                                             <span class="toggle-slider"></span>
                                             <span class="toggle-label"><?= ((int)$profile['twofa_enabled'] === 1) ? 'Bekapcsolva' : 'Kikapcsolva' ?></span>
                                         </label>
+                                        <br>
                                         <button type="submit" name="toggle-2fa" class="btn-cta profile-save-btn">Mentés</button>
                                     </form>
                                     <p class="entry-meta" style="margin-top:8px;">Bejelentkezéskor e-mailben kapsz egy egyszer használatos kódot.</p>
@@ -591,8 +581,6 @@
                                     <?php endif; ?>
                                 </div>
                             </details>
-
-
                             <details class="sidebar-accordion">
                                 <summary class="sidebar-accordion-summary">Discord</summary>
                                 <div class="sidebar-accordion-body">
@@ -612,10 +600,7 @@
                             </details>
                         <?php endif; ?>
                     </div>
-
                     <?php if ($isOwner): ?>
-
-
                         <details class="card sidebar-card-accordion">
                             <summary class="sidebar-card-summary"><?= t('profile_customization') ?></summary>
                             <div class="sidebar-card-body">
@@ -643,29 +628,40 @@
                                 </form>
                             </div>
                         </details>
-
-
-                        <details class="card sidebar-card-accordion">
-                            <summary class="sidebar-card-summary"><?= t('profile_custom_css_request') ?></summary>
-                            <div class="sidebar-card-body">
+                        <div class="card css-editor-card">
+                            <div class="css-editor-card-header">
+                                <h3><?= t('profile_custom_css_request') ?></h3>
                                 <?php if ($lastCssRequest): ?>
-                                    <p class="entry-meta">
-                                        <?= t('profile_last_request_status') ?>
-                                        <strong><?= htmlspecialchars($lastCssRequest['status']) ?></strong>
-                                        <?php if (!empty($lastCssRequest['reviewed_at'])): ?>
-                                            (<?= htmlspecialchars($lastCssRequest['reviewed_at']) ?>)
-                                        <?php endif; ?>
-                                    </p>
-                                <?php else: ?>
-                                    <p class="entry-meta"><?= t('profile_custom_css_not_requested') ?></p>
+                                    <span class="css-status-badge css-status-<?= htmlspecialchars($lastCssRequest['status']) ?>">
+                                        <?= htmlspecialchars($lastCssRequest['status']) ?>
+                                    </span>
                                 <?php endif; ?>
-                                <details class="css-tutorial" id="css-tutorial">
-                                    <summary><?= t('profile_css_tutorial_summary') ?></summary>
-                                    <div class="css-tutorial-body">
-                                        <p><?= t('profile_css_tutorial_intro') ?></p>
-                                        <p><?= t('profile_css_tutorial_example') ?></p>
-                                        <pre><code>
-body {
+                            </div>
+                            <?php if ($lastCssRequest): ?>
+                                <p class="entry-meta"><?= t('profile_last_request_status') ?> <strong><?= htmlspecialchars($lastCssRequest['status']) ?></strong><?php if (!empty($lastCssRequest['reviewed_at'])): ?> (<?= htmlspecialchars($lastCssRequest['reviewed_at']) ?>)<?php endif; ?></p>
+                            <?php else: ?>
+                                <p class="entry-meta"><?= t('profile_custom_css_not_requested') ?></p>
+                            <?php endif; ?>
+                            <button type="button" class="btn-cta" id="css-modal-open-btn" style="margin-top:4px;">
+                                CSS szerkesztése
+                            </button>
+                        </div>
+                        <div id="css-modal-overlay" class="css-modal-overlay" aria-hidden="true">
+                            <div class="css-modal-panel" role="dialog" aria-modal="true" aria-label="Egyedi CSS szerkesztő">
+                                <div class="css-modal-header">
+                                    <div class="css-modal-title">
+                                        <h2><?= t('profile_custom_css_request') ?></h2>
+                                    </div>
+                                    <button type="button" class="css-modal-close" id="css-modal-close-btn" aria-label="Bezárás">✕</button>
+                                </div>
+                                <div class="css-modal-body">
+                                    <div class="css-modal-left">
+                                        <details class="css-tutorial" id="css-tutorial">
+                                            <summary><?= t('profile_css_tutorial_summary') ?></summary>
+                                            <div class="css-tutorial-body">
+                                                <p><?= t('profile_css_tutorial_intro') ?></p>
+                                                <p><?= t('profile_css_tutorial_example') ?></p>
+                                                <pre><code>body {
    background:
        radial-gradient(circle at 0%, rgba(244,114,182,.35), transparent 60%),
        radial-gradient(circle at 100% 0%, rgba(56,189,248,.28), transparent 55%),
@@ -683,29 +679,31 @@ body {
         linear-gradient(180deg, rgba(15,23,42,.96), rgba(15,23,42,.94));
    box-shadow: 0 24px 60px rgba(0,0,0,.7);
    padding: 40px 34px;
-}
-                                        </code></pre>
-                                        <p><?= t('tip_profile_custom_css') ?></p>
-                                    </div>
-                                </details>
-                                <form method="post">
-                                    <div class="profile-info-item">
-                                        <div class="profile-info-label"><?= t('profile_css_label') ?></div>
-                                        <div class="profile-info-value">
-                                            <textarea class="profile-bio-input" rows="4" id="profile-custom-css-input" name="custom_css"
-                                                      placeholder="<?= htmlspecialchars(t('css_placeholder')) ?>"
-                                                      data-i18n-css-empty="<?= htmlspecialchars(t('msg_css_empty_reset')) ?>"
-                                                      data-i18n-css-admin="<?= htmlspecialchars(t('msg_css_approved_by_admin')) ?>"><?= htmlspecialchars($cssResetDone ? '' : ($lastCssRequest['css'] ?? '')) ?></textarea>
-                                            <p class="entry-meta"><?= t('css_approval_note') ?></p>
-                                            <div class="css-button-row">
-                                                <button type="submit" name="submit-custom-css" class="btn-cta profile-save-btn"><?= t('profile_custom_css_submit') ?></button>
-                                                <button type="submit" name="reset-custom-css" class="btn-cta profile-save-btn"><?= t('profile_custom_css_reset_btn') ?></button>
+}</code></pre>
+                                                <p><?= t('tip_profile_custom_css') ?></p>
                                             </div>
-                                        </div>
+                                        </details>
                                     </div>
-                                </form>
+                                    <div class="css-modal-right">
+                                        <form method="post" class="css-modal-form">
+                                            <label class="css-modal-label"><?= t('profile_css_label') ?></label>
+                                            <textarea
+                                                class="css-modal-textarea"
+                                                id="profile-custom-css-input"
+                                                name="custom_css"
+                                                placeholder="<?= htmlspecialchars(t('css_placeholder')) ?>"
+                                                data-i18n-css-empty="<?= htmlspecialchars(t('msg_css_empty_reset')) ?>"
+                                                data-i18n-css-admin="<?= htmlspecialchars(t('msg_css_approved_by_admin')) ?>"><?= htmlspecialchars($cssResetDone ? '' : ($lastCssRequest['css'] ?? '')) ?></textarea>
+                                            <p class="entry-meta css-modal-note"><?= t('css_approval_note') ?></p>
+                                            <div class="css-modal-actions">
+                                                <button type="submit" name="submit-custom-css" class="btn-cta"><?= t('profile_custom_css_submit') ?></button>
+                                                <button type="submit" name="reset-custom-css" class="btn-ghost"><?= t('profile_custom_css_reset_btn') ?></button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
-                        </details>
+                        </div>
 
                     <?php endif; ?>
                 </aside>
@@ -749,13 +747,13 @@ body {
                                 <?php foreach ($savedSearches as $ss):
                                     $p = $ss['params'];
                                     $parts = [];
-                                    if (!empty($p['q']))     $parts[] = '🔍 ' . htmlspecialchars($p['q']);
+                                    if (!empty($p['q'])) $parts[] = htmlspecialchars($p['q']);
                                     if (!empty($p['scope']) && $p['scope'] !== 'all') $parts[] = htmlspecialchars(t('label_scope')) . ': ' . htmlspecialchars($p['scope']);
-                                    if (!empty($p['type'])  && $p['type']  !== 'all') $parts[] = htmlspecialchars(t('label_type'))  . ': ' . htmlspecialchars(strtoupper($p['type']));
+                                    if (!empty($p['type']) && $p['type']  !== 'all') $parts[] = htmlspecialchars(t('label_type'))  . ': ' . htmlspecialchars(strtoupper($p['type']));
                                     if (!empty($p['level']) && $p['level'] !== 'all') $parts[] = htmlspecialchars(t('search_level_label')) . ': ' . htmlspecialchars($p['level']);
-                                    if (!empty($p['tag']))   $parts[] = '#' . htmlspecialchars($p['tag']);
-                                    if (!empty($p['mode'])  && $p['mode']  !== 'all') $parts[] = htmlspecialchars(t('search_mode_label')) . ': ' . htmlspecialchars($p['mode']);
-                                    if (!empty($p['sort'])  && $p['sort']  !== 'newest') $parts[] = htmlspecialchars(t('label_sort')) . ': ' . htmlspecialchars($p['sort']);
+                                    if (!empty($p['tag'])) $parts[] = '#' . htmlspecialchars($p['tag']);
+                                    if (!empty($p['mode']) && $p['mode']  !== 'all') $parts[] = htmlspecialchars(t('search_mode_label')) . ': ' . htmlspecialchars($p['mode']);
+                                    if (!empty($p['sort']) && $p['sort']  !== 'newest') $parts[] = htmlspecialchars(t('label_sort')) . ': ' . htmlspecialchars($p['sort']);
                                     $label = implode(' · ', $parts) ?: t('save_search_no_label');
                                     $url = 'search.php?' . http_build_query(array_merge($p, ['page' => 1]));
                                 ?>

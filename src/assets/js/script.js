@@ -305,16 +305,32 @@ document.addEventListener('DOMContentLoaded', function(){
         }
     });
 document.addEventListener("DOMContentLoaded", () => {
-    const cssHelp = document.querySelector(".css-tutorial");
+    const openBtn  = document.getElementById("css-modal-open-btn");
+    const closeBtn = document.getElementById("css-modal-close-btn");
+    const overlay  = document.getElementById("css-modal-overlay");
 
-    if (!cssHelp) return;
+    if (!openBtn || !overlay) return;
 
-    cssHelp.addEventListener("toggle", () => {
-        if (cssHelp.open) {
-            document.body.classList.add("css-help-open");
-        } else {
-            document.body.classList.remove("css-help-open");
-        }
+    function openModal() {
+        overlay.classList.add("is-open");
+        overlay.setAttribute("aria-hidden", "false");
+        // NEM blokkoljuk a body scrollt
+    }
+
+    function closeModal() {
+        overlay.classList.remove("is-open");
+        overlay.setAttribute("aria-hidden", "true");
+    }
+
+    openBtn.addEventListener("click", openModal);
+    if (closeBtn) closeBtn.addEventListener("click", closeModal);
+
+    overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) closeModal();
+    });
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && overlay.classList.contains("is-open")) closeModal();
     });
 });
 
