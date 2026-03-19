@@ -1070,7 +1070,6 @@ select option, .select option{ background-color:#020617; color:#e5e7eb; }
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
@@ -1081,7 +1080,6 @@ select option, .select option{ background-color:#020617; color:#e5e7eb; }
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
 }
 
@@ -3161,7 +3159,9 @@ table.badge-list-table td:nth-child(5){
     list-style: none;
 }
 
-.partner-about summary::-webkit-details-marker{ display:none; }
+.partner-about summary::-webkit-details-marker{ 
+    display: none; 
+}
 
 .partner-about summary::before{
     content: '▸';
@@ -3171,7 +3171,9 @@ table.badge-list-table td:nth-child(5){
     opacity: .9;
 }
 
-.partner-about[open] summary::before{ content:'▾'; }
+.partner-about[open] summary::before{ 
+    content:'▾'; 
+}
 
 .partner-about-block{
     margin-top: 14px;
@@ -3200,7 +3202,6 @@ body.theme-pastel .container{
     box-shadow: 0 16px 48px rgba(15,23,42,.10);
 }
 
-/* ===== Markdown megjelenítés (csak a jegyzetben) ===== */
 .note-markdown{
   margin-top: 18px;
   line-height: 1.7;
@@ -3208,13 +3209,11 @@ body.theme-pastel .container{
   font-size: 1rem;
 }
 
-/* Címsorok */
 .note-markdown h1{ font-size: 2.1rem; margin: 18px 0 10px; font-weight: 900; }
 .note-markdown h2{ font-size: 1.6rem; margin: 16px 0 8px; font-weight: 800; }
 .note-markdown h3{ font-size: 1.25rem; margin: 14px 0 6px; font-weight: 800; }
 .note-markdown p{ margin: 10px 0; }
 
-/* LISTÁK – vissza a bullet/number */
 .note-markdown ul,
 .note-markdown ol{
   margin: 10px 0 12px;
@@ -3749,8 +3748,13 @@ body.theme-pastel .site-footer {
 }
 
 @media (max-width: 720px){
-    .upload-top{ flex-direction:column; align-items:stretch; }
-    .upload-actions{ justify-content:flex-start; }
+    .upload-top{ 
+        flex-direction:column; 
+        align-items:stretch; 
+    }
+    .upload-actions{ 
+        justify-content:flex-start; 
+    }
 }
 
 @media (max-width: 640px) {
@@ -3760,11 +3764,17 @@ body.theme-pastel .site-footer {
 }
 
 @media (min-width: 900px){
-    .fav-top{ grid-template-columns: 108px 1fr; gap: 16px; }
+    .fav-top{ 
+        grid-template-columns: 108px 1fr; 
+        gap: 16px; 
+    }
 }
 
 @media (min-width: 900px){
-    .fav-thumb{ width: 108px; height: 108px; }
+    .fav-thumb{ 
+        width: 108px; 
+        height: 108px; 
+    }
 }
 
 @media (max-width: 700px) {
@@ -3791,10 +3801,18 @@ body.theme-pastel .site-footer {
 }
 
 @media (max-width: 640px){
-    .container{ padding: 18px; }
-    .partner-top{ grid-template-columns: 56px 1fr; }
+    .container{ 
+        padding: 18px; 
+    }
+    .partner-top{ 
+        grid-template-columns: 56px 1fr; 
+    }
     .partner-logo img,
-    .partner-logo-fallback{ width:56px; height:56px; border-radius: 14px; }
+    .partner-logo-fallback{ 
+        width:56px; 
+        height:56px; 
+        border-radius: 14px; 
+    }
 }
 
 @media (max-width: 640px) {
@@ -3900,7 +3918,6 @@ body.theme-pastel .site-footer {
    PROFILE PAGE REDESIGN
    ================================================== */
 
-/* --- Layout --- */
 .profile-layout {
     display: grid;
     gap: 28px;
@@ -3914,7 +3931,6 @@ body.theme-pastel .site-footer {
     align-items: flex-start;
 }
 
-/* --- Header card --- */
 .profile-header {
     max-width: 860px;
     padding: 28px 32px;
@@ -3945,7 +3961,9 @@ body.theme-pastel .site-footer {
     position: relative;
 }
 
-.profile-header-avatar { text-align: center; }
+.profile-header-avatar { 
+    text-align: center; 
+}
 
 .profile-picture {
     width: 140px;
@@ -4009,12 +4027,24 @@ body.theme-pastel .site-footer {
     letter-spacing: .2px;
 }
 
-/* Role badges */
-.badge-pill--admin  { background: linear-gradient(135deg, rgba(250,204,21,.18), rgba(251,191,36,.08)) !important; border-color: rgba(250,204,21,.35) !important; color: #fde68a !important; }
-.badge-pill--teacher{ background: linear-gradient(135deg, rgba(167,139,250,.18), rgba(139,92,246,.08)) !important; border-color: rgba(167,139,250,.35) !important; color: #ddd6fe !important; }
-.badge-pill--student{ background: linear-gradient(135deg, rgba(52,211,153,.15), rgba(16,185,129,.07)) !important; border-color: rgba(52,211,153,.30) !important; color: #a7f3d0 !important; }
+.badge-pill--admin  { 
+    background: linear-gradient(135deg, rgba(250,204,21,.18), rgba(251,191,36,.08)) !important; 
+    border-color: rgba(250,204,21,.35) !important; 
+    color: #fde68a !important; 
+}
 
-/* Action buttons in header */
+.badge-pill--teacher{ 
+    background: linear-gradient(135deg, rgba(167,139,250,.18), rgba(139,92,246,.08)) !important; 
+    border-color: rgba(167,139,250,.35) !important; 
+    color: #ddd6fe !important; 
+}
+
+.badge-pill--student{ 
+    background: linear-gradient(135deg, rgba(52,211,153,.15), rgba(16,185,129,.07)) !important; 
+    border-color: rgba(52,211,153,.30) !important; 
+    color: #a7f3d0 !important; 
+}
+
 .profile-actions.inline {
     display: flex;
     flex-wrap: wrap;
@@ -4024,7 +4054,10 @@ body.theme-pastel .site-footer {
     margin-top: 14px;
 }
 
-.profile-actions.inline form { margin: 0; display: contents; }
+.profile-actions.inline form { 
+    margin: 0; 
+    display: contents; 
+}
 
 .profile-action-btn {
     all: unset;
@@ -4053,7 +4086,6 @@ body.theme-pastel .site-footer {
     transform: translateY(-1px);
 }
 
-/* --- Sidebar cards --- */
 .profile-column-left .card {
     padding: 20px;
     border-radius: 18px;
@@ -4073,8 +4105,9 @@ body.theme-pastel .site-footer {
     border-bottom: 1px solid rgba(255,255,255,.07);
 }
 
-/* Info items */
-.profile-info-card { display: grid; gap: 6px; }
+.profile-info-card { 
+    display: grid; gap: 6px; 
+}
 
 .profile-info-item {
     padding: 10px 12px;
@@ -4084,7 +4117,9 @@ body.theme-pastel .site-footer {
     transition: background .12s ease;
 }
 
-.profile-info-item:hover { background: rgba(255,255,255,.055); }
+.profile-info-item:hover { 
+    background: rgba(255,255,255,.055); 
+}
 
 .profile-info-label {
     color: var(--muted);
@@ -4102,7 +4137,6 @@ body.theme-pastel .site-footer {
     word-break: break-word;
 }
 
-/* Visibility toggles */
 .profile-visibility-card {
     margin-top: 0 !important;
     border: none !important;
@@ -4143,7 +4177,6 @@ body.theme-pastel .site-footer {
     color: var(--text);
 }
 
-/* Save buttons */
 .profile-save-btn {
     margin-top: 10px !important;
     width: 100% !important;
@@ -4153,7 +4186,6 @@ body.theme-pastel .site-footer {
     justify-content: center;
 }
 
-/* Settings form */
 .profile-settings-form {
     display: grid;
     gap: 12px;
@@ -4187,8 +4219,10 @@ body.theme-pastel .site-footer {
     box-shadow: 0 0 0 3px rgba(125,211,252,.12);
 }
 
-/* --- Right column --- */
-.profile-column-right { display: grid; gap: 20px; }
+.profile-column-right { 
+    display: grid; 
+    gap: 20px; 
+}
 
 .profile-column-right .card {
     padding: 22px;
@@ -4209,7 +4243,6 @@ body.theme-pastel .site-footer {
     border-bottom: 1px solid rgba(255,255,255,.07);
 }
 
-/* Bio */
 .profile-bio p {
     font-size: .95rem;
     line-height: 1.65;
@@ -4218,7 +4251,6 @@ body.theme-pastel .site-footer {
     margin: 0;
 }
 
-/* Upload items */
 .profile-uploads-titlebar {
     display: flex;
     align-items: center;
@@ -4229,7 +4261,11 @@ body.theme-pastel .site-footer {
     border-bottom: 1px solid rgba(255,255,255,.07);
 }
 
-.profile-uploads-titlebar h3 { margin: 0 !important; border-bottom: none !important; padding-bottom: 0 !important; }
+.profile-uploads-titlebar h3 { 
+    margin: 0 !important; 
+    border-bottom: none !important; 
+    padding-bottom: 0 !important; 
+}
 
 .uploads-count {
     display: inline-flex;
@@ -4246,7 +4282,10 @@ body.theme-pastel .site-footer {
     font-size: .82rem;
 }
 
-.profile-uploads-list { display: grid; gap: 12px; }
+.profile-uploads-list { 
+    display: grid; 
+    gap: 12px; 
+}
 
 .upload-item {
     border: 1px solid rgba(255,255,255,.07);
@@ -4285,7 +4324,10 @@ body.theme-pastel .site-footer {
     transition: color .12s ease;
 }
 
-.upload-title-link:hover { color: var(--primary); text-decoration: none; }
+.upload-title-link:hover { 
+    color: var(--primary); 
+    text-decoration: none; 
+}
 
 .upload-meta {
     display: flex;
@@ -4306,7 +4348,10 @@ body.theme-pastel .site-footer {
     font-weight: 600;
 }
 
-.meta-chip strong { color: var(--text); font-weight: 700; }
+.meta-chip strong { 
+    color: var(--text); 
+    font-weight: 700; 
+}
 
 .upload-actions {
     display: flex;
@@ -4337,7 +4382,6 @@ body.theme-pastel .site-footer {
     font-size: .85rem;
 }
 
-/* Profile page h1 */
 .profile-layout + h1,
 .main > h1 {
     font-size: clamp(1.1rem, 1.5vw + .4rem, 1.5rem);
@@ -4347,7 +4391,6 @@ body.theme-pastel .site-footer {
     letter-spacing: -.1px;
 }
 
-/* Profile empty state */
 .profile-empty {
     padding: 24px;
     text-align: center;
@@ -4355,7 +4398,6 @@ body.theme-pastel .site-footer {
     font-size: .92rem;
 }
 
-/* Social actions (friend / report) */
 .profile-social-actions {
     display: flex;
     flex-direction: column;
@@ -4365,7 +4407,6 @@ body.theme-pastel .site-footer {
     border-top: 1px solid rgba(255,255,255,.07);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .profile-main-columns {
         grid-template-columns: 1fr;
@@ -4387,7 +4428,6 @@ body.theme-pastel .site-footer {
    PROFILE REDESIGN – FIXES
    ================================================== */
 
-/* Header fix – ne húzódjon teljesen szét */
 .profile-header {
     max-width: 700px !important;
 }
@@ -4423,7 +4463,6 @@ body.theme-pastel .site-footer {
     border-radius: 10px !important;
 }
 
-/* Mentett keresések – kompaktabb */
 .search-card {
     padding: 10px 14px !important;
     margin-bottom: 8px !important;
@@ -4535,7 +4574,6 @@ body.theme-pastel .site-footer {
    SIDEBAR ACCORDION (details/summary)
    ================================================== */
 
-/* Kártyán belüli összecsukható szekciók (Láthatóság, 2FA, Discord) */
 .sidebar-accordion {
     border-top: 1px solid rgba(255,255,255,.07);
     margin-top: 10px;
@@ -4558,7 +4596,9 @@ body.theme-pastel .site-footer {
     transition: color .15s ease;
 }
 
-.sidebar-accordion-summary::-webkit-details-marker { display: none; }
+.sidebar-accordion-summary::-webkit-details-marker { 
+    display: none; 
+}
 
 .sidebar-accordion-summary::after {
     content: '›';
@@ -4584,7 +4624,6 @@ body.theme-pastel .site-footer {
     padding: 6px 0 12px 0;
 }
 
-/* Egész kártya összecsukható (Profil testreszabása, Egyedi CSS) */
 .sidebar-card-accordion {
     padding: 0 !important;
     overflow: hidden;
@@ -4606,7 +4645,9 @@ body.theme-pastel .site-footer {
     transition: color .15s ease, background .15s ease;
 }
 
-.sidebar-card-summary::-webkit-details-marker { display: none; }
+.sidebar-card-summary::-webkit-details-marker { 
+    display: none; 
+}
 
 .sidebar-card-summary::after {
     content: '›';
@@ -4633,7 +4674,6 @@ body.theme-pastel .site-footer {
     gap: 14px;
 }
 
-/* Backup kódok link gomb */
 .sidebar-link-btn {
     display: inline-flex;
     align-items: center;
@@ -4654,7 +4694,6 @@ body.theme-pastel .site-footer {
     background: rgba(96,165,250,.22);
 }
 
-/* Discord ID code chip */
 .sidebar-code {
     background: rgba(0,0,0,.25);
     padding: 2px 6px;
@@ -4684,7 +4723,6 @@ body.theme-pastel .site-footer {
     align-items: start;
 }
 
-/* Név és username bal oszlop, teljes szélességen */
 .profile-name {
     grid-column: 1 / -1;
 }
@@ -4693,12 +4731,10 @@ body.theme-pastel .site-footer {
     grid-column: 1 / -1;
 }
 
-/* Badge sorok bal oszlop */
 .profile-identity > .profile-badges {
     grid-column: 1 / -1;
 }
 
-/* Akciógombok és info a második sor jobb oldalára */
 .profile-identity > .profile-actions.inline {
     grid-column: 1 / -1;
     margin-top: 6px !important;
@@ -4825,7 +4861,6 @@ body.theme-pastel .site-footer {
     margin: 0;
 }
 
-/* Barátság státusz pill */
 .friend-status-pill {
     display: inline-flex;
     align-items: center;
@@ -4854,7 +4889,6 @@ body.theme-pastel .site-footer {
     opacity: .75;
 }
 
-/* Gombok vízszintes sorban */
 .profile-social-block .profile-actions-row {
     display: flex;
     gap: 8px;
@@ -4894,7 +4928,6 @@ body.theme-pastel .site-footer {
     display: block;
 }
 
-/* Birthday ring – abszolút pozícióban a kép fölé */
 .avatar-ring {
     position: absolute;
     top: 50%;
@@ -4916,7 +4949,6 @@ body.theme-pastel .site-footer {
     filter: drop-shadow(0 0 3px rgba(255,220,80,.8));
 }
 
-/* Birthday banner a profilkép alatt */
 .bday-banner {
     display: flex;
     align-items: center;
@@ -4951,4 +4983,242 @@ body.theme-pastel .site-footer {
     font-size: .72rem;
     color: var(--muted);
     line-height: 1.2;
+}
+
+.payment-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px 16px 60px;
+}
+
+.payment-card {
+    width: 100%;
+    max-width: 480px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--stroke);
+    background: rgba(255,255,255,.045);
+    box-shadow: var(--shadow-lg);
+    backdrop-filter: var(--card-blur);
+    -webkit-backdrop-filter: var(--card-blur);
+    overflow: hidden;
+}
+
+.demo-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: rgba(251,191,36,.10);
+    border-bottom: 1px solid rgba(251,191,36,.25);
+}
+
+.demo-banner-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.demo-banner-text {
+    font-size: .82rem;
+    font-weight: 600;
+    color: #fde68a;
+    line-height: 1.4;
+}
+
+.demo-banner-text span {
+    color: var(--warn);
+    font-weight: 800;
+}
+
+.payment-header {
+    padding: 28px 28px 20px;
+    border-bottom: 1px solid var(--stroke);
+}
+
+.payment-title {
+    margin: 0 0 4px;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.payment-title-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(125,211,252,.14);
+    border: 1px solid rgba(125,211,252,.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.payment-subtitle {
+    margin: 0;
+    font-size: .88rem;
+    color: var(--muted);
+}
+
+.payment-amount-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(125,211,252,.06);
+    border: 1px solid rgba(125,211,252,.16);
+}
+
+.payment-amount-label {
+    font-size: .82rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.payment-amount-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: -.5px;
+}
+
+.payment-amount-period {
+    font-size: .78rem;
+    color: var(--muted);
+    font-weight: 500;
+}
+
+.payment-body {
+    padding: 24px 28px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.payment-form-row {
+    display: flex;
+    gap: 14px;
+}
+
+.payment-form-row .payment-field {
+    flex: 1;
+}
+
+.payment-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.payment-label {
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.payment-input-wrap {
+    position: relative;
+}
+
+.payment-input-wrap .input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1rem;
+    opacity: .6;
+    pointer-events: none;
+}
+
+.payment-input-wrap .input {
+    width: 100%;
+    padding-left: 36px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .95rem;
+    letter-spacing: .08em;
+}
+
+.payment-input-wrap .input.no-icon {
+    padding-left: 12px;
+}
+
+.input-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(125,211,252,.08);
+    border: 1px solid rgba(125,211,252,.18);
+    font-size: .74rem;
+    font-weight: 600;
+    color: var(--primary);
+    width: fit-content;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: .04em;
+}
+
+.payment-errors {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.payment-error-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(220,38,38,.12);
+    border: 1px solid rgba(220,38,38,.30);
+    font-size: .87rem;
+    font-weight: 600;
+    color: #fca5a5;
+}
+
+.payment-submit {
+    width: 100%;
+    min-width: 0;
+    height: 50px;
+    font-size: 1rem;
+    border-radius: 14px;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.payment-cancel {
+    text-align: center;
+    font-size: .85rem;
+}
+
+.payment-cancel a {
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color .15s ease;
+}
+
+.payment-cancel a:hover {
+    color: var(--text);
+    text-decoration: none !important;
+}
+
+.payment-secure-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: .78rem;
+    color: var(--muted);
+    opacity: .7;
 }
