@@ -146,8 +146,8 @@
 
         if ($mode === 'markdown') {
 
-            if (!$hasContentType || !$hasNoteMarkdown || !$hasNoteExcerpt) {
-                $uploadError = "A jegyzet feltöltéshez hiányzik az adatbázis frissítés (content_type / note_markdown / note_excerpt).";
+            if (!$hasContentType || !$hasNoteMarkdown) {
+                $uploadError = "A jegyzet feltöltéshez hiányzik az adatbázis frissítés (content_type / note_markdown).";
             } else {
                 $md = (string)($_POST['markdown_note'] ?? '');
                 $md = str_replace("\r\n", "\n", $md);
@@ -172,12 +172,18 @@
                             $mdMb = round($file_size / 1024 / 1024, 2);
                             $uploadError = "Nincs elég hely a kvótádban. Max {$maxMb} MB. Jelenleg ~{$usedMb} MB, a jegyzet ~{$mdMb} MB.";
                         } else {
-                            $excerpt = trim(preg_replace('/\s+/', ' ', $md));
+                            $excerpt = trim(preg_replace('/\s+/', ' ', strip_tags($md)));
                             $excerpt = mb_substr($excerpt, 0, 255, 'UTF-8');
 
-                            $colsIns = ['uploaded_by', 'name', 'file_name', 'description', 'file_path', 'subject', 'tags', 'file_size', 'content_type', 'note_markdown', 'note_excerpt'];
-                            $vals = [$user['id'], $displayName, null, $description, null, $subject, $tags, $file_size, 'note', $md, $excerpt];
-                            $types= "issssssi" . "sss";
+                            $colsIns = ['uploaded_by', 'name', 'file_name', 'description', 'file_path', 'subject', 'tags', 'file_size', 'content_type', 'note_markdown'];
+                            $vals    = [$user['id'], $displayName, null, $description, null, $subject, $tags, $file_size, 'note', $md];
+                            $types   = "issssssiss";
+
+                            if ($hasNoteExcerpt) {
+                                $colsIns[] = 'note_excerpt';
+                                $vals[]    = $excerpt;
+                                $types    .= 's';
+                            }
 
                             if ($hasIsPrivate) {
                                 $colsIns[] = 'is_private';
@@ -510,4 +516,3 @@
 <?php include 'assets/php/footer.php'; ?>
 </body>
 </html>
-

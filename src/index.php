@@ -35,14 +35,7 @@
     $nd = db_query($conn, "SELECT nevek FROM namedays WHERE datum = ? LIMIT 1", "s", [$today]);
     $nameday = ($nd && $nd->num_rows > 0) ? $nd->fetch_assoc()['nevek'] : t('nameday_none_today');
 
-    $popular_sql = "
-        SELECT f.*, IFNULL(AVG(r.rating),0) AS avg_rating, COUNT(r.id) AS rating_count
-        FROM files f
-        LEFT JOIN ratings r ON f.id = r.file_id
-        GROUP BY f.id
-        ORDER BY avg_rating DESC, rating_count DESC
-        LIMIT 8
-    ";
+    $popular_sql = "SELECT f.*, IFNULL(AVG(r.rating),0) AS avg_rating, COUNT(r.id) AS rating_count FROM files f LEFT JOIN ratings r ON f.id = r.file_id GROUP BY f.id ORDER BY avg_rating DESC, rating_count DESC LIMIT 8";
     $popular_result = $conn->query($popular_sql);
     $latest_result = $conn->query("SELECT * FROM files ORDER BY id DESC LIMIT 12");
 
@@ -55,12 +48,7 @@
         $file_id = isset($_POST['favorite_file_id']) ? (int)$_POST['favorite_file_id'] : 0;
 
         if ($file_id > 0) {
-            $check_result = db_query(
-                    $conn,
-                    "SELECT id FROM favorites WHERE file_id = ? AND user_id = ? LIMIT 1",
-                    "ii",
-                    [$file_id, $currentUserId]
-            );
+            $check_result = db_query($conn, "SELECT id FROM favorites WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, $currentUserId]);
 
             if ($check_result && $check_result->num_rows > 0) {
                 db_exec($conn, "DELETE FROM favorites WHERE file_id = ? AND user_id = ?", "ii", [$file_id, $currentUserId]);
@@ -136,6 +124,30 @@
                     </div>
                 </div>
             </section>
+            <section class="card mb-6" style="background: linear-gradient(135deg, rgba(125,211,252,.08), rgba(244,114,182,.06)); border-color: rgba(125,211,252,.18);">
+                <div style="padding: 8px 4px;">
+                    <p style="margin: 0 0 18px; font-size: 1.05rem; color: var(--text); line-height: 1.65; max-width: 72ch;">
+                        A <strong>Jegyzetár</strong> egy ingyenes közösségi platform, ahol diákok és tanárok megoszthatják egymással
+                        tananyagokat, összefoglalókat, feladatsorokat és egyéb iskolai segédanyagokat.
+                        Keress tantárgy, évfolyam vagy kulcsszó alapján - töltsd le, értékeld, és te is járulj hozzá!
+                    </p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(125,211,252,.10); border: 1px solid rgba(125,211,252,.22); font-size: .9rem; font-weight: 600; color: var(--primary);">
+                            Ingyenes jegyzetek
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.22); font-size: .9rem; font-weight: 600; color: var(--ok);">
+                            Közösségi tanulás
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(244,114,182,.10); border: 1px solid rgba(244,114,182,.22); font-size: .9rem; font-weight: 600; color: var(--accent);">
+                            Diákoknak & tanároknak
+                        </div>
+                    </div>
+                    <div style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <a href="reglog.php" class="btn-cta">Regisztráció - ingyenes</a>
+                        <a href="search.php" class="btn-ghost">Böngészés bejelentkezés nélkül</a>
+                    </div>
+                </div>
+            </section>
             <div class="home-grid">
             <section class="content-main flex-1 min-w-0">
                     <div class="section-titlebar flex justify-between items-center mb-4">
@@ -203,21 +215,13 @@
 
 										<div class="note-media" style="margin-top:10px;">
 											<?php if ($videoId !== ''): ?>
-												<iframe
-													width="100%"
-													height="250"
-													src="https://www.youtube-nocookie.com/embed/<?= htmlspecialchars($videoId) ?>?rel=0"
-													frameborder="0"
-													allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-													allowfullscreen>
+												<iframe width="100%" height="250" src="https://www.youtube-nocookie.com/embed/<?= htmlspecialchars($videoId) ?>?rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
 												</iframe>
-
 											<?php elseif ($isMp4): ?>
 												<video controls width="100%">
 													<source src="<?= htmlspecialchars($url) ?>" type="video/mp4">
 													A böngésződ nem támogatja a videó lejátszást.
 												</video>
-
 											<?php else: ?>
 												<div class="entry-meta" style="margin-top:6px;">
 													Külső link megosztva:
@@ -304,3 +308,4 @@
     <?php include 'assets/php/footer.php'; ?>
     </body>
 </html>
+

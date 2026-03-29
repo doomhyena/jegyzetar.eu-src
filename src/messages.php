@@ -123,15 +123,16 @@
                             </a>
                     </div>
                     <div id="message-container" class="max-h-[400px] md:max-h-[500px] overflow-y-auto my-4 space-y-2">
-                        <?php include 'assets/php/loadmessages.php'; ?>
+                        <!-- üzenetek JS-sel töltődnek be -->
                     </div>
-                    <form method="post" action="?friendid=<?= $friendid ?>" class="filters-inner flex flex-col md:flex-row gap-3 mt-4">
+                    <form id="msg-send-form" class="filters-inner flex flex-col md:flex-row gap-3 mt-4" autocomplete="off">
                         <input type="hidden" name="toid" value="<?= $friendid ?>">
-                        <input class="input flex-1 text-sm md:text-base" type="text" name="message" placeholder="<?= t('messages_placeholder') ?>" required>
-                        <button type="submit" name="send_message" class="btn-cta text-sm md:text-base flex-shrink-0">
+                        <input id="msg-input" class="input flex-1 text-sm md:text-base" type="text" name="message" placeholder="<?= t('messages_placeholder') ?>" required autocomplete="off">
+                        <button type="submit" class="btn-cta text-sm md:text-base flex-shrink-0">
                             <?= t('btn_send') ?>
                         </button>
                     </form>
+                    <div id="msg-status" style="margin-top:6px; font-size:.85rem;"></div>
                 </div>
             <?php else: ?>
                 <div class="card p-6">

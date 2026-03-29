@@ -45,6 +45,20 @@ Changelog by: Neved
 
 ---
 
+## [1.6.3-beta] - 2026-03-29
+
+### Fixed
+#### • messages.php (+ script.js) oldal
+- Mostmár folyamatosan frissül így a user rögtön látja a bejövő üzneteket
+
+#### • Upload.php oldal
+- Markdown jegyzet feltöltés bugfix
+
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [1.6.2.2-beta] - 2026-03-19
 
 ### Fixed

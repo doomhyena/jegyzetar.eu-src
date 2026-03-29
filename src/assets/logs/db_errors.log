@@ -2,3 +2,4 @@
 [2026-03-17 13:16:43] db_query: get_result() false-t adott vissza | SQL: UPDATE saved_searches SET last_seen_at = NOW() WHERE id = ? | PARAMS: [1] | MYSQL: (0) 
 [2026-03-17 13:16:46] db_query: get_result() false-t adott vissza | SQL: UPDATE saved_searches SET last_seen_at = NOW() WHERE id = ? | PARAMS: [1] | MYSQL: (0) 
 [2026-03-17 13:20:23] db_query: get_result() false-t adott vissza | SQL: UPDATE saved_searches SET last_seen_at = NOW() WHERE id = ? | PARAMS: [1] | MYSQL: (0) 
+[2026-03-29 21:46:47] db_stmt: types és param szám eltérés | SQL: INSERT INTO files (uploaded_by,name,file_name,description,file_path,subject,tags,file_size,content_type,note_markdown,note_excerpt,edu_stage,edu_level) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) | PARAMS: {"types":"issssssisssssi","params":[1,"sdfgsdfgsdfg",null,"sgfdgsdfgsdfg",null,"sdfgsfdgsfdg","Backend programozás és tesztelés II.",17,"note","afagfdgsfgdfgsfdg","afagfdgsfgdfgsfdg",null,null]} | MYSQL: (0) 

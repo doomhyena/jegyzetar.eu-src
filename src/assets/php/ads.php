@@ -1,42 +1,27 @@
 <?php
-
-    // require_once "premium.php";
+    require_once __DIR__ . "/premium.php";
 
     $premium_van = false;
 
     if (isset($_COOKIE['id'])) {
         $aktualis_felhasznalo_id = (int)$_COOKIE['id'];
-        // $premium_van = user_premium($conn, $aktualis_felhasznalo_id);
+        $premium_van = user_premium($conn, $aktualis_felhasznalo_id);
     }
 
-    /*
-    
-    if ($premium_van) {
-        return;
-    }
-    
-    */
+    if ($premium_van) return;
 
     $ads_mappa = __DIR__ . "/../ads";
-    $kepek = glob($ads_mappa . "/*.{jpg,jpeg,png,webp}", GLOB_BRACE);
-    $baseUrl = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
 
-    if ($baseUrl === '') $baseUrl = '/';
-    $ads_url = $baseUrl . "/assets/ads";
+    if (!is_dir($ads_mappa)) return;
 
-    if ($kepek && count($kepek) > 0) {
+    $kepek = glob($ads_mappa . "/*.{jpg,jpeg,png,webp,gif}", GLOB_BRACE);
 
-        shuffle($kepek);
-        $bal = $kepek[0];
+    if (!$kepek || count($kepek) === 0) return;
 
-        shuffle($kepek);
-        $jobb = $kepek[0];
+    $ads_url = "assets/ads";
 
-        shuffle($kepek);
-        $mobil = $kepek[0];
+    shuffle($kepek); $bal   = basename($kepek[0]);
+    shuffle($kepek); $mobil = basename($kepek[0]);
 
-        echo '<div class="ads-left"><img src="'.$ads_url.'/'.basename($bal).'" alt="Reklám"></div>';
-        echo '<div class="ads-mobile"><img src="'.$ads_url.'/'.basename($mobil).'" alt="Reklám"></div>';
-    }
-	
-?>
+    echo '<div class="ads-left"><img src="' . $ads_url . '/' . $bal   . '" alt="Reklám"></div>';
+    echo '<div class="ads-mobile"><img src="' . $ads_url . '/' . $mobil . '" alt="Reklám"></div>';

@@ -1,8 +1,31 @@
 let friendId = new URLSearchParams(window.location.search).get('friendid');
 let lastMessageCount = 0;
+let messagePollingInterval = null;
+
+function scrollMessagesToBottom() {
+    const container = document.getElementById('message-container');
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+}
+
+function loadMessages(callback) {
+    if (!friendId || typeof $ === 'undefined') return;
+    $.get("assets/php/loadmessages.php?friendid=" + encodeURIComponent(friendId), function (html) {
+        const container = document.getElementById('message-container');
+        if (container) {
+            const wasAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 20;
+            container.innerHTML = html;
+            if (wasAtBottom) scrollMessagesToBottom();
+        }
+        $.get("assets/php/loadmessages.php?friendid=" + encodeURIComponent(friendId) + "&countonly=1", function (newCount) {
+            lastMessageCount = parseInt(newCount) || 0;
+            if (callback) callback();
+        });
+    });
+}
 
 document.addEventListener('DOMContentLoaded', function () {
-    // jQuery-függő keresés
     if (typeof $ !== 'undefined') {
         const searchBox = document.getElementById("search-box");
         if (searchBox) {
@@ -14,11 +37,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         if (friendId) {
-            $(".messages").load("assets/php/loadmessages.php?friendid=" + encodeURIComponent(friendId), function () {
-                $.get("assets/php/loadmessages.php?friendid=" + encodeURIComponent(friendId) + "&countonly=1", function (newCount) {
-                    lastMessageCount = parseInt(newCount);
-                });
+            loadMessages(function () {
+                scrollMessagesToBottom();
             });
+
+            // Polling: 2 másodpercenként ellenőriz új üzenetet
+            messagePollingInterval = setInterval(function () {
+                if (!friendId) return;
+                $.get("assets/php/loadmessages.php?friendid=" + encodeURIComponent(friendId) + "&countonly=1", function (newCount) {
+                    const count = parseInt(newCount) || 0;
+                    if (count !== lastMessageCount) {
+                        loadMessages();
+                    }
+                });
+            }, 2000);
         }
     }
 });
@@ -55,58 +87,51 @@ function checkNewMessages() {
     if (!friendId || typeof $ === 'undefined') return;
     $.get("assets/php/loadmessages.php?friendid=" + encodeURIComponent(friendId) + "&countonly=1", function (newCount) {
         if (parseInt(newCount) > lastMessageCount) {
-            $(".messages").load("assets/php/loadmessages.php?friendid=" + encodeURIComponent(friendId));
-            lastMessageCount = parseInt(newCount);
+            loadMessages();
         }
     });
 }
-setInterval(checkNewMessages, 1000);
+// A polling már a DOMContentLoaded-ben fut setInterval-lal, ezt meghagyjuk kompatibilitáshoz
 
-// jQuery-függő kód - csak akkor fut, ha jQuery be van töltve
-if (typeof $ !== 'undefined') {
-    $('form.message-form').submit(function (e) {
+
+// AJAX üzenetküldés
+document.addEventListener('DOMContentLoaded', function () {
+    const msgForm = document.getElementById('msg-send-form');
+    if (!msgForm || typeof $ === 'undefined') return;
+
+    msgForm.addEventListener('submit', function (e) {
         e.preventDefault();
+        const toid = msgForm.querySelector('input[name="toid"]').value;
+        const msgInput = document.getElementById('msg-input');
+        const statusDiv = document.getElementById('msg-status');
+        const message = msgInput.value.trim();
 
-        const form = $(this);
-        const messageInput = form.find('input[name="message"]');
-        const toid = form.find('input[name="toid"]').val();
-        const message = messageInput.val().trim();
-
-        if ($('#message-status').length === 0) {
-            form.after('<div id="message-status" style="margin-top: 10px;"></div>');
-        }
-
-        const statusDiv = $('#message-status');
-
-        if (message.length === 0) {
-            statusDiv.text('Nem küldhetsz üres üzenetet.').css('color', 'red');
+        if (!message) {
+            if (statusDiv) { statusDiv.textContent = 'Nem küldhetsz üres üzenetet.'; statusDiv.style.color = 'var(--accent)'; }
             return;
         }
 
-        $.post('messages.php', {
-            toid: toid,
-            message: message
-        })
-        .done(function () {
-            $(".messages").load("assets/php/loadmessages.php?friendid=" + encodeURIComponent(toid));
-            messageInput.val('');
-            statusDiv.text('Üzenet elküldve.').css('color', 'green');
-            $.get("assets/php/loadmessages.php?friendid=" + encodeURIComponent(toid) + "&countonly=1", function (newCount) {
-                lastMessageCount = parseInt(newCount);
+        const submitBtn = msgForm.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+
+        $.post('messages.php', { toid: toid, message: message, send_message: 1 })
+            .done(function () {
+                msgInput.value = '';
+                if (statusDiv) { statusDiv.textContent = ''; }
+                loadMessages(function () { scrollMessagesToBottom(); });
+            })
+            .fail(function () {
+                if (statusDiv) { statusDiv.textContent = 'Hiba történt az üzenet küldésekor.'; statusDiv.style.color = 'var(--accent)'; }
+            })
+            .always(function () {
+                if (submitBtn) submitBtn.disabled = false;
+                if (statusDiv) {
+                    setTimeout(() => { statusDiv.textContent = ''; }, 3000);
+                }
             });
-        })
-        .fail(function () {
-            statusDiv.text('Hiba történt az üzenet küldése közben.').css('color', 'red');
-        })
-        .always(function () {
-            setTimeout(() => {
-                statusDiv.fadeOut(400, function () {
-                    $(this).text('').css('display', 'block');
-                });
-            }, 3000);
-        });
     });
-}
+});
+
 
 document.addEventListener('DOMContentLoaded', function () {
     const navbarToggler = document.querySelector('.navbar-toggler');
@@ -532,7 +557,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (fileWrap) fileWrap.style.display = (isMd || isLink) ? 'none' : '';
 	if (mdWrap) mdWrap.style.display = isMd ? '' : 'none';
 	if (linkWrap) linkWrap.style.display = isLink ? '' : 'none';
-
 	if (fileInput) fileInput.required = !(isMd || isLink);
 	if (mdInput) mdInput.required = isMd;
 	if (linkInput) linkInput.required = isLink;
