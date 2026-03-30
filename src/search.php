@@ -92,7 +92,7 @@
             array_push($params, $start, $start, $start);
         }
 
-        $sqlUsers = "SELECT u.id, u.username, u.firstname, u.lastname, u.profile_picture FROM users u $where $order LIMIT 50";
+        $sqlUsers = "SELECT u.id, u.username, u.firstname, u.lastname, u.profile_picture, COALESCE(u.show_fullname, 1) AS show_fullname FROM users u $where $order LIMIT 50";
         $userResult = db_query($conn, $sqlUsers, $types, $params);
     }
 
@@ -606,7 +606,13 @@
                     <article class="mini-card flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
                         <img src="<?= htmlspecialchars($pfp) ?>" alt="" class="w-12 h-12 md:w-14 md:h-14 rounded-full object-cover border-2 border-white/10 flex-shrink-0">
                         <div class="mini-main flex-1 min-w-0">
-                            <h4 class="mini-title text-base md:text-lg font-semibold truncate"><?= $fullname ?: '@'.$username ?></h4>
+                            <?php
+                        $displayName = (
+                            (int)($u['show_fullname'] ?? 1) === 1
+                            && $fullname !== ''
+                        ) ? $fullname : '@' . $username;
+                    ?>
+                    <h4 class="mini-title text-base md:text-lg font-semibold truncate"><?= $displayName ?></h4>
                             <p class="mini-meta text-sm md:text-base opacity-75 truncate">@<?= $username ?></p>
                         </div>
                         <a href="profile.php?username=<?= urlencode($usernameRaw) ?>"

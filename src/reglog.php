@@ -176,22 +176,22 @@
 
     if (isset($_POST['login-btn']) && empty($errors)) {
 
-        $uTmp = trim($_POST['username'] ?? '');
-        $rlLoginKey = rl_key('login', strtolower($uTmp));
+        $identifier = trim($_POST['username'] ?? '');
+        $rlLoginKey = rl_key('login', strtolower($identifier));
         $rl = rl_allow($rlLoginKey, 8, 600);
         if (!$rl['ok']) {
             echo "<script>alert(" . json_encode("Túl sok bejelentkezési próbálkozás. Próbáld újra {$rl['retry_after']} mp múlva.") . ");</script>";
         } else {
-            $username = trim($_POST['username'] ?? '');
+            $usernameOrEmail = $identifier;
             $password = (string)($_POST['password'] ?? '');
 
-            if ($username === '' || $password === '') {
+            if ($usernameOrEmail === '' || $password === '') {
                 rl_hit($rlLoginKey);
-                echo "<script>alert(" . json_encode("Add meg a felhasználónevet és a jelszót.") . ");</script>";
+                echo "<script>alert(" . json_encode("Add meg a felhasználónevet vagy email címet és a jelszót.") . ");</script>";
             } else {
                 $genericFail = t('msg_wrong_password');
 
-                $found_user = db_query($conn, "SELECT * FROM users WHERE username = ? LIMIT 1", "s", [$username]);
+                $found_user = db_query($conn, "SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1", "ss", [$usernameOrEmail, $usernameOrEmail]);
 
                 if ($found_user->num_rows <= 0) {
                     rl_hit($rlLoginKey);
@@ -278,7 +278,7 @@
                 <h1 class="text-2xl md:text-3xl mb-4"><?= t('auth_login_heading') ?></h1>
                 <div class="grid grid-cols-1 gap-4">
                     <div>
-                        <label for="login_username" class="text-sm md:text-base font-semibold"><?= t('label_username') ?></label>
+                        <label for="login_username" class="text-sm md:text-base font-semibold"><?= t('label_username') ?>/Email</label>
                         <input class="input w-full text-sm md:text-base" type="text" name="username" id="login_username" required>
                     </div>
                     <div>

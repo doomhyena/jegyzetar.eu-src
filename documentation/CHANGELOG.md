@@ -45,6 +45,28 @@ Changelog by: Neved
 
 ---
 
+## [1.6.5-beta] - 2026-03-31
+
+### Changed
+#### • Bejelentkezés
+- A `reglog.php` mostantól elfogadja a felhasználónevet vagy email címet az azonosításhoz (`username OR email` lekérdezés).
+
+#### • Keresési felhasználómegjelenítés
+- A `search.php` felhasználói találatoknál mostantól `show_fullname` mező alapján döntünk: ha a felhasználó nem akarja mutatni a teljes nevét, akkor `@username` jelenik meg.
+
+### Fixed
+#### • Email-verifikáció
+- A `reg-ver.php` token validálása biztonságosabb és session-független: token alapján lekéri a `tokens` rekordot, csak a konkrét usernél frissíti `users.email_verified=1`, majd törli a token sorát.
+- Korábbi hibás `UPDATE users SET email_verified = 1` WHERE hiányát javítva (ne aktiváljon minden usert egyszerre).
+
+### Security
+#### • Email-verifikáció
+- `reg-ver.php`: token ellenőrzése mostantól _csak_ numerikus token (ctype_digit) és szigorú prepared statement használat, plusz a token felhasználás utáni törlése.
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [1.6.4-beta] - 2026-03-30
 
 ### Added

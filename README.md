@@ -10,7 +10,7 @@ A **Jegyzetár** egy webalapú platform, amely lehetővé teszi a felhasználók
 
 ## Használt technológiák
 
-| Rész              | Technológia  |
+| Rész              | Technológia           |
 | ----------------- | --------------------- |
 | **Frontend**      | HTML, CSS, JavaScript |
 | **Backend**       | PHP 8+                |
