@@ -166,50 +166,50 @@
 				$externalUrl = trim((string)($note['external_url'] ?? ''));
             ?>
             <article class="card note-card break-words">
-                <header class="card-head mb-4">
-                    <h1 class="entry-title text-2xl md:text-3xl lg:text-4xl mb-4 break-words"><?= $file_name ?></h1>
-                    <div class="flex flex-wrap gap-2 md:gap-3">
-                        <form method="post" class="inline-block">
+                <header class="note-header-wrap">
+                    <div style="padding:20px 22px 18px;border-radius:14px;background:linear-gradient(135deg,rgba(125,211,252,.10),rgba(96,165,250,.06));border:1px solid rgba(125,211,252,.22);position:relative;overflow:hidden;">
+                        <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 0% 0%,rgba(125,211,252,.07),transparent 60%);pointer-events:none;"></div>
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                            <span style="display:inline-block;padding:3px 9px;border-radius:999px;background:rgba(125,211,252,.15);border:1px solid rgba(125,211,252,.30);font-size:.72rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--primary);"><?= strtoupper($ext ?: 'FÁJL') ?></span>
+                            <span style="font-size:.8rem;color:var(--muted);">Feltöltötte: <a href="profile.php?user=<?= urlencode($uploader['username'] ?? '') ?>" style="color:var(--primary);font-weight:700;text-decoration:none;"><?= $username ?></a></span>
+                        </div>
+                        <h1 style="margin:0;font-size:clamp(1.4rem, 2.2vw + .4rem, 2.2rem);font-weight:900;line-height:1.15;letter-spacing:-.2px;color:var(--text);word-break:break-word;"><?= $file_name ?></h1>
+                    </div>
+                    <div class="note-action-col">
+                        <?php if (($contentType ?? 'file') === 'link' && $externalUrl !== ''): ?>
+                            <a class="note-action-btn note-action-btn--dl" href="<?= htmlspecialchars($externalUrl) ?>" target="_blank" rel="noopener noreferrer">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                                Megnyitás
+                            </a>
+                        <?php else: ?>
+                            <a class="note-action-btn note-action-btn--dl" href="assets/php/download.php?id=<?= $file_id ?>">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M5 20h14M12 3v12m0 0l-4-4m4 4 4-4"/></svg>
+                                <?= t('btn_download') ?>
+                            </a>
+                        <?php endif; ?>
+                        <form method="post" style="margin:0;">
                             <input type="hidden" name="favorite_file_id" value="<?= $file_id ?>">
-                            <button type="submit" name="favorite-btn" class="favorite-btn <?= $is_favorite ? 'favorited' : '' ?> text-sm md:text-base">
-                                <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                                    <?php if ($is_favorite): ?>
-                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="currentColor"/>
-                                    <?php else: ?>
-                                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="none" stroke="currentColor" stroke-width="2"/>
-                                    <?php endif; ?>
-                                </svg>
-                                <span><?= $is_favorite ? 'Kedvencek' : 'Kedvencezés' ?></span>
+                            <button type="submit" name="favorite-btn" class="note-action-btn <?= $is_favorite ? 'note-action-btn--fav' : 'note-action-btn--ghost' ?>">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="<?= $is_favorite ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <?= $is_favorite ? 'Kedvencekben' : 'Kedvencezés' ?>
                             </button>
                         </form>
-						<?php if (($contentType ?? 'file') === 'link' && $externalUrl !== ''): ?>
-							<a class="entry-download-btn text-sm md:text-base"
-							   href="<?= htmlspecialchars($externalUrl) ?>"
-							   target="_blank" rel="noopener noreferrer">
-								Megnyitás
-							</a>
-						<?php else: ?>
-							<a class="entry-download-btn text-sm md:text-base"
-							   href="assets/php/download.php?id=<?= $file_id ?>">
-								<svg class="icon icon-download w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" aria-hidden="true">
-									<path d="M5 20h14M12 3v12m0 0l-4-4m4 4 4-4"
-										  fill="none" stroke="currentColor" stroke-width="2"
-										  stroke-linecap="round" stroke-linejoin="round" />
-								</svg>
-								<?= t('btn_download') ?>
-							</a>
-						<?php endif; ?>
                         <?php if ($isOwner): ?>
-                            <a class="btn-cta text-sm md:text-base" href="note_stats.php?id=<?= $file_id ?>">Statisztikák</a>
+                            <a class="note-action-btn note-action-btn--ghost" href="note_stats.php?id=<?= $file_id ?>">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                                Statisztikák
+                            </a>
                         <?php endif; ?>
                         <?php if ($isLoggedIn && !$isOwner): ?>
+                            <div class="note-report-wrap">
                             <?php
                                 $report_type = 'note';
                                 $report_target_id = $file_id;
-                                $report_label = 'Jegyzet jelentése';
-                                $report_extra_class = 'w-full md:w-auto';
-                                include '_report_widget.php';
+                                $report_label = 'Jelentés';
+                                $report_extra_class = '';
+                                include 'assets/php/_report_widget.php';
                             ?>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </header>
@@ -249,7 +249,6 @@
 					<?php else: ?>
 					  <p class="entry-meta text-sm md:text-base mb-4">Előnézet nem elérhető ehhez a fájltípushoz. Töltsd le a megnyitáshoz.</p>
 					<?php endif; ?>
-
 				<?php endif; ?>
                 <p class="text-sm md:text-base mb-4">Feltöltötte:
                     <a class="uploader-name" href="profile.php?user=<?= urlencode($uploader['username'] ?? '') ?>">
@@ -285,7 +284,6 @@
                         </button>
                     </form>
                 </div>
-
                 <div class="comments-section mt-6">
                     <h3 class="text-xl md:text-2xl mb-4">Kommentek</h3>
                     <?php

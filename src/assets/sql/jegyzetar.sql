@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Már 30. 00:19
+-- Létrehozás ideje: 2026. Már 31. 01:19
 -- Kiszolgáló verziója: 10.4.32-MariaDB
 -- PHP verzió: 8.2.12
 
@@ -149,7 +149,6 @@ INSERT INTO `comments` (`id`, `userid`, `postid`, `text`) VALUES
 (38, 11, 34, 'Köszi!'),
 (39, 13, 46, 'Köszi!'),
 (40, 19, 45, 'Ez segített!'),
-(41, 39, 19, 'Van folytatás?'),
 (42, 21, 8, 'Nem teljesen értem'),
 (43, 30, 30, 'Van folytatás?'),
 (44, 32, 49, 'Nem teljesen értem'),
@@ -164,7 +163,6 @@ INSERT INTO `comments` (`id`, `userid`, `postid`, `text`) VALUES
 (53, 17, 28, 'Nagyon jó!'),
 (54, 27, 38, 'Van folytatás?'),
 (55, 31, 29, 'Nem teljesen értem'),
-(56, 39, 34, 'Ez segített!'),
 (57, 14, 23, 'Van folytatás?'),
 (58, 31, 10, 'Nem teljesen értem'),
 (59, 19, 14, 'Köszi!'),
@@ -190,7 +188,6 @@ INSERT INTO `comments` (`id`, `userid`, `postid`, `text`) VALUES
 (79, 20, 19, 'Van folytatás?'),
 (80, 10, 30, 'Van folytatás?'),
 (81, 28, 26, 'Nem teljesen értem'),
-(82, 39, 40, 'Nagyon jó!'),
 (83, 31, 28, 'Nem teljesen értem'),
 (84, 23, 18, 'Ez segített!'),
 (85, 10, 44, 'Köszi!'),
@@ -203,7 +200,6 @@ INSERT INTO `comments` (`id`, `userid`, `postid`, `text`) VALUES
 (92, 21, 7, 'Ez segített!'),
 (93, 32, 22, 'Van folytatás?'),
 (94, 16, 19, 'Köszi!'),
-(95, 39, 11, 'Nagyon jó!'),
 (96, 15, 18, 'Köszi!'),
 (97, 13, 47, 'Köszi!'),
 (98, 26, 47, 'Nagyon jó!'),
@@ -253,6 +249,13 @@ CREATE TABLE `deleted_users` (
   `deleted_at` datetime NOT NULL DEFAULT current_timestamp(),
   `reason` text DEFAULT NULL COMMENT 'opcionális indoklás'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- A tábla adatainak kiíratása `deleted_users`
+--
+
+INSERT INTO `deleted_users` (`id`, `original_id`, `username`, `email`, `firstname`, `lastname`, `birthdate`, `registration_date`, `was_admin`, `was_teacher`, `was_premium`, `upload_count`, `download_count`, `deleted_by`, `deleted_at`, `reason`) VALUES
+(1, 39, 'user39', 'user39@test.hu', 'Anna', 'Molnár', '2004-04-15', '2026-01-16 09:41:20', 0, 0, 0, 1, 0, 1, '2026-03-30 09:25:47', NULL);
 
 -- --------------------------------------------------------
 
@@ -308,31 +311,30 @@ CREATE TABLE `files` (
 --
 
 INSERT INTO `files` (`id`, `uploaded_by`, `name`, `file_name`, `description`, `file_path`, `tags`, `tn_name`, `file_size`, `download_count`, `content_text`, `edu_stage`, `edu_level`, `external_url`, `content_type`, `note_markdown`, `note_excerpt`) VALUES
-(0, 15, 'Jegyzet #1', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #1\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 15\n', NULL),
-(0, 11, 'Jegyzet #2', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 13, '', 'note', '# Jegyzet #2\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 11\n', NULL),
-(0, 33, 'Jegyzet #3', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #3\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 33\n', NULL),
-(0, 31, 'Jegyzet #4', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #4\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 31\n', NULL),
-(0, 16, 'Jegyzet #5', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 5, '', 'note', '# Jegyzet #5\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 16\n', NULL),
-(0, 37, 'Jegyzet #6', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 11, '', 'note', '# Jegyzet #6\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 37\n', NULL),
-(0, 37, 'Jegyzet #7', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #7\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 37\n', NULL),
-(0, 34, 'Jegyzet #8', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 5, '', 'note', '# Jegyzet #8\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 34\n', NULL),
-(0, 21, 'Jegyzet #9', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 6, '', 'note', '# Jegyzet #9\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 21\n', NULL),
-(0, 22, 'Jegyzet #10', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 6, '', 'note', '# Jegyzet #10\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 22\n', NULL),
-(0, 39, 'Jegyzet #11', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 9, '', 'note', '# Jegyzet #11\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 39\n', NULL),
-(0, 27, 'Jegyzet #12', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #12\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 27\n', NULL),
-(0, 10, 'Jegyzet #13', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 2, '', 'note', '# Jegyzet #13\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 10\n', NULL),
-(0, 21, 'Jegyzet #14', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #14\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 21\n', NULL),
-(0, 34, 'Jegyzet #15', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 11, '', 'note', '# Jegyzet #15\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 34\n', NULL),
-(0, 38, 'Jegyzet #16', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 12, '', 'note', '# Jegyzet #16\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 38\n', NULL),
-(0, 17, 'Jegyzet #17', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 4, '', 'note', '# Jegyzet #17\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 17\n', NULL),
-(0, 24, 'Jegyzet #18', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #18\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 24\n', NULL),
-(0, 26, 'Jegyzet #19', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 9, '', 'note', '# Jegyzet #19\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 26\n', NULL),
-(0, 22, 'Jegyzet #20', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 13, '', 'note', '# Jegyzet #20\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 22\n', NULL),
-(0, 21, 'Jegyzet #21', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #21\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 21\n', NULL),
-(0, 31, 'Jegyzet #22', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 9, '', 'note', '# Jegyzet #22\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 31\n', NULL),
-(0, 22, 'Jegyzet #23', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 4, '', 'note', '# Jegyzet #23\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 22\n', NULL),
-(0, 38, 'Jegyzet #24', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 12, '', 'note', '# Jegyzet #24\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 38\n', NULL),
-(0, 24, 'Jegyzet #25', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 11, '', 'note', '# Jegyzet #25\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 24\n', NULL);
+(1, 15, 'Jegyzet #1', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #1\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 15\n', NULL),
+(2, 11, 'Jegyzet #2', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 13, '', 'note', '# Jegyzet #2\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 11\n', NULL),
+(3, 33, 'Jegyzet #3', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #3\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 33\n', NULL),
+(4, 31, 'Jegyzet #4', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #4\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 31\n', NULL),
+(5, 16, 'Jegyzet #5', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 5, '', 'note', '# Jegyzet #5\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 16\n', NULL),
+(6, 37, 'Jegyzet #6', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 11, '', 'note', '# Jegyzet #6\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 37\n', NULL),
+(7, 37, 'Jegyzet #7', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #7\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 37\n', NULL),
+(8, 34, 'Jegyzet #8', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 5, '', 'note', '# Jegyzet #8\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 34\n', NULL),
+(9, 21, 'Jegyzet #9', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 6, '', 'note', '# Jegyzet #9\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 21\n', NULL),
+(10, 22, 'Jegyzet #10', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 6, '', 'note', '# Jegyzet #10\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 22\n', NULL),
+(11, 27, 'Jegyzet #12', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #12\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 27\n', NULL),
+(12, 10, 'Jegyzet #13', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 2, '', 'note', '# Jegyzet #13\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 10\n', NULL),
+(13, 21, 'Jegyzet #14', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #14\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 21\n', NULL),
+(14, 34, 'Jegyzet #15', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 11, '', 'note', '# Jegyzet #15\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 34\n', NULL),
+(15, 38, 'Jegyzet #16', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 12, '', 'note', '# Jegyzet #16\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 38\n', NULL),
+(16, 17, 'Jegyzet #17', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 4, '', 'note', '# Jegyzet #17\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 17\n', NULL),
+(17, 24, 'Jegyzet #18', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #18\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 24\n', NULL),
+(18, 26, 'Jegyzet #19', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 9, '', 'note', '# Jegyzet #19\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 26\n', NULL),
+(19, 22, 'Jegyzet #20', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 13, '', 'note', '# Jegyzet #20\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 22\n', NULL),
+(20, 21, 'Jegyzet #21', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #21\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 21\n', NULL),
+(21, 31, 'Jegyzet #22', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 9, '', 'note', '# Jegyzet #22\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 31\n', NULL),
+(22, 22, 'Jegyzet #23', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 4, '', 'note', '# Jegyzet #23\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 22\n', NULL),
+(23, 38, 'Jegyzet #24', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 12, '', 'note', '# Jegyzet #24\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 38\n', NULL),
+(24, 24, 'Jegyzet #25', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 11, '', 'note', '# Jegyzet #25\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 24\n', NULL);
 
 -- --------------------------------------------------------
 
@@ -394,7 +396,12 @@ INSERT INTO `file_events` (`id`, `file_id`, `user_id`, `event_type`, `rating`, `
 (36, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-02 02:40:26'),
 (37, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-09 22:14:53'),
 (38, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-16 19:43:11'),
-(39, 30, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-29 23:40:31');
+(39, 30, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-29 23:40:31'),
+(40, 1, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 00:51:55'),
+(41, 1, 1, 'favorite_add', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 00:53:22'),
+(42, 1, 1, 'favorite_remove', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 00:53:24'),
+(43, 1, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 01:03:23'),
+(44, 24, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 01:18:36');
 
 -- --------------------------------------------------------
 
@@ -468,7 +475,7 @@ CREATE TABLE `groups` (
 INSERT INTO `groups` (`id`, `name`, `description`, `owner_id`, `is_private`, `created_at`, `reviewed_at`, `reviewed_by`, `status`) VALUES
 (1, 'Java Dolgozat felkészítő', 'Java dolgozatokra való felkészítés zajlik itt', 1, 0, '2026-02-10 09:10:06', '2026-02-12 10:50:42', 1, 'approved'),
 (2, 'C# dolgozat felkészítő', 'Gyertek szísárpozni', 1, 0, '2026-03-16 10:46:37', '2026-03-16 10:46:45', 1, 'approved'),
-(10, 'Java OOP', 'Programozás', 11, 0, '2026-03-29 23:34:20', NULL, NULL, 'approved');
+(3, 'Kémia dolgozat felkészito', 'felkészülés a nagy dolgozatra', 10, 0, '2026-03-16 23:05:42', '2026-03-16 23:06:14', 10, 'approved');
 
 -- --------------------------------------------------------
 
@@ -489,11 +496,7 @@ CREATE TABLE `group_comments` (
 --
 
 INSERT INTO `group_comments` (`id`, `group_id`, `user_id`, `comment_text`, `created_at`) VALUES
-(0, 10, 25, 'Valaki érti ezt a részt?', '2026-03-29 23:34:21'),
-(0, 11, 27, 'Valaki érti ezt a részt?', '2026-03-29 23:34:21'),
-(0, 10, 11, 'Valaki érti ezt a részt?', '2026-03-29 23:34:21'),
-(0, 14, 37, 'Valaki érti ezt a részt?', '2026-03-29 23:34:21'),
-(0, 10, 33, 'Valaki érti ezt a részt?', '2026-03-29 23:34:21');
+(1, 3, 10, 'Szerdán lesz a doga ezt ki is raktam eseményekbe!', '2026-03-16 23:07:30');
 
 -- --------------------------------------------------------
 
@@ -516,14 +519,7 @@ CREATE TABLE `group_events` (
 --
 
 INSERT INTO `group_events` (`id`, `group_id`, `created_by`, `title`, `description`, `event_date`, `created_at`) VALUES
-(0, 12, 25, 'Közös tanulás', NULL, '2026-04-07 23:34:21', '2026-03-29 23:34:21'),
-(0, 10, 21, 'Közös tanulás', NULL, '2026-04-06 23:34:21', '2026-03-29 23:34:21'),
-(0, 10, 19, 'Közös tanulás', NULL, '2026-03-29 23:34:21', '2026-03-29 23:34:21'),
-(0, 11, 12, 'Közös tanulás', NULL, '2026-04-05 23:34:21', '2026-03-29 23:34:21'),
-(0, 11, 31, 'Közös tanulás', NULL, '2026-04-02 23:34:21', '2026-03-29 23:34:21'),
-(0, 14, 20, 'Közös tanulás', NULL, '2026-03-29 23:34:21', '2026-03-29 23:34:21'),
-(0, 10, 29, 'Közös tanulás', NULL, '2026-04-05 23:34:21', '2026-03-29 23:34:21'),
-(0, 10, 29, 'Közös tanulás', NULL, '2026-04-01 23:34:21', '2026-03-29 23:34:21');
+(1, 3, 10, 'Dolgozat', 'Mindenki készüljön!', '2025-09-17 10:00:00', '2026-03-16 23:08:19');
 
 -- --------------------------------------------------------
 
@@ -541,6 +537,34 @@ CREATE TABLE `group_files` (
   `created_at` datetime NOT NULL,
   `is_approved` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- A tábla adatainak kiíratása `group_files`
+--
+
+INSERT INTO `group_files` (`id`, `group_id`, `uploaded_by`, `name`, `description`, `file_name`, `created_at`, `is_approved`) VALUES
+(1, 3, 10, 'Kémia tananyag', 'Ebbol tanuljatok', 'Mesterséges intelligencia vállalati alkalmazása – HR szakemberi kérdőív.pdf', '2026-03-16 23:06:59', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `group_file_comments`
+--
+
+CREATE TABLE `group_file_comments` (
+  `id` int(11) NOT NULL,
+  `group_file_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `comment_text` text NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- A tábla adatainak kiíratása `group_file_comments`
+--
+
+INSERT INTO `group_file_comments` (`id`, `group_file_id`, `user_id`, `comment_text`, `created_at`) VALUES
+(1, 1, 10, 'asd', '2026-03-16 23:58:41');
 
 -- --------------------------------------------------------
 
@@ -568,31 +592,7 @@ INSERT INTO `group_flashcards` (`id`, `group_id`, `created_by`, `question`, `ans
 (2, 1, 10, 'fgh', 'fgh', '2026-02-24 01:49:02', 2, 0),
 (3, 2, 10, 'asd', 'asd', '2026-02-24 01:49:36', 2, 0),
 (4, 2, 10, 'fgh', 'fgh', '2026-02-24 01:49:41', 2, 0),
-(0, 12, 28, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 13, 15, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 10, 33, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 13, 17, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 10, 34, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 13, 18, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 11, 15, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 11, 37, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 13, 25, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 13, 25, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 13, 15, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 13, 38, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 13, 23, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 11, 30, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 14, 21, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 10, 33, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 12, 30, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 10, 36, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 14, 29, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 13, 24, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 11, 15, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 14, 14, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 14, 15, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 10, 18, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0),
-(0, 14, 35, 'Mi a definíció?', 'Ez egy válasz', '2026-03-29 23:34:21', 0, 0);
+(5, 3, 10, 'Szén vegyjele?', 'C', '2026-03-16 23:08:51', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -604,7 +604,7 @@ CREATE TABLE `group_members` (
   `id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `role` enum('owner','member') NOT NULL DEFAULT 'member',
+  `role` enum('owner','moderator','member') NOT NULL DEFAULT 'member',
   `status` enum('accepted','pending') NOT NULL DEFAULT 'accepted',
   `joined_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
@@ -614,28 +614,12 @@ CREATE TABLE `group_members` (
 --
 
 INSERT INTO `group_members` (`id`, `group_id`, `user_id`, `role`, `status`, `joined_at`) VALUES
-(0, 0, 1, 'owner', 'accepted', '2026-02-10 09:10:06'),
-(0, 2, 1, 'owner', 'accepted', '2026-03-16 10:46:37'),
-(0, 11, 10, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 10, 33, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 12, 38, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 11, 35, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 11, 29, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 12, 34, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 12, 33, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 13, 31, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 13, 17, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 11, 29, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 11, 34, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 14, 23, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 11, 20, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 13, 26, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 12, 12, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 14, 38, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 10, 12, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 14, 16, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 11, 10, 'member', 'accepted', '2026-03-29 23:34:21'),
-(0, 10, 31, 'member', 'accepted', '2026-03-29 23:34:21');
+(1, 0, 1, 'owner', 'accepted', '2026-02-10 09:10:06'),
+(2, 2, 1, 'owner', 'accepted', '2026-03-16 10:46:37'),
+(3, 2, 10, 'member', 'accepted', '2026-03-16 23:04:49'),
+(4, 3, 10, 'owner', 'accepted', '2026-03-16 23:05:43'),
+(5, 3, 11, 'member', 'accepted', '2026-03-16 23:33:19'),
+(6, 2, 11, 'member', 'accepted', '2026-03-16 23:35:30');
 
 -- --------------------------------------------------------
 
@@ -652,13 +636,6 @@ CREATE TABLE `group_polls` (
   `closed` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- A tábla adatainak kiíratása `group_polls`
---
-
-INSERT INTO `group_polls` (`id`, `group_id`, `created_by`, `question`, `created_at`, `closed`) VALUES
-(20, 10, 10, 'Mikor tanuljunk?', '2026-03-29 23:34:21', 0);
-
 -- --------------------------------------------------------
 
 --
@@ -670,15 +647,6 @@ CREATE TABLE `group_poll_options` (
   `poll_id` int(11) NOT NULL,
   `option_text` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- A tábla adatainak kiíratása `group_poll_options`
---
-
-INSERT INTO `group_poll_options` (`id`, `poll_id`, `option_text`) VALUES
-(0, 20, 'Hétfő'),
-(0, 20, 'Kedd'),
-(0, 20, 'Szerda');
 
 -- --------------------------------------------------------
 
@@ -692,17 +660,6 @@ CREATE TABLE `group_poll_votes` (
   `option_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- A tábla adatainak kiíratása `group_poll_votes`
---
-
-INSERT INTO `group_poll_votes` (`id`, `poll_id`, `option_id`, `user_id`) VALUES
-(0, 20, 2, 30),
-(0, 20, 1, 25),
-(0, 20, 1, 34),
-(0, 20, 1, 23),
-(0, 20, 3, 13);
 
 -- --------------------------------------------------------
 
@@ -1199,7 +1156,7 @@ CREATE TABLE `premium_users` (
 --
 
 INSERT INTO `premium_users` (`id`, `user_id`, `premium_until`, `premium_ig`, `created_at`, `updated_at`) VALUES
-(5, 1, '0000-00-00 00:00:00', '2026-03-12 11:13:35', '2026-02-10 11:13:35', '2026-02-10 11:13:35');
+(5, 1, '0000-00-00 00:00:00', '2026-04-29 09:53:09', '2026-02-10 11:13:35', '2026-03-30 09:53:09');
 
 -- --------------------------------------------------------
 
@@ -3805,7 +3762,7 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (1970, 'rules_s2_li1', 'en', 'You are responsible for your account: do not share your password or 2FA (if applicable) with others.'),
 (1971, 'rules_s2_li1', 'de', 'Du bist für dein Konto verantwortlich: Teile dein Passwort oder 2FA (falls vorhanden) nicht mit anderen.'),
 (1972, 'rules_s2_li2', 'hu', 'Tilos más fiókjába belépni, vagy erre kísérletet tenni.'),
-(1973, 'rules_s2_li2', 'en', "Accessing or attempting to access someone else\'s account is prohibited."),
+(1973, 'rules_s2_li2', 'en', 'Accessing or attempting to access someone else\'s account is prohibited.'),
 (1974, 'rules_s2_li2', 'de', 'Der Zugang zu einem fremden Konto oder der Versuch dazu ist verboten.'),
 (1975, 'rules_s2_li3', 'hu', 'Gyanús tevékenységet jelents a platformon belül vagy az adminoknak.'),
 (1976, 'rules_s2_li3', 'en', 'Report suspicious activity within the platform or to the admins.'),
@@ -3823,7 +3780,7 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (1988, 'rules_s3_li2', 'en', '<strong>Prohibited:</strong> hate-inciting, harassing, pornographic, violent, self-harm-promoting or any other illegal content.'),
 (1989, 'rules_s3_li2', 'de', '<strong>Verboten:</strong> hassanstachelnde, belästigende, pornografische, gewalttätige, selbstverletzungsfördernde oder sonstige rechtswidrige Inhalte.'),
 (1990, 'rules_s3_li3', 'hu', '<strong>Tiltott:</strong> személyes adatok közzététele (pl. telefonszám, lakcím, mások e-mailje, osztálylista, igazolvány).'),
-(1991, 'rules_s3_li3', 'en', "<strong>Prohibited:</strong> publishing personal data (e.g. phone number, home address, others\' email, class list, ID card)."),
+(1991, 'rules_s3_li3', 'en', '<strong>Prohibited:</strong> publishing personal data (e.g. phone number, home address, others\' email, class list, ID card).'),
 (1992, 'rules_s3_li3', 'de', '<strong>Verboten:</strong> Veröffentlichung personenbezogener Daten (z. B. Telefonnummer, Wohnadresse, E-Mail anderer, Klassenliste, Ausweis).'),
 (1993, 'rules_s3_li4', 'hu', '<strong>Tiltott:</strong> vírusos / kártékony fájlok, linkek, adathalászat.'),
 (1994, 'rules_s3_li4', 'en', '<strong>Prohibited:</strong> virus/malware files, links, phishing.'),
@@ -3895,7 +3852,7 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (2060, 'rules_s9_intro', 'en', 'The <strong><a href=\"privacy.php\">Privacy Policy</a></strong> provides detailed information about the handling of personal data.'),
 (2061, 'rules_s9_intro', 'de', 'Die <strong><a href=\"privacy.php\">Datenschutzerklärung</a></strong> enthält detaillierte Informationen zur Verarbeitung personenbezogener Daten.'),
 (2062, 'rules_s9_li1', 'hu', 'Ne ossz meg mások személyes adatait.'),
-(2063, 'rules_s9_li1', 'en', "Do not share other people\'s personal data."),
+(2063, 'rules_s9_li1', 'en', 'Do not share other people\'s personal data.'),
 (2064, 'rules_s9_li1', 'de', 'Teile keine personenbezogenen Daten anderer Personen.'),
 (2065, 'rules_s9_li2', 'hu', 'Ha 13-18 éves vagy, különösen figyelj arra, hogy mit töltesz fel (név, osztály, iskola, arc a dokumentumon stb.).'),
 (2066, 'rules_s9_li2', 'en', 'If you are 13-18 years old, pay special attention to what you upload (name, class, school, face in a document, etc.).'),
@@ -4426,6 +4383,12 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (2590, 'upload_tags_hint', 'hu', 'Válassz a listából vagy írj be saját taget – Enter, vessző vagy pontosvessző a hozzáadáshoz • max. 10 tag • Backspace törli az utolsót'),
 (2591, 'upload_tags_hint', 'en', 'Pick from the list or type your own tag – Enter, comma or semicolon to add • max. 10 tags • Backspace removes the last one'),
 (2592, 'upload_tags_hint', 'de', 'Aus der Liste wählen oder eigenen Tag eingeben – Enter, Komma oder Semikolon zum Hinzufügen • max. 10 Tags • Rücktaste löscht das letzte'),
+(0, 'profile_saved_searches_title', 'hu', 'Mentett keresések'),
+(0, 'profile_saved_searches_empty', 'hu', 'Még nem mentettél el egyetlen keresést sem.'),
+(0, 'profile_saved_searches_title', 'en', 'Saved searches'),
+(0, 'profile_saved_searches_empty', 'en', 'You haven\'t saved any searches yet.'),
+(0, 'profile_saved_searches_title', 'de', 'Gespeicherte Suchen'),
+(0, 'profile_saved_searches_empty', 'de', 'Du hast noch keine Suchen gespeichert.');
 
 -- --------------------------------------------------------
 
@@ -4467,39 +4430,38 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `lastname`, `firstname`, `username`, `birthdate`, `gender`, `email`, `profile_picture`, `password`, `security_question`, `security_answer`, `admin`, `teacher`, `registration_date`, `language`, `oauth_provider`, `oauth_sub`, `email_verified`, `bio`, `profile_theme`, `twofa_enabled`, `used_reg_code`, `used_reg_code_at`, `show_fullname`, `show_email`, `show_birthdate`) VALUES
-(1, 'Csontos', 'Kincső', 'csontoskincso05', '2005-04-04', 'female', 'csontoskincso@doomhyena.hu', 'Vergil.jpg', '$2y$10$ZLWnsc4oApKzTPcMkkeC8OcVEmKA3PVyV2Fu7Mn4cCKTrQR5wmLgK', 'Mi a kedvenc könyved?', 'Harry Potter', 1, NULL, '2025-12-02 08:52:05', 'hu', 'discord', '864583234158460938', 1, 'Software & Systems Engineer Student', 'light', 0, NULL, NULL, 0, 0, 0),
-(8, 'Teszt', 'User', 'tesztuser', '2005-12-16', 'female', 'csontoskincso05@gmail.com', NULL, '$2y$10$rsRPmF5j81OCfV3xbpkIHOCGXeKXLTOkUIb7tH4j73o74H8QQiHRK', 'Mi az édesanyád leánykori neve?', 'Harry Potter', 0, NULL, '2025-12-16 00:19:26', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
-(9, 'Csontos', 'Kincső', 'doomhyena', '2005-04-04', 'female', 'csontoskincso@proton.me', NULL, '$2y$10$i7QzVcekWMXr3DJD6BUmgeR0Wal7AmZyBjDfjjVf6eowweutMErEa', 'Mi a kedvenc könyved?', '$2y$10$c5BtBT/ODqFT/OeHGYLuCeMCsdJ5sScb2Xjgg/lkJ77I9whd323tG', 0, 1, '2026-02-11 15:15:12', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
-(10, 'Horváth', 'Eszter', 'user10', '2006-07-03', 'other', 'user10@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'budapest', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(11, 'Horváth', 'Levente', 'user11', '2002-12-05', 'other', 'user11@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'kutyus', 0, NULL, NULL, 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
-(12, 'Farkas', 'Nóra', 'user12', '2003-01-12', 'female', 'user12@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'cica', 0, NULL, NULL, 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(13, 'Kiss', 'Nóra', 'user13', '2006-02-19', 'male', 'user13@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'teszt123', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(14, 'Kovács', 'Eszter', 'user14', '2008-02-09', 'male', 'user14@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'cica', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(15, 'Nagy', 'Anna', 'user15', '2000-12-03', 'female', 'user15@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'alma', 0, NULL, NULL, 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(16, 'Szabó', 'Dávid', 'user16', '2007-07-17', 'female', 'user16@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'cica', 0, NULL, NULL, 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
-(17, 'Kiss', 'Eszter', 'user17', '2001-12-11', 'other', 'user17@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'anon', 0, NULL, NULL, 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
-(18, 'Tóth', 'Ádám', 'user18', '2001-07-27', 'female', 'user18@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'budapest', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(19, 'Tóth', 'Anna', 'user19', '2008-02-15', 'male', 'user19@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'csoki', 0, NULL, NULL, 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
-(20, 'Szabó', 'Máté', 'user20', '2001-08-13', 'other', 'user20@test.hu', NULL, 'hashed', 'Mi az édesanyád leánykori neve?', 'anon', 0, NULL, NULL, 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
-(21, 'Farkas', 'Luca', 'user21', '2002-12-04', 'male', 'user21@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'csoki', 0, NULL, NULL, 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
-(22, 'Horváth', 'Luca', 'user22', '2008-06-18', 'female', 'user22@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'cica', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(23, 'Szabó', 'Ádám', 'user23', '2006-08-18', 'female', 'user23@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'anon', 0, NULL, NULL, 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
-(24, 'Tóth', 'Anna', 'user24', '2009-02-26', 'other', 'user24@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'kutyus', 0, NULL, NULL, 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(25, 'Balogh', 'Zsófia', 'user25', '1999-04-14', 'female', 'user25@test.hu', NULL, 'hashed', 'Mi az édesanyád leánykori neve?', 'anon', 0, NULL, NULL, 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(26, 'Molnár', 'Bence', 'user26', '2003-05-08', 'female', 'user26@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'cica', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(27, 'Szabó', 'Bence', 'user27', '2005-04-30', 'other', 'user27@test.hu', NULL, 'hashed', 'Mi az édesanyád leánykori neve?', 'budapest', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(28, 'Farkas', 'Máté', 'user28', '2008-02-18', 'other', 'user28@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'cica', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(29, 'Varga', 'Ádám', 'user29', '2002-10-14', 'male', 'user29@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'kutyus', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(30, 'Tóth', 'Levente', 'user30', '2003-12-31', 'female', 'user30@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'anon', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📚 Szeretek tanulni és jegyzeteket készíteni.', 'default', 0, NULL, NULL, 1, 0, 0),
-(31, 'Varga', 'Nóra', 'user31', '2001-08-22', 'male', 'user31@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'kutyus', 0, NULL, NULL, 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
-(32, 'Kovács', 'Zsófia', 'user32', '2007-08-02', 'other', 'user32@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'csoki', 0, NULL, NULL, 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(33, 'Nagy', 'Nóra', 'user33', '2009-02-25', 'other', 'user33@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'pizza', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📚 Szeretek tanulni és jegyzeteket készíteni.', 'default', 0, NULL, NULL, 1, 0, 0),
-(34, 'Kovács', 'Anna', 'user34', '2007-12-15', 'male', 'user34@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'csoki', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(35, 'Molnár', 'Luca', 'user35', '2001-01-27', 'male', 'user35@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'anon', 0, NULL, NULL, 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
-(36, 'Farkas', 'Bence', 'user36', '2004-04-19', 'male', 'user36@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'csoki', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(37, 'Horváth', 'Luca', 'user37', '2001-04-01', 'male', 'user37@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'kutyus', 0, NULL, NULL, 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(38, 'Molnár', 'Zsófia', 'user38', '2003-04-09', 'other', 'user38@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'pizza', 0, NULL, NULL, 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(39, 'Molnár', 'Anna', 'user39', '2004-04-15', 'other', 'user39@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'anon', 0, NULL, NULL, 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0);
+(1, 'Csontos', 'Kincső', 'csontoskincso05', '2005-04-04', 'female', 'csontoskincso@doomhyena.hu', 'Rudo Surebrec.jpg', '$2y$10$ZLWnsc4oApKzTPcMkkeC8OcVEmKA3PVyV2Fu7Mn4cCKTrQR5wmLgK', 'Mi a kedvenc könyved?', 'Harry Potter', 1, NULL, '2026-01-21 15:42:52', 'hu', 'discord', '864583234158460938', 1, 'Software & Systems Engineer Student', 'light', 0, NULL, NULL, 0, 0, 0),
+(8, 'Teszt', 'User', 'tesztuser', '2005-12-16', 'female', 'csontoskincso05@gmail.com', NULL, '$2y$10$rsRPmF5j81OCfV3xbpkIHOCGXeKXLTOkUIb7tH4j73o74H8QQiHRK', 'Mi az édesanyád leánykori neve?', 'Harry Potter', 0, NULL, '2025-12-10 21:51:35', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
+(9, 'Csontos', 'Kincső', 'doomhyena', '2005-04-04', 'female', 'csontoskincso@proton.me', NULL, '$2y$10$i7QzVcekWMXr3DJD6BUmgeR0Wal7AmZyBjDfjjVf6eowweutMErEa', 'Mi a kedvenc könyved?', '$2y$10$c5BtBT/ODqFT/OeHGYLuCeMCsdJ5sScb2Xjgg/lkJ77I9whd323tG', 0, 1, '2026-02-20 15:54:27', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
+(10, 'Horváth', 'Eszter', 'user10', '2006-07-03', 'other', 'user10@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'budapest', 0, NULL, '2026-01-15 15:30:27', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
+(11, 'Horváth', 'Levente', 'user11', '2002-12-05', 'other', 'user11@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'kutyus', 0, NULL, '2025-12-16 13:28:36', 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
+(12, 'Farkas', 'Nóra', 'user12', '2003-01-12', 'female', 'user12@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'cica', 0, NULL, '2025-12-06 14:29:18', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
+(13, 'Kiss', 'Nóra', 'user13', '2006-02-19', 'male', 'user13@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'teszt123', 0, NULL, '2026-02-24 15:59:17', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
+(14, 'Kovács', 'Eszter', 'user14', '2008-02-09', 'male', 'user14@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'cica', 0, NULL, '2026-01-08 11:22:56', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
+(15, 'Nagy', 'Anna', 'user15', '2000-12-03', 'female', 'user15@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'alma', 0, NULL, '2026-02-10 18:22:14', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
+(16, 'Szabó', 'Dávid', 'user16', '2007-07-17', 'female', 'user16@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'cica', 0, NULL, '2026-02-17 12:36:14', 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
+(17, 'Kiss', 'Eszter', 'user17', '2001-12-11', 'other', 'user17@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'anon', 0, NULL, '2025-12-12 20:08:24', 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
+(18, 'Tóth', 'Ádám', 'user18', '2001-07-27', 'female', 'user18@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'budapest', 0, NULL, '2026-03-20 11:13:28', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
+(19, 'Tóth', 'Anna', 'user19', '2008-02-15', 'male', 'user19@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'csoki', 0, NULL, '2026-02-24 14:00:26', 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
+(20, 'Szabó', 'Máté', 'user20', '2001-08-13', 'other', 'user20@test.hu', NULL, 'hashed', 'Mi az édesanyád leánykori neve?', 'anon', 0, NULL, '2026-01-27 15:07:10', 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
+(21, 'Farkas', 'Luca', 'user21', '2002-12-04', 'male', 'user21@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'csoki', 0, NULL, '2026-02-18 11:12:24', 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
+(22, 'Horváth', 'Luca', 'user22', '2008-06-18', 'female', 'user22@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'cica', 0, NULL, '2026-01-25 10:51:05', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
+(23, 'Szabó', 'Ádám', 'user23', '2006-08-18', 'female', 'user23@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'anon', 0, NULL, '2026-03-20 15:19:07', 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
+(24, 'Tóth', 'Anna', 'user24', '2009-02-26', 'other', 'user24@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'kutyus', 0, NULL, '2026-01-19 19:23:39', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
+(25, 'Balogh', 'Zsófia', 'user25', '1999-04-14', 'female', 'user25@test.hu', NULL, 'hashed', 'Mi az édesanyád leánykori neve?', 'anon', 0, NULL, '2026-02-15 20:37:26', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
+(26, 'Molnár', 'Bence', 'user26', '2003-05-08', 'female', 'user26@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'cica', 0, NULL, '2026-01-27 19:18:31', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
+(27, 'Szabó', 'Bence', 'user27', '2005-04-30', 'other', 'user27@test.hu', NULL, 'hashed', 'Mi az édesanyád leánykori neve?', 'budapest', 0, NULL, '2026-01-19 19:14:49', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
+(28, 'Farkas', 'Máté', 'user28', '2008-02-18', 'other', 'user28@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'cica', 0, NULL, '2026-02-09 17:54:52', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
+(29, 'Varga', 'Ádám', 'user29', '2002-10-14', 'male', 'user29@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'kutyus', 0, NULL, '2026-01-30 17:09:14', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
+(30, 'Tóth', 'Levente', 'user30', '2003-12-31', 'female', 'user30@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'anon', 0, NULL, '2026-01-21 14:41:40', 'hu', NULL, NULL, 0, '📚 Szeretek tanulni és jegyzeteket készíteni.', 'default', 0, NULL, NULL, 1, 0, 0),
+(31, 'Varga', 'Nóra', 'user31', '2001-08-22', 'male', 'user31@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'kutyus', 0, NULL, '2026-02-15 10:48:39', 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
+(32, 'Kovács', 'Zsófia', 'user32', '2007-08-02', 'other', 'user32@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'csoki', 0, NULL, '2026-01-16 19:09:24', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
+(33, 'Nagy', 'Nóra', 'user33', '2009-02-25', 'other', 'user33@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'pizza', 0, NULL, '2026-02-14 20:40:43', 'hu', NULL, NULL, 0, '📚 Szeretek tanulni és jegyzeteket készíteni.', 'default', 0, NULL, NULL, 1, 0, 0),
+(34, 'Kovács', 'Anna', 'user34', '2007-12-15', 'male', 'user34@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'csoki', 0, NULL, '2026-02-02 10:29:17', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
+(35, 'Molnár', 'Luca', 'user35', '2001-01-27', 'male', 'user35@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'anon', 0, NULL, '2026-02-07 19:09:49', 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
+(36, 'Farkas', 'Bence', 'user36', '2004-04-19', 'male', 'user36@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'csoki', 0, NULL, '2025-12-11 11:43:03', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
+(37, 'Horváth', 'Luca', 'user37', '2001-04-01', 'male', 'user37@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'kutyus', 0, NULL, '2026-01-23 20:09:47', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
+(38, 'Molnár', 'Zsófia', 'user38', '2003-04-09', 'other', 'user38@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'pizza', 0, NULL, '2026-03-13 19:38:26', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -4618,6 +4580,12 @@ ALTER TABLE `favorites`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `files`
+--
+ALTER TABLE `files`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `file_events`
 --
 ALTER TABLE `file_events`
@@ -4645,8 +4613,61 @@ ALTER TABLE `friends`
 -- A tábla indexei `groups`
 --
 ALTER TABLE `groups`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `reviewed_by` (`reviewed_by`);
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `group_comments`
+--
+ALTER TABLE `group_comments`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `group_events`
+--
+ALTER TABLE `group_events`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `group_files`
+--
+ALTER TABLE `group_files`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `group_file_comments`
+--
+ALTER TABLE `group_file_comments`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `group_flashcards`
+--
+ALTER TABLE `group_flashcards`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `group_members`
+--
+ALTER TABLE `group_members`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `group_polls`
+--
+ALTER TABLE `group_polls`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `group_poll_options`
+--
+ALTER TABLE `group_poll_options`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- A tábla indexei `group_poll_votes`
+--
+ALTER TABLE `group_poll_votes`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- A tábla indexei `languages`
@@ -4796,7 +4817,7 @@ ALTER TABLE `bug_reports`
 -- AUTO_INCREMENT a táblához `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=129;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
 
 --
 -- AUTO_INCREMENT a táblához `contact_messages`
@@ -4808,31 +4829,91 @@ ALTER TABLE `contact_messages`
 -- AUTO_INCREMENT a táblához `deleted_users`
 --
 ALTER TABLE `deleted_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT a táblához `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT a táblához `files`
+--
+ALTER TABLE `files`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT a táblához `file_events`
 --
 ALTER TABLE `file_events`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
 
 --
 -- AUTO_INCREMENT a táblához `friends`
 --
 ALTER TABLE `friends`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT a táblához `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT a táblához `group_comments`
+--
+ALTER TABLE `group_comments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT a táblához `group_events`
+--
+ALTER TABLE `group_events`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT a táblához `group_files`
+--
+ALTER TABLE `group_files`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT a táblához `group_file_comments`
+--
+ALTER TABLE `group_file_comments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT a táblához `group_flashcards`
+--
+ALTER TABLE `group_flashcards`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT a táblához `group_members`
+--
+ALTER TABLE `group_members`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT a táblához `group_polls`
+--
+ALTER TABLE `group_polls`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT a táblához `group_poll_options`
+--
+ALTER TABLE `group_poll_options`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT a táblához `group_poll_votes`
+--
+ALTER TABLE `group_poll_votes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT a táblához `languages`
@@ -4850,7 +4931,7 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT a táblához `notifys`
 --
 ALTER TABLE `notifys`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT a táblához `password_reset_attempts`
@@ -4874,7 +4955,7 @@ ALTER TABLE `profanity_filter`
 -- AUTO_INCREMENT a táblához `ratings`
 --
 ALTER TABLE `ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT a táblához `registration_code_uses`

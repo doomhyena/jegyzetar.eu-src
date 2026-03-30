@@ -1096,6 +1096,159 @@ select option, .select option{ background-color:#020617; color:#e5e7eb; }
     margin-bottom: 12px;
 }
 
+.note-header-wrap {
+    display: grid;
+    grid-template-columns: 1fr 210px;
+    gap: 20px;
+    align-items: start;
+    margin-bottom: 24px;
+}
+.note-action-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.note-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: .88rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    transition: filter .15s, transform .12s, background .15s, border-color .15s;
+}
+.note-action-btn:hover { transform: translateY(-1px); text-decoration: none !important; }
+.note-action-btn--dl {
+    background: rgba(125,211,252,.92);
+    border-color: rgba(255,255,255,.22);
+    color: #09111f !important;
+}
+.note-action-btn--dl:hover { filter: brightness(.96); }
+.note-action-btn--ghost {
+    background: rgba(255,255,255,.05);
+    border-color: var(--stroke);
+    color: var(--text) !important;
+}
+.note-action-btn--ghost:hover { background: rgba(255,255,255,.09); }
+.note-action-btn--fav {
+    background: rgba(244,114,182,.12);
+    border-color: rgba(244,114,182,.35);
+    color: var(--accent) !important;
+}
+.note-action-btn--fav:hover { background: rgba(244,114,182,.20); }
+/* Report widget gomb override */
+.note-report-wrap { width: 100%; }
+.note-report-wrap > .report-widget { width: 100%; }
+.note-report-wrap > .report-widget > button {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    padding: 10px 14px !important;
+    border-radius: 12px !important;
+    font-size: .88rem !important;
+    font-weight: 700 !important;
+    height: auto !important;
+    min-width: 0 !important;
+    justify-content: flex-start !important;
+    background: rgba(255,255,255,.05) !important;
+    border: 1px solid var(--stroke) !important;
+    color: var(--muted) !important;
+    transition: background .15s, border-color .15s, color .15s, transform .12s !important;
+}
+.note-report-wrap > .report-widget > button:hover {
+    background: rgba(220,38,38,.08) !important;
+    border-color: rgba(220,38,38,.28) !important;
+    color: #fca5a5 !important;
+    transform: translateY(-1px) !important;
+}
+@media (max-width: 600px) {
+    .note-header-wrap { grid-template-columns: 1fr; }
+}
+.note-header-wrap {
+    display: grid;
+    grid-template-columns: 1fr 210px;
+    gap: 20px;
+    align-items: start;
+    margin-bottom: 24px;
+}
+.note-action-col { display: flex; flex-direction: column; gap: 8px; }
+.note-action-btn {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 10px 14px; border-radius: 12px;
+    font-family: inherit; font-size: .88rem; font-weight: 700;
+    cursor: pointer; text-decoration: none; border: 1px solid transparent;
+    box-sizing: border-box;
+    transition: filter .15s, transform .12s, background .15s, border-color .15s;
+}
+.note-action-btn:hover { 
+    transform: translateY(-1px); 
+    text-decoration: none !important; 
+}
+
+.note-action-btn--dl { 
+    background: rgba(125,211,252,.92); 
+    border-color: rgba(255,255,255,.22); 
+    color: #09111f !important; 
+}
+
+.note-action-btn--dl:hover { 
+    filter: brightness(.96); 
+}
+
+.note-action-btn--ghost { 
+    background: rgba(255,255,255,.05); 
+    border-color: var(--stroke); 
+    color: var(--text) !important; 
+}
+
+.note-action-btn--ghost:hover { 
+    background: rgba(255,255,255,.09); 
+}
+
+.note-action-btn--fav { 
+    background: rgba(244,114,182,.12); 
+    border-color: rgba(244,114,182,.35); 
+    color: var(--accent) !important; 
+}
+
+.note-action-btn--fav:hover { 
+    background: rgba(244,114,182,.20); 
+}
+
+.note-report-wrap { 
+    width: 100%; 
+}
+
+.note-report-wrap .report-widget { 
+    width: 100%; 
+}
+
+.note-report-wrap .report-widget > button {
+    display: flex !important; align-items: center !important; gap: 10px !important;
+    width: 100% !important; padding: 10px 14px !important; border-radius: 12px !important;
+    font-size: .88rem !important; font-weight: 700 !important;
+    height: auto !important; min-width: 0 !important; justify-content: flex-start !important;
+    background: rgba(255,255,255,.05) !important; border: 1px solid var(--stroke) !important;
+    color: var(--muted) !important;
+    transition: background .15s, border-color .15s, color .15s, transform .12s !important;
+}
+.note-report-wrap .report-widget > button:hover {
+    background: rgba(220,38,38,.08) !important; border-color: rgba(220,38,38,.28) !important;
+    color: #fca5a5 !important; transform: translateY(-1px) !important;
+}
+
+@media (max-width: 600px) {
+    .note-header-wrap { grid-template-columns: 1fr; }
+}
+
 .mini-main {
     flex: 1;
 }
