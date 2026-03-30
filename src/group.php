@@ -138,7 +138,13 @@
                                 <?php while ($egy_tag = $tagok_lekerdezes->fetch_assoc()):
 									$tag_id = $egy_tag['user_id'];
 									$tag_nev = $egy_tag['username'];
-									$tag_szerep = $egy_tag['role'] == "owner" ? "tulajdonos" : "tag";
+									if ($egy_tag['role'] == "owner") {
+										$tag_szerep = "tulajdonos";
+									} elseif ($egy_tag['role'] == "moderator") {
+										$tag_szerep = "moderátor";
+									} else {
+										$tag_szerep = "tag";
+}
 								?>
 									<article class="mini-card" style="display:block; width:100%; max-width:100%; min-width:0; overflow:hidden;">
 										<div class="mini-main" style="min-width:0;">
@@ -147,6 +153,25 @@
 										</div>
 
 										<?php if ($aktualis_felhasznalo_tulaj && $tag_id != $tulaj_id): ?>
+										
+										    <?php if ($egy_tag['role'] == 'member'): ?>
+												<form method="post" style="margin-top:12px;">
+													<input type="hidden" name="kezelt_user_id" value="<?= (int)$tag_id ?>">
+													<button type="submit" name="moderator_add" class="btn-cta" style="width:100%; min-width:0;">
+														Moderátor
+													</button>
+												</form>
+											<?php endif; ?>
+
+											<?php if ($egy_tag['role'] == 'moderator'): ?>
+												<form method="post" style="margin-top:12px;">
+													<input type="hidden" name="kezelt_user_id" value="<?= (int)$tag_id ?>">
+													<button type="submit" name="moderator_remove" class="btn-ghost" style="width:100%; min-width:0;">
+														Moderátor jog elvétele
+													</button>
+												</form>
+											<?php endif; ?>
+										
 											<form method="post" style="margin-top:12px;">
 												<input type="hidden" name="remove_user_id" value="<?= (int)$tag_id ?>">
 												<button type="submit" name="remove_member" class="btn-ghost" style="width:100%; min-width:0;">
@@ -161,7 +186,7 @@
                             <p class="entry-meta">Még nincsenek tagok ebben a csoportban.</p>
                         <?php endif; ?>
 
-                        <?php if ($aktualis_felhasznalo_tulaj): ?>
+                        <?php if ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator): ?>
                             <h3>Függőben lévő jelentkezések</h3>
 
                             <?php
@@ -343,6 +368,60 @@
 										<a href="<?= htmlspecialchars($fajl_elercim) ?>" target="_blank" class="entry-download-btn" style="width:100%; min-width:0;">
 											Letöltés
 										</a>
+									</div>				
+									<?php
+									$jegyzet_kommentek = db_query(
+										$conn,
+										"SELECT group_file_comments.*, users.username
+										 FROM group_file_comments, users
+										 WHERE group_file_comments.user_id = users.id
+										   AND group_file_comments.group_file_id = ?
+										 ORDER BY group_file_comments.id DESC",
+										"i",
+										[$egy_jegyzet['id']]
+									);
+									?>
+									<div style="margin-top:14px;">
+										<h5 style="margin-bottom:8px;">Kommentek</h5>
+
+										<?php if ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj): ?>
+											<form method="post" style="margin-bottom:12px;">
+												<input type="hidden" name="group_file_id" value="<?= (int)$egy_jegyzet['id'] ?>">
+												<textarea name="jegyzet_komment_szoveg" rows="2" class="input" placeholder="Írj kommentet ehhez a jegyzethez..."></textarea>
+												<button type="submit" name="uj_jegyzet_komment" class="btn-cta" style="margin-top:8px;">
+													Küldés
+												</button>
+											</form>
+										<?php endif; ?>
+
+										<?php if ($jegyzet_kommentek && $jegyzet_kommentek->num_rows > 0): ?>
+											<div style="display:grid; gap:10px;">
+												<?php while ($jegyzet_komment = $jegyzet_kommentek->fetch_assoc()): ?>
+													<?php
+														$komment_sajat = ((int)$jegyzet_komment['user_id'] === (int)$aktualis_felhasznalo_id);
+														$komment_admin = (isset($user['admin']) && (int)$user['admin'] === 1);
+													?>
+													<article class="mini-card" style="display:block; width:100%; max-width:100%; min-width:0; overflow:hidden;">
+														<div class="mini-main" style="min-width:0;">
+															<h4 class="mini-title" style="overflow-wrap:anywhere;">@<?= htmlspecialchars($jegyzet_komment['username']) ?></h4>
+															<p class="mini-meta"><?= htmlspecialchars($jegyzet_komment['created_at']) ?></p>
+															<p style="margin-top:8px; overflow-wrap:anywhere;"><?= nl2br(htmlspecialchars($jegyzet_komment['comment_text'])) ?></p>
+														</div>
+
+														<?php if ($komment_sajat || $aktualis_felhasznalo_tulaj || $komment_admin): ?>
+															<form method="post" style="margin-top:10px;" onsubmit="return confirm('Biztosan törölni szeretnéd ezt a kommentet?');">
+																<input type="hidden" name="jegyzet_komment_id" value="<?= (int)$jegyzet_komment['id'] ?>">
+																<button type="submit" name="jegyzet_komment_torles" class="btn-ghost" style="width:100%; min-width:0;">
+																	Törlés
+																</button>
+															</form>
+														<?php endif; ?>
+													</article>
+												<?php endwhile; ?>
+											</div>
+										<?php else: ?>
+											<p class="entry-meta">Még nincs komment ennél a jegyzetnél.</p>
+										<?php endif; ?>
 									</div>
 								</article>
                             <?php endwhile; ?>
@@ -350,7 +429,7 @@
                             <p class="entry-meta">Még nincsenek elfogadott csoport jegyzetek.</p>
                         <?php endif; ?>
 
-                        <?php if ($aktualis_felhasznalo_tulaj): ?>
+                        <?php if ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator): ?>
                             <h3>Elfogadásra váró jegyzetek</h3>
 
                             <?php
@@ -448,7 +527,7 @@
                             <p class="sidebar-meta">Nincs esemény ebben a csoportban.</p>
                         <?php endif; ?>
 
-                        <?php if ($aktualis_felhasznalo_tulaj): ?>
+                        <?php if ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator): ?>
                             <details>
                                 <summary class="link">➕ Esemény hozzáadása</summary>
                                 <div style="margin-top:12px;">
@@ -531,7 +610,7 @@
                                             <button type="submit" name="flashcard_mark" value="wrong" class="btn-ghost">✖ Nem tudtam</button>
                                         </form>
 
-                                        <?php if ($aktualis_felhasznalo_tulaj): ?>
+                                        <?php if ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator): ?>
                                             <form method="post">
                                                 <input type="hidden" name="flashcard_id" value="<?= (int)$fc['id'] ?>">
                                                 <button type="submit" name="flashcard_delete" class="btn-ghost">🗑 Törlés</button>
@@ -550,7 +629,7 @@
                 <section class="sidebar-card">
                     <h2 class="sidebar-title">📊 Csoport szavazás</h2>
 
-                    <?php if ($aktualis_felhasznalo_tulaj): ?>
+					<?php if ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator): ?>
                         <details>
                             <summary class="link">➕ Szavazás létrehozása</summary>
                             <div style="margin-top:12px;">

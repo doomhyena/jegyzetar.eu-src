@@ -6,6 +6,7 @@
     require_once "assets/php/db.php";
     require_once "assets/php/lang.php";
     require_once "assets/php/functions.php";
+	require_once "assets/php/premium.php";
 
     if (!isset($_COOKIE['id'])) {
         header("Location: reglog.php");
@@ -32,6 +33,7 @@
     $show_fullname  = ($profile['show_fullname'] ?? 1);
     $show_email = ($profile['show_email'] ?? 0);
     $show_birthdate = ($profile['show_birthdate'] ?? 0);
+	$profile_premium = user_premium($conn, (int)$profileId);
 
     $nfRes = db_query($conn, "SELECT id FROM notifys WHERE toid = ? AND readed = 0", "i", [$profileId]);
     $notify_number = $nfRes ? (int)$nfRes->num_rows : 0;
@@ -44,7 +46,14 @@
     $profileUpdateSuccess = '';
     $backupCodesGenerated = [];
     if (!empty($_SESSION['profile_toast'])) {
-        $profileUpdateSuccess = t($_SESSION['profile_toast']);
+        $toastKey = $_SESSION['profile_toast'];
+        $toastFallbacks = [
+            'msg_pfp_upload_success' => 'Profilkép sikeresen frissítve!',
+        ];
+        $translated = t($toastKey);
+        $profileUpdateSuccess = ($translated === $toastKey && isset($toastFallbacks[$toastKey]))
+            ? $toastFallbacks[$toastKey]
+            : $translated;
         unset($_SESSION['profile_toast']);
     }
     
@@ -112,11 +121,39 @@
             exit;
         }
     }
-    if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_picture']['tmp_name'])) {
-        $file_name  = basename($_FILES['profile_picture']['name']);
-        $tmp_name   = $_FILES['profile_picture']['tmp_name'];
-        $target_dir = __DIR__ . "/users/" . $profile['username'] . "/";
-        $target_file = $target_dir . $file_name;
+if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_picture']['tmp_name'])) {
+
+    $file_name = basename($_FILES['profile_picture']['name']);
+    $tmp_name  = $_FILES['profile_picture']['tmp_name'];
+    $file_ext  = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+    $mime_type = @mime_content_type($tmp_name);
+    $file_size = (int)($_FILES['profile_picture']['size'] ?? 0);
+
+    $target_dir  = __DIR__ . "/users/" . $profile['username'] . "/";
+    $target_file = $target_dir . $file_name;
+
+    $allowed_ext  = ['jpg', 'jpeg', 'png', 'webp'];
+    $allowed_mime = ['image/jpeg', 'image/png', 'image/webp'];
+
+    $max_size     = 2 * 1024 * 1024;  // 2 MB statikus
+    $max_size_gif = 5 * 1024 * 1024;  // 5 MB GIF (prémium)
+
+    if ($profile_premium) {
+        $allowed_ext[]  = 'gif';
+        $allowed_mime[] = 'image/gif';
+    }
+
+    if (!in_array($file_ext, $allowed_ext, true) || !in_array((string)$mime_type, $allowed_mime, true)) {
+        if ($file_ext === 'gif' && !$profile_premium) {
+            $profileUpdateError = 'Animált (GIF) profilkép feltöltése csak prémium felhasználóknak elérhető.';
+        } else {
+            $profileUpdateError = 'Nem támogatott képfájl. Engedélyezett formátumok: JPG, PNG, WEBP' . ($profile_premium ? ', GIF' : '') . '.';
+        }
+    } elseif ($file_ext === 'gif' && $file_size > $max_size_gif) {
+        $profileUpdateError = 'A GIF fájl túl nagy. Maximum ' . round($max_size_gif / 1024 / 1024) . ' MB engedélyezett.';
+    } elseif ($file_ext !== 'gif' && $file_size > $max_size) {
+        $profileUpdateError = 'A képfájl túl nagy. Maximum ' . round($max_size / 1024 / 1024) . ' MB engedélyezett.';
+    } else {
 
         if (!is_dir($target_dir)) {
             mkdir($target_dir, 0777, true);
@@ -129,14 +166,22 @@
             }
         }
 
+        if (file_exists($target_file)) {
+            $base = pathinfo($file_name, PATHINFO_FILENAME);
+            $target_file = $target_dir . $base . '_' . time() . '.' . $file_ext;
+            $file_name = basename($target_file);
+        }
+
         if (is_uploaded_file($tmp_name) && move_uploaded_file($tmp_name, $target_file)) {
             db_stmt($conn, "UPDATE users SET profile_picture = ? WHERE id = ? LIMIT 1", "si", [$file_name, $viewerId])->close();
+            $_SESSION['profile_toast'] = 'msg_pfp_upload_success';
             header("Location: profile.php?user=" . urlencode($profile['username']));
             exit;
         } else {
-            Message(t('msg_file_upload_error'));
+            $profileUpdateError = t('msg_file_upload_error');
         }
     }
+}
 
     if ($isOwner && isset($_POST['save-profile-settings'])) {
         $bio   = trim($_POST['bio'] ?? '');
@@ -330,6 +375,7 @@
         <?php elseif (!empty($profileUpdateSuccess)): ?>
             <div class="toast toast-success"><?= htmlspecialchars($profileUpdateSuccess) ?></div>
         <?php endif; ?>
+        
         <?php if (!empty($backupCodesGenerated)): ?>
             <div style="margin: 20px 0; padding: 20px; border-radius: 14px; background: rgba(96, 165, 250, 0.12); border: 2px solid rgba(96, 165, 250, 0.35); color: #e5e7eb;">
                 <h2 style="margin: 0 0 16px 0; color: #93c5fd; font-size: 18px;">✅ 2FA Backup Kódok - Megmentve!</h2>
@@ -347,7 +393,7 @@
                     </div>
                 </div>
                 <p style="margin: 12px 0 0 0; color: #fde68a; font-size: 13px;">
-                    <strong>Fontos:</strong> Fordulj figyelmet arra, hogy ezek a kódok titkosak maradnak. Ne oszd meg őket senkivel!
+                    ⚠️ <strong>Fontos:</strong> Fordulj figyelmet arra, hogy ezek a kódok titkosak maradnak. Ne oszd meg őket senkivel!
                 </p>
             </div>
         <?php endif; ?>
@@ -356,7 +402,7 @@
             <section class="card profile-header">
                 <div class="profile-header-grid">
                     <div class="profile-header-avatar">
-                        <div class="avatar-wrap <?= $is_birthday ? 'is-birthday' : '' ?>">
+                        <div class="avatar-wrap <?= $is_birthday ? 'is-birthday' : '' ?>" style="--avatar-size:180px">
                             <div class="avatar-box">
                                 <img class="profile-picture"
                                      src="<?= htmlspecialchars($profile_picture_path) ?>"
@@ -383,15 +429,6 @@
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <?php if ($is_birthday): ?>
-                            <div class="bday-banner" role="status" aria-live="polite">
-                                <span class="bday-emoji" aria-hidden="true">🎂</span>
-                                <div class="bday-text">
-                                    <strong><?= t('bday_title') ?> <?= htmlspecialchars($show_fullname ? $profile['firstname'] : $profile['username']) ?>!</strong>
-                                    <span><?= t('bday_message') ?></span>
-                                </div>
-                            </div>
-                        <?php endif; ?>
                     </div>
                     <div class="profile-header-main">
                         <div class="profile-identity">
@@ -426,50 +463,103 @@
                             <?php if ($isOwner): ?>
                                 <div class="profile-actions inline" aria-label="Profil műveletek">
                                     <form method="post" enctype="multipart/form-data" id="pfp-form" style="display:none;">
-                                        <input type="file" name="profile_picture" id="pfp-input" accept="image/png,image/jpeg,image/webp" required>
+                                        <input type="file"
+                                            name="profile_picture"
+                                            id="pfp-input"
+                                            accept="image/png,image/jpeg,image/webp<?= $profile_premium ? ',image/gif' : '' ?>"
+                                            required>
                                         <button type="submit" name="pfp-btn">Upload</button>
                                     </form>
-                                    <button type="button" class="profile-action-btn" id="pfp-open-btn">Feltöltés</button>
+                                    <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-start;">
+                                        <button type="button" class="profile-action-btn" id="pfp-open-btn">
+                                            <span id="pfp-btn-label">Profilkép módosítása</span>
+                                        </button>
+                                    </div>
                                     <script>
-                                        document.getElementById('pfp-open-btn').addEventListener('click', () => {
-                                            document.getElementById('pfp-input').click();
-                                        });
-                                        document.getElementById('pfp-input').addEventListener('change', () => {
-                                            if (document.getElementById('pfp-input').files.length) {
-                                                document.getElementById('pfp-form').submit();
+                                    (function () {
+                                        const openBtn   = document.getElementById('pfp-open-btn');
+                                        const btnLabel  = document.getElementById('pfp-btn-label');
+                                        const pfpInput  = document.getElementById('pfp-input');
+                                        const pfpForm   = document.getElementById('pfp-form');
+
+                                        openBtn.addEventListener('click', () => pfpInput.click());
+
+                                        pfpInput.addEventListener('change', () => {
+                                            if (!pfpInput.files.length) return;
+
+                                            const file    = pfpInput.files[0];
+                                            const ext     = file.name.split('.').pop().toLowerCase();
+                                            const isGif   = ext === 'gif';
+                                            const isPrem  = <?= $profile_premium ? 'true' : 'false' ?>;
+                                            const maxSize = isGif ? 5 * 1024 * 1024 : 2 * 1024 * 1024;
+                                            const allowed = ['jpg','jpeg','png','webp'].concat(isPrem ? ['gif'] : []);
+
+                                            if (!allowed.includes(ext)) {
+                                                alert(isPrem
+                                                    ? 'Nem támogatott formátum. Engedélyezett: JPG, PNG, WEBP, GIF.'
+                                                    : 'Nem támogatott formátum. Engedélyezett: JPG, PNG, WEBP.\nGIF feltöltéshez prémium előfizetés szükséges.');
+                                                pfpInput.value = '';
+                                                return;
                                             }
+
+                                            if (file.size > maxSize) {
+                                                alert('A fájl túl nagy! Maximum '
+                                                    + (maxSize / 1024 / 1024) + ' MB engedélyezett '
+                                                    + (isGif ? 'GIF' : 'képek') + ' esetén.');
+                                                pfpInput.value = '';
+                                                return;
+                                            }
+
+                                            btnLabel.textContent = '⏳ Feltöltés...';
+                                            openBtn.disabled = true;
+                                            pfpForm.submit();
                                         });
+                                    })();
                                     </script>
                                     <a href="favorites.php" class="profile-action-btn" role="button">Kedvenceim</a>
                                 </div>
+                                <span style="font-size:.75rem; color:var(--muted); line-height:1.4;">
+                                    <?php if ($profile_premium): ?>
+                                        JPG, PNG, WEBP — max 2 MB<br>
+                                        <span style="color:var(--warn);">GIF (animált) — max 5 MB</span>
+                                    <?php else: ?>
+                                        JPG, PNG, WEBP — max 2 MB<br>
+                                        <span style="opacity:.6;">GIF feltöltéshez prémium szükséges</span>
+                                    <?php endif; ?>
+                                </span>
+                            <?php endif; ?>
+                            <?php if ($is_birthday): ?>
+                                <div class="bday-banner" role="status" aria-live="polite">
+                                    <span class="bday-emoji" aria-hidden="true">🎂</span>
+                                    <div class="bday-text">
+                                        <strong><?= t('bday_title') ?> <?= htmlspecialchars($show_fullname ? $profile['firstname'] : $profile['username']) ?>!</strong>
+                                        <?= t('bday_message') ?>
+                                    </div>
+                                </div>
                             <?php endif; ?>
                             <?php if (!$isOwner): ?>
-                                <div class="profile-social-block">
-                                    <?php if ($friendship && (int)$friendship['status'] === 1): ?>
-                                        <div class="friend-status-pill friend-status-pill--yes">
-                                            <span class="friend-status-icon">✓</span>
-                                            <span>Barátok vagytok</span>
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="friend-status-pill friend-status-pill--no">
-                                            <span class="friend-status-icon">○</span>
-                                            <span>Még nem vagytok barátok</span>
-                                        </div>
-                                        <form method="post" action="assets/php/add_friend.php">
-                                            <input type="hidden" name="toid" value="<?= (int)$profileId ?>">
-                                            <button type="submit" class="profile-action-btn"><?= t('btn_add_friend') ?></button>
-                                        </form>
-                                    <?php endif; ?>
-                                    <form method="post" action="assets/php/report.php" id="user-report-form">
-                                        <input type="hidden" name="type" value="user">
-                                        <input type="hidden" name="target_id" value="<?= (int)$profileId ?>">
-                                        <input type="hidden" name="redirect" value="<?= htmlspecialchars($_SERVER['REQUEST_URI'], ENT_QUOTES, 'UTF-8') ?>">
-                                        <button type="button" class="profile-action-btn profile-action-btn--danger" id="report-toggle-btn">⚑ Jelentés</button>
-                                        <div id="report-box" style="display:none; margin-top:8px;">
-                                            <textarea name="reason" rows="3" required placeholder="Írd le, miért jelented..." class="report-textarea"></textarea>
-                                            <button type="submit" class="btn-cta danger" onclick="return confirm('Biztosan elküldöd a jelentést?');">Elküldés</button>
-                                        </div>
-                                    </form>
+                                <div class="profile-social-actions">
+                                    <div class="profile-friendship">
+                                        <h3 class="profile-friendship-title"><?= t('profile_friendship') ?>:</h3>
+                                        <?php if ($friendship && (int)$friendship['status'] === 1): ?>
+                                            <p class="entry-meta success"><strong>barátok vagytok!</strong></p>
+                                        <?php else: ?>
+                                            <p class="entry-meta warning"><strong>Még nem vagytok barátok!</strong></p>
+                                            <form method="post" action="assets/php/add_friend.php">
+                                                <input type="hidden" name="toid" value="<?= (int)$profileId ?>">
+                                                <button type="submit" class="btn-cta"><?= t('btn_add_friend') ?></button>
+                                            </form>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div class="profile-report">
+                                        <?php
+                                            $report_type = 'user';
+                                            $report_target_id = $profileId;
+                                            $report_label = 'Felhasználó jelentése';
+                                            $report_extra_class = '';
+                                            include 'assets/php/_report_widget.php';
+                                        ?>
+                                    </div>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -502,7 +592,9 @@
                             <?php if ($show_fullname): ?>
                             <div class="profile-info-item">
                                 <div class="profile-info-label"><?= t('profile_fullname') ?></div>
-                                <div class="profile-info-value"><?= htmlspecialchars($profile['lastname'] . ' ' . $profile['firstname']) ?></div>
+                                <div class="profile-info-value">
+                                <?= htmlspecialchars($profile['lastname'] . ' ' . $profile['firstname']) ?>
+                                </div>
                             </div>
                             <?php endif; ?>
                             <div class="profile-info-item">
@@ -526,7 +618,7 @@
                                 <div class="profile-info-value"><?= htmlspecialchars($profile['registration_date']) ?></div>
                             </div>
                             <?php if ($isOwner): ?>
-                                <button type="button" class="btn-cta profile-save-btn" id="edit-basic-profile-btn">
+                                <button type="button" class="btn-cta profile-save-btn" id="edit-basic-profile-btn" style="margin-top:10px;">
                                     <?= t('btn_edit_profile_data') ?>
                                 </button>
                             <?php endif; ?>
@@ -536,134 +628,155 @@
                                 <input type="text" class="input" name="firstname" placeholder="<?= htmlspecialchars(t('label_firstname')) ?>" value="<?= htmlspecialchars($_POST['firstname'] ?? $profile['firstname']) ?>">
                                 <input type="text" class="input" name="lastname" placeholder="<?= htmlspecialchars(t('label_lastname')) ?>" value="<?= htmlspecialchars($_POST['lastname'] ?? $profile['lastname']) ?>">
                                 <input type="email" class="input" name="email" placeholder="<?= htmlspecialchars(t('label_email')) ?>" value="<?= htmlspecialchars($_POST['email'] ?? $profile['email']) ?>">
-                                <input type="date" class="input" name="birthdate" value="<?= htmlspecialchars($_POST['birthdate'] ?? $birthdateValue) ?>">
-                                <button type="submit" name="update-basic-profile" class="btn-cta profile-save-btn"><?= t('btn_save') ?></button>
-                                <button type="button" class="btn-ghost" id="cancel-basic-profile-edit"><?= t('btn_cancel') ?></button>
+                                <input type="date" class="input" name="birthdate" placeholder="<?= htmlspecialchars(t('label_birthdate')) ?>" value="<?= htmlspecialchars($_POST['birthdate'] ?? $birthdateValue) ?>">
+                                <button type="submit" name="update-basic-profile" class="btn-cta profile-save-btn" style="margin-top:10px;">
+                                    <?= t('btn_save') ?>
+                                </button>
+                                <button type="button" class="btn-ghost" id="cancel-basic-profile-edit">
+                                    <?= t('btn_cancel') ?>
+                                </button>
                             </form>
-                            <details class="sidebar-accordion">
-                                <summary class="sidebar-accordion-summary">Adatok láthatósága</summary>
-                                <div class="sidebar-accordion-body">
-                                    <form method="post" class="profile-visibility-form">
-                                        <label class="toggle privacy-toggle">
-                                            <input type="checkbox" name="show_fullname" <?= $show_fullname ? 'checked' : '' ?>>
-                                            <span class="toggle-slider"></span>
-                                            <span class="toggle-label">Teljes név látható</span>
-                                        </label>
-                                        <label class="toggle privacy-toggle">
-                                            <input type="checkbox" name="show_email" <?= $show_email ? 'checked' : '' ?>>
-                                            <span class="toggle-slider"></span>
-                                            <span class="toggle-label">Email látható</span>
-                                        </label>
-                                        <label class="toggle privacy-toggle">
-                                            <input type="checkbox" name="show_birthdate" <?= $show_birthdate ? 'checked' : '' ?>>
-                                            <span class="toggle-slider"></span>
-                                            <span class="toggle-label">Születésnap látható</span>
-                                        </label>
-                                        <button type="submit" name="save-visibility" class="btn-cta profile-save-btn">Mentés</button>
-                                    </form>
-                                </div>
-                            </details>
-                            <details class="sidebar-accordion">
-                                <summary class="sidebar-accordion-summary">Kétlépcsős azonosítás (2FA)</summary>
-                                <div class="sidebar-accordion-body">
-                                    <form method="post">
-                                        <label class="toggle">
-                                            <input type="checkbox" name="enable_2fa" <?= ((int)$profile['twofa_enabled'] === 1) ? 'checked' : '' ?>>
-                                            <span class="toggle-slider"></span>
-                                            <span class="toggle-label"><?= ((int)$profile['twofa_enabled'] === 1) ? 'Bekapcsolva' : 'Kikapcsolva' ?></span>
-                                        </label>
-                                        <br>
-                                        <button type="submit" name="toggle-2fa" class="btn-cta profile-save-btn">Mentés</button>
-                                    </form>
-                                    <p class="entry-meta" style="margin-top:8px;">Bejelentkezéskor e-mailben kapsz egy egyszer használatos kódot.</p>
-                                    <?php if ((int)$profile['twofa_enabled'] === 1): ?>
-                                        <a href="2fa-backup-codes.php" class="sidebar-link-btn">Backup kódok megtekintése →</a>
-                                    <?php endif; ?>
-                                </div>
-                            </details>
-                            <details class="sidebar-accordion">
-                                <summary class="sidebar-accordion-summary">Discord</summary>
-                                <div class="sidebar-accordion-body">
-                                    <?php if (!empty($profile['oauth_provider']) && $profile['oauth_provider'] === 'discord' && !empty($profile['oauth_sub'])): ?>
-                                        <p class="entry-meta" style="color:var(--primary);font-weight:600;margin-bottom:6px;">Discord fiók összekapcsolva</p>
-                                        <p class="entry-meta">ID: <code class="sidebar-code"><?= htmlspecialchars($profile['oauth_sub']) ?></code></p>
+                            <div class="card profile-visibility-card">
+                            <h3>Adatok láthatósága</h3>
+                            <form method="post" class="profile-visibility-form">
+                                <label class="toggle privacy-toggle">
+                                <input type="checkbox" name="show_fullname" <?= $show_fullname ? 'checked' : '' ?>>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">Teljes név látható</span>
+                                </label>
+                                <label class="toggle privacy-toggle">
+                                <input type="checkbox" name="show_email" <?= $show_email ? 'checked' : '' ?>>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">Email látható</span>
+                                </label>
+                                <label class="toggle privacy-toggle">
+                                <input type="checkbox" name="show_birthdate" <?= $show_birthdate ? 'checked' : '' ?>>
+                                <span class="toggle-slider"></span>
+                                <span class="toggle-label">Születésnap látható</span>
+                                </label>
+                                <button type="submit" name="save-visibility" class="btn-cta profile-save-btn">
+                                Mentés
+                                </button>
+                            </form>
+                            </div>
+                            <h3>Kétlépcsős azonosítás (2FA)</h3>
+                            <form method="post">
+                                <div class="profile-info-item">
+                                    <div class="profile-info-label">Állapot</div>
+                                    <div class="profile-info-value">
                                         <form method="post">
-                                            <button type="submit" name="unlink-discord" class="btn-ghost profile-save-btn">Discord leválasztása</button>
+                                            <label class="toggle">
+                                                <input type="checkbox"
+                                                       name="enable_2fa"
+                                                        <?= ((int)$profile['twofa_enabled'] === 1) ? 'checked' : '' ?>>
+                                                <span class="toggle-slider"></span>
+                                                <span class="toggle-label">
+                                                    <?= ((int)$profile['twofa_enabled'] === 1) ? 'Bekapcsolva' : 'Kikapcsolva' ?>
+                                                </span>
+                                            </label>
+                                            <br>
+                                            <button type="submit" name="toggle-2fa" class="btn-cta profile-save-btn" style="margin-top:10px;">
+                                                Mentés
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </form>
+                            <p class="entry-meta" style="margin-top:6px;">
+                                Bejelentkezéskor e-mailben kapsz egy egyszer használatos kódot.
+                            </p>
+                            <?php if ((int)$profile['twofa_enabled'] === 1): ?>
+                                <div style="margin-top: 12px; padding: 12px; border-radius: 8px; background: rgba(96, 165, 250, 0.12); border: 1px solid rgba(96, 165, 250, 0.35);">
+                                    <p class="entry-meta" style="margin: 0 0 8px 0;">
+                                        <strong>Backup kódok:</strong> Ha nem fér hozzá az emailedhez, backup kódokkal bejelentkezhetsz.
+                                    </p>
+                                    <a href="2fa-backup-codes.php" style="display: inline-block; margin-top: 8px; padding: 6px 12px; background: rgba(96, 165, 250, 0.2); border: 1px solid rgba(96, 165, 250, 0.5); border-radius: 6px; color: #93c5fd; text-decoration: none; font-size: 13px;">
+                                        Backup kódok megtekintése →
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                            <h3 style="margin-top: 24px;">Discord</h3>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Állapot</div>
+                                <div class="profile-info-value">
+                                    <?php if (!empty($profile['oauth_provider']) && $profile['oauth_provider'] === 'discord' && !empty($profile['oauth_sub'])): ?>
+                                        <div style="padding: 12px; border-radius: 8px; background: rgba(88, 101, 242, 0.12); border: 1px solid rgba(88, 101, 242, 0.35); margin-bottom: 12px;">
+                                            <p style="margin: 0 0 8px 0; color: #93c5fd;">
+                                                <strong>Discord fiók összekapcsolva</strong>
+                                            </p>
+                                            <p class="entry-meta" style="margin: 0;">
+                                                Discord ID: <code style="background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 3px;"><?= htmlspecialchars($profile['oauth_sub']) ?></code>
+                                            </p>
+                                        </div>
+                                        <form method="post" style="display: inline;">
+                                            <button type="submit" name="unlink-discord" class="btn-ghost profile-save-btn" style="margin-top: 8px;">
+                                                Discord leválasztása
+                                            </button>
                                         </form>
                                     <?php else: ?>
-                                        <p class="entry-meta" style="margin-bottom:10px;">Discord fiók nincs összekapcsolva.</p>
-                                        <form method="post">
-                                            <button type="submit" name="link-discord" class="btn-cta profile-save-btn">Discord összekapcsolása</button>
+                                        <p class="entry-meta" style="margin: 0 0 12px 0;">
+                                            Discord fiók nincs összekapcsolva. Összekapcsolva azonosítható vagy megoszthatod a Discord profilodat.
+                                        </p>
+                                        <form method="post" style="display: inline;">
+                                            <button type="submit" name="link-discord" class="btn-cta profile-save-btn">
+                                                Discord összekapcsolása
+                                            </button>
                                         </form>
                                     <?php endif; ?>
                                 </div>
-                            </details>
+                            </div>
                         <?php endif; ?>
                     </div>
                     <?php if ($isOwner): ?>
-                        <details class="card sidebar-card-accordion">
-                            <summary class="sidebar-card-summary"><?= t('profile_customization') ?></summary>
-                            <div class="sidebar-card-body">
-                                <form method="post" class="profile-settings-form">
-                                    <div class="profile-info-item">
-                                        <div class="profile-info-label"><?= t('profile_bio') ?></div>
-                                        <div class="profile-info-value">
-                                            <textarea class="profile-bio-input" rows="4" name="bio" id="profile-bio-input" maxlength="1500"
-                                                      placeholder="<?= htmlspecialchars(t('profile_bio')) ?>"><?= htmlspecialchars($profile['bio'] ?? '') ?></textarea>
-                                            <small id="bio-counter">0 / 1500</small>
-                                        </div>
+                        <div class="card">
+                            <h3><?= t('profile_customization') ?></h3>
+                            <form method="post" class="profile-settings-form">
+                                <div class="profile-info-item">
+                                    <div class="profile-info-label"><?= t('profile_bio') ?></div>
+                                    <div class="profile-info-value">
+                                        <textarea class="profile-bio-input" rows="4" name="bio" id="profile-bio-input" maxlength="1500"
+                                                  placeholder="<?= htmlspecialchars(t('profile_bio')) ?>"><?= htmlspecialchars($profile['bio'] ?? '') ?></textarea>
+                                        <small id="bio-counter">0 / 1500</small>
                                     </div>
-                                    <div class="profile-info-item">
-                                        <div class="profile-info-label"><?= t('profile_theme') ?></div>
-                                        <div class="profile-info-value">
-                                            <select id="profile-theme-select" name="theme" class="profile-theme-select" data-theme="<?= htmlspecialchars($profile_theme) ?>">
-                                                <option value="default" <?= ($profile_theme === 'default') ? 'selected' : '' ?>><?= t('profile_theme_default') ?></option>
-                                                <option value="pastel"  <?= ($profile_theme === 'pastel')  ? 'selected' : '' ?>><?= t('profile_theme_pastel') ?></option>
-                                                <option value="forest"  <?= ($profile_theme === 'forest')  ? 'selected' : '' ?>><?= t('profile_theme_forest') ?></option>
-                                                <option value="light"   <?= ($profile_theme === 'light')   ? 'selected' : '' ?>><?= t('profile_theme_light') ?></option>
-                                            </select>
-                                        </div>
+                                </div>
+                                <div class="profile-info-item">
+                                    <div class="profile-info-label"><?= t('profile_theme') ?></div>
+                                    <div class="profile-info-value">
+                                        <select id="profile-theme-select" name="theme" class="profile-theme-select" data-theme="<?= htmlspecialchars($profile_theme) ?>">
+                                            <option value="default" <?= ($profile_theme === 'default') ? 'selected' : '' ?>><?= t('profile_theme_default') ?></option>
+                                            <option value="pastel" <?= ($profile_theme === 'pastel') ? 'selected' : '' ?>><?= t('profile_theme_pastel') ?></option>
+                                            <option value="forest" <?= ($profile_theme === 'forest') ? 'selected' : '' ?>><?= t('profile_theme_forest') ?></option>
+                                            <option value="light"  <?= ($profile_theme === 'light')  ? 'selected' : '' ?>><?= t('profile_theme_light') ?></option>
+                                        </select>
                                     </div>
-                                    <button type="submit" name="save-profile-settings" class="btn-cta profile-save-btn"><?= t('btn_save') ?></button>
-                                </form>
-                            </div>
-                        </details>
-                        <div class="card css-editor-card">
-                            <div class="css-editor-card-header">
-                                <h3><?= t('profile_custom_css_request') ?></h3>
-                                <?php if ($lastCssRequest): ?>
-                                    <span class="css-status-badge css-status-<?= htmlspecialchars($lastCssRequest['status']) ?>">
-                                        <?= htmlspecialchars($lastCssRequest['status']) ?>
-                                    </span>
-                                <?php endif; ?>
-                            </div>
+                                </div>
+                                <button type="submit" name="save-profile-settings" class="btn-cta profile-save-btn">
+                                    <?= t('btn_save') ?>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="card">
+                            <h3><?= t('profile_custom_css_request') ?></h3>
                             <?php if ($lastCssRequest): ?>
-                                <p class="entry-meta"><?= t('profile_last_request_status') ?> <strong><?= htmlspecialchars($lastCssRequest['status']) ?></strong><?php if (!empty($lastCssRequest['reviewed_at'])): ?> (<?= htmlspecialchars($lastCssRequest['reviewed_at']) ?>)<?php endif; ?></p>
+                                <p class="entry-meta">
+                                    <?= t('profile_last_request_status') ?>
+                                    <strong><?= htmlspecialchars($lastCssRequest['status']) ?></strong>
+                                    <?php if (!empty($lastCssRequest['reviewed_at'])): ?>
+                                        (<?= htmlspecialchars($lastCssRequest['reviewed_at']) ?>)
+                                    <?php endif; ?>
+                                </p>
                             <?php else: ?>
                                 <p class="entry-meta"><?= t('profile_custom_css_not_requested') ?></p>
                             <?php endif; ?>
-                            <button type="button" class="btn-cta" id="css-modal-open-btn" style="margin-top:4px;">
-                                CSS szerkesztése
-                            </button>
-                        </div>
-                        <div id="css-modal-overlay" class="css-modal-overlay" aria-hidden="true">
-                            <div class="css-modal-panel" role="dialog" aria-modal="true" aria-label="Egyedi CSS szerkesztő">
-                                <div class="css-modal-header">
-                                    <div class="css-modal-title">
-                                        <h2><?= t('profile_custom_css_request') ?></h2>
-                                    </div>
-                                    <button type="button" class="css-modal-close" id="css-modal-close-btn" aria-label="Bezárás">✕</button>
-                                </div>
-                                <div class="css-modal-body">
-                                    <div class="css-modal-left">
-                                        <details class="css-tutorial" id="css-tutorial">
-                                            <summary><?= t('profile_css_tutorial_summary') ?></summary>
-                                            <div class="css-tutorial-body">
-                                                <p><?= t('profile_css_tutorial_intro') ?></p>
-                                                <p><?= t('profile_css_tutorial_example') ?></p>
-                                                <pre><code>body {
+                            <details class="css-tutorial" id="css-tutorial">
+                                <summary><?= t('profile_css_tutorial_summary') ?></summary>
+                                <div class="css-tutorial-body">
+                                    <p><?= t('profile_css_tutorial_intro') ?></p>
+                                    <p><?= t('profile_css_tutorial_example') ?></p>
+                                    <pre><code>
+body {
    background:
-       radial-gradient(circle at 0%, rgba(244,114,182,.35), transparent 60%),
+       radial-gradient(circle aóó 0%, rgba(244,114,182,.35), transparent 60%),
        radial-gradient(circle at 100% 0%, rgba(56,189,248,.28), transparent 55%),
        radial-gradient(circle at 50% 100%, rgba(167,139,250,.3), transparent 55%),
        linear-gradient(180deg, #050816 0%, #020617 100%);
@@ -679,32 +792,32 @@
         linear-gradient(180deg, rgba(15,23,42,.96), rgba(15,23,42,.94));
    box-shadow: 0 24px 60px rgba(0,0,0,.7);
    padding: 40px 34px;
-}</code></pre>
-                                                <p><?= t('tip_profile_custom_css') ?></p>
-                                            </div>
-                                        </details>
-                                    </div>
-                                    <div class="css-modal-right">
-                                        <form method="post" class="css-modal-form">
-                                            <label class="css-modal-label"><?= t('profile_css_label') ?></label>
-                                            <textarea
-                                                class="css-modal-textarea"
-                                                id="profile-custom-css-input"
-                                                name="custom_css"
-                                                placeholder="<?= htmlspecialchars(t('css_placeholder')) ?>"
-                                                data-i18n-css-empty="<?= htmlspecialchars(t('msg_css_empty_reset')) ?>"
-                                                data-i18n-css-admin="<?= htmlspecialchars(t('msg_css_approved_by_admin')) ?>"><?= htmlspecialchars($cssResetDone ? '' : ($lastCssRequest['css'] ?? '')) ?></textarea>
-                                            <p class="entry-meta css-modal-note"><?= t('css_approval_note') ?></p>
-                                            <div class="css-modal-actions">
-                                                <button type="submit" name="submit-custom-css" class="btn-cta"><?= t('profile_custom_css_submit') ?></button>
-                                                <button type="submit" name="reset-custom-css" class="btn-ghost"><?= t('profile_custom_css_reset_btn') ?></button>
-                                            </div>
-                                        </form>
+}
+                                    </code></pre>
+                                    <p><?= t('tip_profile_custom_css') ?></p>
+                                </div>
+                            </details>
+                            <form method="post">
+                                <div class="profile-info-item">
+                                    <div class="profile-info-label"><?= t('profile_css_label') ?></div>
+                                    <div class="profile-info-value">
+                                        <textarea class="profile-bio-input" rows="4" id="profile-custom-css-input" name="custom_css"
+                                                  placeholder="<?= htmlspecialchars(t('css_placeholder')) ?>"
+                                                  data-i18n-css-empty="<?= htmlspecialchars(t('msg_css_empty_reset')) ?>"
+                                                  data-i18n-css-admin="<?= htmlspecialchars(t('msg_css_approved_by_admin')) ?>"><?= htmlspecialchars($cssResetDone ? '' : ($lastCssRequest['css'] ?? '')) ?></textarea>
+                                        <p class="entry-meta"><?= t('css_approval_note') ?></p>
+                                        <div class="css-button-row">
+                                            <button type="submit" name="submit-custom-css" class="btn-cta profile-save-btn">
+                                                <?= t('profile_custom_css_submit') ?>
+                                            </button>
+                                            <button type="submit" name="reset-custom-css" class="btn-cta profile-save-btn">
+                                                <?= t('profile_custom_css_reset_btn') ?>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
-
                     <?php endif; ?>
                 </aside>
                 <section class="profile-column profile-column-right" id="profile-main-content">
@@ -771,28 +884,27 @@
                         <?php endif; ?>
                     </section>
                     <script>
-                    function deleteSavedSearch(id, btn) {
-                        if (!confirm('<?= addslashes(t('save_search_delete_confirm')) ?>')) return;
-                        btn.disabled = true;
-                        fetch('save_search.php', {
-                            method : 'POST',
-                            body   : new URLSearchParams({ action: 'delete', id: id })
-                        })
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.ok) {
-                                const li = document.getElementById('ssi-' + id);
-                                if (li) li.remove();
-                            } else {
-                                btn.disabled = false;
-                                alert('<?= addslashes(t('save_search_error')) ?>');
-                            }
-                        })
-                        .catch(() => { btn.disabled = false; });
-                    }
+                        function deleteSavedSearch(id, btn) {
+                            if (!confirm('<?= addslashes(t('save_search_delete_confirm')) ?>')) return;
+                            btn.disabled = true;
+                            fetch('save_search.php', {
+                                method : 'POST',
+                                body   : new URLSearchParams({ action: 'delete', id: id })
+                            })
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.ok) {
+                                    const li = document.getElementById('ssi-' + id);
+                                    if (li) li.remove();
+                                } else {
+                                    btn.disabled = false;
+                                    alert('<?= addslashes(t('save_search_error')) ?>');
+                                }
+                            })
+                            .catch(() => { btn.disabled = false; });
+                        }
                     </script>
                     <?php endif; ?>
-
                     <section class="card profile-uploads">
                         <div class="section-titlebar profile-uploads-titlebar">
                             <h3 data-translation-key="profile_uploaded_files"><?= t('profile_uploaded_files') ?></h3>

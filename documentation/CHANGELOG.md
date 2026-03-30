@@ -45,6 +45,51 @@ Changelog by: Neved
 
 ---
 
+## [1.6.4-beta] - 2026-03-30
+
+### Added
+#### • Csoporton belüli moderátor szerepkör
+- A csoport tulajdonosa mostantól bármely tagot moderátorrá nevezhet ki, illetve a moderátori jogot el is veheti tőle
+- A `group_init.php`-ban bevezetésre került az `$aktualis_felhasznalo_moderator` változó, amely nyomon követi, hogy az aktuális felhasználó moderátor-e az adott csoportban
+- A tagsági lekérdezés átírva nyers SQL-ről `db_query()`-ra a biztonság és konzisztencia érdekében
+- A `group_actions.php`-ban új `moderator_add` és `moderator_remove` POST handlerek kerültek hozzáadásra
+- A `group.php`-ban a tagok listájánál a tulajdonos számára megjelenik a „Moderátor" / „Moderátor jog elvétele" gomb, a tag aktuális szerepkörétől függően
+
+#### • Kommentek csoporton belüli jegyzetekhez
+- Tagok és tulajdonos mostantól kommenteket fűzhetnek az egyes csoportjegyzetekhez
+- A `group_actions.php`-ban új `uj_jegyzet_komment` POST handler adja hozzá a kommenteket a `group_file_comments` táblába
+- A `group.php`-ban minden jóváhagyott csoportjegyzethez megjelenik egy kommentszekció: kommentírási form (tagoknak és tulajdonosnak), kommentek listája felhasználónévvel és dátummal
+- A komment törölhető a saját komment szerzője, a csoport tulajdonosa, illetve az oldal adminisztrátorai által
+
+#### • Animált profilkép feltöltése (prémium funkció)
+- Prémium felhasználók mostantól GIF formátumú, animált profilképet tölthetnek fel (max. 5 MB)
+- Alap felhasználók számára az engedélyezett formátumok változatlanok: JPG, PNG, WEBP (max. 2 MB)
+- A profilkép feltöltő gomb alatt megjelenik egy tájékoztató szöveg az engedélyezett formátumokról és méretkorlátokról, prémium státusztól függően
+- Fájlkiválasztás után kliens oldali előellenőrzés fut (formátum és méret), visszajelzéssel, mielőtt a feltöltés megkezdődne
+
+### Changed
+#### • Profilkép feltöltési folyamat
+- A gomb felirata feltöltés közben „⏳ Feltöltés..."-re vált és letiltásra kerül, megakadályozva a dupla küldést
+- Sikeres profilkép-csere után toast értesítés jelenik meg („Profilkép sikeresen frissítve!") az egyszerű oldalújratöltés helyett
+- Ha a feltöltendő fájl neve már létezik a célmappában, a rendszer automatikusan egyedi nevet generál az időbélyeg alapján, felülírás helyett
+
+#### • Csoport tagság inicializálás (`group_init.php`)
+- A tagsági lekérdezés átírva nyers SQL interpolációról `db_query()` + paraméterezett lekérdezésre
+- A szerepkör (`owner`, `moderator`, `member`) és státusz (`accepted`, `pending`) vizsgálata pontosabb `===` összehasonlítással történik
+
+### Fixed
+#### • Csoporton belüli kommentfal törlés gomb
+- A kommentfal törlés gombja mostantól helyesen jelenik meg és működik: a saját kommentet a szerző, a csoport tulajdonosa és az admin is törölheti
+
+### Security
+#### • Csoport tagság lekérdezés
+- A `group_init.php`-ban a közvetlen SQL string interpoláció helyett paraméterezett lekérdezés van használatban, csökkentve az SQL injection kockázatát
+
+---
+Changelog by: Szekeres Levente
+
+---
+
 ## [1.6.3.1-beta] - 2026-03-30
 
 ### Added

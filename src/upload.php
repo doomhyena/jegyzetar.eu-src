@@ -349,7 +349,6 @@
         for ($i = 1; $i <= 7; $i++) $levelOptions[] = ["uni-$i", "Egyetem - $i. félév"];
     }
 
-    // Előre definiált tagek a tags táblából
     $availableTags = [];
     $tagRes = $conn->query("SELECT id, tags FROM tags ORDER BY tags ASC");
     if ($tagRes) {

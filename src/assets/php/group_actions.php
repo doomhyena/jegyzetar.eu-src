@@ -72,7 +72,7 @@ if (isset($_POST['komment_torles'])) {
             $aktualis_id = (int)$aktualis_felhasznalo_id;
 
             $sajat_komment = ($komment_iro_id === $aktualis_id);
-            $tulaj_torolhet = $aktualis_felhasznalo_tulaj;
+            $tulaj_torolhet = $aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator;
             $admin_torolhet = (isset($user['admin']) && (int)$user['admin'] === 1);
 
             if ($sajat_komment || $tulaj_torolhet || $admin_torolhet) {
@@ -95,7 +95,7 @@ if (isset($_POST['komment_torles'])) {
 }
 
 // ESEMÉNY HOZZÁADÁS
-if (isset($_POST['uj_esemeny']) && ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj)) {
+if (isset($_POST['uj_esemeny']) && ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator)) {
 
     $title = trim($_POST['event_title'] ?? '');
     $description = trim($_POST['event_desc'] ?? '');
@@ -178,7 +178,7 @@ if (isset($_POST['flashcard_mark'])) {
 }
 
 // POLL LÉTREHOZÁS
-if (isset($_POST['uj_poll']) && $aktualis_felhasznalo_tulaj) {
+if (isset($_POST['uj_poll']) && ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator)){
 
     $kerdes = trim($_POST['poll_question'] ?? '');
     $opt1 = trim($_POST['opt1'] ?? '');
@@ -256,6 +256,46 @@ if (isset($_POST['poll_vote'])) {
     exit;
 }
 
+// MODERÁTORRÁ TÉTEL
+if (isset($_POST['moderator_add']) && $aktualis_felhasznalo_tulaj) {
+
+    $kezelt_user_id = (int)($_POST['kezelt_user_id'] ?? 0);
+
+    if ($kezelt_user_id > 0 && $kezelt_user_id != $tulaj_id) {
+        $conn->query("
+            UPDATE group_members
+            SET role = 'moderator'
+            WHERE group_id = '$csoport_id'
+              AND user_id = '$kezelt_user_id'
+              AND status = 'accepted'
+              AND role = 'member'
+        ");
+    }
+
+    header("Location: group.php?id=".$csoport_id);
+    exit;
+}
+
+// MODERÁTOR JOG ELVÉTELE
+if (isset($_POST['moderator_remove']) && $aktualis_felhasznalo_tulaj) {
+
+    $kezelt_user_id = (int)($_POST['kezelt_user_id'] ?? 0);
+
+    if ($kezelt_user_id > 0 && $kezelt_user_id != $tulaj_id) {
+        $conn->query("
+            UPDATE group_members
+            SET role = 'member'
+            WHERE group_id = '$csoport_id'
+              AND user_id = '$kezelt_user_id'
+              AND status = 'accepted'
+              AND role = 'moderator'
+        ");
+    }
+
+    header("Location: group.php?id=".$csoport_id);
+    exit;
+}
+
 // Tag eltávolítása
 if (isset($_POST['remove_member']) && $aktualis_felhasznalo_tulaj) {
 
@@ -275,7 +315,7 @@ if (isset($_POST['remove_member']) && $aktualis_felhasznalo_tulaj) {
 
     // FÜGGŐBEN LÉVŐ JELENTKEZÉSEK (ELFOGADÁS / ELUTASÍTÁS)
 
-if (isset($_POST['elfogadas']) && $aktualis_felhasznalo_tulaj) {
+if (isset($_POST['elfogadas']) && ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator)) {
 
     $kezelt_felhasznalo_id = $_POST['kezelt_user_id'];
 
@@ -294,7 +334,7 @@ if (isset($_POST['elfogadas']) && $aktualis_felhasznalo_tulaj) {
     }
 }
 
-if (isset($_POST['elutasitas']) && $aktualis_felhasznalo_tulaj) {
+if (isset($_POST['elutasitas']) && ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator)) {
 
     $kezelt_felhasznalo_id = $_POST['kezelt_user_id'];
 
@@ -315,7 +355,7 @@ if (isset($_POST['elutasitas']) && $aktualis_felhasznalo_tulaj) {
 
     // JEGYZET ELFOGADÁSA / ELUTASÍTÁSA
 
-if ($aktualis_felhasznalo_tulaj && isset($_POST['jegyzet_elfogadas'])) {
+if (($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator) && isset($_POST['jegyzet_elfogadas'])) {
 
     $kezelt_jegyzet_id = (int)$_POST['jegyzet_id'];
 
@@ -333,7 +373,7 @@ if ($aktualis_felhasznalo_tulaj && isset($_POST['jegyzet_elfogadas'])) {
     }
 }
 
-if ($aktualis_felhasznalo_tulaj && isset($_POST['jegyzet_elutasitas'])) {
+if (($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator) && isset($_POST['jegyzet_elutasitas'])) {
 
     $kezelt_jegyzet_id = (int)$_POST['jegyzet_id'];
 
@@ -415,6 +455,26 @@ if (isset($_POST['uj_jegyzet']) && ($aktualis_felhasznalo_tag || $aktualis_felha
         }
     }
 }
+
+// CSOPORT JEGYZET KOMMENT HOZZÁADÁS
+if (isset($_POST['uj_jegyzet_komment']) && ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj)) {
+
+    $group_file_id = (int)($_POST['group_file_id'] ?? 0);
+    $komment_szoveg = trim($_POST['jegyzet_komment_szoveg'] ?? '');
+
+    if ($group_file_id > 0 && $komment_szoveg !== '') {
+        db_exec(
+            $conn,
+            "INSERT INTO group_file_comments (group_file_id, user_id, comment_text) VALUES (?, ?, ?)",
+            "iis",
+            [$group_file_id, $aktualis_felhasznalo_id, $komment_szoveg]
+        );
+    }
+
+    header("Location: group.php?id=" . $csoport_id);
+    exit;
+}
+
 
 // Kilépés (nem tulaj)
 if (isset($_POST['kilepes'])) {

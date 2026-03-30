@@ -4425,7 +4425,7 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (2589, 'upload_tags_hint', 'de', 'Enter, Komma oder Semikolon zum Hinzufügen • max. 10 Tags • Rücktaste löscht das letzte'),
 (2590, 'upload_tags_hint', 'hu', 'Válassz a listából vagy írj be saját taget – Enter, vessző vagy pontosvessző a hozzáadáshoz • max. 10 tag • Backspace törli az utolsót'),
 (2591, 'upload_tags_hint', 'en', 'Pick from the list or type your own tag – Enter, comma or semicolon to add • max. 10 tags • Backspace removes the last one'),
-(2592, 'upload_tags_hint', 'de', 'Aus der Liste wählen oder eigenen Tag eingeben – Enter, Komma oder Semikolon zum Hinzufügen • max. 10 Tags • Rücktaste löscht das letzte');
+(2592, 'upload_tags_hint', 'de', 'Aus der Liste wählen oder eigenen Tag eingeben – Enter, Komma oder Semikolon zum Hinzufügen • max. 10 Tags • Rücktaste löscht das letzte'),
 
 -- --------------------------------------------------------
 
