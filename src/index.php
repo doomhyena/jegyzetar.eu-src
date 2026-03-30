@@ -148,164 +148,114 @@
                     </div>
                 </div>
             </section>
-            <div class="home-grid">
             <section class="content-main flex-1 min-w-0">
-                    <div class="section-titlebar flex justify-between items-center mb-4">
-                        <h3 class="text-xl md:text-2xl"><?= t('home_new_uploads') ?></h3>
-                        <a class="link-more" href="search.php?sort=new"><?= t('home_all_arrow') ?></a>
-                    </div>
-                    <?php if ($latest_result && $latest_result->num_rows > 0): ?>
+                <div class="section-titlebar flex justify-between items-center mb-4">
+                    <h3 class="text-xl md:text-2xl"><?= t('home_new_uploads') ?></h3>
+                    <a class="link-more" href="search.php?sort=new"><?= t('home_all_arrow') ?></a>
+                </div>
+            <?php if ($latest_result && $latest_result->num_rows > 0): ?>
+                <div class="home-grid">
+                    <section class="content-main flex-1 min-w-0">
+                        <div class="section-titlebar flex justify-between items-center mb-4">
+                            <h3 class="text-xl md:text-2xl"><?= t('home_new_uploads') ?></h3>
+                            <a class="link-more" href="search.php?sort=new"><?= t('home_all_arrow') ?></a>
+                        </div>
                         <div class="content-grid grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <?php while ($file = $latest_result->fetch_assoc()):
-                                    $file_id = (int)$file['id'];
-									$contentType = $file['content_type'] ?? 'file';
-									$externalUrl = trim((string)($file['external_url'] ?? ''));
-                                    $uploaderRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [(int)$file['uploaded_by']]);
-                                    $uploader = ($uploaderRes && $uploaderRes->num_rows) ? $uploaderRes->fetch_assoc() : ['username' => 'ismeretlen'];
-                                    $name = htmlspecialchars($file['name'] ?? '');
-                                    $username = htmlspecialchars($uploader['username'] ?? 'ismeretlen');
-                                    $ext = strtolower(pathinfo($file['file_name'] ?? '', PATHINFO_EXTENSION));
-                                    $avgRes = db_query($conn, "SELECT AVG(rating) AS avg, COUNT(*) AS c FROM ratings WHERE file_id = ?", "i", [$file_id]);
-                                    $avg = "0.00";
-                                    $cnt = 0;
-                                    if ($avgRes && $avgRes->num_rows) {
-                                        $d = $avgRes->fetch_assoc();
-                                        $avg = number_format((float)($d['avg'] ?? 0), 2);
-                                        $cnt = (int)($d['c'] ?? 0);
-                                    }
-
-                                    $userRating = 0;
-                                    if ($isLoggedIn && $currentUserId) {
-                                        $ur = db_query(
-                                                $conn,
-                                                "SELECT rating FROM ratings WHERE file_id = ? AND user_id = ? LIMIT 1",
-                                                "ii",
-                                                [$file_id, $currentUserId]
-                                        );
-                                        if ($ur && $ur->num_rows > 0) {
-                                            $userRating = (int)$ur->fetch_assoc()['rating'];
-                                        }
-                                    }
+                                $file_id = (int)$file['id'];
+                                $contentType = $file['content_type'] ?? 'file';
+                                $externalUrl = trim((string)($file['external_url'] ?? ''));
+                                $uploaderRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [(int)$file['uploaded_by']]);
+                                $uploader = ($uploaderRes && $uploaderRes->num_rows) ? $uploaderRes->fetch_assoc() : ['username' => 'ismeretlen'];
+                                $avgRes = db_query($conn, "SELECT AVG(rating) AS avg, COUNT(*) AS c FROM ratings WHERE file_id = ?", "i", [$file_id]);
+                                $avg = "0.00";
+                                $cnt = 0;
+                                if ($avgRes && $avgRes->num_rows) {
+                                    $d = $avgRes->fetch_assoc();
+                                    $avg = number_format((float)($d['avg'] ?? 0), 2);
+                                    $cnt = (int)($d['c'] ?? 0);
+                                }
 
                                 $is_favorite = false;
-                                    if ($isLoggedIn && $currentUserId) {
-                                        $favRes = db_query($conn, "SELECT id FROM favorites WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, $currentUserId]);
-                                        $is_favorite = ($favRes && $favRes->num_rows > 0);
-                                    }
-                                    $safe_path = "users/" . ($uploader['username'] ?? '') . "/" . ($file['file_name'] ?? '');
+                                if ($isLoggedIn && $currentUserId) {
+                                    $favRes = db_query($conn, "SELECT id FROM favorites WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, $currentUserId]);
+                                    $is_favorite = ($favRes && $favRes->num_rows > 0);
+                                }
                             ?>
-                                <article class="card note-card" id="file-<?= (int)$file_id ?>">
-                                    <header class="note-header">
-									<?php if (($contentType ?? 'file') === 'link' && !empty($externalUrl)): ?>
-										<?php
-											$url = trim((string)$externalUrl);
-											$videoId = '';
-											if (preg_match('~youtu\.be/([A-Za-z0-9_-]{6,})~', $url, $m)) {
-												$videoId = $m[1];
-											} elseif (preg_match('~[?&]v=([A-Za-z0-9_-]{6,})~', $url, $m)) {
-												$videoId = $m[1];
-											} elseif (preg_match('~youtube\.com/shorts/([A-Za-z0-9_-]{6,})~', $url, $m)) {
-												$videoId = $m[1];
-											} elseif (preg_match('~youtube\.com/embed/([A-Za-z0-9_-]{6,})~', $url, $m)) {
-												$videoId = $m[1];
-											}
+                            <article class="card note-card" id="file-<?= $file_id ?>">
+                                <header class="note-header">
 
-											$isMp4 = (bool)preg_match('~\.mp4(\?.*)?$~i', $url);
-										?>
-
-										<div class="note-media" style="margin-top:10px;">
-											<?php if ($videoId !== ''): ?>
-												<iframe width="100%" height="250" src="https://www.youtube-nocookie.com/embed/<?= htmlspecialchars($videoId) ?>?rel=0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
-												</iframe>
-											<?php elseif ($isMp4): ?>
-												<video controls width="100%">
-													<source src="<?= htmlspecialchars($url) ?>" type="video/mp4">
-													A böngésződ nem támogatja a videó lejátszást.
-												</video>
-											<?php else: ?>
-												<div class="entry-meta" style="margin-top:6px;">
-													Külső link megosztva:
-													<a href="<?= htmlspecialchars($url) ?>" target="_blank" rel="noopener noreferrer">
-														Megnyitás új lapon
-													</a>
-												</div>
-											<?php endif; ?>
-										</div>
-									<?php endif; ?>
-                                        <div class="card-title-group">
-                                            <h4 class="entry-title"><?= htmlspecialchars($file['name'] ?? '') ?></h4>
-                                            <p class="uploader-info">
-                                                Feltöltötte:
-                                                <a class="uploader-name" href="profile.php?user=<?= urlencode($uploader['username'] ?? '') ?>">
-                                                    @<?= htmlspecialchars($uploader['username'] ?? 'ismeretlen') ?>
-                                                </a>
-                                            </p>
+                                    <?php if ($contentType === 'link' && !empty($externalUrl)): ?>
+                                        <div class="note-media" style="margin-top:10px;">
+                                            <a href="<?= htmlspecialchars($externalUrl) ?>" target="_blank">Megnyitás</a>
                                         </div>
-                                    </header>
-                                    <div class="card-actions">
-                                        <div class="card-actions">
-                                            <?php if ($isLoggedIn && $currentUserId): ?>
-                                            <form method="POST" style="margin:0;">
-                                                <input type="hidden" name="favorite-btn" value="1">
-                                                <input type="hidden" name="favorite_file_id" value="<?= (int)$file_id ?>">
-                                                <button type="submit"
-                                                        class="favorite-btn <?= $is_favorite ? 'favorited' : '' ?>"
-                                                        title="<?= $is_favorite ? 'Kedvencekből törlés' : 'Kedvencekhez' ?>">
-                                                    ❤
-                                                </button>
-                                            </form>
-                                            <?php else: ?>
-                                                <a class="favorite-btn" href="reglog.php" title="Jelentkezz be a kedvencekhez">
-                                                    ❤
-                                                </a>
-                                            <?php endif; ?>
-                                            <a href="note.php?id=<?= (int)$file_id ?>" class="btn-sm btn-ghost">
-                                                Részletek
+                                    <?php endif; ?>
+                                    <div class="card-title-group">
+                                        <h4 class="entry-title"><?= htmlspecialchars($file['name'] ?? '') ?></h4>
+                                        <p class="uploader-info">
+                                            Feltöltötte:
+                                            <a class="uploader-name" href="profile.php?user=<?= urlencode($uploader['username']) ?>">
+                                                @<?= htmlspecialchars($uploader['username']) ?>
                                             </a>
-											<?php if ($contentType === 'link' && !empty($externalUrl)): ?>
-											<a href="<?= htmlspecialchars($externalUrl) ?>" target="_blank" class="btn-sm btn-cta">
-												Megnyitás
-											</a>
-											<?php else: ?>
-											<a href="assets/php/download.php?id=<?= (int)$file_id ?>" class="btn-sm btn-cta">
-												Letöltés
-											</a>
-											<?php endif; ?>
-                                        </div>
+                                        </p>
                                     </div>
-                                    <div class="card-footer-meta">
-                                        <div class="rating-display">
-                                            ⭐ <span class="rating-value"><?= htmlspecialchars($avg) ?></span>
-                                            <span class="rating-count">(<?= (int)$cnt ?> ért.)</span>
-                                        </div>
+                                </header>
+                                <div class="card-actions">
+                                    <?php if ($isLoggedIn && $currentUserId): ?>
+                                        <form method="POST">
+                                            <input type="hidden" name="favorite-btn" value="1">
+                                            <input type="hidden" name="favorite_file_id" value="<?= $file_id ?>">
+                                            <button type="submit" class="favorite-btn <?= $is_favorite ? 'favorited' : '' ?>">❤</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <a class="favorite-btn" href="reglog.php">❤</a>
+                                    <?php endif; ?>
 
-                                    </div>
-                                </article>
+                                    <a href="note.php?id=<?= $file_id ?>" class="btn-sm btn-ghost">Részletek</a>
+                                </div>
+                                <div class="card-footer-meta">
+                                    ⭐ <?= $avg ?> (<?= $cnt ?>)
+                                </div>
+                            </article>
                             <?php endwhile; ?>
                         </div>
-                    <?php endif; ?>
-                </section>
-                <aside class="content-aside w-full lg:w-80 min-w-0">
-                    <div class="section-titlebar mb-4">
-                        <h3 class="text-xl md:text-2xl"><?= t('sidebar_top_rated') ?></h3>
+                    </section>
+                    <aside class="content-aside w-full lg:w-80 min-w-0">
+                        <div class="section-titlebar mb-4">
+                            <h3 class="text-xl md:text-2xl"><?= t('sidebar_top_rated') ?></h3>
+                        </div>
+                        <?php if ($popular_result && $popular_result->num_rows > 0): ?>
+                            <div class="list-compact flex flex-col gap-3">
+                                <?php while ($file = $popular_result->fetch_assoc()): ?>
+                                    <a href="note.php?id=<?= $file['id'] ?>" class="popular-item-link block p-3 rounded-xl bg-white/5 hover:bg-white/10 border">
+                                        <div class="flex justify-between">
+                                            <span class="truncate"><?= htmlspecialchars($file['name']) ?></span>
+                                            <span>⭐ <?= number_format((float)$file['avg_rating'], 2) ?></span>
+                                        </div>
+                                    </a>
+                                <?php endwhile; ?>
+                            </div>
+                        <?php endif; ?>
+                    </aside>
+                </div>
+            <?php else: ?>
+                <div class="flex flex-col items-center justify-center min-h-[400px] text-center">
+                    <div class="empty-state p-8 max-w-md w-full">
+                        <p class="text-xl font-semibold mb-2">
+                            Az oldal tartalmilag még üres.
+                        </p>
+                        <p class="text-sm opacity-80 mb-4">
+                            Légy te az első!
+                        </p>
+
+                        <a href="<?= $isLoggedIn ? 'upload.php' : 'reglog.php' ?>" class="btn-cta">
+                            + Feltöltés
+                        </a>
                     </div>
-                    <?php if ($popular_result && $popular_result->num_rows > 0): ?>
-                        <div class="list-compact flex flex-col gap-3">
-                            <?php while ($file = $popular_result->fetch_assoc()): ?>
-                                <a href="note.php?id=<?= $file['id'] ?>" class="popular-item-link block p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5 min-w-0">
-                                    <div class="flex justify-between items-center gap-2 min-w-0">
-                                        <span class="font-medium truncate text-sm md:text-base"><?= htmlspecialchars($file['name'] ?? '') ?></span>
-                                        <span class="text-xs md:text-sm whitespace-nowrap opacity-80">⭐ <?= number_format((float)$file['avg_rating'], 2) ?></span>
-                                    </div>
-                                </a>
-                            <?php endwhile; ?>
-                        </div>
-                    <?php endif; ?>
-                </aside>
-            </div>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
     <?php include 'assets/php/footer.php'; ?>
     </body>
 </html>
-

@@ -125,8 +125,8 @@
             $is_public = isset($_POST['is_public']) ? 1 : 0;
         }
 
-        if ($uploadError === '' && ($displayName === '' || $description === '' || $subject === '')) {
-            $uploadError = 'Kérlek tölts ki minden kötelező mezőt (név, leírás, tárgy).';
+        if ($uploadError === '' && ($displayName === '' || $description === '')) {
+            $uploadError = 'Kérlek tölts ki minden kötelező mezőt (név, leírás).';
         }
 
         if ($uploadError === '') {
@@ -394,13 +394,7 @@
             <label for="description" class="text-sm md:text-base font-semibold">
                 <?= htmlspecialchars(t('upload_label_description')) ?>
             </label>
-            <textarea class="input w-full text-sm md:text-base" name="description" id="description" placeholder="<?= htmlspecialchars(t('upload_placeholder_description')) ?>" rows="4" required>
-            </textarea>
-
-            <label for="subject" class="text-sm md:text-base font-semibold">
-                <?= htmlspecialchars(t('upload_label_subject')) ?>
-            </label>
-            <input class="input w-full text-sm md:text-base" type="text" name="subject" id="subject" placeholder="<?= htmlspecialchars(t('upload_placeholder_subject')) ?>" required>
+            <textarea class="input w-full text-sm md:text-base" name="description" id="description" placeholder="<?= htmlspecialchars(t('upload_placeholder_description')) ?>" rows="4" required></textarea>
             <?php if (!empty($hasIsPrivate)): ?>
                 <label style="margin-top:6px;">
                     <input type="checkbox" name="is_private" value="1" <?= !empty($premium_van) ? '' : 'disabled' ?>>
@@ -463,18 +457,24 @@
             <label class="text-sm md:text-base font-semibold">
                 <?= htmlspecialchars(t('upload_label_content_type')) ?>
             </label>
-            <div class="flex gap-4 items-center flex-wrap">
-                <label class="flex gap-2 items-center">
+            <div class="radio-group">
+                <label class="radio-card">
                     <input type="radio" name="content_mode" value="file" checked>
-                    <span><?= htmlspecialchars(t('upload_mode_file')) ?></span>
+                    <span class="radio-card-inner">
+                        <span class="radio-card-label"><?= htmlspecialchars(t('upload_mode_file')) ?></span>
+                    </span>
                 </label>
-                <label class="flex gap-2 items-center">
+                <label class="radio-card">
                     <input type="radio" name="content_mode" value="markdown">
-                    <span><?= htmlspecialchars(t('upload_mode_markdown')) ?></span>
+                    <span class="radio-card-inner">
+                        <span class="radio-card-label"><?= htmlspecialchars(t('upload_mode_markdown')) ?></span>
+                    </span>
                 </label>
-                <label class="flex gap-2 items-center">
+                <label class="radio-card">
                     <input type="radio" name="content_mode" value="link">
-                    <span><?= htmlspecialchars(t('upload_mode_link')) ?></span>
+                    <span class="radio-card-inner">
+                        <span class="radio-card-label"><?= htmlspecialchars(t('upload_mode_link')) ?></span>
+                    </span>
                 </label>
             </div>
             <div id="file_wrap">
@@ -492,8 +492,41 @@
                 <label for="markdown_note" class="text-sm md:text-base font-semibold">
                     <?= htmlspecialchars(t('upload_label_markdown')) ?>
                 </label>
-                <textarea class="input w-full text-sm md:text-base" name="markdown_note" id="markdown_note" rows="10" placeholder="<?= htmlspecialchars(t('upload_placeholder_markdown')) ?>">
-                </textarea>
+
+                <details class="css-tutorial" style="margin: 8px 0 10px;">
+                    <summary>Mi az a Markdown és hogyan kell használni?</summary>
+                    <div class="css-tutorial-body">
+                        <p>A <strong>Markdown</strong> egy egyszerű szövegformázási nyelv — sima szövegként írod, és az oldal szépen formázva jeleníti meg. Nem kell HTML-t tudni hozzá.</p>
+                        <p><strong>Legfontosabb elemek:</strong></p>
+                        <pre><code># Nagy cím (H1)
+## Közepes cím (H2)
+### Kis cím (H3)
+
+**félkövér szöveg**
+*dőlt szöveg*
+
+- felsorolás első elem
+- felsorolás második elem
+
+1. számozott lista
+2. második elem
+
+> idézet / kiemelt szöveg
+
+`kódrészlet` egy sorban
+
+```
+többsoros
+kódblokk
+```
+
+[link szövege](https://url.hu)
+</code></pre>
+                        <p><strong>Tipp:</strong> Használj címsorokat (<code>#</code>, <code>##</code>) a fejezetek tagolásához, és felsorolásokat a tételek listázásához. A kész jegyzet pontosan úgy jelenik meg, ahogy a Markdown előírja.</p>
+                    </div>
+                </details>
+
+                <textarea class="input w-full text-sm md:text-base" name="markdown_note" id="markdown_note" rows="14" placeholder="<?= htmlspecialchars(t('upload_placeholder_markdown')) ?>"></textarea>
                 <p class="entry-meta" style="margin-top:6px;">
                     <?= htmlspecialchars(t('upload_markdown_tip')) ?>
                 </p>

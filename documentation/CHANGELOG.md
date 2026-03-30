@@ -45,6 +45,28 @@ Changelog by: Neved
 
 ---
 
+## [1.6.3.1-beta] - 2026-03-30
+
+### Added
+#### • index.php
+- Üres tartalom esetén informatív üzenet jelenik meg az oldalon, jelezve, hogy még nem érhető el feltöltött tartalom.
+
+### Changed
+#### • upload.php (radio inputok)
+- A rádiógombok egységesített és javított CSS formázást kaptak.
+
+### Removed
+#### • upload.php & admin_panel.php (tantárgy input/táblázat)
+- A tantárgy mező és a hozzá tartozó táblázat eltávolításra került, mivel a funkciót a `tag`-ek váltották ki.
+
+### Security
+#### • admin_panel.php + adatbázis
+- A felhasználók törlése már nem végleges: törlés esetén az adatok egy külön `deleted_users` táblába kerülnek archiválás céljából.
+
+Changelog by: Csontos Kincső Anasztázia
+
+---
+
 ## [1.6.3-beta] - 2026-03-29
 
 ### Fixed

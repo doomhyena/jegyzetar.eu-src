@@ -157,6 +157,49 @@
         switch ($type) {
             case 'user':
                 if ($id != $current_user['id']) {
+
+                    $uRes = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$id]);
+                    $uRow = $uRes ? $uRes->fetch_assoc() : null;
+
+                    if ($uRow) {
+                        $uploadCountRes = db_query($conn,
+                            "SELECT COUNT(*) AS c FROM files WHERE uploaded_by = ?", "i", [$id]);
+                        $uploadCount = $uploadCountRes ? (int)($uploadCountRes->fetch_assoc()['c'] ?? 0) : 0;
+
+                        $dlCountRes = db_query($conn,
+                            "SELECT COALESCE(SUM(download_count), 0) AS s FROM files WHERE uploaded_by = ?", "i", [$id]);
+                        $dlCount = $dlCountRes ? (int)($dlCountRes->fetch_assoc()['s'] ?? 0) : 0;
+
+                        $premRes = db_query($conn, "SELECT MAX(premium_ig) AS p FROM premium_users WHERE user_id = ?", "i", [$id]);
+                        $premRow  = $premRes ? $premRes->fetch_assoc() : null;
+                        $wasPrem  = (!empty($premRow['p']) && strtotime($premRow['p']) >= time()) ? 1 : 0;
+
+                        db_exec($conn,
+                            "INSERT INTO deleted_users
+                                (original_id, username, email, firstname, lastname, birthdate,
+                                 registration_date, was_admin, was_teacher, was_premium,
+                                 upload_count, download_count, deleted_by, deleted_at)
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
+                            "issssssiiiiii",
+                            [
+                                (int)$uRow['id'],
+                                (string)($uRow['username'] ?? ''),
+                                (string)($uRow['email'] ?? ''),
+                                (string)($uRow['firstname'] ?? ''),
+                                (string)($uRow['lastname'] ?? ''),
+                                (!empty($uRow['birthdate']) && $uRow['birthdate'] !== '0000-00-00')
+                                    ? $uRow['birthdate'] : null,
+                                (string)($uRow['registration_date'] ?? ''),
+                                (int)($uRow['admin'] ?? 0),
+                                (int)($uRow['teacher'] ?? 0),
+                                $wasPrem,
+                                $uploadCount,
+                                $dlCount,
+                                (int)$current_user['id'],
+                            ]
+                        );
+                    }
+
                     db_exec($conn, "DELETE FROM users WHERE id = ?", "i", [$id]);
                     db_exec($conn, "DELETE FROM files WHERE uploaded_by = ?", "i", [$id]);
                     db_exec($conn, "DELETE FROM comments WHERE userid = ?", "i", [$id]);
@@ -301,7 +344,6 @@
     $users = $conn->query("SELECT * FROM users ORDER BY id DESC");
     $files = $conn->query("SELECT * FROM files ORDER BY id DESC");
     $comments = $conn->query("SELECT comments.*, users.username FROM comments LEFT JOIN users ON comments.userid=users.id ORDER BY comments.id DESC");
-    $categories = $conn->query("SELECT DISTINCT subject FROM files WHERE subject != '' ORDER BY subject ASC");
     $css_requests = $conn->query("SELECT r.*, u.username, rv.username AS reviewer_name FROM user_custom_css_requests r JOIN users u ON r.user_id = u.id LEFT JOIN users rv ON r.reviewed_by = rv.id ORDER BY (r.status = 'pending') DESC, r.id DESC");
 	$group_requests = $conn->query("SELECT g.*, u.username AS owner_name, rv.username AS reviewer_name FROM groups g LEFT JOIN users u ON u.id = g.owner_id LEFT JOIN users rv ON rv.id = g.reviewed_by ORDER BY (g.status = 'pending') DESC, g.id DESC");
     $user_badges = $conn->query("SELECT ub.*, u.username, b.name AS badge_name FROM user_badges ub JOIN users u ON ub.user_id = u.id JOIN badges b ON ub.badge_id = b.id ORDER BY ub.id DESC");
@@ -309,6 +351,26 @@
     $user_options  = $conn->query("SELECT id, username FROM users ORDER BY username ASC");
     $badges = $conn->query("SELECT * FROM badges ORDER BY id DESC");
     $reports = $conn->query("SELECT r.*, u.username AS reporter_name FROM reports r LEFT JOIN users u ON u.id = r.reporter_id ORDER BY (r.status = 'open') DESC, r.created_at DESC");
+
+    $rows_du = [];
+    $deleter_names = [];
+    $du_res = $conn->query("SELECT * FROM deleted_users ORDER BY deleted_at DESC");
+    if ($du_res) {
+        $deleter_ids = [];
+        while ($r = $du_res->fetch_assoc()) {
+            $rows_du[] = $r;
+            $deleter_ids[] = (int)$r['deleted_by'];
+        }
+        if (!empty($deleter_ids)) {
+            $in = implode(',', array_unique($deleter_ids));
+            $dnRes = $conn->query("SELECT id, username FROM users WHERE id IN ($in)");
+            if ($dnRes) {
+                while ($dn = $dnRes->fetch_assoc()) {
+                    $deleter_names[(int)$dn['id']] = $dn['username'];
+                }
+            }
+        }
+    }
 ?>
 <div class="main w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6">
     <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6">Admin Panel</h1>
@@ -316,7 +378,7 @@
         <h2 class="text-xl md:text-2xl mb-4">Felhasználók kezelése</h2>
         <table>
             <tr>
-                <th>ID</th><th>Név</th><th>Felhasználónév</th><th>Email</th><th>Admin</th><th>Művelet</th>
+                <th>ID</th><th>Név</th><th>Felhasználónév</th><th>Email</th><th>Admin</th><th>Tanár</th><th>Művelet</th>
             </tr>
             <?php while($user = $users->fetch_assoc()) { ?>
                 <tr>
@@ -324,7 +386,20 @@
                     <td><?= htmlspecialchars($user['lastname'] . ' ' . $user['firstname']) ?></td>
                     <td><?= htmlspecialchars($user['username']) ?></td>
                     <td><?= htmlspecialchars(mask_email($user['email'])) ?></td>
-                    <td><?= $user['admin'] == 1 ? 'Igen' : 'Nem' ?></td>
+                    <td>
+                        <?php if ($user['admin'] == 1): ?>
+                            <span class="badge badge-active">Igen</span>
+                        <?php else: ?>
+                            <span class="badge badge-inactive">Nem</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <?php if ($user['teacher'] == 1): ?>
+                            <span class="badge badge-active">Igen</span>
+                        <?php else: ?>
+                            <span class="badge badge-inactive">Nem</span>
+                        <?php endif; ?>
+                    </td>
                     <td>
                         <?php if ($user['id'] != $current_user['id']) { ?>
                             <a href="?delete_type=user&delete_id=<?= $user['id'] ?>" onclick="return confirm('Biztosan törlöd ezt a felhasználót?')">Törlés</a>
@@ -336,7 +411,63 @@
             <?php } ?>
         </table>
     </section>
-	
+    <section class="card p-4 md:p-6 mb-6" id="deleted-users">
+        <h2 class="text-xl md:text-2xl mb-4">Törölt felhasználók archívuma</h2>
+        <?php if (empty($rows_du)): ?>
+            <p class="entry-meta">Még egyetlen felhasználó sem lett törölve.</p>
+        <?php else: ?>
+            <table style="width:100%; table-layout:auto;">
+                <thead>
+                    <tr>
+                        <th style="white-space:nowrap;">Orig. ID</th>
+                        <th style="white-space:nowrap;">Felhasználónév</th>
+                        <th style="white-space:nowrap;">Email</th>
+                        <th style="white-space:nowrap;">Teljes név</th>
+                        <th style="white-space:nowrap;">Regisztrált</th>
+                        <th style="white-space:nowrap;">Szerepkör</th>
+                        <th style="white-space:nowrap;">Felt.</th>
+                        <th style="white-space:nowrap;">Let.</th>
+                        <th style="white-space:nowrap;">Törölte</th>
+                        <th style="white-space:nowrap;">Törölve</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($rows_du as $du): ?>
+                        <tr>
+                            <td><code><?= (int)$du['original_id'] ?></code></td>
+                            <td style="white-space:nowrap;"><strong>@<?= htmlspecialchars($du['username']) ?></strong></td>
+                            <td style="word-break:break-all; max-width:180px;"><?= htmlspecialchars($du['email']) ?></td>
+                            <td style="white-space:nowrap;"><?= htmlspecialchars(trim($du['lastname'] . ' ' . $du['firstname'])) ?: '—' ?></td>
+                            <td style="white-space:nowrap;"><?= htmlspecialchars(substr($du['registration_date'] ?? '—', 0, 10)) ?></td>
+                            <td style="white-space:nowrap;">
+                                <?php if ($du['was_admin']): ?>
+                                    <span class="badge badge-active">Admin</span>
+                                <?php elseif ($du['was_teacher']): ?>
+                                    <span class="badge" style="background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.6);color:#ddd6fe;">Tanár</span>
+                                <?php else: ?>
+                                    <span class="badge badge-inactive">Tanuló</span>
+                                <?php endif; ?>
+                                <?php if ($du['was_premium']): ?>
+                                    <span class="badge" style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.6);color:#fde68a;">Prémium</span>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= (int)$du['upload_count'] ?></td>
+                            <td><?= (int)$du['download_count'] ?></td>
+                            <td style="white-space:nowrap;">
+                                <?php
+                                    $dname = $deleter_names[(int)$du['deleted_by']] ?? null;
+                                    echo $dname
+                                        ? '@' . htmlspecialchars($dname)
+                                        : '<span class="entry-meta">' . (int)$du['deleted_by'] . '</span>';
+                                ?>
+                            </td>
+                            <td style="white-space:nowrap;"><?= htmlspecialchars(substr($du['deleted_at'], 0, 10)) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    </section>
 	<section class="card p-4 md:p-6 mb-6">
 		<h2 class="text-xl md:text-2xl mb-4">Rangok kezelése</h2>
 
@@ -352,7 +483,7 @@
         <h2 class="text-xl md:text-2xl mb-4">Fájlok kezelése</h2>
         <table>
             <tr>
-                <th>ID</th><th>Név</th><th>Leírás</th><th>Kategória</th><th>Feltöltő</th><th>Művelet</th>
+                <th>ID</th><th>Név</th><th>Leírás</th><th>Feltöltő</th><th>Művelet</th>
             </tr>
             <?php while($f = $files->fetch_assoc()) {
                 $uploaderUsername = 'Ismeretlen';
@@ -369,7 +500,6 @@
                     <td><?= $f['id'] ?></td>
                     <td><?= htmlspecialchars($f['name']) ?></td>
                     <td><?= htmlspecialchars($f['description']) ?></td>
-                    <td><?= htmlspecialchars($f['subject']) ?></td>
                     <td><?= htmlspecialchars($uploaderUsername) ?></td>
                     <td>
                         <a href="?delete_type=file&delete_id=<?= $f['id'] ?>" onclick="return confirm('Biztosan törlöd ezt a fájlt?')">Törlés</a>
@@ -392,22 +522,6 @@
                     <td><?= htmlspecialchars($c['text']) ?></td>
                     <td>
                         <a href="?delete_type=comment&delete_id=<?= $c['id'] ?>" onclick="return confirm('Biztosan törlöd ezt a kommentet?')">Törlés</a>
-                    </td>
-                </tr>
-            <?php } ?>
-        </table>
-    </section>
-    <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
-        <h2 class="text-xl md:text-2xl mb-4">Kategóriák kezelése</h2>
-        <table>
-            <tr>
-                <th>Kategória</th><th>Művelet</th>
-            </tr>
-            <?php while($cat = $categories->fetch_assoc()) { ?>
-                <tr>
-                    <td><?= htmlspecialchars($cat['subject']) ?></td>
-                    <td>
-                        <a href="?delete_type=category&subject=<?= urlencode($cat['subject']) ?>" onclick="return confirm('Biztosan törlöd ezt a kategóriát? (A fájlokból eltávolítja a kategóriát)')">Törlés</a>
                     </td>
                 </tr>
             <?php } ?>
