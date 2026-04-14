@@ -4,12 +4,9 @@
     require "assets/php/functions.php";
     require "assets/php/premium.php";
 
-    if (!isset($_COOKIE['id'])) {
-        header("Location: reglog.php?mode=login");
-        exit;
-    }
+    require_login();
 
-    $uid = (int)$_COOKIE['id'];
+    $uid = (int)auth_user_id();
     $premium_van = user_premium($conn, $uid);
     $premium_ig  = premium_datum($conn, $uid);
 ?>

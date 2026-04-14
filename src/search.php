@@ -9,12 +9,12 @@
     require_once "assets/php/db.php";
     require_once "assets/php/functions.php";
 
-    $isLoggedIn = isset($_COOKIE['id']);
+    $isLoggedIn = auth_is_logged_in();
     $user = null;
     $notify_number = 0;
 
     if ($isLoggedIn) {
-        $uid = (int)$_COOKIE['id'];
+        $uid = (int)auth_user_id();
         $res = db_query($conn, "SELECT id, username, firstname FROM users WHERE id = ? LIMIT 1", "i", [$uid]);
         if ($res && $res->num_rows > 0) {
             $user = $res->fetch_assoc();

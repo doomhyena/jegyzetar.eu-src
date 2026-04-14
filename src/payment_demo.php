@@ -4,11 +4,8 @@
     require "assets/php/functions.php";
     require "assets/php/premium.php";
 
-    if (!isset($_COOKIE['id'])) {
-        header("Location: reglog.php");
-        exit;
-    }
-    $uid = (int)$_COOKIE['id'];
+    require_login();
+    $uid = (int)auth_user_id();
 
     $hibak = [];
 

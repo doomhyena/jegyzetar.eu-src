@@ -15,13 +15,8 @@
     require_once "assets/php/lang.php";
     require_once "assets/php/functions.php";
 
-    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
-        header("Location: reglog.php");
-        exit;
-    }
-	
-	
-    $aktualis_felhasznalo_id = (int)$_COOKIE['id'];
+    require_login();
+    $aktualis_felhasznalo_id = (int)auth_user_id();
     $csoportok_sql = "SELECT * FROM groups ORDER BY id DESC";
     $csoportok_lekerdezes = $conn->query($csoportok_sql);
 	

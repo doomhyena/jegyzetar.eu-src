@@ -4,11 +4,7 @@
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
 
-    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
-        header("Location: reglog.php");
-        exit;
-    }
-
+    require_login();
     require_once "db.php";
     require_once "lang.php";
     require_once "functions.php";
@@ -18,7 +14,7 @@
         exit;
     }
 
-    $reporterId = (int)$_COOKIE['id'];
+    $reporterId = (int)auth_user_id();
     $type = trim($_POST['type'] ?? '');
     $targetId = isset($_POST['target_id']) ? (int)$_POST['target_id'] : 0;
     $reason = trim($_POST['reason'] ?? '');

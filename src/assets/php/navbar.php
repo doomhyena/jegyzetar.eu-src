@@ -1,36 +1,22 @@
 <?php
 	require_once "assets/php/premium.php";
 
-    $isLoggedIn = false;
-    $user = null;
+    $isLoggedIn = auth_is_logged_in();
+    $user = $isLoggedIn ? auth_user($conn) : null;
     $notify_number = 0;
     $currentUsername = null;
 
-    if (isset($_COOKIE['id']) && ctype_digit($_COOKIE['id'])) {
+    if ($user) {
         $isLoggedIn = true;
-        $userid = (int)$_COOKIE['id'];
+        $userid = (int)$user['id'];
+        $currentUsername = $user['username'];
 
-        $stmt = $conn->prepare("SELECT * FROM users WHERE id = ? LIMIT 1");
-        $stmt->bind_param("i", $userid);
-        $stmt->execute();
-        $res = $stmt->get_result();
-
-        if ($res && $res->num_rows === 1) {
-            $user = $res->fetch_assoc();
-            $currentUsername = $user['username'];
-
-            $nf = $conn->prepare(
-                    "SELECT COUNT(*) FROM notifys WHERE toid = ? AND readed = 0"
-            );
-            $nf->bind_param("i", $userid);
-            $nf->execute();
-            $nf->bind_result($notify_number);
-            $nf->fetch();
-            $nf->close();
-        } else {
-            setcookie("id", "", time() - 3600, "/");
-            $isLoggedIn = false;
-        }
+        $nf = $conn->prepare("SELECT COUNT(*) FROM notifys WHERE toid = ? AND readed = 0");
+        $nf->bind_param("i", $userid);
+        $nf->execute();
+        $nf->bind_result($notify_number);
+        $nf->fetch();
+        $nf->close();
     }
 	
 	$currentUserId = ($user['id'] ?? 0);
@@ -58,6 +44,7 @@
             <li><a href="upload.php"><?= t('nav_upload') ?></a></li>
             <li><a href="groups.php"><?= t('nav_groups') ?></a></li>
             <li><a href="exams.php"><?= t('nav_exams') ?></a></li>
+            <li><a href="news.php">Hírek</a></li>
             <?php if ($isLoggedIn && $currentUsername): ?>
                 <li class="nav-item-has-dropdown">
                     <a href="#" class="nav-account-link">
@@ -70,7 +57,7 @@
                             </a>
                             <a href="favorites.php"><?= t('nav_favorites') ?></a>
                             <a href="messages.php"><?= t('nav_messages') ?></a>
-                            <a href="premium.php"><?= $premium_van ? "⭐ Prémium" : "Prémium" ?></a>
+                            <a href="premium.php"><?= $premium_van ? '⭐ ' . t('nav_premium') : t('nav_premium') ?></a>
                             <a href="notify.php"><?= t('nav_notify') ?> (<?= $notify_number ?>)</a>
                                 <?php if (!empty($user['admin']) && $user['admin'] == 1): ?>
                                     <a href="admin_panel.php"><?= t('nav_admin') ?></a>

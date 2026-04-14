@@ -7,12 +7,9 @@
     require_once "assets/php/lang.php";
     require_once "assets/php/functions.php";
 
-    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
-        header("Location: reglog.php");
-        exit();
-    }
+    require_login();
 
-    $userId = (int)$_COOKIE['id'];
+    $userId = (int)auth_user_id();
 
     $result = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$userId]);
     $current_user = $result->fetch_assoc();
@@ -24,7 +21,7 @@
 
     if (!isset($current_user['admin']) || (int)$current_user['admin'] !== 1) {
         http_response_code(403);
-        exit('Hozzáférés megtagadva. Nincs admin jogosultság.');
+        exit(t('admin_panel_no_permission'));
     }
 
     $user = $current_user;
@@ -32,7 +29,7 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-    <title>Admin Panel</title>
+    <title><?= t('admin_panel_title') ?></title>
     <meta charset='UTF-8'>
     <meta name='description' content='Iskolai jegyzeteket megosztó oldal'>
     <meta name='keywords' content='iskola, jegyzet, megosztás, tanulás'>
@@ -58,7 +55,7 @@
 
     if ($current_user['admin'] != 1) {
         echo "<div class='main'>";
-            echo "<div class='card'><h2>Nincs jogosultságod az admin felület megtekintéséhez.</h2></div>";
+            echo "<div class='card'><h2>" . t('admin_panel_no_access') . "</h2></div>";
         echo "</div>";
         include 'assets/php/footer.php';
         echo '</body></html>';
@@ -74,7 +71,7 @@
 
 
         if ($target_user_id === (int)$current_user['id'] && $new_role !== 'admin') {
-            echo "<script>alert('A saját admin rangodat nem veheted el!');</script>";
+            echo "<script>alert('" . t('admin_panel_cannot_remove_self') . "');</script>";
         } else {
 
             $set_admin = 0;
@@ -98,7 +95,7 @@
                 [$set_admin, $set_teacher, $target_user_id]
             )->close();
 
-            echo "<script>alert('Rang frissítve!'); location.href='admin_panel.php';</script>";
+            echo "<script>alert('" . t('admin_panel_role_updated') . "'); location.href='admin_panel.php';</script>";
             exit();
         }
     }
@@ -303,7 +300,7 @@
         $expiresAt = null;
 
         if ($code === '') {
-            echo "<script>alert('A kód mező nem lehet üres.');</script>";
+            echo "<script>alert('" . t('admin_panel_code_required') . "');</script>";
         } else {
             if ($maxUses !== '' && ctype_digit($maxUses)) {
                 $maxUsesVal = (int)$maxUses;
@@ -315,7 +312,7 @@
 
             db_stmt($conn, "INSERT INTO reg_codes (code, description, max_uses, expires_at, active) VALUES (?, ?, ?, ?, 1)", "ssis", [$code, $description !== '' ? $description : null, $maxUsesVal, $expiresAt])->close();
 
-            echo "<script>alert('Regisztrációs kód létrehozva.');</script>";
+            echo "<script>alert('" . t('admin_panel_code_created') . "');</script>";
         }
     }
 
@@ -373,12 +370,12 @@
     }
 ?>
 <div class="main w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6">
-    <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6">Admin Panel</h1>
+    <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6"><?= t('admin_panel_title') ?></h1>
     <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
-        <h2 class="text-xl md:text-2xl mb-4">Felhasználók kezelése</h2>
+        <h2 class="text-xl md:text-2xl mb-4"><?= t('admin_users_title') ?></h2>
         <table>
             <tr>
-                <th>ID</th><th>Név</th><th>Felhasználónév</th><th>Email</th><th>Admin</th><th>Tanár</th><th>Művelet</th>
+                <th><?= t('admin_user_id') ?></th><th><?= t('admin_user_name') ?></th><th><?= t('admin_user_username') ?></th><th><?= t('admin_user_email') ?></th><th><?= t('admin_user_admin') ?></th><th><?= t('admin_user_teacher') ?></th><th><?= t('admin_user_action') ?></th>
             </tr>
             <?php while($user = $users->fetch_assoc()) { ?>
                 <tr>
@@ -388,23 +385,23 @@
                     <td><?= htmlspecialchars(mask_email($user['email'])) ?></td>
                     <td>
                         <?php if ($user['admin'] == 1): ?>
-                            <span class="badge badge-active">Igen</span>
+                            <span class="badge badge-active"><?= t('label_yes') ?></span>
                         <?php else: ?>
-                            <span class="badge badge-inactive">Nem</span>
+                            <span class="badge badge-inactive"><?= t('label_no') ?></span>
                         <?php endif; ?>
                     </td>
                     <td>
                         <?php if ($user['teacher'] == 1): ?>
-                            <span class="badge badge-active">Igen</span>
+                            <span class="badge badge-active"><?= t('label_yes') ?></span>
                         <?php else: ?>
-                            <span class="badge badge-inactive">Nem</span>
+                            <span class="badge badge-inactive"><?= t('label_no') ?></span>
                         <?php endif; ?>
                     </td>
                     <td>
                         <?php if ($user['id'] != $current_user['id']) { ?>
-                            <a href="?delete_type=user&delete_id=<?= $user['id'] ?>" onclick="return confirm('Biztosan törlöd ezt a felhasználót?')">Törlés</a>
+                            <a href="?delete_type=user&delete_id=<?= $user['id'] ?>" onclick="return confirm('<?= t('admin_confirm_delete_user') ?>')"><?= t('btn_delete') ?></a>
                         <?php } else { ?>
-                            Saját fiók
+                            <?= t('admin_user_own_account') ?>
                         <?php } ?>
                     </td>
                 </tr>
@@ -412,23 +409,23 @@
         </table>
     </section>
     <section class="card p-4 md:p-6 mb-6" id="deleted-users">
-        <h2 class="text-xl md:text-2xl mb-4">Törölt felhasználók archívuma</h2>
+        <h2 class="text-xl md:text-2xl mb-4"><?= t('admin_deleted_users_title') ?></h2>
         <?php if (empty($rows_du)): ?>
-            <p class="entry-meta">Még egyetlen felhasználó sem lett törölve.</p>
+            <p class="entry-meta"><?= t('admin_deleted_users_none') ?></p>
         <?php else: ?>
             <table style="width:100%; table-layout:auto;">
                 <thead>
                     <tr>
                         <th style="white-space:nowrap;">Orig. ID</th>
-                        <th style="white-space:nowrap;">Felhasználónév</th>
+                        <th style="white-space:nowrap;"><?= t('admin_deleted_username') ?></th>
                         <th style="white-space:nowrap;">Email</th>
-                        <th style="white-space:nowrap;">Teljes név</th>
-                        <th style="white-space:nowrap;">Regisztrált</th>
-                        <th style="white-space:nowrap;">Szerepkör</th>
+                        <th style="white-space:nowrap;"><?= t('admin_deleted_fullname') ?></th>
+                        <th style="white-space:nowrap;"><?= t('admin_deleted_registered') ?></th>
+                        <th style="white-space:nowrap;"><?= t('admin_deleted_role') ?></th>
                         <th style="white-space:nowrap;">Felt.</th>
                         <th style="white-space:nowrap;">Let.</th>
-                        <th style="white-space:nowrap;">Törölte</th>
-                        <th style="white-space:nowrap;">Törölve</th>
+                        <th style="white-space:nowrap;"><?= t('admin_deleted_deleted_by') ?></th>
+                        <th style="white-space:nowrap;"><?= t('admin_deleted_deleted_at') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -443,12 +440,12 @@
                                 <?php if ($du['was_admin']): ?>
                                     <span class="badge badge-active">Admin</span>
                                 <?php elseif ($du['was_teacher']): ?>
-                                    <span class="badge" style="background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.6);color:#ddd6fe;">Tanár</span>
+                                    <span class="badge" style="background:rgba(167,139,250,.15);border:1px solid rgba(167,139,250,.6);color:#ddd6fe;"><?= t('role_teacher') ?></span>
                                 <?php else: ?>
                                     <span class="badge badge-inactive">Tanuló</span>
                                 <?php endif; ?>
                                 <?php if ($du['was_premium']): ?>
-                                    <span class="badge" style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.6);color:#fde68a;">Prémium</span>
+                                    <span class="badge" style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.6);color:#fde68a;"><?= t('role_premium') ?></span>
                                 <?php endif; ?>
                             </td>
                             <td><?= (int)$du['upload_count'] ?></td>
@@ -469,21 +466,20 @@
         <?php endif; ?>
     </section>
 	<section class="card p-4 md:p-6 mb-6">
-		<h2 class="text-xl md:text-2xl mb-4">Rangok kezelése</h2>
-
-		<input class="input w-full" type="text" id="admin-user-search" placeholder="Keress felhasználóra">
+		<h2 class="text-xl md:text-2xl mb-4"><?= t('admin_roles_title') ?></h2>
+		<input class="input w-full" type="text" id="admin-user-search" placeholder="<?= t('admin_search_user_placeholder') ?>">
 		<div id="admin-user-results"></div>
 
 		<div id="search" style="margin-top:12px;">
-		<small class="text-xs opacity-75">Írj a keresőbe, és itt megjelennek a találatok.</small>
+		<small class="text-xs opacity-75"><?= t('admin_search_help') ?></small>
 		</div>
 	</section>
 	
     <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
-        <h2 class="text-xl md:text-2xl mb-4">Fájlok kezelése</h2>
+        <h2 class="text-xl md:text-2xl mb-4"><?= t('admin_files_title') ?></h2>
         <table>
             <tr>
-                <th>ID</th><th>Név</th><th>Leírás</th><th>Feltöltő</th><th>Művelet</th>
+                <th><?= t('admin_file_id') ?></th><th><?= t('admin_file_name') ?></th><th><?= t('admin_file_description') ?></th><th><?= t('admin_file_uploader') ?></th><th><?= t('admin_file_action') ?></th>
             </tr>
             <?php while($f = $files->fetch_assoc()) {
                 $uploaderUsername = 'Ismeretlen';
@@ -502,17 +498,17 @@
                     <td><?= htmlspecialchars($f['description']) ?></td>
                     <td><?= htmlspecialchars($uploaderUsername) ?></td>
                     <td>
-                        <a href="?delete_type=file&delete_id=<?= $f['id'] ?>" onclick="return confirm('Biztosan törlöd ezt a fájlt?')">Törlés</a>
+                        <a href="?delete_type=file&delete_id=<?= $f['id'] ?>" onclick="return confirm('<?= t('admin_confirm_delete_file') ?>')"><?= t('btn_delete') ?></a>
                     </td>
                 </tr>
             <?php } ?>
         </table>
     </section>
     <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
-        <h2 class="text-xl md:text-2xl mb-4">Kommentek kezelése</h2>
+        <h2 class="text-xl md:text-2xl mb-4"><?= t('admin_comments_title') ?></h2>
         <table>
             <tr>
-                <th>ID</th><th>Felhasználó</th><th>Fájl ID</th><th>Szöveg</th><th>Művelet</th>
+                <th><?= t('admin_comment_id') ?></th><th><?= t('admin_comment_user') ?></th><th><?= t('admin_comment_file_id') ?></th><th><?= t('admin_comment_text') ?></th><th><?= t('admin_comment_action') ?></th>
             </tr>
             <?php while($c = $comments->fetch_assoc()) { ?>
                 <tr>
@@ -521,23 +517,23 @@
                     <td><?= $c['postid'] ?></td>
                     <td><?= htmlspecialchars($c['text']) ?></td>
                     <td>
-                        <a href="?delete_type=comment&delete_id=<?= $c['id'] ?>" onclick="return confirm('Biztosan törlöd ezt a kommentet?')">Törlés</a>
+                        <a href="?delete_type=comment&delete_id=<?= $c['id'] ?>" onclick="return confirm('<?= t('admin_confirm_delete_comment') ?>')"><?= t('btn_delete') ?></a>
                     </td>
                 </tr>
             <?php } ?>
         </table>
     </section>
     <section class="card p-4 md:p-6 mb-6 overflow-x-auto">
-        <h2 class="text-xl md:text-2xl mb-4">Profil CSS kérések</h2>
+        <h2 class="text-xl md:text-2xl mb-4"><?= t('admin_css_requests_title') ?></h2>
         <table>
             <tr>
                 <th>ID</th>
-                <th>Felhasználó</th>
-                <th>Státusz</th>
-                <th>Létrehozva</th>
+                <th><?= t('admin_user_badges_user') ?></th>
+                <th><?= t('admin_group_status') ?></th>
+                <th><?= t('admin_invite_code_created') ?></th>
                 <th>Review</th>
                 <th>CSS</th>
-                <th>Művelet</th>
+                <th><?= t('admin_reports_action') ?></th>
             </tr>
             <?php while($css = $css_requests->fetch_assoc()) { ?>
                 <tr>
@@ -558,29 +554,28 @@
                     </td>
                     <td>
                         <?php if ($css['status'] === 'pending') { ?>
-                            <a href="?css_action=approve&css_id=<?= $css['id'] ?>" onclick="return confirm('Biztosan jóváhagyod ezt a CSS-t?')">Jóváhagyás</a><br>
-                            <a href="?css_action=reject&css_id=<?= $css['id'] ?>" onclick="return confirm('Biztosan elutasítod ezt a CSS-t?')">Elutasítás</a>
+                            <a href="?css_action=approve&css_id=<?= $css['id'] ?>" onclick="return confirm('<?= t('admin_confirm_approve_css') ?>')"><?= t('admin_action_approve') ?></a><br>
+                            <a href="?css_action=reject&css_id=<?= $css['id'] ?>" onclick="return confirm('<?= t('admin_confirm_reject_css') ?>')"><?= t('admin_action_reject') ?></a>
                         <?php } else { ?>
-                            Nincs művelet
+                            <?= t('admin_no_action') ?>
                         <?php } ?>
                     </td>
                 </tr>
             <?php } ?>
         </table>
     </section>
-	
 	<section class="card p-4 md:p-6 mb-6 overflow-x-auto">
-    <h2 class="text-xl md:text-2xl mb-4">Csoportok jóváhagyása</h2>
+    <h2 class="text-xl md:text-2xl mb-4"><?= t('admin_groups_title') ?></h2>
     <table>
         <tr>
             <th>ID</th>
-            <th>Név</th>
-            <th>Leírás</th>
-            <th>Tulaj</th>
-            <th>Privát</th>
-            <th>Státusz</th>
+            <th><?= t('admin_group_name') ?></th>
+            <th><?= t('admin_group_description') ?></th>
+            <th><?= t('admin_group_owner') ?></th>
+            <th><?= t('admin_group_private') ?></th>
+            <th><?= t('admin_group_status') ?></th>
             <th>Review</th>
-            <th>Művelet</th>
+            <th><?= t('admin_reports_action') ?></th>
         </tr>
 
         <?php if ($group_requests && $group_requests->num_rows > 0): ?>
@@ -589,8 +584,8 @@
                     <td><?= (int)$g['id'] ?></td>
                     <td><?= htmlspecialchars($g['name']) ?></td>
                     <td><?= htmlspecialchars($g['description'] ?? '') ?></td>
-                    <td><?= htmlspecialchars($g['owner_name'] ?? 'ismeretlen') ?></td>
-                    <td><?= ((int)$g['is_private'] === 1) ? 'Igen' : 'Nem' ?></td>
+                    <td><?= htmlspecialchars($g['owner_name'] ?? t('label_unknown_user')) ?></td>
+                    <td><?= ((int)$g['is_private'] === 1) ? t('label_yes') : t('label_no') ?></td>
                     <td><?= htmlspecialchars($g['status']) ?></td>
                     <td>
                         <?php if (!empty($g['reviewed_at'])): ?>
@@ -602,28 +597,28 @@
                     </td>
                     <td>
                         <?php if ($g['status'] === 'pending'): ?>
-                            <a href="?group_action=approve&group_id=<?= (int)$g['id'] ?>" onclick="return confirm('Jóváhagyod ezt a csoportot?')">Jóváhagyás</a><br>
-                            <a href="?group_action=reject&group_id=<?= (int)$g['id'] ?>" onclick="return confirm('Elutasítod ezt a csoportot?')">Elutasítás</a>
+                            <a href="?group_action=approve&group_id=<?= (int)$g['id'] ?>" onclick="return confirm('<?= t('admin_confirm_approve_group') ?>')"><?= t('admin_action_approve') ?></a><br>
+                            <a href="?group_action=reject&group_id=<?= (int)$g['id'] ?>" onclick="return confirm('<?= t('admin_confirm_reject_group') ?>')"><?= t('admin_action_reject') ?></a>
                         <?php else: ?>
-                            Nincs művelet
+                            <?= t('admin_no_action') ?>
                         <?php endif; ?>
                     </td>
                 </tr>
             <?php endwhile; ?>
         <?php else: ?>
-            <tr><td colspan="8">Nincs csoport.</td></tr>
+            <tr><td colspan="8"><?= t('admin_group_none') ?></td></tr>
         <?php endif; ?>
     </table>
 	</section>
     <section class="card p-4 md:p-6 mb-6">
-        <h2 class="text-xl md:text-2xl mb-4">User badge-ek kezelése</h2>
-        <h3 class="text-lg md:text-xl mb-3">Új badge hozzárendelése</h3>
+        <h2 class="text-xl md:text-2xl mb-4"><?= t('admin_user_badges_title') ?></h2>
+        <h3 class="text-lg md:text-xl mb-3"><?= t('admin_user_badges_add_title') ?></h3>
         <form method="post" action="admin_panel.php" class="mb-4 flex flex-col md:flex-row gap-3 items-end">
             <input type="hidden" name="action" value="add_user_badge">
             <div class="flex flex-col gap-2">
-                <label for="user_id" class="text-sm md:text-base font-semibold">Felhasználó:</label>
+                <label for="user_id" class="text-sm md:text-base font-semibold"><?= t('admin_user_badges_label_user') ?></label>
                 <select name="user_id" id="user_id" class="profile-theme-select text-sm md:text-base" required>
-                    <option value="">Válassz felhasználót</option>
+                    <option value=""><?= t('admin_user_badges_select_user_placeholder') ?></option>
                     <?php while ($u = $user_options->fetch_assoc()) { ?>
                         <option value="<?= (int)$u['id'] ?>">
                             <?= htmlspecialchars($u['username']) ?>
@@ -632,9 +627,9 @@
                 </select>
             </div>
             <div class="flex flex-col gap-2">
-                <label for="badge_id" class="text-sm md:text-base font-semibold">Badge:</label>
+                <label for="badge_id" class="text-sm md:text-base font-semibold"><?= t('admin_user_badges_label_badge') ?></label>
                 <select name="badge_id" id="badge_id" class="profile-theme-select text-sm md:text-base" required>
-                    <option value="">Válassz badge-et</option>
+                    <option value=""><?= t('admin_user_badges_select_badge_placeholder') ?></option>
                     <?php while ($b = $badge_options->fetch_assoc()) { ?>
                         <option value="<?= (int)$b['id'] ?>">
                             <?= htmlspecialchars($b['name']) ?>
@@ -642,18 +637,18 @@
                     <?php } ?>
                 </select>
             </div>
-            <button type="submit" class="btn-cta text-sm md:text-base">Hozzáadás</button>
+            <button type="submit" class="btn-cta text-sm md:text-base"><?= t('admin_user_badges_add_button') ?></button>
         </form>
-        <h3 class="text-lg md:text-xl mb-3">Meglévő user_badge-ek</h3>
+        <h3 class="text-lg md:text-xl mb-3"><?= t('admin_user_badges_existing_title') ?></h3>
         <div class="badge-table-wrap">
             <table class="badge-list-table">
                 <tr>
                     <th>ID</th>
-                    <th>Felhasználó</th>
-                    <th>Badge</th>
-                    <th>Adta</th>
-                    <th>Dátum</th>
-                    <th>Művelet</th>
+                    <th><?= t('admin_user_badges_user') ?></th>
+                    <th><?= t('admin_user_badges_badge') ?></th>
+                    <th><?= t('admin_user_badges_granted_by') ?></th>
+                    <th><?= t('admin_reports_date') ?></th>
+                    <th><?= t('admin_reports_action') ?></th>
                 </tr>
                 <?php while ($ub = $user_badges->fetch_assoc()) { ?>
                     <tr>
@@ -663,7 +658,7 @@
                         <td>
                             <?php
                             if (!empty($ub['granted_by'])) {
-                                $gbUsername = 'ismeretlen';
+                                $gbUsername = t('label_unknown_user');
                                 $gbId = (int)$ub['granted_by'];
 
                                 $gbRes = db_query(
@@ -685,8 +680,8 @@
                         <td><?= htmlspecialchars($ub['granted_at']) ?></td>
                         <td>
                             <a href="?delete_type=user_badge&delete_id=<?= $ub['id'] ?>"
-                               onclick="return confirm('Biztosan törlöd ezt a user_badge sort?')">
-                                Törlés
+                               onclick="return confirm('<?= t('admin_confirm_delete_user_badge') ?>')">
+                                <?= t('btn_delete') ?>
                             </a>
                         </td>
                     </tr>
@@ -697,57 +692,56 @@
     <section class="card p-4 md:p-6 mb-6">
         <div class="badges-header mb-4">
             <div>
-                <h2 class="text-xl md:text-2xl">Badge-ek kezelése</h2>
-                <small class="text-xs md:text-sm opacity-75">Kis jelvények, amikkel jutalmazhatod a felhasználókat.</small>
+                <h2 class="text-xl md:text-2xl"><?= t('admin_badges_title') ?></h2>
+                <small class="text-xs md:text-sm opacity-75"><?= t('admin_badges_description') ?></small>
             </div>
         </div>
-
-        <h3 class="text-lg md:text-xl mb-3">Új badge létrehozása</h3>
+        <h3 class="text-lg md:text-xl mb-3"><?= t('admin_badges_add_title') ?></h3>
         <form method="post" action="admin_panel.php" class="badge-form-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
             <input type="hidden" name="badge_action" value="create">
 
             <div class="form-field">
-                <label for="badge_name" class="text-sm md:text-base font-semibold">Név</label>
+                <label for="badge_name" class="text-sm md:text-base font-semibold"><?= t('admin_badges_name') ?></label>
                 <input type="text" id="badge_name" name="name" class="input w-full text-sm md:text-base"
-                       required placeholder="pl. Szuper segítő">
+                       required placeholder="<?= t('admin_badge_name_placeholder') ?>">
             </div>
 
             <div class="form-field">
-                <label for="badge_slug" class="text-sm md:text-base font-semibold">Slug</label>
+                <label for="badge_slug" class="text-sm md:text-base font-semibold"><?= t('admin_badges_slug') ?></label>
                 <input type="text" id="badge_slug" name="slug" class="input w-full text-sm md:text-base"
-                       required placeholder="pl. super-helper">
+                       required placeholder="<?= t('admin_badge_slug_placeholder') ?>">
             </div>
 
             <div class="form-field">
-                <label for="badge_desc" class="text-sm md:text-base font-semibold">Leírás</label>
+                <label for="badge_desc" class="text-sm md:text-base font-semibold"><?= t('admin_badges_description_label') ?></label>
                 <input type="text" id="badge_desc" name="description" class="input w-full text-sm md:text-base"
-                       placeholder="pl. Sok jegyzetet töltött fel">
+                       placeholder="<?= t('admin_badge_description_placeholder') ?>">
             </div>
 
             <div class="form-field">
-                <label for="badge_icon" class="text-sm md:text-base font-semibold">Ikon (emoji / rövid kód)</label>
+                <label for="badge_icon" class="text-sm md:text-base font-semibold"><?= t('admin_badges_icon') ?></label>
                 <input type="text" id="badge_icon" name="icon" class="input w-full text-sm md:text-base"
-                       placeholder="pl. ⭐ vagy trophy">
+                       placeholder="<?= t('admin_badge_icon_placeholder') ?>">
             </div>
 
             <div class="form-field flex items-end">
                 <button type="submit" class="btn-cta w-full text-sm md:text-base">
-                    Hozzáadás
+                    <?= t('admin_badges_add_button') ?>
                 </button>
             </div>
         </form>
 
-        <h3 class="text-lg md:text-xl mb-3">Meglévő badge-ek</h3>
+        <h3 class="text-lg md:text-xl mb-3"><?= t('admin_badges_existing_title') ?></h3>
         <div class="overflow-x-auto">
         <table class="badge-list-table">
             <tr>
                 <th>ID</th>
-                <th>Előnézet</th>
-                <th>Név</th>
-                <th>Slug</th>
-                <th>Leírás</th>
-                <th>Ikon</th>
-                <th>Művelet</th>
+                <th><?= t('admin_badges_preview') ?></th>
+                <th><?= t('admin_group_name') ?></th>
+                <th><?= t('admin_badges_slug') ?></th>
+                <th><?= t('admin_badges_description') ?></th>
+                <th><?= t('admin_badges_icon') ?></th>
+                <th><?= t('admin_reports_action') ?></th>
             </tr>
             <?php while($b = $badges->fetch_assoc()) { ?>
                 <tr>
@@ -782,10 +776,10 @@
                                    value="<?= htmlspecialchars($b['icon'] ?? '') ?>">
                         </td>
                         <td>
-                            <button type="submit" class="btn-cta btn-ghost">Mentés</button>
+                            <button type="submit" class="btn-cta btn-ghost"><?= t('admin_badges_save') ?></button>
                             <a href="?delete_type=badge&delete_id=<?= $b['id'] ?>"
-                               onclick="return confirm('Biztosan törlöd ezt a badge-et? A hozzárendelt user_badge-ek is törlődnek.')">
-                                Törlés
+                               onclick="return confirm('<?= t('admin_confirm_delete_badge') ?>')">
+                                <?= t('btn_delete') ?>
                             </a>
                         </td>
                     </form>
@@ -795,17 +789,17 @@
         </div>
     </section>
     <section class="card p-4 md:p-6 mb-6 overflow-x-auto" id="reports">
-        <h2 class="text-xl md:text-2xl mb-4">Jelentések</h2>
+        <h2 class="text-xl md:text-2xl mb-4"><?= t('admin_reports_title') ?></h2>
         <table>
             <tr>
                 <th>ID</th>
-                <th>Jelentő</th>
-                <th>Típus</th>
-                <th>Cél</th>
-                <th>Indok</th>
-                <th>Állapot</th>
-                <th>Dátum</th>
-                <th>Művelet</th>
+                <th><?= t('admin_reports_reporter') ?></th>
+                <th><?= t('admin_reports_type') ?></th>
+                <th><?= t('admin_reports_target') ?></th>
+                <th><?= t('admin_reports_reason') ?></th>
+                <th><?= t('admin_reports_status') ?></th>
+                <th><?= t('admin_reports_date') ?></th>
+                <th><?= t('admin_reports_action') ?></th>
             </tr>
             <?php if ($reports && $reports->num_rows > 0): ?>
                 <?php while ($rep = $reports->fetch_assoc()): ?>
@@ -814,7 +808,7 @@
                         $targetType = $rep['target_type'];
 
                         $targetUrl   = '#';
-                        $targetLabel = 'Ismeretlen cél';
+                        $targetLabel = t('admin_unknown_target');
 
                         if ($targetType === 'user') {
                             $uRes = db_query($conn, "SELECT username FROM users WHERE id = ? LIMIT 1", "i", [$targetId]);
@@ -822,10 +816,10 @@
 
                             if ($uRow && isset($uRow['username'])) {
                                 $targetUrl   = 'profile.php?user=' . urlencode($uRow['username']);
-                                $targetLabel = 'Felhasználó: @' . $uRow['username'];
+                                $targetLabel = t('admin_target_user_label', $uRow['username']);
                             } else {
                                 $targetUrl   = '#';
-                                $targetLabel = 'Felhasználó ID: ' . $targetId;
+                                $targetLabel = t('admin_target_user_id_label', $targetId);
                             }
 
                         } elseif ($targetType === 'group') {
@@ -835,9 +829,9 @@
                             $gRow = $gRes ? $gRes->fetch_assoc() : null;
 
                             if ($gRow && isset($gRow['name'])) {
-                                $targetLabel = 'Csoport: ' . $gRow['name'];
+                                $targetLabel = t('admin_target_group_label', $gRow['name']);
                             } else {
-                                $targetLabel = 'Csoport ID: ' . $targetId;
+                                $targetLabel = t('admin_target_group_id_label', $targetId);
                             }
 
                         } elseif ($targetType === 'note') {
@@ -847,15 +841,15 @@
                             $nRow = $nRes ? $nRes->fetch_assoc() : null;
 
                             if ($nRow && isset($nRow['name'])) {
-                                $targetLabel = 'Jegyzet: ' . $nRow['name'];
+                                $targetLabel = t('admin_target_note_label', $nRow['name']);
                             } else {
-                                $targetLabel = 'Jegyzet ID: ' . $targetId;
+                                $targetLabel = t('admin_target_note_id_label', $targetId);
                             }
                         }
                     ?>
                     <tr>
                         <td><?= (int)$rep['id'] ?></td>
-                        <td><?= htmlspecialchars($rep['reporter_name'] ?? 'ismeretlen') ?></td>
+                        <td><?= htmlspecialchars($rep['reporter_name'] ?? t('label_unknown_user')) ?></td>
                         <td><?= htmlspecialchars($rep['target_type']) ?></td>
                         <td>
                             <?php if ($targetUrl !== '#'): ?>
@@ -876,7 +870,7 @@
                                 } elseif ($rep['status'] === 'resolved') {
                                     echo '<span class="badge badge-inactive">Megoldva</span>';
                                 } else {
-                                    echo '<span class="badge badge-expired">Elutasítva</span>';
+                                    echo '<span class="badge badge-expired">' . t('admin_report_rejected') . '</span>';
                                 }
                             ?>
                         </td>
@@ -886,13 +880,13 @@
                                 <form method="post" style="display:inline;">
                                     <input type="hidden" name="report_id" value="<?= (int)$rep['id'] ?>">
                                     <button type="submit" name="report_action" value="resolve" class="btn-cta">
-                                        Elfogad
+                                        <?= t('admin_report_accept') ?>
                                     </button>
                                 </form>
                                 <form method="post" style="display:inline;">
                                     <input type="hidden" name="report_id" value="<?= (int)$rep['id'] ?>">
                                     <button type="submit" name="report_action" value="dismiss" class="btn-ghost">
-                                        Elutasít
+                                        <?= t('admin_report_reject') ?>
                                     </button>
                                 </form>
                             <?php else: ?>
@@ -903,61 +897,60 @@
                 <?php endwhile; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="8">Nincs még jelentés.</td>
+                    <td colspan="8"><?= t('admin_reports_none') ?></td>
                 </tr>
             <?php endif; ?>
         </table>
     </section>
-
     <section class="card p-4 md:p-6 mb-6" id="reg-codes">
         <div class="regcodes-header mb-4">
             <div>
-                <h2 class="text-xl md:text-2xl">Regisztrációs kódok</h2>
-                <small class="text-xs md:text-sm opacity-75">Belépőkódok osztályoknak / eseményeknek – látható statisztikával.</small>
+                <h2 class="text-xl md:text-2xl"><?= t('admin_invite_codes_title') ?></h2>
+                <small class="text-xs md:text-sm opacity-75"><?= t('admin_invite_codes_help') ?></small>
             </div>
         </div>
 
-        <h3 class="text-lg md:text-xl mb-3">Új kód létrehozása</h3>
+        <h3 class="text-lg md:text-xl mb-3"><?= t('admin_invite_code_add_title') ?></h3>
         <form method="post" class="regcodes-form grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="form-field">
-                <label for="code" class="text-sm md:text-base font-semibold">Kód</label>
-                <input type="text" name="code" id="code" class="input w-full text-sm md:text-base" required placeholder="pl. 10A-2024">
+                <label for="code" class="text-sm md:text-base font-semibold"><?= t('admin_invite_code_label_code') ?></label>
+                <input type="text" name="code" id="code" class="input w-full text-sm md:text-base" required placeholder="<?= t('admin_reg_code_placeholder') ?>">
             </div>
 
             <div class="form-field">
-                <label for="description" class="text-sm md:text-base font-semibold">Leírás</label>
-                <input type="text" name="description" id="description" class="input w-full text-sm md:text-base" placeholder="pl. 10.A osztály, verseny, teszt stb.">
+                <label for="description" class="text-sm md:text-base font-semibold"><?= t('admin_invite_code_label_description') ?></label>
+                <input type="text" name="description" id="description" class="input w-full text-sm md:text-base" placeholder="<?= t('admin_reg_code_description_placeholder') ?>">
             </div>
 
             <div class="form-field">
-                <label for="max_uses" class="text-sm md:text-base font-semibold">Max. felhasználás</label>
-                <input type="number" name="max_uses" id="max_uses" class="input w-full text-sm md:text-base" min="1" placeholder="Üres = végtelen">
+                <label for="max_uses" class="text-sm md:text-base font-semibold"><?= t('admin_invite_code_label_max_uses') ?></label>
+                <input type="number" name="max_uses" id="max_uses" class="input w-full text-sm md:text-base" min="1" placeholder="<?= t('admin_reg_code_max_uses_placeholder') ?>">
             </div>
 
             <div class="form-field">
-                <label for="expires_at" class="text-sm md:text-base font-semibold">Lejárat</label>
-                <input type="datetime-local" name="expires_at" id="expires_at" class="input w-full text-sm md:text-base" placeholder="Üres = soha">
+                <label for="expires_at" class="text-sm md:text-base font-semibold"><?= t('admin_invite_code_label_expires') ?></label>
+                <input type="datetime-local" name="expires_at" id="expires_at" class="input w-full text-sm md:text-base" placeholder="<?= t('admin_reg_code_expires_placeholder') ?>">
             </div>
 
             <div class="form-field flex items-end">
                 <button type="submit" name="create_reg_code" class="btn-cta w-full text-sm md:text-base">
-                    Kód létrehozása
+                    <?= t('admin_invite_code_create_button') ?>
                 </button>
             </div>
         </form>
 
-        <h3 class="text-lg md:text-xl mb-3">Meglévő kódok</h3>
+        <h3 class="text-lg md:text-xl mb-3"><?= t('admin_invite_code_existing_title') ?></h3>
         <div class="overflow-x-auto">
         <table class="regcodes-table">
             <tr>
                 <th>ID</th>
-                <th>Kód</th>
-                <th>Leírás</th>
-                <th>Felhasznált / Max</th>
-                <th>Lejárat</th>
-                <th>Aktív</th>
-                <th>Létrehozva</th>
-                <th>Műveletek</th>
+                <th><?= t('admin_invite_code_code') ?></th>
+                <th><?= t('admin_badges_description') ?></th>
+                <th><?= t('admin_invite_code_used_max') ?></th>
+                <th><?= t('admin_invite_code_expires') ?></th>
+                <th><?= t('admin_invite_code_active') ?></th>
+                <th><?= t('admin_invite_code_created') ?></th>
+                <th><?= t('admin_invite_code_actions') ?></th>
             </tr>
             <?php if ($regCodes && $regCodes->num_rows > 0): ?>
                 <?php while ($code = $regCodes->fetch_assoc()):
@@ -983,16 +976,16 @@
                                     <span class="badge badge-expired">Lejárt</span>
                                 <?php endif; ?>
                             <?php else: ?>
-                                Nincs
+                                <?= t('admin_invite_code_expires_none') ?>
                             <?php endif; ?>
                         </td>
                         <td>
                             <?php if ((int)$code['active'] === 1 && !$isExpired): ?>
-                                <span class="badge badge-active">Aktív</span>
+                                <span class="badge badge-active"><?= t('admin_invite_code_status_active') ?></span>
                             <?php elseif ((int)$code['active'] === 1 && $isExpired): ?>
-                                <span class="badge badge-expired">Lejárt, még aktív</span>
+                                <span class="badge badge-expired"><?= t('admin_invite_code_status_expired_active') ?></span>
                             <?php else: ?>
-                                <span class="badge badge-inactive">Inaktív</span>
+                                <span class="badge badge-inactive"><?= t('admin_invite_code_status_inactive') ?></span>
                             <?php endif; ?>
                         </td>
                         <td><?= htmlspecialchars($code['created_at']) ?></td>
@@ -1001,19 +994,19 @@
                                 <input type="hidden" name="reg_code_id" value="<?= (int)$code['id'] ?>">
                                 <?php if ((int)$code['active'] === 1): ?>
                                     <button type="submit" name="deactivate_reg_code" class="btn-ghost">
-                                        Deaktiválás
+                                        <?= t('admin_invite_code_deactivate') ?>
                                     </button>
                                 <?php else: ?>
                                     <button type="submit" name="activate_reg_code" class="btn-cta">
-                                        Aktiválás
+                                        <?= t('admin_invite_code_activate') ?>
                                     </button>
                                 <?php endif; ?>
                             </form>
                             <form method="post" style="display:inline;"
-                                  onsubmit="return confirm('Biztosan törlöd ezt a kódot?');">
+                                  onsubmit="return confirm('<?= t('admin_confirm_delete_reg_code') ?>');">
                                 <input type="hidden" name="reg_code_id" value="<?= (int)$code['id'] ?>">
                                 <button type="submit" name="delete_reg_code" class="btn-ghost btn-delete">
-                                    Törlés
+                                    <?= t('admin_invite_code_delete') ?>
                                 </button>
                             </form>
                         </td>
@@ -1021,7 +1014,7 @@
                 <?php endwhile; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="8">Még nincs regisztrációs kód.</td>
+                    <td colspan="8"><?= t('admin_invite_code_none') ?></td>
                 </tr>
             <?php endif; ?>
         </table>

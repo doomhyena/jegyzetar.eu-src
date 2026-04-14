@@ -3,7 +3,7 @@
     require "db.php";
     require "functions.php";
 
-    $userRes = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$_COOKIE['id']]);
+    $userRes = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [auth_user_id()]);
     if (!$userRes || $userRes->num_rows === 0) {
         die("Felhasználó nem található.");
     }

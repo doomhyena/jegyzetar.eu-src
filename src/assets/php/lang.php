@@ -31,22 +31,28 @@
         return;
     }
 
-    if ($stmt = $conn->prepare("SELECT t_key, text FROM translations WHERE lang_code = ?")) {
+    if ($stmt = $conn->prepare("SELECT t_key, lang_code, text FROM translations WHERE lang_code IN (?, 'hu')")) {
         $stmt->bind_param('s', $lang);
         $stmt->execute();
         $result = $stmt->get_result();
 
         while ($row = $result->fetch_assoc()) {
-            $translations[$row['t_key']] = $row['text'];
+            if (!isset($translations[$row['t_key']]) || $row['lang_code'] === $lang) {
+                $translations[$row['t_key']] = $row['text'];
+            }
         }
 
         $stmt->close();
     }
 
     if (!function_exists('t')) {
-        function t(string $key): string
+        function t(string $key, ...$args): string
         {
             global $translations;
-            return $translations[$key] ?? $key;
+            $text = $translations[$key] ?? $key;
+            if (count($args) > 0) {
+                return sprintf($text, ...$args);
+            }
+            return $text;
         }
     }

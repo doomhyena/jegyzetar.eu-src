@@ -9,10 +9,10 @@
     require "assets/php/group_init.php";
 
     $admin = isset($user['admin']) && (int)$user['admin'] === 1;
-    $owner = isset($tulaj_id) && isset($_COOKIE['id']) && (int)$tulaj_id === (int)$_COOKIE['id'];
+    $owner = isset($tulaj_id) && auth_is_logged_in() && (int)$tulaj_id === (int)auth_user_id();
 
     if (($csoport_statusz ?? 'approved') !== 'approved' && !$admin && !$owner) {
-        echo "<script>alert('Ez a csoport még nincs jóváhagyva az admin által.');</script>";
+        echo "<script>alert('" . addslashes(t('group_error_not_approved')) . "')</script>";
         header("Location: groups.php");
         exit;
     }
@@ -21,7 +21,7 @@
 
     $hiba_uzenet = "";
     if ($privat == 1 && !$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj) {
-        $hiba_uzenet = "Ez egy privát csoport. A tartalom csak tagoknak látható.";
+        $hiba_uzenet = t('group_private_message');
     }
 ?>
 <!DOCTYPE html>
@@ -54,9 +54,9 @@
                     <h1><?= htmlspecialchars($csoport_nev) ?></h1>
                     <p class="entry-meta">
                         <?php if ($privat == 1): ?>
-                            🔒 Privát csoport
+                            <?= t('group_status_private') ?>
                         <?php else: ?>
-                            🌍 Nyilvános csoport
+                            <?= t('group_status_public') ?>
                         <?php endif; ?>
                     </p>
                 </div>
@@ -65,7 +65,7 @@
             <?php if ($csoport_leiras != ""): ?>
                 <p><?= nl2br(htmlspecialchars($csoport_leiras)) ?></p>
             <?php else: ?>
-                <p class="entry-meta">Ehhez a csoporthoz még nincs leírás megadva.</p>
+                <p class="entry-meta"><?= t('group_no_description') ?></p>
             <?php endif; ?>
 
             <?php if ($hiba_uzenet != ""): ?>
@@ -77,29 +77,29 @@
             <div class="profile-actions">
                 <?php if (!$aktualis_felhasznalo_tag && !$aktualis_felhasznalo_pending): ?>
                     <form method="post">
-                        <button type="submit" name="join_group" class="btn-cta">Csatlakozás a csoporthoz</button>
+                        <button type="submit" name="join_group" class="btn-cta"><?= t('group_join_button') ?></button>
                     </form>
                 <?php endif; ?>
 
                 <?php if ($aktualis_felhasznalo_pending): ?>
-                    <div class="entry-meta">Csatlakozási kérelmed függőben van.</div>
+                    <div class="entry-meta"><?= t('group_join_pending') ?></div>
                 <?php endif; ?>
 
                 <?php if ($aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj): ?>
                     <form method="post">
-                        <button type="submit" name="kilepes" class="btn-ghost">Kilépés a csoportból</button>
+                        <button type="submit" name="kilepes" class="btn-ghost"><?= t('group_leave_button') ?></button>
                     </form>
                 <?php endif; ?>
             </div>
 
             <?php if ($aktualis_felhasznalo_tag && !$aktualis_felhasznalo_tulaj): ?>
                 <details>
-                    <summary class="link">⚠ Csoport jelentése</summary>
+                    <summary class="link">⚠ <?= t('group_report_summary') ?></summary>
                     <div style="margin-top:12px;">
                         <?php
                             $report_type      = 'group';
                             $report_target_id = $csoport_id;
-                            $report_label     = 'Csoport jelentése';
+                            $report_label     = t('group_report_label');
                             $report_extra_class = '';
                             include '_report_widget.php';
                         ?>
@@ -116,7 +116,7 @@
                 <!-- TAGOK -->
                 <section class="card" style="width:100%; max-width:100%; overflow:hidden;">
                     <div class="section-titlebar">
-                        <h3>👥 Tagok</h3>
+                        <h3>👥 <?= t('group_members_title') ?></h3>
                     </div>
 
                     <?php if ($hiba_uzenet == "" && ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj)): ?>
@@ -139,11 +139,11 @@
 									$tag_id = $egy_tag['user_id'];
 									$tag_nev = $egy_tag['username'];
 									if ($egy_tag['role'] == "owner") {
-										$tag_szerep = "tulajdonos";
+										$tag_szerep = t('group_role_owner');
 									} elseif ($egy_tag['role'] == "moderator") {
-										$tag_szerep = "moderátor";
+										$tag_szerep = t('group_role_moderator');
 									} else {
-										$tag_szerep = "tag";
+										$tag_szerep = t('group_role_member');
 }
 								?>
 									<article class="mini-card" style="display:block; width:100%; max-width:100%; min-width:0; overflow:hidden;">
@@ -158,7 +158,7 @@
 												<form method="post" style="margin-top:12px;">
 													<input type="hidden" name="kezelt_user_id" value="<?= (int)$tag_id ?>">
 													<button type="submit" name="moderator_add" class="btn-cta" style="width:100%; min-width:0;">
-														Moderátor
+														<?= t('group_make_moderator') ?>
 													</button>
 												</form>
 											<?php endif; ?>
@@ -167,7 +167,7 @@
 												<form method="post" style="margin-top:12px;">
 													<input type="hidden" name="kezelt_user_id" value="<?= (int)$tag_id ?>">
 													<button type="submit" name="moderator_remove" class="btn-ghost" style="width:100%; min-width:0;">
-														Moderátor jog elvétele
+														<?= t('group_remove_moderator') ?>
 													</button>
 												</form>
 											<?php endif; ?>
@@ -175,7 +175,7 @@
 											<form method="post" style="margin-top:12px;">
 												<input type="hidden" name="remove_user_id" value="<?= (int)$tag_id ?>">
 												<button type="submit" name="remove_member" class="btn-ghost" style="width:100%; min-width:0;">
-													Eltávolítás
+													<?= t('group_remove_member') ?>
 												</button>
 											</form>
 										<?php endif; ?>
@@ -183,11 +183,8 @@
 								<?php endwhile; ?>
                             </div>
                         <?php else: ?>
-                            <p class="entry-meta">Még nincsenek tagok ebben a csoportban.</p>
-                        <?php endif; ?>
-
-                        <?php if ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator): ?>
-                            <h3>Függőben lévő jelentkezések</h3>
+                            <p class="entry-meta"><?= t('group_no_members') ?></p>
+                            <h3><?= t('group_pending_requests_title') ?></h3>
 
                             <?php
                                 $pending_tagok_lekerdezes = db_query(
@@ -210,32 +207,32 @@
 									<article class="mini-card" style="display:block; width:100%; max-width:100%; min-width:0; overflow:hidden;">
 										<div class="mini-main" style="min-width:0;">
 											<h4 class="mini-title" style="overflow-wrap:anywhere;">@<?= htmlspecialchars($pending_tag_nev) ?></h4>
-											<p class="mini-meta">függőben</p>
+											<p class="mini-meta"><?= t('group_pending_status') ?></p>
 										</div>
 
 										<div class="profile-actions" style="margin-top:12px;">
 											<form method="post" style="width:100%;">
 												<input type="hidden" name="kezelt_user_id" value="<?= (int)$pending_tag_id ?>">
 												<button type="submit" name="elfogadas" class="btn-cta" style="width:100%; min-width:0;">
-													Elfogadás
+													<?= t('group_pending_accept') ?>
 												</button>
 											</form>
 
 											<form method="post" style="width:100%;">
 												<input type="hidden" name="kezelt_user_id" value="<?= (int)$pending_tag_id ?>">
 												<button type="submit" name="elutasitas" class="btn-ghost" style="width:100%; min-width:0;">
-													Elutasítás
+													<?= t('group_pending_reject') ?>
 												</button>
 											</form>
 										</div>
 									</article>
 								<?php endwhile; ?>
                             <?php else: ?>
-                                <p class="entry-meta">Nincsenek függőben lévő jelentkezések.</p>
+                                <p class="entry-meta"><?= t('group_pending_none') ?></p>
                             <?php endif; ?>
                         <?php endif; ?>
                     <?php else: ?>
-                        <p class="entry-meta">A tagok listája csak tagok és a tulajdonos számára elérhető.</p>
+                        <p class="entry-meta"><?= t('group_members_hidden_message') ?></p>
                     <?php endif; ?>
                 </section>
 				<br>
@@ -257,12 +254,12 @@
                     ?>
                     <section class="card" style="width:100%; max-width:100%; overflow:hidden;">
                         <div class="section-titlebar">
-                            <h3>💬 Csoport üzenőfal</h3>
+                            <h3><?= t('group_chat_title') ?></h3>
                         </div>
 
                         <form method="post" class="form-field">
-                            <textarea name="komment_szoveg" rows="4" class="input" placeholder="Írj egy üzenetet a csoportnak..."></textarea>
-                            <button type="submit" name="uj_komment" class="btn-cta">Küldés</button>
+                            <textarea name="komment_szoveg" rows="4" class="input" placeholder="<?= t('group_chat_placeholder') ?>"></textarea>
+                            <button type="submit" name="uj_komment" class="btn-cta"><?= t('group_chat_send') ?></button>
                         </form>
 
                         <?php if ($kommentek && $kommentek->num_rows > 0): ?>
@@ -282,14 +279,14 @@
 										<form method="post" style="margin-top:12px;">
 											<input type="hidden" name="komment_id" value="<?= (int)$komment['id'] ?>">
 											<button type="submit" name="komment_torles" class="btn-ghost" style="width:100%; min-width:0;">
-												Törlés
+												<?= t('group_comment_delete') ?>
 											</button>
 										</form>
 									<?php endif; ?>
 								</article>
                             <?php endwhile; ?>
                         <?php else: ?>
-                            <p class="entry-meta">Még nincs üzenet a csoport falán.</p>
+                            <p class="entry-meta"><?= t('group_no_wall_messages') ?></p>
                         <?php endif; ?>
                     </section>
 					<br>
@@ -297,40 +294,40 @@
                     <!-- JEGYZETEK -->
                     <section class="card" style="width:100%; max-width:100%; overflow:hidden;">
                         <div class="section-titlebar">
-                            <h3>📚 Csoport jegyzetek</h3>
+                            <h3><?= t('group_notes_title') ?></h3>
                         </div>
 
                         <?php if ($aktualis_felhasznalo_tag): ?>
                             <details>
-                                <summary class="link">➕ Új jegyzet feltöltése</summary>
+                                <summary class="link"><?= t('group_new_note_summary') ?></summary>
                                 <div style="margin-top:12px;">
                                     <form method="post" enctype="multipart/form-data" class="auth-card">
                                         <div class="form-grid">
                                             <div class="form-field">
-                                                <label>Jegyzet neve</label>
+                                                <label><?= t('group_note_name_label') ?></label>
                                                 <input type="text" name="jegyzet_nev" class="input">
                                             </div>
 
                                             <div class="form-field">
-                                                <label>Fájl</label>
+                                                <label><?= t('group_note_file_label') ?></label>
                                                 <input type="file" name="jegyzet_fajl" class="input">
                                             </div>
 
                                             <div class="form-field">
-                                                <label>Leírás (nem kötelező)</label>
+                                                <label><?= t('group_note_description_label') ?></label>
                                                 <textarea name="jegyzet_leiras" rows="3" class="input"></textarea>
                                             </div>
                                         </div>
 
                                         <div class="auth-actions">
-                                            <button type="submit" name="uj_jegyzet" class="btn-cta">Feltöltés a csoportba</button>
+                                            <button type="submit" name="uj_jegyzet" class="btn-cta"><?= t('group_note_upload_button') ?></button>
                                         </div>
                                     </form>
                                 </div>
                             </details>
                         <?php endif; ?>
 
-                        <h3>Feltöltött jegyzetek</h3>
+                        <h3><?= t('group_uploaded_notes') ?></h3>
 
                         <?php
                             $group_files_lekerdezes = db_query(
@@ -366,7 +363,7 @@
 
 									<div style="margin-top:12px;">
 										<a href="<?= htmlspecialchars($fajl_elercim) ?>" target="_blank" class="entry-download-btn" style="width:100%; min-width:0;">
-											Letöltés
+											<?= t('group_download') ?>
 										</a>
 									</div>				
 									<?php
@@ -382,14 +379,14 @@
 									);
 									?>
 									<div style="margin-top:14px;">
-										<h5 style="margin-bottom:8px;">Kommentek</h5>
+										<h5 style="margin-bottom:8px;"><?= t('group_comments_title') ?></h5>
 
 										<?php if ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj): ?>
 											<form method="post" style="margin-bottom:12px;">
 												<input type="hidden" name="group_file_id" value="<?= (int)$egy_jegyzet['id'] ?>">
-												<textarea name="jegyzet_komment_szoveg" rows="2" class="input" placeholder="Írj kommentet ehhez a jegyzethez..."></textarea>
+												<textarea name="jegyzet_komment_szoveg" rows="2" class="input" placeholder="<?= t('group_note_comment_placeholder') ?>"></textarea>
 												<button type="submit" name="uj_jegyzet_komment" class="btn-cta" style="margin-top:8px;">
-													Küldés
+													<?= t('btn_send') ?>
 												</button>
 											</form>
 										<?php endif; ?>
@@ -409,10 +406,10 @@
 														</div>
 
 														<?php if ($komment_sajat || $aktualis_felhasznalo_tulaj || $komment_admin): ?>
-															<form method="post" style="margin-top:10px;" onsubmit="return confirm('Biztosan törölni szeretnéd ezt a kommentet?');">
+															<form method="post" style="margin-top:10px;" onsubmit="return confirm('<?= t('group_comment_delete_confirm') ?>');">
 																<input type="hidden" name="jegyzet_komment_id" value="<?= (int)$jegyzet_komment['id'] ?>">
 																<button type="submit" name="jegyzet_komment_torles" class="btn-ghost" style="width:100%; min-width:0;">
-																	Törlés
+																	<?= t('group_comment_delete') ?>
 																</button>
 															</form>
 														<?php endif; ?>
@@ -420,17 +417,17 @@
 												<?php endwhile; ?>
 											</div>
 										<?php else: ?>
-											<p class="entry-meta">Még nincs komment ennél a jegyzetnél.</p>
+											<p class="entry-meta"><?= t('group_no_comments_for_note') ?></p>
 										<?php endif; ?>
 									</div>
 								</article>
                             <?php endwhile; ?>
                         <?php else: ?>
-                            <p class="entry-meta">Még nincsenek elfogadott csoport jegyzetek.</p>
+                            <p class="entry-meta"><?= t('group_no_approved_notes') ?></p>
                         <?php endif; ?>
 
                         <?php if ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator): ?>
-                            <h3>Elfogadásra váró jegyzetek</h3>
+                            <h3><?= t('group_pending_accept') ?>ra váró jegyzetek</h3>
 
                             <?php
                                 $varakozo_jegyzetek = db_query(
@@ -458,7 +455,7 @@
                                     <article class="mini-card">
                                         <div class="mini-main">
                                             <h4 class="mini-title"><?= htmlspecialchars($v_jegyzet_nev) ?></h4>
-                                            <p class="mini-meta">@<?= htmlspecialchars($v_jegyzet_feltolto) ?> – jóváhagyásra vár</p>
+                                            <p class="mini-meta">@<?= htmlspecialchars($v_jegyzet_feltolto) ?> <?= t('group_note_pending_review') ?></p>
 
                                             <?php if ($v_jegyzet_leiras != ""): ?>
                                                 <p><?= nl2br(htmlspecialchars($v_jegyzet_leiras)) ?></p>
@@ -466,22 +463,22 @@
                                         </div>
 
                                         <div class="profile-actions">
-                                            <a href="<?= htmlspecialchars($v_fajl_elercim) ?>" target="_blank" class="entry-download-btn">Megnyitás</a>
+                                            <a href="<?= htmlspecialchars($v_fajl_elercim) ?>" target="_blank" class="entry-download-btn"><?= t('group_note_open') ?></a>
 
                                             <form method="post">
                                                 <input type="hidden" name="jegyzet_id" value="<?= (int)$v_jegyzet_id ?>">
-                                                <button type="submit" name="jegyzet_elfogadas" class="btn-cta">Elfogadás</button>
+                                                <button type="submit" name="jegyzet_elfogadas" class="btn-cta"><?= t('group_pending_accept') ?></button>
                                             </form>
 
-                                            <form method="post" onsubmit="return confirm('Biztos elutasítod / törlöd ezt a jegyzetet?');">
+                                            <form method="post" onsubmit="return confirm('<?= t('group_note_reject_confirm') ?>');">
                                                 <input type="hidden" name="jegyzet_id" value="<?= (int)$v_jegyzet_id ?>">
-                                                <button type="submit" name="jegyzet_elutasitas" class="btn-ghost">Elutasítás</button>
+                                                <button type="submit" name="jegyzet_elutasitas" class="btn-ghost"><?= t('group_pending_reject') ?></button>
                                             </form>
                                         </div>
                                     </article>
                                 <?php endwhile; ?>
                             <?php else: ?>
-                                <p class="entry-meta">Nincs elfogadásra váró jegyzet.</p>
+                                <p class="entry-meta"><?= t('group_no_pending_notes') ?></p>
                             <?php endif; ?>
                         <?php endif; ?>
                     </section>
@@ -494,7 +491,7 @@
 
                 <!-- ESEMÉNYEK -->
                 <section class="sidebar-card">
-                    <h2 class="sidebar-title">📅 Csoport események</h2>
+                    <h2 class="sidebar-title"><?= t('group_events_title') ?></h2>
 
                     <?php if ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj): ?>
                         <?php
@@ -524,18 +521,18 @@
                                 </article>
                             <?php endwhile; ?>
                         <?php else: ?>
-                            <p class="sidebar-meta">Nincs esemény ebben a csoportban.</p>
+                            <p class="sidebar-meta"><?= t('group_no_events') ?></p>
                         <?php endif; ?>
 
                         <?php if ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator): ?>
                             <details>
-                                <summary class="link">➕ Esemény hozzáadása</summary>
+                                <summary class="link"><?= t('group_event_add_summary') ?></summary>
                                 <div style="margin-top:12px;">
                                     <form method="post" class="form-field">
-                                        <input type="text" name="event_title" placeholder="Esemény neve" class="input">
+                                        <input type="text" name="event_title" placeholder="<?= t('group_event_title_placeholder') ?>" class="input">
                                         <input type="datetime-local" name="event_date" class="input">
-                                        <textarea name="event_desc" rows="3" placeholder="Leírás (nem kötelező)" class="input"></textarea>
-                                        <button type="submit" name="uj_esemeny" class="btn-cta">Esemény mentése</button>
+                                        <textarea name="event_desc" rows="3" placeholder="<?= t('group_event_description_placeholder') ?>" class="input"></textarea>
+                                        <button type="submit" name="uj_esemeny" class="btn-cta"><?= t('group_event_save') ?></button>
                                     </form>
                                 </div>
                             </details>
@@ -546,24 +543,24 @@
                 <!-- FLASHCARD -->
                 <?php if ($hiba_uzenet == "" && ($aktualis_felhasznalo_tag || $aktualis_felhasznalo_tulaj)): ?>
                     <section class="sidebar-card" id="flashcards">
-                        <h2 class="sidebar-title">🃏 Flashcard tanulás</h2>
+                        <h2 class="sidebar-title"><?= t('group_flashcard_title') ?></h2>
                         <details>
-                            <summary class="link">➕ Új flashcard hozzáadása</summary>
+                            <summary class="link"><?= t('group_flashcard_add_summary') ?></summary>
 							
                             <div style="margin-top:16px;">
                                 <form method="post" class="auth-card">
                                     <div class="form-field">
-                                        <label>Kérdés</label>
-                                        <textarea name="flash_q" rows="2" class="input" placeholder="Ide írd a kérdésed" required></textarea>
+                                        <label><?= t('group_flash_question_label') ?></label>
+                                        <textarea name="flash_q" rows="2" class="input" placeholder="<?= t('group_flash_question_placeholder') ?>" required></textarea>
                                     </div>
 
                                     <div class="form-field">
-                                        <label>Válasz</label>
-                                        <textarea name="flash_a" rows="3" class="input" placeholder="Válasz a kérdésre" required></textarea>
+                                        <label><?= t('group_flash_answer_label') ?></label>
+                                        <textarea name="flash_a" rows="3" class="input" placeholder="<?= t('group_flash_answer_placeholder') ?>" required></textarea>
                                     </div>
 									<br>
                                     <div class="auth-actions">
-                                        <button type="submit" name="flashcard_add" class="btn-cta">Flashcard mentése</button>
+                                        <button type="submit" name="flashcard_add" class="btn-cta"><?= t('group_flash_save') ?></button>
                                     </div>
                                 </form>
                             </div>
@@ -590,8 +587,8 @@
                                     </div>
 
                                     <div class="auth-actions" style="margin-top:12px;">
-                                        <button type="button" class="btn-ghost" onclick="showAnswer()">Mutasd a választ</button>
-                                        <button type="button" class="btn-ghost" onclick="nextCard()">Következő</button>
+                                        <button type="button" class="btn-ghost" onclick="showAnswer()"><?= t('group_flash_show_answer') ?></button>
+                                        <button type="button" class="btn-ghost" onclick="nextCard()"><?= t('group_flash_next') ?></button>
                                     </div>
 
                                     <div class="mini-meta" style="margin-top:12px;">
@@ -602,43 +599,43 @@
                                     <div class="auth-actions" style="margin-top:12px;">
                                         <form method="post">
                                             <input type="hidden" name="flashcard_id" value="<?= (int)$fc['id'] ?>">
-                                            <button type="submit" name="flashcard_mark" value="correct" class="btn-cta">✔ Tudtam</button>
+                                            <button type="submit" name="flashcard_mark" value="correct" class="btn-cta"><?= t('group_flash_mark_known') ?></button>
                                         </form>
 
                                         <form method="post">
                                             <input type="hidden" name="flashcard_id" value="<?= (int)$fc['id'] ?>">
-                                            <button type="submit" name="flashcard_mark" value="wrong" class="btn-ghost">✖ Nem tudtam</button>
+                                            <button type="submit" name="flashcard_mark" value="wrong" class="btn-ghost"><?= t('group_flash_mark_unknown') ?></button>
                                         </form>
 
                                         <?php if ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator): ?>
                                             <form method="post">
                                                 <input type="hidden" name="flashcard_id" value="<?= (int)$fc['id'] ?>">
-                                                <button type="submit" name="flashcard_delete" class="btn-ghost">🗑 Törlés</button>
+                                                <button type="submit" name="flashcard_delete" class="btn-ghost">🗑 <?= t('group_comment_delete') ?></button>
                                             </form>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                             </article>
                         <?php else: ?>
-                            <p class="sidebar-meta">Nincs flashcard ebben a csoportban.</p>
+                            <p class="sidebar-meta"><?= t('group_flash_none') ?></p>
                         <?php endif; ?>
                     </section>
                 <?php endif; ?>
 
                 <!-- SZAVAZÁS -->
                 <section class="sidebar-card">
-                    <h2 class="sidebar-title">📊 Csoport szavazás</h2>
+                    <h2 class="sidebar-title"><?= t('group_poll_title') ?></h2>
 
 					<?php if ($aktualis_felhasznalo_tulaj || $aktualis_felhasznalo_moderator): ?>
                         <details>
-                            <summary class="link">➕ Szavazás létrehozása</summary>
+                            <summary class="link"><?= t('group_poll_create_summary') ?></summary>
                             <div style="margin-top:12px;">
                                 <form method="post" class="form-field">
-                                    <input type="text" name="poll_question" placeholder="Szavazás kérdése" class="input">
-                                    <input type="text" name="opt1" placeholder="Opció 1" class="input">
-                                    <input type="text" name="opt2" placeholder="Opció 2" class="input">
-                                    <input type="text" name="opt3" placeholder="Opció 3 (nem kötelező)" class="input">
-                                    <button type="submit" name="uj_poll" class="btn-cta">Szavazás létrehozása</button>
+                                    <input type="text" name="poll_question" placeholder="<?= t('group_poll_question_placeholder') ?>" class="input">
+                                    <input type="text" name="opt1" placeholder="<?= t('group_poll_option_placeholder_1') ?>" class="input">
+                                    <input type="text" name="opt2" placeholder="<?= t('group_poll_option_placeholder_2') ?>" class="input">
+                                    <input type="text" name="opt3" placeholder="<?= t('group_poll_option_placeholder_3') ?>" class="input">
+                                    <button type="submit" name="uj_poll" class="btn-cta"><?= t('group_poll_create_button') ?></button>
                                 </form>
                             </div>
                         </details>
@@ -683,7 +680,7 @@
                                     <article class="mini-card">
                                         <div class="mini-main">
                                             <h4 class="mini-title"><?= htmlspecialchars($o['option_text']) ?></h4>
-                                            <p class="mini-meta">Már szavaztál ennél a szavazásnál.</p>
+                                            <p class="mini-meta"><?= t('group_poll_already_voted') ?></p>
                                         </div>
                                     </article>
                                 <?php endif; ?>
@@ -698,19 +695,19 @@
                         <?php endwhile; ?>
 
                         <?php if ((int)$p['closed'] === 0): ?>
-                            <p class="sidebar-meta">Összes szavazat: <?= $total_votes ?></p>
+                            <p class="sidebar-meta"><?= t('group_poll_total_votes') ?><?= $total_votes ?></p>
                         <?php else: ?>
-                            <p class="sidebar-meta">A szavazás lezárva. Összes szavazat: <?= $total_votes ?></p>
+                            <p class="sidebar-meta">A szavazás lezárva. <?= t('group_poll_total_votes') ?><?= $total_votes ?></p>
                         <?php endif; ?>
 
                         <?php if ($aktualis_felhasznalo_tulaj && (int)$p['closed'] === 0): ?>
                             <form method="post">
                                 <input type="hidden" name="poll_id" value="<?= (int)$p['id'] ?>">
-                                <button type="submit" name="poll_close" class="btn-cta">Szavazás lezárása</button>
+                                <button type="submit" name="poll_close" class="btn-cta"><?= t('group_poll_close') ?></button>
                             </form>
                         <?php endif; ?>
                     <?php else: ?>
-                        <p class="sidebar-meta">Nincs aktív szavazás.</p>
+                        <p class="sidebar-meta"><?= t('group_poll_none') ?></p>
                     <?php endif; ?>
                 </section>
 
@@ -719,11 +716,11 @@
 
         <!-- ALSÓ GOMBOK -->
         <div class="profile-actions" style="margin-top:36px;">
-            <a href="groups.php" class="btn-ghost">Vissza a csoportokhoz</a>
+            <a href="groups.php" class="btn-ghost"><?= t('group_back_to_groups') ?></a>
 
             <?php if ($aktualis_felhasznalo_tulaj): ?>
-                <form method="post" onsubmit="return confirm('Biztosan törölni szeretnéd a csoportot? Ez a művelet nem visszavonható.');">
-                    <button type="submit" name="csoport_torles" class="btn-ghost">Csoport törlése</button>
+                <form method="post" onsubmit="return confirm('<?= t('group_delete_confirm') ?>');">
+                    <button type="submit" name="csoport_torles" class="btn-ghost"><?= t('group_delete_button') ?></button>
                 </form>
             <?php endif; ?>
         </div>

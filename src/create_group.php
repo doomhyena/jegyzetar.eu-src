@@ -7,16 +7,12 @@ require_once "assets/php/db.php";
 require_once "assets/php/lang.php";
 require_once 'assets/php/functions.php';
 
-if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
-    header("Location: reglog.php");
-    exit;
-}
-
+require_login();
 if ($_GET['profanity'] ?? '' === '1') {
-    echo "<script>alert('Ne használj trágár szavakat csoport létrehozásnál!')</script>";
+    echo "<script>alert('" . addslashes(t('create_group_profanity_alert')) . "')</script>";
 }
 
-$bejelentkezett_felhasznalo_id = (int)$_COOKIE['id'];
+$bejelentkezett_felhasznalo_id = (int)auth_user_id();
 
 if (isset($_POST['letrehozas'])) {
 
@@ -38,18 +34,18 @@ if (isset($_POST['letrehozas'])) {
     $tulaj_id = $bejelentkezett_felhasznalo_id;
 
     if ($csoport_nev === '') {
-        echo "<script>alert('A csoport neve kötelező!');</script>";
+        echo "<script>alert('" . addslashes(t('create_group_name_required')) . "');</script>";
     } else {
 
         $inserted = db_exec($conn,"INSERT INTO groups (name, description, owner_id, is_private, status) VALUES (?, ?, ?, ?, 'pending')","ssii",[$csoport_nev, $csoport_leiras, $tulaj_id, $privat]);
         if ($inserted > 0) {
             $uj_csoport_id = $conn->insert_id;
             db_exec($conn, "INSERT INTO group_members (group_id, user_id, role, status)  VALUES (?, ?, 'owner', 'accepted')", "ii", [$uj_csoport_id, $tulaj_id]);
-            echo "<script>alert('Csoport létrehozva! Admin jóváhagyás után fog megjelenni a listában.');</script>";
-			header("Location: groups.php?pending=1");
-			exit;
+            echo "<script>alert('" . addslashes(t('create_group_success')) . "');</script>";
+            header("Location: groups.php?pending=1");
+            exit;
         } else {
-            echo "<script>alert('Hiba történt a csoport létrehozásakor.');</script>";
+            echo "<script>alert('" . addslashes(t('create_group_error')) . "');</script>";
         }
     }
 }
@@ -58,7 +54,7 @@ if (isset($_POST['letrehozas'])) {
 <html lang="<?= $lang ?>">
 
 <head>
-    <title>Új csoport létrehozása – Jegyzetár</title>
+    <title><?= t('create_group_title') ?></title>
     <meta charset="UTF-8">
     <meta name="description" content="<?= t('meta_description_home') ?>">
     <meta name="keywords" content="<?= t('meta_keywords_home') ?>">
@@ -78,41 +74,40 @@ if (isset($_POST['letrehozas'])) {
         <div class="main w-full max-w-3xl mx-auto px-4 md:px-6 lg:px-8 py-6">
             <div class="section-titlebar mb-6">
                 <div>
-                    <h1 class="text-2xl md:text-3xl lg:text-4xl mb-2">Új tanuló csoport létrehozása</h1>
+                    <h1 class="text-2xl md:text-3xl lg:text-4xl mb-2"><?= t('create_group_heading') ?></h1>
                     <p class="entry-meta text-sm md:text-base">
-                        Hozz létre egy csoportot, ahol a tagok megoszthatják egymással a jegyzeteiket.
+                        <?= t('create_group_description') ?>
                     </p>
                 </div>
             </div>
             <div class="auth-grid w-full max-w-2xl mx-auto">
                 <section class="auth-card p-6 md:p-8">
-                    <h1 class="text-xl md:text-2xl mb-4">Csoport adatai</h1>
+                    <h1 class="text-xl md:text-2xl mb-4"><?= t('create_group_section_title') ?></h1>
                     <form method="post" class="form-grid flex flex-col gap-4">
                         <div class="form-field">
-                            <label for="group-name" class="text-sm md:text-base font-semibold">Csoport neve</label>
-                            <input type="text" id="group-name" name="name" class="input w-full text-sm md:text-base" placeholder="Pl. C# dolgozat felkészítő">
+                            <label for="group-name" class="text-sm md:text-base font-semibold"><?= t('create_group_field_name') ?></label>
+                            <input type="text" id="group-name" name="name" class="input w-full text-sm md:text-base" placeholder="<?= t('create_group_placeholder_name') ?>">
                         </div>
                         <div class="form-field">
-                            <label for="group-description" class="text-sm md:text-base font-semibold">Leírás</label>
-                            <textarea id="group-description" name="description" rows="4" class="input w-full text-sm md:text-base" placeholder="Röviden írd le, mire való a csoport, kiknek szól, mit osztotok meg itt."></textarea>
+                            <label for="group-description" class="text-sm md:text-base font-semibold"><?= t('create_group_field_description') ?></label>
+                            <textarea id="group-description" name="description" rows="4" class="input w-full text-sm md:text-base" placeholder="<?= t('create_group_placeholder_description') ?>"></textarea>
                         </div>
                         <div class="form-field mt-2">
                             <label class="checkbox-label text-sm md:text-base font-semibold">
                                 <input type="checkbox" name="is_private" class="styled-checkbox">
-                                <span>Privát csoport (csak meghívással / jóváhagyással)</span>
+                                <span><?= t('create_group_private_label') ?></span>
                             </label>
                             <p class="auth-note text-xs md:text-sm mt-2 ml-7">
-                                Privát csoport esetén a csatlakozási kérelmeket jóvá kell hagynod,
-                                és csak a tagok látják a tartalmat.
+                                <?= t('create_group_private_help') ?>
                             </p>
                         </div>
 
                         <div class="auth-actions flex flex-col md:flex-row gap-3 mt-3">
                             <button type="submit" name="letrehozas" class="btn-cta w-full md:w-auto text-sm md:text-base">
-                                Csoport létrehozása
+                                <?= t('create_group_submit') ?>
                             </button>
                             <a href="groups.php" class="btn-ghost w-full md:w-auto text-center text-sm md:text-base">
-                                Mégse, vissza a listához
+                                <?= t('create_group_cancel') ?>
                             </a>
                         </div>
                     </form>

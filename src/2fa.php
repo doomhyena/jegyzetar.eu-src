@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-    <title>Kétlépcsős azonosítás</title>
+    <title><?= t('2fa_title') ?></title>
     <meta name='description' content='Iskolai jegyzeteket megosztó oldal'>
     <meta name='keywords' content='iskola, jegyzet, megosztás, tanulás'>
     <meta name='author' content='Baranyi Norbert, Csontos Kincső, Szekeres Levente'>
@@ -28,13 +28,10 @@
                 $_SESSION['tries'] = 0;
         }
 
-        if (!isset($_SESSION['id']) || !isset($_SESSION['email'])) {
-            header("Location: reglog.php");
-            exit;
-        }
+        require_login();
 
-        $userid = (int)$_SESSION['id'];
-        $email = $_SESSION['email'];
+        $userid = auth_user_id();
+        $user = auth_user($conn);
 
         include 'assets/php/navbar.php';
 
@@ -48,22 +45,24 @@
 
                 if ($talalt_sorok && $talalt_sorok->num_rows === 1) {
                     db_exec($conn, "DELETE FROM 2fa_codes WHERE userid = ? AND code = ?", "is", [$userid, $code]);
-                    setcookie("id", $userid, time() + 3600, "/");
-                    session_destroy();
+                    if ($user) {
+                        auth_login_user($user); // renew session flags
+                    }
                     header("Location: index.php");
                     exit;
                 }
                 
                 // Ha nem email-s kód, próbáljuk meg backup kódként
                 if (verify_backup_code($conn, $userid, $code)) {
-                    setcookie("id", $userid, time() + 3600, "/");
-                    session_destroy();
+                    if ($user) {
+                        auth_login_user($user);
+                    }
                     header("Location: index.php");
                     exit;
                 }
             }
 
-            echo "<script>alert('Helytelen kód')</script>";
+            echo "<script>alert('" . addslashes(t('2fa_error_invalid_code')) . "')</script>";
             $_SESSION['tries']++;
             if ($_SESSION['tries'] >= 3) {
                 session_destroy();
@@ -75,14 +74,14 @@
     <div class="main w-full max-w-lg mx-auto px-4 md:px-6 lg:px-8 py-6">
         <div class="auth-wrap">
             <div class="auth-head mb-6">
-                <h1 class="text-2xl md:text-3xl lg:text-4xl mb-2">Kétlépcsős azonosítás</h1>
-                <p class="auth-note text-sm md:text-base">Kérlek írd be az e-mailben kapott kódot vagy egy backup kódot!</p>
+                <h1 class="text-2xl md:text-3xl lg:text-4xl mb-2"><?= t('2fa_title') ?></h1>
+                <p class="auth-note text-sm md:text-base"><?= t('2fa_description') ?></p>
             </div>
             <div class="auth-grid">
                 <form class="auth-card p-6 md:p-8 flex flex-col gap-4" method="post">
-                    <input class="input w-full text-sm md:text-base" type="text" name="code" id="code" placeholder="Kód" required>
+                    <input class="input w-full text-sm md:text-base" type="text" name="code" id="code" placeholder="<?= t('2fa_placeholder_code') ?>" required>
                     <div class="auth-actions flex flex-col md:flex-row gap-3">
-                        <button class="btn-cta w-full md:w-auto text-sm md:text-base" type="submit">Ellenőrzés</button>
+                        <button class="btn-cta w-full md:w-auto text-sm md:text-base" type="submit"><?= t('2fa_submit') ?></button>
                     </div>
                 </form>
             </div>

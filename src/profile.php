@@ -8,12 +8,8 @@
     require_once "assets/php/functions.php";
 	require_once "assets/php/premium.php";
 
-    if (!isset($_COOKIE['id'])) {
-        header("Location: reglog.php");
-        exit;
-    }
-
-    $viewerId = (int)$_COOKIE['id'];
+    require_login();
+    $viewerId = (int)auth_user_id();
     $username = $_GET['username'] ?? $_GET['user'] ?? '';
 
     if (!preg_match('/^[a-zA-Z0-9_.-]{3,32}$/', $username)) {
@@ -145,16 +141,14 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
 
     if (!in_array($file_ext, $allowed_ext, true) || !in_array((string)$mime_type, $allowed_mime, true)) {
         if ($file_ext === 'gif' && !$profile_premium) {
-            $profileUpdateError = 'Animált (GIF) profilkép feltöltése csak prémium felhasználóknak elérhető.';
-        } else {
-            $profileUpdateError = 'Nem támogatott képfájl. Engedélyezett formátumok: JPG, PNG, WEBP' . ($profile_premium ? ', GIF' : '') . '.';
-        }
-    } elseif ($file_ext === 'gif' && $file_size > $max_size_gif) {
-        $profileUpdateError = 'A GIF fájl túl nagy. Maximum ' . round($max_size_gif / 1024 / 1024) . ' MB engedélyezett.';
-    } elseif ($file_ext !== 'gif' && $file_size > $max_size) {
-        $profileUpdateError = 'A képfájl túl nagy. Maximum ' . round($max_size / 1024 / 1024) . ' MB engedélyezett.';
-    } else {
-
+                $profileUpdateError = t('profile_error_gif_premium');
+            } else {
+                $profileUpdateError = sprintf(t('profile_error_unsupported_file'), $profile_premium ? ', GIF' : '');
+            }
+        } elseif ($file_ext === 'gif' && $file_size > $max_size_gif) {
+            $profileUpdateError = sprintf(t('profile_error_gif_too_large'), round($max_size_gif / 1024 / 1024));
+        } elseif ($file_ext !== 'gif' && $file_size > $max_size) {
+            $profileUpdateError = sprintf(t('profile_error_file_too_large'), round($max_size / 1024 / 1024));
         if (!is_dir($target_dir)) {
             mkdir($target_dir, 0777, true);
         }
@@ -199,7 +193,7 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
 
     if ($isOwner && isset($_POST['unlink-discord'])) {
         db_stmt($conn, "UPDATE users SET oauth_provider=NULL, oauth_sub=NULL WHERE id=? LIMIT 1", "i", [$viewerId])->close();
-        $_SESSION['profile_toast'] = 'Discord fiók sikeresen leválasztva!';
+        $_SESSION['profile_toast'] = t('profile_discord_unlinked');
         header("Location: profile.php?user=" . urlencode($profile['username']));
         exit;
     }
@@ -238,7 +232,7 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
         }
 
         if (mb_strlen($customCss, '8bit') > 20000) {
-            $_SESSION['profile_toast'] = 'A CSS túl hosszú (max 20000 byte).';
+            $_SESSION['profile_toast'] = t('profile_css_too_long');
             header("Location: profile.php?user=" . urlencode($profile['username']));
             exit;
         }
@@ -250,10 +244,10 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
                 $_SESSION['profile_toast'] = t('msg_css_empty_reset');
             } else {
                 db_stmt($conn, "INSERT INTO user_custom_css_requests (user_id, css) VALUES (?, ?)", "is", [$viewerId, $customCss])->close();
-                $_SESSION['profile_toast'] = 'A CSS kérelmet elküldtük; várj admin jóváhagyásra.';
+                $_SESSION['profile_toast'] = t('profile_css_request_sent');
             }
         } catch (Throwable $e) {
-            $_SESSION['profile_toast'] = 'Hiba történt a CSS mentésekor.';
+            $_SESSION['profile_toast'] = t('profile_css_save_error');
         }
 
         header("Location: profile.php?user=" . urlencode($profile['username']));
@@ -279,11 +273,11 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
         if (!preg_match('/^[a-zA-Z0-9_.-]{3,32}$/', $newUsername)) {
             $profileUpdateError = t('msg_invalid_profile');
         } elseif (strcasecmp($newUsername, $oldUsername) === 0) {
-            $profileUpdateError = 'Ugyanazt a felhasználónevet adtad meg.';
+            $profileUpdateError = t('profile_error_username_same');
         } else {
             $check = db_query($conn, "SELECT id FROM users WHERE username = ? LIMIT 1", "s", [$newUsername]);
             if ($check && $check->num_rows > 0) {
-                $profileUpdateError = 'Ez a felhasználónév már foglalt.';
+                $profileUpdateError = t('profile_error_username_taken');
             } else {
                 $oldDir = __DIR__ . "/users/" . $oldUsername;
                 $newDir = __DIR__ . "/users/" . $newUsername;
@@ -294,10 +288,10 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
 
                     if (is_dir($oldDir)) {
                         if (file_exists($newDir)) {
-                            throw new Exception("A célmappa már létezik.");
+                            throw new Exception(t('profile_error_folder_exists'));
                         }
                         if (!@rename($oldDir, $newDir)) {
-                            throw new Exception("Nem sikerült átnevezni a user mappát.");
+                            throw new Exception(t('profile_error_rename_folder'));
                         }
                     } else {
                         if (!is_dir($newDir)) {
@@ -315,7 +309,7 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
                     if (is_dir($newDir) && !is_dir($oldDir)) {
                         @rename($newDir, $oldDir);
                     }
-                    $profileUpdateError = "Hiba a felhasználónév módosításakor: " . $e->getMessage();
+                    $profileUpdateError = sprintf(t('profile_error_username_modify'), $e->getMessage());
                 }
             }
         }
@@ -323,11 +317,11 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
 
     $bio = trim((string)($profile['bio'] ?? ''));
     $emptyBios = [
-            "Ez a felhasználó még nem dobott be bemutatkozást.",
-            "Itt lenne a bio… ha lenne bio.",
-            "A bemutatkozás DLC még nem lett telepítve.",
-            "Csend van… túl nagy a csend.",
-            "Bio nincs, de a vibe megvan.",
+            t('profile_bio_empty_no_intro'),
+            t('profile_bio_empty_if_exists'),
+            t('profile_bio_empty_dlc_not_installed'),
+            t('profile_bio_empty_silence'),
+            t('profile_bio_empty_vibe'),
     ];
     $fallbackBio = $emptyBios[array_rand($emptyBios)];
 
@@ -461,7 +455,7 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
                                 <?php endif; ?>
                             </div>
                             <?php if ($isOwner): ?>
-                                <div class="profile-actions inline" aria-label="Profil műveletek">
+                                <div class="profile-actions inline" aria-label="<?= htmlspecialchars(t('profile_actions_label')) ?>">
                                     <form method="post" enctype="multipart/form-data" id="pfp-form" style="display:none;">
                                         <input type="file"
                                             name="profile_picture"
@@ -496,21 +490,23 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
 
                                             if (!allowed.includes(ext)) {
                                                 alert(isPrem
-                                                    ? 'Nem támogatott formátum. Engedélyezett: JPG, PNG, WEBP, GIF.'
-                                                    : 'Nem támogatott formátum. Engedélyezett: JPG, PNG, WEBP.\nGIF feltöltéshez prémium előfizetés szükséges.');
+                                                    ? <?= json_encode(t('profile_upload_format_not_supported_gif'), JSON_UNESCAPED_UNICODE) ?>
+                                                    : <?= json_encode(t('profile_upload_format_not_supported_premium'), JSON_UNESCAPED_UNICODE) ?>);
                                                 pfpInput.value = '';
                                                 return;
                                             }
 
                                             if (file.size > maxSize) {
-                                                alert('A fájl túl nagy! Maximum '
-                                                    + (maxSize / 1024 / 1024) + ' MB engedélyezett '
-                                                    + (isGif ? 'GIF' : 'képek') + ' esetén.');
+                                                const profileUploadTooLargeTemplate = <?= json_encode(t('profile_upload_file_too_large_template'), JSON_UNESCAPED_UNICODE) ?>;
+                                                alert(profileUploadTooLargeTemplate
+                                                    .replace('%s', (maxSize / 1024 / 1024))
+                                                    .replace('%s', isGif ? <?= json_encode(t('upload_file_type_gif'), JSON_UNESCAPED_UNICODE) ?> : <?= json_encode(t('upload_file_type_images'), JSON_UNESCAPED_UNICODE) ?>)
+                                                );
                                                 pfpInput.value = '';
                                                 return;
                                             }
 
-                                            btnLabel.textContent = '⏳ Feltöltés...';
+                                            btnLabel.textContent = <?= json_encode(t('profile_upload_in_progress'), JSON_UNESCAPED_UNICODE) ?>;
                                             openBtn.disabled = true;
                                             pfpForm.submit();
                                         });
@@ -555,7 +551,7 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
                                         <?php
                                             $report_type = 'user';
                                             $report_target_id = $profileId;
-                                            $report_label = 'Felhasználó jelentése';
+                                            $report_label = t('profile_report_user');
                                             $report_extra_class = '';
                                             include 'assets/php/_report_widget.php';
                                         ?>
@@ -688,38 +684,38 @@ if ($isOwner && isset($_FILES['profile_picture']) && !empty($_FILES['profile_pic
                             <?php if ((int)$profile['twofa_enabled'] === 1): ?>
                                 <div style="margin-top: 12px; padding: 12px; border-radius: 8px; background: rgba(96, 165, 250, 0.12); border: 1px solid rgba(96, 165, 250, 0.35);">
                                     <p class="entry-meta" style="margin: 0 0 8px 0;">
-                                        <strong>Backup kódok:</strong> Ha nem fér hozzá az emailedhez, backup kódokkal bejelentkezhetsz.
+                                        <strong><?= htmlspecialchars(t('profile_backup_codes_label')) ?>:</strong> <?= htmlspecialchars(t('profile_backup_codes_description')) ?>
                                     </p>
                                     <a href="2fa-backup-codes.php" style="display: inline-block; margin-top: 8px; padding: 6px 12px; background: rgba(96, 165, 250, 0.2); border: 1px solid rgba(96, 165, 250, 0.5); border-radius: 6px; color: #93c5fd; text-decoration: none; font-size: 13px;">
-                                        Backup kódok megtekintése →
+                                        <?= htmlspecialchars(t('profile_backup_codes_view')) ?> →
                                     </a>
                                 </div>
                             <?php endif; ?>
                             <h3 style="margin-top: 24px;">Discord</h3>
                             <div class="profile-info-item">
-                                <div class="profile-info-label">Állapot</div>
+                                <div class="profile-info-label"><?= htmlspecialchars(t('profile_status')) ?></div>
                                 <div class="profile-info-value">
                                     <?php if (!empty($profile['oauth_provider']) && $profile['oauth_provider'] === 'discord' && !empty($profile['oauth_sub'])): ?>
                                         <div style="padding: 12px; border-radius: 8px; background: rgba(88, 101, 242, 0.12); border: 1px solid rgba(88, 101, 242, 0.35); margin-bottom: 12px;">
                                             <p style="margin: 0 0 8px 0; color: #93c5fd;">
-                                                <strong>Discord fiók összekapcsolva</strong>
+                                                <strong><?= htmlspecialchars(t('profile_discord_connected')) ?></strong>
                                             </p>
                                             <p class="entry-meta" style="margin: 0;">
-                                                Discord ID: <code style="background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 3px;"><?= htmlspecialchars($profile['oauth_sub']) ?></code>
+                                                <?= htmlspecialchars(t('profile_discord_id')) ?>: <code style="background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 3px;"><?= htmlspecialchars($profile['oauth_sub']) ?></code>
                                             </p>
                                         </div>
                                         <form method="post" style="display: inline;">
                                             <button type="submit" name="unlink-discord" class="btn-ghost profile-save-btn" style="margin-top: 8px;">
-                                                Discord leválasztása
+                                                <?= htmlspecialchars(t('profile_discord_unlink')) ?>
                                             </button>
                                         </form>
                                     <?php else: ?>
                                         <p class="entry-meta" style="margin: 0 0 12px 0;">
-                                            Discord fiók nincs összekapcsolva. Összekapcsolva azonosítható vagy megoszthatod a Discord profilodat.
+                                            <?= htmlspecialchars(t('profile_discord_not_connected')) ?>
                                         </p>
                                         <form method="post" style="display: inline;">
                                             <button type="submit" name="link-discord" class="btn-cta profile-save-btn">
-                                                Discord összekapcsolása
+                                                <?= htmlspecialchars(t('profile_discord_link')) ?>
                                             </button>
                                         </form>
                                     <?php endif; ?>
@@ -985,7 +981,7 @@ body {
                                         <?php if ($ext === 'mp4' || $ext === 'pdf'): ?>
                                             <details class="upload-preview">
                                                 <summary class="upload-preview-summary">
-                                                    <?= ($ext === 'mp4') ? 'Videó előnézet' : 'PDF előnézet' ?>
+                                                    <?= ($ext === 'mp4') ? t('preview_video') : t('preview_pdf') ?>
                                                 </summary>
                                                 <?php if ($ext === 'mp4'): ?>
                                                     <video controls class="file-preview">

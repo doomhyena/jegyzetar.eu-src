@@ -13,12 +13,8 @@
     use League\CommonMark\Environment\Environment;
     use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
 
-    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
-        header("Location: reglog.php");
-        exit;
-    }
-
-    $currentUserId = (int)$_COOKIE['id'];
+    require_login();
+    $currentUserId = (int)auth_user_id();
 
     $userRes = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$currentUserId]);
     $user = ($userRes && $userRes->num_rows > 0) ? $userRes->fetch_assoc() : null;
@@ -170,8 +166,8 @@
                     <div style="padding:20px 22px 18px;border-radius:14px;background:linear-gradient(135deg,rgba(125,211,252,.10),rgba(96,165,250,.06));border:1px solid rgba(125,211,252,.22);position:relative;overflow:hidden;">
                         <div style="position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 0% 0%,rgba(125,211,252,.07),transparent 60%);pointer-events:none;"></div>
                         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                            <span style="display:inline-block;padding:3px 9px;border-radius:999px;background:rgba(125,211,252,.15);border:1px solid rgba(125,211,252,.30);font-size:.72rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--primary);"><?= strtoupper($ext ?: 'FÁJL') ?></span>
-                            <span style="font-size:.8rem;color:var(--muted);">Feltöltötte: <a href="profile.php?user=<?= urlencode($uploader['username'] ?? '') ?>" style="color:var(--primary);font-weight:700;text-decoration:none;"><?= $username ?></a></span>
+                            <span style="display:inline-block;padding:3px 9px;border-radius:999px;background:rgba(125,211,252,.15);border:1px solid rgba(125,211,252,.30);font-size:.72rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--primary);"><?= strtoupper($ext ?: t('note_file_label')) ?></span>
+                            <span style="font-size:.8rem;color:var(--muted);"><?= t('note_uploaded_by') ?> <a href="profile.php?user=<?= urlencode($uploader['username'] ?? '') ?>" style="color:var(--primary);font-weight:700;text-decoration:none;"><?= $username ?></a></span>
                         </div>
                         <h1 style="margin:0;font-size:clamp(1.4rem, 2.2vw + .4rem, 2.2rem);font-weight:900;line-height:1.15;letter-spacing:-.2px;color:var(--text);word-break:break-word;"><?= $file_name ?></h1>
                     </div>
@@ -179,7 +175,7 @@
                         <?php if (($contentType ?? 'file') === 'link' && $externalUrl !== ''): ?>
                             <a class="note-action-btn note-action-btn--dl" href="<?= htmlspecialchars($externalUrl) ?>" target="_blank" rel="noopener noreferrer">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
-                                Megnyitás
+                                <?= t('note_button_open') ?>
                             </a>
                         <?php else: ?>
                             <a class="note-action-btn note-action-btn--dl" href="assets/php/download.php?id=<?= $file_id ?>">
@@ -191,13 +187,13 @@
                             <input type="hidden" name="favorite_file_id" value="<?= $file_id ?>">
                             <button type="submit" name="favorite-btn" class="note-action-btn <?= $is_favorite ? 'note-action-btn--fav' : 'note-action-btn--ghost' ?>">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="<?= $is_favorite ? 'currentColor' : 'none' ?>" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                                <?= $is_favorite ? 'Kedvencekben' : 'Kedvencezés' ?>
+                                <?= $is_favorite ? t('note_favorite_in_list') : t('note_favorite_action') ?>
                             </button>
                         </form>
                         <?php if ($isOwner): ?>
                             <a class="note-action-btn note-action-btn--ghost" href="note_stats.php?id=<?= $file_id ?>">
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
-                                Statisztikák
+                                <?= t('note_stats') ?>
                             </a>
                         <?php endif; ?>
                         <?php if ($isLoggedIn && !$isOwner): ?>
@@ -205,7 +201,7 @@
                             <?php
                                 $report_type = 'note';
                                 $report_target_id = $file_id;
-                                $report_label = 'Jelentés';
+                                $report_label = t('report_label');
                                 $report_extra_class = '';
                                 include 'assets/php/_report_widget.php';
                             ?>
@@ -227,40 +223,39 @@
 					    <iframe
 					      class="w-full aspect-video border-0 rounded-lg"
 					      src="<?= htmlspecialchars($yt) ?>"
-					      title="YouTube videó"
+					      title="<?= t('note_youtube_title') ?>"
 					      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
 					      allowfullscreen
 					      loading="lazy"></iframe>
 					  </div>
 					<?php elseif ($ext === 'docx'): ?>
-					  <p class="text-sm md:text-base mb-4"><b>Ez egy .docx fájl. A megtekintéshez töltsd le és nyisd meg Microsoft Word-ben.</b></p>
+					  <p class="text-sm md:text-base mb-4"><b><?= t('note_docx_preview_message') ?></b></p>
 
 					<?php elseif ($ext === 'mp4'): ?>
 					  <video controls class="file-preview w-full max-w-full rounded-lg mb-4">
 					    <source src="<?= htmlspecialchars($safe_path) ?>" type="video/mp4">
-					    A te böngésződ nem támogatja a videocímkét.
+					    <?= t('note_video_unsupported') ?>
 					  </video>
-
 					<?php elseif ($ext === 'pdf'): ?>
 					  <div class="w-full overflow-hidden rounded-lg mb-4">
 					    <iframe src="<?= htmlspecialchars($safe_path) ?>" class="w-full min-h-[400px] md:min-h-[500px] border-0"></iframe>
 					  </div>
 
 					<?php else: ?>
-					  <p class="entry-meta text-sm md:text-base mb-4">Előnézet nem elérhető ehhez a fájltípushoz. Töltsd le a megnyitáshoz.</p>
+					  <p class="entry-meta text-sm md:text-base mb-4"><?= t('note_preview_unavailable') ?></p>
 					<?php endif; ?>
 				<?php endif; ?>
-                <p class="text-sm md:text-base mb-4">Feltöltötte:
+                <p class="text-sm md:text-base mb-4"><?= t('note_uploaded_by') ?>
                     <a class="uploader-name" href="profile.php?user=<?= urlencode($uploader['username'] ?? '') ?>">
                         <?= $username ?>
                     </a>
                 </p>
                 <div class="rating-section mb-6">
-                    <h3 class="text-xl md:text-2xl mb-2">Értékelés</h3>
-                    <p class="text-sm md:text-base mb-4"><b>Átlag értékelés:</b> <?= $avg ?> (<?= $cnt ?> értékelés)</p>
+                    <h3 class="text-xl md:text-2xl mb-2"><?= t('note_rating_heading') ?></h3>
+                    <p class="text-sm md:text-base mb-4"><b><?= t('note_average_rating') ?>:</b> <?= $avg ?> (<?= $cnt ?> <?= t('note_ratings_count') ?>)</p>
                     <form method="post" class="rating-form filters-inner flex flex-wrap items-center gap-3">
                         <input type="hidden" name="rate_file_id" value="<?= $file_id ?>">
-                        <div class="star-rating" aria-label="Értékelés 1–5">
+                        <div class="star-rating" aria-label="<?= t('note_rating_aria') ?>">
                             <?php
                                 $usr_rate = 0;
                                 $rs = db_query($conn, "SELECT rating FROM ratings WHERE file_id = ? AND user_id = ? LIMIT 1", "ii", [$file_id, (int)$user['id']]);
@@ -285,7 +280,7 @@
                     </form>
                 </div>
                 <div class="comments-section mt-6">
-                    <h3 class="text-xl md:text-2xl mb-4">Kommentek</h3>
+                    <h3 class="text-xl md:text-2xl mb-4"><?= t('note_comments_title') ?></h3>
                     <?php
                         $comments_result = db_query($conn, "SELECT c.*, u.username FROM comments c JOIN users u ON c.userid = u.id WHERE c.postid = ? ORDER BY c.id DESC", "i", [$file_id]);
                     ?>
@@ -299,11 +294,11 @@
                             <?php endwhile; ?>
                         </div>
                     <?php else: ?>
-                        <p class="entry-meta text-sm md:text-base mb-4">Még nincs komment.</p>
+                        <p class="entry-meta text-sm md:text-base mb-4"><?= t('note_no_comments') ?></p>
                     <?php endif; ?>
                     <form method="post" class="comment-form filters-inner flex flex-col gap-3">
                         <input type="hidden" name="post_id" value="<?= $file_id ?>">
-                        <textarea name="comment-text" class="input w-full text-sm md:text-base" placeholder="Írj kommentet..." required rows="3"></textarea>
+                        <textarea name="comment-text" class="input w-full text-sm md:text-base" placeholder="<?= t('note_comment_placeholder') ?>" required rows="3"></textarea>
                         <button type="submit" name="comment-btn" class="btn-search text-sm md:text-base">
                             <svg class="icon icon-send w-4 h-4 md:w-5 md:h-5" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
@@ -317,9 +312,9 @@
             </article>
         <?php else: ?>
             <div class="card p-6">
-                <h1 class="text-2xl md:text-3xl mb-4">Jegyzet nem található!</h1>
-                <p class="text-sm md:text-base mb-4">A keresett jegyzet nem létezik vagy törölve lett.</p>
-                <a href="index.php" class="btn-cta text-sm md:text-base">Vissza a főoldalra</a>
+                <h1 class="text-2xl md:text-3xl mb-4"><?= t('note_not_found_title') ?></h1>
+                <p class="text-sm md:text-base mb-4"><?= t('note_not_found_message') ?></p>
+                <a href="index.php" class="btn-cta text-sm md:text-base"><?= t('note_back_home') ?></a>
             </div>
         <?php endif; ?>
     </div>

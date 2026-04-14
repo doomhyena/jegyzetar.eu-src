@@ -8,7 +8,7 @@
 
         $keresett_admin = isset($_GET['keresett']) ? trim((string)$_GET['keresett']) : '';
 
-        $adminId = (int)$_COOKIE['id'];
+        $adminId = (int)auth_user_id();
 
         // admin jog check
         $adminRes = $conn->query("SELECT admin FROM users WHERE id = $adminId LIMIT 1");
@@ -76,7 +76,7 @@
 	$keresett = isset($_GET['keresett']) ? htmlspecialchars(trim($_GET['keresett'])) : '';
 
 	// Bejelentkezett felhasználó azonosítójának lekérése sütiből
-	$loggedInUserId = $_COOKIE['id'] ?? 0;
+	$loggedInUserId = auth_user_id() ?? 0;
 
 	// Fájlok kereséséhez SQL lekérdezés alapja
 	$sqlFiles = "SELECT * FROM files WHERE name LIKE '%$keresett%'";

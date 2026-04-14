@@ -1,11 +1,7 @@
 <?php
 
-if (!isset($_COOKIE['id'])) {
-    header("Location: reglog.php");
-    exit;
-}
-
-$aktualis_felhasznalo_id = $_COOKIE['id'];
+require_login();
+$aktualis_felhasznalo_id = auth_user_id();
 
 if (!isset($_GET['id'])) {
     exit("Nincs megadva csoport ID.");

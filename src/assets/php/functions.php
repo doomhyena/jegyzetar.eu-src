@@ -1,6 +1,82 @@
 <?php
 
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+
     require_once __DIR__ . '/../vendor/autoload.php';
+
+    if (!function_exists('auth_user_id')) {
+        function auth_user_id(): ?int {
+            if (!isset($_SESSION['id']) || !ctype_digit((string)$_SESSION['id'])) {
+                return null;
+            }
+            return (int)$_SESSION['id'];
+        }
+    }
+
+    if (!function_exists('auth_is_logged_in')) {
+        function auth_is_logged_in(): bool {
+            return auth_user_id() !== null;
+        }
+    }
+
+    if (!function_exists('auth_user')) {
+        function auth_user(mysqli $conn): ?array {
+            $uid = auth_user_id();
+            if (!$uid) {
+                return null;
+            }
+            $res = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$uid]);
+            if (!$res || $res->num_rows === 0) {
+                return null;
+            }
+            return $res->fetch_assoc();
+        }
+    }
+
+    if (!function_exists('require_login')) {
+        function require_login(?string $redirectUrl = 'reglog.php'): void {
+            if (!auth_is_logged_in()) {
+                header('Location: ' . $redirectUrl);
+                exit();
+            }
+        }
+    }
+
+    if (!function_exists('require_admin')) {
+        function require_admin(mysqli $conn): void {
+            $user = auth_user($conn);
+            if (!$user || !isset($user['admin']) || (int)$user['admin'] !== 1) {
+                http_response_code(403);
+                exit('Hozzáférés megtagadva. Nincs admin jogosultság.');
+            }
+        }
+    }
+
+    if (!function_exists('auth_login_user')) {
+        function auth_login_user(array $user): void {
+            session_regenerate_id(true);
+            $_SESSION['id'] = (int)$user['id'];
+            $_SESSION['email'] = $user['email'] ?? '';
+            $_SESSION['is_admin'] = isset($user['admin']) ? (int)$user['admin'] : 0;
+            $_SESSION['is_teacher'] = isset($user['teacher']) ? (int)$user['teacher'] : 0;
+        }
+    }
+
+    if (!function_exists('auth_logout')) {
+        function auth_logout(): void {
+            $_SESSION = [];
+            if (ini_get('session.use_cookies')) {
+                $params = session_get_cookie_params();
+                setcookie(session_name(), '', time() - 42000,
+                    $params['path'], $params['domain'], $params['secure'], $params['httponly']
+                );
+            }
+            session_destroy();
+            setcookie('id', '', time() - 3600, '/');
+        }
+    }
 
     if (!function_exists('db_log_error')) {
         function db_log_error(mysqli $conn, string $message, ?string $sql = null, array $params = []): void

@@ -2,17 +2,14 @@
     // Adatbázis kapcsolat betöltése
     require "db.php";
 
-    // Ha nincs bejelentkezve a felhasználó (nincs id cookie), átirányítás a regisztrációs oldalra
-    if (!isset($_COOKIE['id'])) {
-        header("Location: reg.php");
-        exit;
-    }
+    // Ha nincs bejelentkezve a felhasználó, átirányítás a regisztrációs oldalra
+    require_login();
 
     // Ha meg van adva a friendid GET paraméterben
     if (isset($_GET['friendid'])) {
         // Barát azonosító és saját azonosító lekérése
         $friendid = intval($_GET['friendid']);
-        $userid = intval($_COOKIE['id']);
+        $userid = intval(auth_user_id());
 
         // Üzenetek lekérdezése a két felhasználó között, időrendben növekvő sorrendben
         $query = "SELECT * FROM messages WHERE (fromid=$userid AND toid=$friendid) OR (fromid=$friendid AND toid=$userid) ORDER BY sent_at ASC";

@@ -3,8 +3,8 @@
 
     $premium_van = false;
 
-    if (isset($_COOKIE['id'])) {
-        $aktualis_felhasznalo_id = (int)$_COOKIE['id'];
+    if (auth_is_logged_in()) {
+        $aktualis_felhasznalo_id = (int)auth_user_id();
         $premium_van = user_premium($conn, $aktualis_felhasznalo_id);
     }
 

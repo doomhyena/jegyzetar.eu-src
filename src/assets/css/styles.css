@@ -2188,7 +2188,43 @@ a:not(.btn-cta):not(.btn-ghost):not(.btn-primary):not(.btn-soft):not(.btn-danger
 }
 
 .profile-social-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
     margin-bottom: 14px;
+}
+
+.profile-social-actions .profile-friendship,
+.profile-social-actions .profile-report {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 0 1 260px;
+    min-width: 220px;
+    max-width: 260px;
+}
+
+.profile-social-actions .profile-friendship form,
+.profile-social-actions .profile-report .report-widget {
+    margin: 0;
+}
+
+.profile-social-actions .profile-friendship p,
+.profile-social-actions .profile-friendship h3 {
+    margin: 0;
+}
+
+.profile-social-actions .profile-friendship form button,
+.profile-social-actions .profile-report .report-trigger {
+    width: 100%;
+    min-width: 0;
+}
+
+@media (max-width: 740px) {
+    .profile-social-actions {
+        flex-direction: column;
+    }
 }
 
 .profile-moderation-actions {
@@ -2205,7 +2241,6 @@ a:not(.btn-cta):not(.btn-ghost):not(.btn-primary):not(.btn-soft):not(.btn-danger
     background: #dc2626;
 }
 
-.profile-social-actions,
 .profile-moderation-actions {
     display: block !important;
     margin-bottom: 16px !important;
@@ -4565,11 +4600,19 @@ body.theme-pastel .site-footer {
 
 .profile-social-actions {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid rgba(255,255,255,.07);
+}
+
+.profile-social-actions .profile-friendship,
+.profile-social-actions .profile-report {
+    flex: 0 1 260px;
+    min-width: 220px;
+    max-width: 260px;
 }
 
 @media (max-width: 768px) {

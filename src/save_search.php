@@ -7,12 +7,9 @@
         exit;
     }
 
-    if (!isset($_COOKIE['id'])) {
-        header('Location: reglog.php');
-        exit;
-    }
+    require_login();
 
-    $uid    = (int)$_COOKIE['id'];
+    $uid    = (int)auth_user_id();
     $action = $_POST['action'] ?? '';
     $back   = $_POST['back'] ?? 'search.php';
 

@@ -1,12 +1,12 @@
 <?php
     require "db.php";
 
-    if (!isset($_COOKIE['id']) || !isset($_POST['toid'])) {
+    if (!auth_is_logged_in() || !isset($_POST['toid'])) {
         header("Location: ../../index.php");
         exit;
     }
 
-    $fromid = (int)$_COOKIE['id'];
+    $fromid = (int)auth_user_id();
     $toid   = (int)$_POST['toid'];
 
     $user_check = $conn->query("SELECT username FROM users WHERE id = $toid LIMIT 1");

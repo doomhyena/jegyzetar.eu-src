@@ -12,178 +12,178 @@
 
     $content = [
         'sw' => [
-            'title' => 'Szoftverfejlesztő és tesztelő – Vizsgák',
-            'subtitle' => 'Áttekintés az ágazati alapvizsgáról és a szakmai vizsgáról, a mérés és értékelés szempontjaival.',
+            'title' => t('exam_sw_title'),
+            'subtitle' => t('exam_sw_subtitle'),
             'sections' => [
                 [
-                    'h' => 'Ágazati alapvizsga – Írásbeli vizsga (interaktív teszt)',
+                    'h' => t('exam_sw_section1_heading'),
                     'list' => [
-                        'Megnevezés: „Informatikai és távközlési alapok interaktív teszt”.',
-                        '15 db számítógépen megoldandó tesztfeladatból áll.',
-                        'Feladattípusok: feleletválasztós (egyszeres, többszörös, illesztés) és kiegészítést igénylő feleletalkotó.',
-                        'A teszt értékelésének automatizálhatónak kell lennie.',
-                        'Segédanyag nem használható.',
-                        'Időtartam: 30 perc.',
-                        'Aránya az ágazati alapvizsgán belül: 10%.'
+                        t('exam_sw_section1_item1'),
+                        t('exam_sw_section1_item2'),
+                        t('exam_sw_section1_item3'),
+                        t('exam_sw_section1_item4'),
+                        t('exam_sw_section1_item5'),
+                        t('exam_sw_section1_item6'),
+                        t('exam_sw_section1_item7')
                     ]
                 ],
                 [
-                    'h' => 'Ágazati alapvizsga – Írásbeli értékelés',
+                    'h' => t('exam_sw_section2_heading'),
                     'list' => [
-                        'Minden feladat 2 pontot ér.',
-                        'Részleges megoldásért részpontszám adható.',
-                        'Nem adható maximális pont, ha a megoldás hibás választ is tartalmaz.',
-                        'Az értékelés százalékos formában történik.',
-                        'Eredményes, ha a megszerezhető összes pontszám legalább 40%-át eléri a tanuló.'
+                        t('exam_sw_section2_item1'),
+                        t('exam_sw_section2_item2'),
+                        t('exam_sw_section2_item3'),
+                        t('exam_sw_section2_item4'),
+                        t('exam_sw_section2_item5')
                     ]
                 ],
                 [
-                    'h' => 'Ágazati alapvizsga – Gyakorlati vizsga (feladatsor)',
+                    'h' => t('exam_sw_section3_heading'),
                     'list' => [
-                        'Megnevezés: „Weboldalak kódolása, programozás, hálózatok gyakorlat”.',
-                        'Az írásbeli és a gyakorlati vizsgatevékenység külön napon kerül megrendezésre.',
-                        'Időtartam: egybefüggő 180 perc; a 3 feladatrészre javasolt időkeret 60–60 perc (a beosztás a vizsgázó döntése).',
-                        'Internetkapcsolat biztosított lehet, de csak általános keresésre; kommunikációra vagy célirányos anyagletöltésre nem használható (az adott feladat útmutatója szerint akár korlátozva is lehet).',
-                        'A gyakorlati vizsga 3 feladatrészből áll.'
+                        t('exam_sw_section3_item1'),
+                        t('exam_sw_section3_item2'),
+                        t('exam_sw_section3_item3'),
+                        t('exam_sw_section3_item4'),
+                        t('exam_sw_section3_item5')
                     ]
                 ],
                 [
-                    'h' => 'Ágazati alapvizsga – Gyakorlati A) Weboldalak kódolása (mit kell csinálni?)',
+                    'h' => t('exam_sw_section4_heading'),
                     'list' => [
-                        'Egy egyszerű, de reszponzív weblapot kell elkészíteni.',
-                        'Kapott anyagok: wireframe (vázszerkezet), forrásszövegek, képek, formai elváráslista.',
-                        'A HTML-oldalnak tartalmaznia kell az előírt alapvető és szemantikus HTML-elemeket.',
-                        'Formázás csatolt CSS fájllal történik.',
-                        'A kész oldalt HTML-validátorral ellenőrizni kell.'
+                        t('exam_sw_section4_item1'),
+                        t('exam_sw_section4_item2'),
+                        t('exam_sw_section4_item3'),
+                        t('exam_sw_section4_item4'),
+                        t('exam_sw_section4_item5')
                     ]
                 ],
                 [
-                    'h' => 'Ágazati alapvizsga – Gyakorlati A) Weboldalak kódolása (mért készségek – példák)',
+                    'h' => t('exam_sw_section5_heading'),
                     'list' => [
-                        'HTML5 oldalszerkezet (!DOCTYPE, html, head, body, meta) és szemantikus elemek (header, nav, main, section, footer).',
-                        'Strukturális elemek (p, title, h1–h6, img, a, link, strong, em, figure, figcaption, div, span).',
-                        'Attribútumok (href, target, src, alt, lang, charset stb.).',
-                        'Listák, táblázatok készítése.',
-                        'CSS: inline/internal/external; szelektorok; alapvető CSS3 jellemzők; media query, töréspontok; egységek (em/rem/%/vw/vh).',
-                        'Bootstrap alapok (ha a kiadott feladatban szerepel).'
+                        t('exam_sw_section5_item1'),
+                        t('exam_sw_section5_item2'),
+                        t('exam_sw_section5_item3'),
+                        t('exam_sw_section5_item4'),
+                        t('exam_sw_section5_item5'),
+                        t('exam_sw_section5_item6')
                     ]
                 ],
                 [
-                    'h' => 'Szakmai vizsga – A vizsga célja',
-                    'p' => 'A szakmai vizsga célja annak igazolása, hogy a vizsgázó képes önállóan szakmai feladatokat megoldani, érti a szoftverfejlesztés és tesztelés alapelveit, és azokat gyakorlati környezetben alkalmazni tudja. Ez a vizsga már összetettebb feladatokon keresztül méri a szakmai kompetenciákat.'
+                    'h' => t('exam_sw_section6_heading'),
+                    'p' => t('exam_sw_section6_paragraph')
                 ],
                 [
-                    'h' => 'Szakmai vizsga – A vizsga részei',
+                    'h' => t('exam_sw_section7_heading'),
                     'list' => [
-                        'Központi interaktív vizsgarész (inkább elméleti jellegű, teszt vagy feladatsor formában).',
-                        'Gyakorlati vizsgarész vagy projektfeladat, ahol egy komplexebb feladatot kell megoldani.',
-                        'A gyakorlati részhez gyakran dokumentáció készítése is tartozik.'
+                        t('exam_sw_section7_item1'),
+                        t('exam_sw_section7_item2'),
+                        t('exam_sw_section7_item3')
                     ]
                 ],
                 [
-                    'h' => 'Szakmai vizsga – Mit mér a vizsga?',
+                    'h' => t('exam_sw_section8_heading'),
                     'list' => [
-                        'Szoftverfejlesztési alapismeretek (tervezés, megvalósítás, tesztelés).',
-                        'Programozási és adatkezelési ismeretek.',
-                        'Hibakeresési és tesztelési képességek.',
-                        'Dokumentálási készség.',
-                        'A szakmai szabályok és jó gyakorlatok betartása.'
+                        t('exam_sw_section8_item1'),
+                        t('exam_sw_section8_item2'),
+                        t('exam_sw_section8_item3'),
+                        t('exam_sw_section8_item4'),
+                        t('exam_sw_section8_item5')
                     ]
                 ],
                 [
-                    'h' => 'Szakmai vizsga – Értékelés szempontjai',
+                    'h' => t('exam_sw_section9_heading'),
                         'list' => [
-                        'A megoldás szakmai helyessége.',
-                        'A program vagy alkalmazás működőképessége.',
-                        'A feladat teljes körű megvalósítása.',
-                        'A kód és a megoldás áttekinthetősége, struktúrája.',
-                        'A dokumentáció minősége.',
-                        'A vizsgázó munkamódszere és problémamegoldása.'
+                        t('exam_sw_section9_item1'),
+                        t('exam_sw_section9_item2'),
+                        t('exam_sw_section9_item3'),
+                        t('exam_sw_section9_item4'),
+                        t('exam_sw_section9_item5'),
+                        t('exam_sw_section9_item6')
                     ]
                 ],
             ],
         ],
         'sys' => [
-            'title' => 'Informatikai rendszer- és alkalmazás-üzemeltető – Vizsgák',
-            'subtitle' => 'Áttekintés az ágazati alapvizsgáról és a szakmai vizsgáról, a mérés és értékelés fő szempontjaival.',
+            'title' => t('exam_sys_title'),
+            'subtitle' => t('exam_sys_subtitle'),
             'sections' => [
                 [
-                    'h' => 'Ágazati alapvizsga – Vizsgára bocsátás feltétele',
-                    'p' => 'Az ágazati alapvizsgára bocsátás feltétele: valamennyi előírt képzési évfolyam eredményes teljesítése.'
+                    'h' => t('exam_sys_section1_heading'),
+                    'p' => t('exam_sys_section1_paragraph')
                 ],
                 [
-                    'h' => 'Ágazati alapvizsga – Írásbeli vizsga (interaktív teszt)',
+                    'h' => t('exam_sys_section2_heading'),
                     'list' => [
-                        'Megnevezés: „Informatikai és távközlési alapok interaktív teszt”.',
-                        '15 db számítógépen megoldandó tesztfeladatból áll.',
-                        'Feladattípusok: feleletválasztós (egyszeres, többszörös, illesztés) és kiegészítést igénylő feleletalkotó.',
-                        'A teszt értékelésének automatizálhatónak kell lennie.',
-                        'Segédanyag nem használható.',
-                        'Időtartam: 30 perc.',
-                        'Aránya az ágazati alapvizsgán belül: 10%.'
+                        t('exam_sys_section2_item1'),
+                        t('exam_sys_section2_item2'),
+                        t('exam_sys_section2_item3'),
+                        t('exam_sys_section2_item4'),
+                        t('exam_sys_section2_item5'),
+                        t('exam_sys_section2_item6'),
+                        t('exam_sys_section2_item7')
                     ]
                 ],
                 [
-                    'h' => 'Ágazati alapvizsga – Írásbeli értékelés',
+                    'h' => t('exam_sys_section3_heading'),
                     'list' => [
-                        'Minden feladat 2 pontot ér.',
-                        'Részleges megoldásért részpontszám adható.',
-                        'Nem adható maximális pont, ha a megoldás hibás választ is tartalmaz.',
-                        'Az értékelés százalékos formában történik.',
-                        'Eredményes, ha a megszerezhető összes pontszám legalább 40%-át eléri a tanuló.'
+                        t('exam_sys_section3_item1'),
+                        t('exam_sys_section3_item2'),
+                        t('exam_sys_section3_item3'),
+                        t('exam_sys_section3_item4'),
+                        t('exam_sys_section3_item5')
                     ]
                 ],
                 [
-                    'h' => 'Ágazati alapvizsga – Gyakorlati vizsga (feladatsor)',
+                    'h' => t('exam_sys_section4_heading'),
                     'list' => [
-                        'Megnevezés: „Weboldalak kódolása, programozás, hálózatok gyakorlat”.',
-                        'Az írásbeli és a gyakorlati vizsgatevékenység külön napon kerül megrendezésre.',
-                        'Időtartam: egybefüggő 180 perc; a 3 feladatrészre javasolt időkeret 60–60 perc (a beosztás a vizsgázó döntése).',
-                        'Internetkapcsolat biztosított lehet, de csak általános keresésre; kommunikációra vagy célirányos anyagletöltésre nem használható (az adott feladat útmutatója szerint akár korlátozva is lehet).',
-                        'A gyakorlati vizsga 3 feladatrészből áll.'
+                        t('exam_sys_section4_item1'),
+                        t('exam_sys_section4_item2'),
+                        t('exam_sys_section4_item3'),
+                        t('exam_sys_section4_item4'),
+                        t('exam_sys_section4_item5')
                     ]
                 ],
                 [
-                    'h' => 'Ágazati alapvizsga – Gyakorlati A) Weboldalak kódolása (mit kell csinálni?)',
+                    'h' => t('exam_sys_section5_heading'),
                     'list' => [
-                        'Egy egyszerű, de reszponzív weblapot kell elkészíteni.',
-                        'Kapott anyagok: wireframe (vázszerkezet), forrásszövegek, képek, formai elváráslista.',
-                        'A HTML-oldalnak tartalmaznia kell az előírt alapvető és szemantikus HTML-elemeket.',
-                        'Formázás csatolt CSS fájllal történik.',
-                        'A kész oldalt HTML-validátorral ellenőrizni kell.'
+                        t('exam_sys_section5_item1'),
+                        t('exam_sys_section5_item2'),
+                        t('exam_sys_section5_item3'),
+                        t('exam_sys_section5_item4'),
+                        t('exam_sys_section5_item5')
                     ]
                 ],
                 [
-                    'h' => 'Ágazati alapvizsga – Gyakorlati A) Weboldalak kódolása (mért készségek – példák)',
+                    'h' => t('exam_sys_section6_heading'),
                     'list' => [
-                        'HTML5 oldalszerkezet (!DOCTYPE, html, head, body, meta) és szemantikus elemek (header, nav, main, section, footer).',
-                        'Strukturális elemek (p, title, h1–h6, img, a, link, strong, em, figure, figcaption, div, span).',
-                        'Attribútumok (href, target, src, alt, lang, charset stb.).',
-                        'Listák, táblázatok készítése.',
-                        'CSS: inline/internal/external; szelektorok; alapvető CSS3 jellemzők; media query, töréspontok; egységek (em/rem/%/vw/vh).',
-                        'Bootstrap alapok (ha a kiadott feladatban szerepel).'
+                        t('exam_sys_section6_item1'),
+                        t('exam_sys_section6_item2'),
+                        t('exam_sys_section6_item3'),
+                        t('exam_sys_section6_item4'),
+                        t('exam_sys_section6_item5'),
+                        t('exam_sys_section6_item6')
                     ]
                 ],
                 [
-                    'h' => 'Szakmai vizsga – Áttekintés',
-                    'p' => 'A szakmai vizsga célja annak mérése, hogy a vizsgázó a rendszer- és alkalmazásüzemeltetési feladatokat önállóan, szakszerűen és dokumentáltan képes-e elvégezni (konfigurálás, üzemeltetés, hibakeresés, hálózati beállítások, biztonsági alapelvek).'
+                    'h' => t('exam_sys_section7_heading'),
+                    'p' => t('exam_sys_section7_paragraph')
                 ],
                 [
-                    'h' => 'Szakmai vizsga – Mit szoktak mérni?',
+                    'h' => t('exam_sys_section8_heading'),
                     'list' => [
-                        'Rendszer- és hálózati beállítások helyessége, működőképessége.',
-                        'Hibakeresés módszeressége (logok, diagnosztika, lépések dokumentálása).',
-                        'Biztonságos beállítások (jogosultságok, jelszavak, alap védelmi elvek).',
-                        'Dokumentáció minősége (mit, miért, hogyan állítottál be).'
+                        t('exam_sys_section8_item1'),
+                        t('exam_sys_section8_item2'),
+                        t('exam_sys_section8_item3'),
+                        t('exam_sys_section8_item4')
                     ]
                 ],
                 [
-                    'h' => 'Szakmai vizsga – Értékelés fő szempontjai',
+                    'h' => t('exam_sys_section9_heading'),
                     'list' => [
-                        'A megoldás működése (a szolgáltatás/hálózat tényleg megy-e).',
-                        'A feladat teljessége (minden elvárt rész megvan-e).',
-                        'Szakszerűség (jó gyakorlatok, átlátható konfiguráció).',
-                        'Dokumentáltság és ellenőrzések (show/parancsok, tesztek, logolás).'
+                        t('exam_sys_section9_item1'),
+                        t('exam_sys_section9_item2'),
+                        t('exam_sys_section9_item3'),
+                        t('exam_sys_section9_item4')
                     ]
                 ],
             ],

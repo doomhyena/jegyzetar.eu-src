@@ -49,9 +49,9 @@
         echo '</pre>';
 
         http_response_code(400);
-        exit('Invalid state parameter (security check failed). Please try again.
+        exit('Hibás állapotparaméter (biztonsági ellenőrzés sikertelen). Kérjük, próbálja újra.
         <br><br>
-        <a href="/jegyzetar.eu-src/src/reglog.php">Back to login</a>');
+        <a href="https://jegyzetar.hu/reglog.php">Vissza a bejelentkezéshez</a>');
     }
     unset($_SESSION['oauth_state']);
 
@@ -108,46 +108,36 @@
     $linkMode = isset($_SESSION['oauth_link_mode']) && (int)$_SESSION['oauth_link_mode'] === 1;
     if ($linkMode) {
         unset($_SESSION['oauth_link_mode']);
-        if (isset($_COOKIE['id'])) {
-            $uid = (int)$_COOKIE['id'];
+        if (auth_is_logged_in()) {
+            $uid = (int)auth_user_id();
             $userRes = $conn->query("SELECT username FROM users WHERE id=$uid LIMIT 1");
             $userData = $userRes ? $userRes->fetch_assoc() : null;
             $username = $userData['username'] ?? '';
 
-            $conn->query("
-                UPDATE users
-                SET oauth_provider='discord',
-                    oauth_sub='$sub'
-                WHERE id=$uid
-            ");
+            $conn->query("UPDATE users SET oauth_provider='discord', oauth_sub='$sub' WHERE id=$uid");
             $_SESSION['profile_toast'] = 'Discord fiók sikeresen összekapcsolva!';
-            $redirectUrl = !empty($username) ? '/jegyzetar.eu-src/src/profile.php?user=' . urlencode($username) : '/jegyzetar.eu-src/src/index.php';
+            $redirectUrl = !empty($username) ? 'https://jegyzetar.hu/profile.php?user=' . urlencode($username) : 'https://jegyzetar.hu/index.php';
             header('Location: ' . $redirectUrl);
             exit;
         }
     }
 
-    $found = $conn->query("SELECT id FROM users WHERE oauth_provider='discord' AND oauth_sub='$sub' LIMIT 1");
+    $found = $conn->query("SELECT * FROM users WHERE oauth_provider='discord' AND oauth_sub='$sub' LIMIT 1");
     if ($found && $found->num_rows) {
-        $uid = (int)$found->fetch_assoc()['id'];
-        setcookie('id', $uid, time() + 3600, '/');
-        header('Location: /jegyzetar.eu-src/src/index.php');
+        $userRow = $found->fetch_assoc();
+        auth_login_user($userRow);
+        header('Location: https://jegyzetar.hu/index.php');
         exit;
     }
 
     if ($email) {
-        $sel = $conn->query("SELECT id FROM users WHERE email='$email' LIMIT 1");
+        $sel = $conn->query("SELECT * FROM users WHERE email='$email' LIMIT 1");
         if ($sel && $sel->num_rows) {
-            $uid = (int)$sel->fetch_assoc()['id'];
-            $conn->query("
-                UPDATE users
-                SET oauth_provider='discord',
-                    oauth_sub='$sub',
-                    profile_picture='$avatar'
-                WHERE id=$uid
-            ");
-            setcookie('id', $uid, time() + 3600, '/');
-            header('Location: /jegyzetar.eu-src/src/index.php');
+            $userRow = $sel->fetch_assoc();
+            $uid = (int)$userRow['id'];
+            $conn->query("UPDATE users SET oauth_provider='discord', oauth_sub='$sub', profile_picture='$avatar' WHERE id=$uid");
+            auth_login_user($userRow);
+            header('Location: https://jegyzetar.hu/index.php');
             exit;
         }
     }
@@ -170,15 +160,14 @@
 
     $regdate = date('Y-m-d H:i:s');
 
-    $conn->query("
-        INSERT INTO users
-            (username, email, firstname, lastname, password, oauth_provider, oauth_sub, email_verified, profile_picture, registration_date)
-        VALUES
-            ('$username', '$email', '$display', '', '', 'discord', '$sub', 1, '$avatar', '$regdate')
-    ");
+    $conn->query("INSERT INTO users (username, email, firstname, lastname, password, oauth_provider, oauth_sub, email_verified, profile_picture, registration_date) VALUES ('$username', '$email', '$display', '', '', 'discord', '$sub', 1, '$avatar', '$regdate')");
 
     $uid = (int)$conn->insert_id;
 
-    setcookie('id', $uid, time() + 3600, '/');
-    header('Location: /jegyzetar.eu-src/src/index.php');
+    $newUser = $conn->query("SELECT * FROM users WHERE id = $uid LIMIT 1");
+    if ($newUser && $newUser->num_rows) {
+        auth_login_user($newUser->fetch_assoc());
+    }
+
+    header('Location: https://jegyzetar.hu/index.php');
     exit;

@@ -7,12 +7,8 @@
     require_once "assets/php/lang.php";
     require_once "assets/php/functions.php";
 
-    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
-        header("Location: reglog.php");
-        exit;
-    }
-
-    $user_id = (int)$_COOKIE['id'];
+    require_login();
+    $user_id = (int)auth_user_id();
 
     $user_result = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$user_id]);
     if (!$user_result || $user_result->num_rows === 0) {

@@ -3,18 +3,14 @@
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
 
-    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
-        header("Location: reglog.php");
-        exit;
-    }
-
+    require_login();
     require "assets/php/db.php";
     require "assets/php/lang.php";
     require "assets/php/functions.php";
 
     $BUG_TABLE = "bug_reports";
 
-    $currentUserId = (int)$_COOKIE['id'];
+    $currentUserId = (int)auth_user_id();
 
     if (empty($_SESSION['csrf_token'])) {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));

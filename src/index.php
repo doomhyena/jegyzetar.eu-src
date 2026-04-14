@@ -15,12 +15,12 @@
     require_once "assets/php/lang.php";
     require_once "assets/php/functions.php";
 
-    $isLoggedIn = isset($_COOKIE['id']) && ctype_digit($_COOKIE['id']);
+    $isLoggedIn = auth_is_logged_in();
     $user = null;
     $notify_number = 0;
 
     if ($isLoggedIn) {
-        $uid = (int)$_COOKIE['id'];
+        $uid = (int)auth_user_id();
 
         $res = db_query($conn, "SELECT id, username FROM users WHERE id = ? LIMIT 1", "i", [$uid]);
         $user = ($res && $res->num_rows) ? $res->fetch_assoc() : null;
@@ -127,32 +127,26 @@
             <section class="card mb-6" style="background: linear-gradient(135deg, rgba(125,211,252,.08), rgba(244,114,182,.06)); border-color: rgba(125,211,252,.18);">
                 <div style="padding: 8px 4px;">
                     <p style="margin: 0 0 18px; font-size: 1.05rem; color: var(--text); line-height: 1.65; max-width: 72ch;">
-                        A <strong>Jegyzetár</strong> egy ingyenes közösségi platform, ahol diákok és tanárok megoszthatják egymással
-                        tananyagokat, összefoglalókat, feladatsorokat és egyéb iskolai segédanyagokat.
-                        Keress tantárgy, évfolyam vagy kulcsszó alapján - töltsd le, értékeld, és te is járulj hozzá!
+                        <?= t('homepage_about_us') ?>
                     </p>
                     <div style="display: flex; flex-wrap: wrap; gap: 10px;">
                         <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(125,211,252,.10); border: 1px solid rgba(125,211,252,.22); font-size: .9rem; font-weight: 600; color: var(--primary);">
-                            Ingyenes jegyzetek
+                            <?= t('homepage_free_notes') ?>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(52,211,153,.10); border: 1px solid rgba(52,211,153,.22); font-size: .9rem; font-weight: 600; color: var(--ok);">
-                            Közösségi tanulás
+                            <?= t('homepage_collaborative_learning') ?>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; background: rgba(244,114,182,.10); border: 1px solid rgba(244,114,182,.22); font-size: .9rem; font-weight: 600; color: var(--accent);">
-                            Diákoknak & tanároknak
+                            <?= t('homepage_teachers_students') ?>
                         </div>
                     </div>
                     <div style="margin-top: 18px; display: flex; gap: 10px; flex-wrap: wrap;">
-                        <a href="reglog.php" class="btn-cta">Regisztráció - ingyenes</a>
-                        <a href="search.php" class="btn-ghost">Böngészés bejelentkezés nélkül</a>
+                        <a href="reglog.php" class="btn-cta"><?= t('homepage_free_register') ?></a>
+                        <a href="search.php" class="btn-ghost"><?= t('homepage_browse_btn') ?></a>
                     </div>
                 </div>
             </section>
             <section class="content-main flex-1 min-w-0">
-                <div class="section-titlebar flex justify-between items-center mb-4">
-                    <h3 class="text-xl md:text-2xl"><?= t('home_new_uploads') ?></h3>
-                    <a class="link-more" href="search.php?sort=new"><?= t('home_all_arrow') ?></a>
-                </div>
             <?php if ($latest_result && $latest_result->num_rows > 0): ?>
                 <div class="home-grid">
                     <section class="content-main flex-1 min-w-0">

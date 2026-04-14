@@ -52,7 +52,7 @@
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!csrf_check()) {
-            $errors[] = "Érvénytelen kérés (CSRF). Frissítsd az oldalt és próbáld újra.";
+            $errors[] = t('msg_invalid_csrf');
         }
     }
 
@@ -62,7 +62,7 @@
         $rlRegKey = rl_key('reg', strtolower($uTmp));
         $rl = rl_allow($rlRegKey, 5, 600);
         if (!$rl['ok']) {
-            $errors[] = "Túl sok regisztrációs próbálkozás. Próbáld újra {$rl['retry_after']} mp múlva.";
+            $errors[] = t('msg_too_many_registrations', $rl['retry_after']);
         }
 
         $lastname = trim($_POST['lastname'] ?? '');
@@ -85,35 +85,35 @@
 
 
         if ($lastname === '' || $firstname === '' || $username === '' || $birthdate === '' || $gender === '' || $email === '' || $regCode === '' || $security_answer_plain === '') {
-            $errors[] = "Minden mező kitöltése kötelező.";
+            $errors[] = t('msg_all_fields_required');
         }
 
         if (!in_array($role, ['student', 'teacher'], true)) {
-            $errors[] = "Érvénytelen szerepkör.";
+            $errors[] = t('msg_invalid_role');
         }
 
         if ($username !== '' && !valid_username($username)) {
-            $errors[] = "A felhasználónév 3-20 karakter lehet, és csak betű/szám valamint . _ - engedélyezett.";
+            $errors[] = t('msg_invalid_username_format');
         }
 
         $allowedGenders = ['male', 'female', 'other'];
         if ($gender !== '' && !in_array($gender, $allowedGenders, true)) {
-            $errors[] = "Érvénytelen nem érték.";
+            $errors[] = t('msg_invalid_gender');
         }
 
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = "Érvénytelen email cím.";
+            $errors[] = t('msg_invalid_email');
         }
 
         if ($birthdate !== '' && !age_at_least_13($birthdate)) {
-            $errors[] = "Érvénytelen születési dátum vagy 13 év alatt nem lehet regisztrálni.";
+            $errors[] = t('msg_invalid_birthdate');
         }
 
         if ($password !== $password2) {
             $errors[] = t('msg_passwords_not_match');
         }
         if ($password !== '' && !password_policy_ok($password)) {
-            $errors[] = "A jelszó legyen legalább 8 karakter, és tartalmazzon kisbetűt, nagybetűt és számot.";
+            $errors[] = t('msg_password_policy');
         }
 
         if (empty($errors)) {
@@ -210,19 +210,12 @@
                             rl_clear($rlLoginKey);
 
                             if ((int)($user['twofa_enabled'] ?? 0) === 1) {
-                                $_SESSION['id'] = $user['id'];
-                                $_SESSION['email'] = $user['email'];
+                                auth_login_user($user);
                                 flash_set('success', 'Elküldtük a bejelentkezési kódot e-mailben. Ha nem találod, nézd meg a SPAM mappát is.');
                                 go("assets/php/mail-2fa.php");
 
                             } else {
-                                setcookie("id", (string)((int)$user['id']), [
-                                    'expires' => time() + 60 * 60 * 24 * 30,
-                                    'path' => '/',
-                                    'secure' => is_https(),
-                                    'httponly'=> true,
-                                    'samesite' => 'Lax'
-                                ]);
+                                auth_login_user($user);
                                 go("index.php");
                             }
                         }
@@ -286,7 +279,7 @@
                         <div class="relative">
                             <input class="input w-full text-sm md:text-base pr-12" type="password" name="password" id="login_password" required>
                             <button type="button" class="toggle-pass absolute right-2 top-1/2 -translate-y-1/2 text-sm opacity-80 hover:opacity-100"
-                                    data-target="login_password" aria-label="Jelszó megtekintése">
+                                    data-target="login_password" aria-label="<?= t('msg_show_password') ?>">
                                 👁
                             </button>
                         </div>
@@ -368,7 +361,7 @@
                         <div class="relative">
                             <input class="input w-full text-sm md:text-base pr-12" type="password" name="password1" id="password1" required>
                             <button type="button" class="toggle-pass absolute right-2 top-1/2 -translate-y-1/2 text-sm opacity-80 hover:opacity-100"
-                                    data-target="password1" aria-label="Jelszó megtekintése">
+                                    data-target="password1" aria-label="<?= t('msg_show_password') ?>">
                                 👁
                             </button>
                         </div>
@@ -388,7 +381,7 @@
                         <div class="relative">
                             <input class="input w-full text-sm md:text-base pr-12" type="password" name="password2" id="password2" required>
                             <button type="button" class="toggle-pass absolute right-2 top-1/2 -translate-y-1/2 text-sm opacity-80 hover:opacity-100"
-                                    data-target="password2" aria-label="Jelszó megtekintése">
+                                    data-target="password2" aria-label="<?= t('msg_show_password') ?>">
                                 👁
                             </button>
                         </div>

@@ -1,12 +1,12 @@
 <?php
     require "db.php";
 
-    if (!isset($_COOKIE['id']) || !isset($_POST['fromid'])) {
+    if (!auth_is_logged_in() || !isset($_POST['fromid'])) {
         header("Location: ../../index.php");
         exit;
     }
 
-    $myid   = (int)$_COOKIE['id'];
+    $myid   = (int)auth_user_id();
     $fromid = (int)$_POST['fromid'];
 
     $conn->query("UPDATE friends SET status = 1 WHERE fromid=$fromid AND toid=$myid");

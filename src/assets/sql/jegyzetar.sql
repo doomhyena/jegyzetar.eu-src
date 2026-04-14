@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.1deb1+deb12u1
 -- https://www.phpmyadmin.net/
 --
--- Gép: 127.0.0.1
--- Létrehozás ideje: 2026. Már 31. 01:19
--- Kiszolgáló verziója: 10.4.32-MariaDB
--- PHP verzió: 8.2.12
+-- Gép: localhost
+-- Létrehozás ideje: 2026. Ápr 14. 08:17
+-- Kiszolgáló verziója: 10.11.14-MariaDB-0+deb12u2
+-- PHP verzió: 8.2.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Adatbázis: `jegyzetar`
+-- Adatbázis: `c64039jegyzetar`
 --
 
 -- --------------------------------------------------------
@@ -31,7 +31,7 @@ CREATE TABLE `2fa_codes` (
   `id` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
   `code` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_hungarian_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_hungarian_ci;
 
 --
 -- A tábla adatainak kiíratása `2fa_codes`
@@ -41,12 +41,22 @@ INSERT INTO `2fa_codes` (`id`, `userid`, `code`) VALUES
 (6, 4, 82329),
 (8, 4, 26092),
 (9, 4, 87859),
-(13, 5, 90064),
-(20, 1, 21959),
-(21, 1, 64985),
-(22, 1, 47713),
-(28, 1, 42618),
-(29, 1, 15302);
+(13, 5, 90064);
+
+-- --------------------------------------------------------
+
+--
+-- Tábla szerkezet ehhez a táblához `announcements`
+--
+
+CREATE TABLE `announcements` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `created_by` int(11) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 -- --------------------------------------------------------
 
@@ -68,7 +78,9 @@ CREATE TABLE `badges` (
 
 INSERT INTO `badges` (`id`, `name`, `slug`, `description`, `icon`) VALUES
 (1, 'Tulajdonos', 'owner', 'Az oldal tulajdonosa', '🔰'),
-(2, 'Prémium tag', 'premium', 'Prémium tagsággal rendelkezik', '💎');
+(3, 'Béta Teszter', 'beta-tester', 'Béta teszterek kapják meg', '💡'),
+(4, 'Partner', 'partner', 'Az oldal partnere.', '🤝'),
+(6, 'Prémium', 'premium', 'Prémium badge az előfizetőknek', '💎');
 
 -- --------------------------------------------------------
 
@@ -109,103 +121,7 @@ CREATE TABLE `comments` (
 --
 
 INSERT INTO `comments` (`id`, `userid`, `postid`, `text`) VALUES
-(1, 1, 3, 'easy peasy'),
-(2, 33, 8, 'Ez segített!'),
-(3, 34, 38, 'Köszi!'),
-(4, 17, 18, 'Nagyon jó!'),
-(5, 11, 11, 'Van folytatás?'),
-(6, 27, 24, 'Ez segített!'),
-(7, 23, 30, 'Ez segített!'),
-(8, 37, 46, 'Van folytatás?'),
-(9, 26, 6, 'Van folytatás?'),
-(10, 25, 37, 'Nagyon jó!'),
-(11, 38, 35, 'Ez segített!'),
-(12, 34, 20, 'Ez segített!'),
-(13, 12, 2, 'Van folytatás?'),
-(14, 23, 28, 'Ez segített!'),
-(15, 20, 27, 'Nem teljesen értem'),
-(16, 27, 1, 'Köszi!'),
-(17, 22, 15, 'Nagyon jó!'),
-(18, 34, 35, 'Van folytatás?'),
-(19, 32, 46, 'Köszi!'),
-(20, 24, 39, 'Köszi!'),
-(21, 23, 11, 'Nem teljesen értem'),
-(22, 30, 20, 'Van folytatás?'),
-(23, 30, 24, 'Köszi!'),
-(24, 14, 42, 'Nem teljesen értem'),
-(25, 37, 26, 'Nem teljesen értem'),
-(26, 22, 37, 'Ez segített!'),
-(27, 36, 7, 'Nagyon jó!'),
-(28, 33, 41, 'Nem teljesen értem'),
-(29, 17, 50, 'Köszi!'),
-(30, 12, 42, 'Van folytatás?'),
-(31, 33, 20, 'Ez segített!'),
-(32, 33, 10, 'Ez segített!'),
-(33, 13, 2, 'Nem teljesen értem'),
-(34, 34, 39, 'Köszi!'),
-(35, 26, 30, 'Köszi!'),
-(36, 35, 18, 'Nagyon jó!'),
-(37, 32, 15, 'Nagyon jó!'),
-(38, 11, 34, 'Köszi!'),
-(39, 13, 46, 'Köszi!'),
-(40, 19, 45, 'Ez segített!'),
-(42, 21, 8, 'Nem teljesen értem'),
-(43, 30, 30, 'Van folytatás?'),
-(44, 32, 49, 'Nem teljesen értem'),
-(45, 20, 40, 'Van folytatás?'),
-(46, 11, 33, 'Nagyon jó!'),
-(47, 21, 34, 'Köszi!'),
-(48, 11, 30, 'Van folytatás?'),
-(49, 24, 40, 'Ez segített!'),
-(50, 15, 20, 'Ez segített!'),
-(51, 10, 37, 'Nem teljesen értem'),
-(52, 37, 37, 'Van folytatás?'),
-(53, 17, 28, 'Nagyon jó!'),
-(54, 27, 38, 'Van folytatás?'),
-(55, 31, 29, 'Nem teljesen értem'),
-(57, 14, 23, 'Van folytatás?'),
-(58, 31, 10, 'Nem teljesen értem'),
-(59, 19, 14, 'Köszi!'),
-(60, 11, 8, 'Nem teljesen értem'),
-(61, 30, 27, 'Ez segített!'),
-(62, 15, 17, 'Nagyon jó!'),
-(63, 20, 26, 'Ez segített!'),
-(64, 16, 24, 'Nem teljesen értem'),
-(65, 36, 21, 'Köszi!'),
-(66, 32, 27, 'Ez segített!'),
-(67, 30, 50, 'Van folytatás?'),
-(68, 29, 22, 'Köszi!'),
-(69, 36, 38, 'Nagyon jó!'),
-(70, 14, 26, 'Nagyon jó!'),
-(71, 10, 35, 'Ez segített!'),
-(72, 17, 44, 'Nem teljesen értem'),
-(73, 24, 30, 'Ez segített!'),
-(74, 26, 16, 'Van folytatás?'),
-(75, 27, 11, 'Köszi!'),
-(76, 10, 1, 'Nagyon jó!'),
-(77, 21, 30, 'Van folytatás?'),
-(78, 24, 43, 'Nem teljesen értem'),
-(79, 20, 19, 'Van folytatás?'),
-(80, 10, 30, 'Van folytatás?'),
-(81, 28, 26, 'Nem teljesen értem'),
-(83, 31, 28, 'Nem teljesen értem'),
-(84, 23, 18, 'Ez segített!'),
-(85, 10, 44, 'Köszi!'),
-(86, 35, 16, 'Nagyon jó!'),
-(87, 20, 29, 'Nem teljesen értem'),
-(88, 17, 43, 'Ez segített!'),
-(89, 14, 7, 'Köszi!'),
-(90, 32, 4, 'Nagyon jó!'),
-(91, 17, 1, 'Köszi!'),
-(92, 21, 7, 'Ez segített!'),
-(93, 32, 22, 'Van folytatás?'),
-(94, 16, 19, 'Köszi!'),
-(96, 15, 18, 'Köszi!'),
-(97, 13, 47, 'Köszi!'),
-(98, 26, 47, 'Nagyon jó!'),
-(99, 21, 42, 'Van folytatás?'),
-(100, 18, 28, 'Van folytatás?'),
-(101, 35, 29, 'Köszi!');
+(1, 20, 5, 'Nagyon jó tananyag! Köszönöm!');
 
 -- --------------------------------------------------------
 
@@ -224,6 +140,16 @@ CREATE TABLE `contact_messages` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `read_by_admin` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- A tábla adatainak kiíratása `contact_messages`
+--
+
+INSERT INTO `contact_messages` (`id`, `user_id`, `sender_name`, `sender_email`, `subject`, `message`, `ip_address`, `created_at`, `read_by_admin`) VALUES
+(1, NULL, 'RaymondPraic', 'no.reply.JacobSvensson@gmail.com', 'We promise to deliver your emails.', 'Hey! jegyzetar.hu \r\n \r\nDid you know that it is possible to send proposal lawfully and absolutely? \r\nWhen such proposals are submitted, no personal information is utilized, and messages are routed to forms specifically configured to receive messages and appeals securely. Communication Forms help to ensure that messages sent through them are not treated as spam, as they are seen as important. \r\nYou have the chance to use our service without having to pay anything. \r\nWe can send up to 50,000 messages on your command. \r\n \r\nThe cost of sending one million messages is $59. \r\n \r\nThis offer is automatically generated. \r\n \r\nContact us. \r\nTelegram - https://t.me/FeedbackFormEU \r\nWhatsApp - +375259112693 \r\nWhatsApp  https://wa.me/+375259112693 \r\nWe only use chat for communication.', '37.19.223.227', '2026-03-08 20:56:17', 0),
+(2, NULL, '138531686', 'davidwilliams28798@gmail.com', 'Improve Search Visibility with SEO.', 'Hi,\r\n\r\nI can help you rank higher on Google! With over 10 years of SEO and digital marketing experience, I\'ve helped business just like yours land on the 1st page pf Google for higly competitive keywords.\r\n\r\nI specialize in:\r\n\r\nKeyword research, On-Page & Off-Page SEO, SEO content writing, Technical SEO.\r\n\r\nIf you\'re ready to get started, I\'d love to send you our SEO packages and pricing!\r\n\r\nBest regards,\r\n\r\nDavid', '223.233.76.62', '2026-03-15 05:25:22', 0),
+(3, NULL, 'Davididock', 'no.reply.GerhardtDavies@gmail.com', 'Stand out with the best advertising for your products and services!', 'Salutations! jegyzetar.hu, \r\nI discovered jegyzetar.hu while exploring websites. \r\nWe offer automated contact form messaging for marketing. \r\nOur platform helps businesses reach relevant websites online. \r\nOur pricing structure is designed to remain transparent. \r\n  \r\nIf this useful, you can contact us. \r\n \r\nThanks for your attention. \r\nContact us. \r\nTelegram - https://t.me/FeedbackFormEU \r\nWhatsApp - +375259112693 \r\nWhatsApp  https://wa.me/+375259112693', '37.19.223.11', '2026-03-17 00:09:08', 0),
+(4, NULL, 'Davididock', 'no.reply.HugoLarsson@gmail.com', 'Sharing feedback through the feedback form.', 'Greetings! jegyzetar.hu, \r\nWhile exploring the web I noticed your website. \r\nOur platform easily enables website outreach. \r\nMany businesses use platforms like this to connect with website owners online. \r\n  \r\nA free demo is available so you can see how the platform works. \r\nIf this approach seems useful, feel free to reach out. \r\n \r\nThanks and have a great day. \r\nContact us. \r\nTelegram - https://t.me/FeedbackFormEU \r\nWhatsApp - +375259112693 \r\nWhatsApp  https://wa.me/+375259112693', '181.214.206.16', '2026-04-12 21:58:11', 0);
 
 -- --------------------------------------------------------
 
@@ -250,13 +176,6 @@ CREATE TABLE `deleted_users` (
   `reason` text DEFAULT NULL COMMENT 'opcionális indoklás'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
---
--- A tábla adatainak kiíratása `deleted_users`
---
-
-INSERT INTO `deleted_users` (`id`, `original_id`, `username`, `email`, `firstname`, `lastname`, `birthdate`, `registration_date`, `was_admin`, `was_teacher`, `was_premium`, `upload_count`, `download_count`, `deleted_by`, `deleted_at`, `reason`) VALUES
-(1, 39, 'user39', 'user39@test.hu', 'Anna', 'Molnár', '2004-04-15', '2026-01-16 09:41:20', 0, 0, 0, 1, 0, 1, '2026-03-30 09:25:47', NULL);
-
 -- --------------------------------------------------------
 
 --
@@ -277,8 +196,8 @@ CREATE TABLE `favorites` (
 INSERT INTO `favorites` (`id`, `user_id`, `file_id`, `created_at`) VALUES
 (1, 4, 1, '2025-12-02 10:54:38'),
 (3, 1, 2, '2026-01-17 16:36:51'),
-(5, 1, 3, '2026-02-21 21:05:14'),
-(6, 1, 5, '2026-02-25 13:21:43');
+(5, 20, 4, '2026-03-31 08:54:15'),
+(6, 20, 3, '2026-03-31 08:54:17');
 
 -- --------------------------------------------------------
 
@@ -290,9 +209,9 @@ CREATE TABLE `files` (
   `id` int(11) NOT NULL,
   `uploaded_by` int(11) DEFAULT NULL,
   `name` varchar(255) NOT NULL,
-  `file_name` varchar(255) DEFAULT NULL,
+  `file_name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
-  `file_path` varchar(1024) DEFAULT NULL,
+  `file_path` varchar(255) NOT NULL,
   `tags` varchar(255) NOT NULL,
   `tn_name` varchar(255) DEFAULT NULL,
   `file_size` bigint(20) UNSIGNED DEFAULT NULL,
@@ -301,9 +220,9 @@ CREATE TABLE `files` (
   `edu_stage` enum('hs','uni') DEFAULT NULL,
   `edu_level` tinyint(4) DEFAULT NULL,
   `external_url` varchar(255) NOT NULL,
-  `content_type` enum('file','note') NOT NULL DEFAULT 'file',
-  `note_markdown` mediumtext DEFAULT NULL,
-  `note_excerpt` varchar(255) DEFAULT NULL
+  `content_type` enum('file','note','','') NOT NULL,
+  `note_markdown` mediumtext NOT NULL,
+  `note_excerpt` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 --
@@ -311,30 +230,10 @@ CREATE TABLE `files` (
 --
 
 INSERT INTO `files` (`id`, `uploaded_by`, `name`, `file_name`, `description`, `file_path`, `tags`, `tn_name`, `file_size`, `download_count`, `content_text`, `edu_stage`, `edu_level`, `external_url`, `content_type`, `note_markdown`, `note_excerpt`) VALUES
-(1, 15, 'Jegyzet #1', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #1\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 15\n', NULL),
-(2, 11, 'Jegyzet #2', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 13, '', 'note', '# Jegyzet #2\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 11\n', NULL),
-(3, 33, 'Jegyzet #3', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #3\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 33\n', NULL),
-(4, 31, 'Jegyzet #4', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #4\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 31\n', NULL),
-(5, 16, 'Jegyzet #5', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 5, '', 'note', '# Jegyzet #5\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 16\n', NULL),
-(6, 37, 'Jegyzet #6', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 11, '', 'note', '# Jegyzet #6\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 37\n', NULL),
-(7, 37, 'Jegyzet #7', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #7\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 37\n', NULL),
-(8, 34, 'Jegyzet #8', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 5, '', 'note', '# Jegyzet #8\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 34\n', NULL),
-(9, 21, 'Jegyzet #9', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 6, '', 'note', '# Jegyzet #9\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 21\n', NULL),
-(10, 22, 'Jegyzet #10', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 6, '', 'note', '# Jegyzet #10\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 22\n', NULL),
-(11, 27, 'Jegyzet #12', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #12\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 27\n', NULL),
-(12, 10, 'Jegyzet #13', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 2, '', 'note', '# Jegyzet #13\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 10\n', NULL),
-(13, 21, 'Jegyzet #14', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 3, '', 'note', '# Jegyzet #14\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 21\n', NULL),
-(14, 34, 'Jegyzet #15', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 11, '', 'note', '# Jegyzet #15\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 34\n', NULL),
-(15, 38, 'Jegyzet #16', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 12, '', 'note', '# Jegyzet #16\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 38\n', NULL),
-(16, 17, 'Jegyzet #17', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 4, '', 'note', '# Jegyzet #17\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 17\n', NULL),
-(17, 24, 'Jegyzet #18', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #18\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 24\n', NULL),
-(18, 26, 'Jegyzet #19', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 9, '', 'note', '# Jegyzet #19\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 26\n', NULL),
-(19, 22, 'Jegyzet #20', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 13, '', 'note', '# Jegyzet #20\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 22\n', NULL),
-(20, 21, 'Jegyzet #21', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 7, '', 'note', '# Jegyzet #21\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 21\n', NULL),
-(21, 31, 'Jegyzet #22', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 9, '', 'note', '# Jegyzet #22\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 31\n', NULL),
-(22, 22, 'Jegyzet #23', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'uni', 4, '', 'note', '# Jegyzet #23\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 22\n', NULL),
-(23, 38, 'Jegyzet #24', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 12, '', 'note', '# Jegyzet #24\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 38\n', NULL),
-(24, 24, 'Jegyzet #25', NULL, 'Részletes tananyag jegyzet', NULL, 'matek,programozas', NULL, NULL, 0, NULL, 'hs', 11, '', 'note', '# Jegyzet #25\n\n## 📚 Bevezetés\nEz a jegyzet a következő témát dolgozza fel: **matek,programozas**.\n\n## 🧠 Fő fogalmak\n- Alapfogalom 1\n- Alapfogalom 2\n- Fontos összefüggések\n\n## ✏️ Példa\n```js\nfunction pelda() {\n  return \"Ez egy példa\";\n}\n```\n\n## ⚡ Összefoglalás\n> Ez a jegyzet segít megérteni az alapokat.\n\n---\n👤 Feltöltő ID: 24\n', NULL);
+(2, 1, 'Java zero to hero', 'JavaNotesForProfessionals.pdf', 'Ezzel a csodával megtanulsz javaul. Garantált siker!', 'C:xampphtdocsjegyzetar.eu-srcsrc/users/csontoskincso05/JavaNotesForProfessionals.pdf', 'Tankönyv', NULL, NULL, 0, NULL, 'hs', 13, '', 'file', '', ''),
+(3, 1, 'SQL gyakorló feladat', '0526Feladat.docx', 'SQL gyakorló feladat amit tavaly kaptunk ki', '/var/www/clients/client733/web2445/web/jegyzetar.eu/users/doomhyena/0526Feladat.docx', 'Budapesti Műszaki SZC Bláthy Ottó Titusz Informatikai Technikum, Adatbázis-kezelés I., Schola Europa Akadémia Technikum, Gimnázium és Alapfokú Művészeti Iskola', NULL, 13599, 0, NULL, NULL, NULL, '', 'file', '', ''),
+(4, 1, 'A videókártyák fejlődése a 2D-től a ray tracingig', 'A videókártyák fejlődése a 2D-től a ray tracingig.docx', 'A videókártyák fejlődése a 2D-től a ray tracingig', '/var/www/clients/client733/web2445/web/jegyzetar.eu/users/doomhyena/A videókártyák fejlődése a 2D-től a ray tracingig.docx', 'Webprogramozás I.', NULL, 25059, 0, NULL, 'hs', 12, '', 'file', '', ''),
+(5, 1, 'Java Full Course', 'link', 'This is a course video from Bro code', '', 'Asztali alkalmazások fejlesztése II.', NULL, 0, 0, NULL, 'hs', 11, 'https://www.youtube.com/watch?v=xTtL8E4LzTQ', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -365,43 +264,26 @@ INSERT INTO `file_events` (`id`, `file_id`, `user_id`, `event_type`, `rating`, `
 (5, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36', '2026-01-17 18:19:57'),
 (6, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-17 19:58:01'),
 (7, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-24 23:09:54'),
-(8, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-02-08 22:58:04'),
-(9, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-02-10 09:12:17'),
-(10, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-02-11 17:02:32'),
-(11, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-18 21:21:11'),
-(12, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-18 21:39:57'),
-(13, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 00:52:53'),
-(14, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:21:08'),
-(15, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:21:19'),
-(16, 3, 1, 'favorite_add', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:27:51'),
-(17, 3, 1, 'favorite_remove', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:27:53'),
-(18, 3, 1, 'comment', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:28:06'),
-(19, 3, 1, 'rate', 4, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:28:29'),
-(20, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-19 09:37:23'),
-(21, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-21 21:00:08'),
-(22, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-21 22:27:19'),
-(23, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-21 22:49:54'),
-(24, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-21 23:07:58'),
-(25, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-23 17:48:11'),
-(26, 4, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-24 09:34:46'),
-(27, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-24 09:35:03'),
-(28, 3, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-24 09:45:11'),
-(29, 4, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-24 09:45:16'),
-(30, 4, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:05:41'),
-(31, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:14:25'),
-(32, 5, 1, 'rate', 5, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:21:40'),
-(33, 5, 1, 'favorite_add', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:21:43'),
-(34, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-25 13:30:33'),
-(35, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-26 20:55:35'),
-(36, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-02 02:40:26'),
-(37, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-09 22:14:53'),
-(38, 5, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-16 19:43:11'),
-(39, 30, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-29 23:40:31'),
-(40, 1, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 00:51:55'),
-(41, 1, 1, 'favorite_add', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 00:53:22'),
-(42, 1, 1, 'favorite_remove', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 00:53:24'),
-(43, 1, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 01:03:23'),
-(44, 24, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 01:18:36');
+(8, 2, 1, 'view', NULL, 0x4dea4985, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-02-04 22:06:03'),
+(9, 2, 1, 'view', NULL, 0xd4285f0f, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-18 23:42:10'),
+(10, 2, 1, 'view', NULL, 0x54ec76ad, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-22 18:02:34'),
+(11, 2, 1, 'view', NULL, 0x54ec76ad, 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36', '2026-02-22 23:55:32'),
+(12, 2, 17, 'view', NULL, 0x54ec76ad, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-26 20:56:52'),
+(13, 2, 1, 'view', NULL, 0x4dea5279, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-09 10:30:51'),
+(14, 2, 1, 'view', NULL, 0x5e1582d7, 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36', '2026-03-13 13:34:42'),
+(15, 2, 1, 'view', NULL, 0x97005226, 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36', '2026-03-14 07:39:46'),
+(16, 3, 1, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-16 11:12:25'),
+(17, 5, 20, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 08:54:26'),
+(18, 5, 20, 'comment', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 08:55:17'),
+(19, 5, 20, 'rate', 5, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 08:56:08'),
+(20, 5, 20, 'favorite_remove', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:05:54'),
+(21, 5, 20, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:05:54'),
+(22, 2, 20, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:06:37'),
+(23, 2, 20, 'rate', 4, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:06:42'),
+(24, 2, 20, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:29:20'),
+(25, 5, 1, 'view', NULL, 0x822bd417, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:45:05'),
+(26, 4, 1, 'view', NULL, 0x822bd417, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:50:00'),
+(27, 4, 20, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0', '2026-03-31 10:53:24');
 
 -- --------------------------------------------------------
 
@@ -438,17 +320,9 @@ CREATE TABLE `friends` (
 --
 
 INSERT INTO `friends` (`id`, `fromid`, `toid`, `status`) VALUES
-(1, 8, 1, 1),
-(2, 33, 39, 1),
-(3, 29, 17, 1),
-(4, 18, 29, 1),
-(5, 22, 13, 1),
-(6, 19, 15, 1),
-(7, 12, 33, 1),
-(8, 31, 16, 1),
-(9, 39, 18, 1),
-(10, 22, 17, 1),
-(11, 38, 12, 1);
+(1, 1, 2, 1),
+(2, 1, 16, 1),
+(5, 20, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -467,15 +341,6 @@ CREATE TABLE `groups` (
   `reviewed_by` int(11) DEFAULT NULL,
   `status` enum('pending','approved','rejected') NOT NULL DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
-
---
--- A tábla adatainak kiíratása `groups`
---
-
-INSERT INTO `groups` (`id`, `name`, `description`, `owner_id`, `is_private`, `created_at`, `reviewed_at`, `reviewed_by`, `status`) VALUES
-(1, 'Java Dolgozat felkészítő', 'Java dolgozatokra való felkészítés zajlik itt', 1, 0, '2026-02-10 09:10:06', '2026-02-12 10:50:42', 1, 'approved'),
-(2, 'C# dolgozat felkészítő', 'Gyertek szísárpozni', 1, 0, '2026-03-16 10:46:37', '2026-03-16 10:46:45', 1, 'approved'),
-(3, 'Kémia dolgozat felkészito', 'felkészülés a nagy dolgozatra', 10, 0, '2026-03-16 23:05:42', '2026-03-16 23:06:14', 10, 'approved');
 
 -- --------------------------------------------------------
 
@@ -496,7 +361,8 @@ CREATE TABLE `group_comments` (
 --
 
 INSERT INTO `group_comments` (`id`, `group_id`, `user_id`, `comment_text`, `created_at`) VALUES
-(1, 3, 10, 'Szerdán lesz a doga ezt ki is raktam eseményekbe!', '2026-03-16 23:07:30');
+(0, 1, 1, 'Helló holnap dolgozat (05.03)', '2026-03-24 10:32:19'),
+(0, 2, 20, 'asd', '2026-03-31 09:52:57');
 
 -- --------------------------------------------------------
 
@@ -519,7 +385,7 @@ CREATE TABLE `group_events` (
 --
 
 INSERT INTO `group_events` (`id`, `group_id`, `created_by`, `title`, `description`, `event_date`, `created_at`) VALUES
-(1, 3, 10, 'Dolgozat', 'Mindenki készüljön!', '2025-09-17 10:00:00', '2026-03-16 23:08:19');
+(0, 2, 20, 'asd', 'asd', '2026-04-08 16:00:00', '2026-03-31 12:59:47');
 
 -- --------------------------------------------------------
 
@@ -538,34 +404,6 @@ CREATE TABLE `group_files` (
   `is_approved` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
---
--- A tábla adatainak kiíratása `group_files`
---
-
-INSERT INTO `group_files` (`id`, `group_id`, `uploaded_by`, `name`, `description`, `file_name`, `created_at`, `is_approved`) VALUES
-(1, 3, 10, 'Kémia tananyag', 'Ebbol tanuljatok', 'Mesterséges intelligencia vállalati alkalmazása – HR szakemberi kérdőív.pdf', '2026-03-16 23:06:59', 1);
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `group_file_comments`
---
-
-CREATE TABLE `group_file_comments` (
-  `id` int(11) NOT NULL,
-  `group_file_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `comment_text` text NOT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- A tábla adatainak kiíratása `group_file_comments`
---
-
-INSERT INTO `group_file_comments` (`id`, `group_file_id`, `user_id`, `comment_text`, `created_at`) VALUES
-(1, 1, 10, 'asd', '2026-03-16 23:58:41');
-
 -- --------------------------------------------------------
 
 --
@@ -583,17 +421,6 @@ CREATE TABLE `group_flashcards` (
   `wrong_count` int(11) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- A tábla adatainak kiíratása `group_flashcards`
---
-
-INSERT INTO `group_flashcards` (`id`, `group_id`, `created_by`, `question`, `answer`, `created_at`, `correct_count`, `wrong_count`) VALUES
-(1, 1, 10, 'asd', 'asd', '2026-02-24 01:48:55', 2, 0),
-(2, 1, 10, 'fgh', 'fgh', '2026-02-24 01:49:02', 2, 0),
-(3, 2, 10, 'asd', 'asd', '2026-02-24 01:49:36', 2, 0),
-(4, 2, 10, 'fgh', 'fgh', '2026-02-24 01:49:41', 2, 0),
-(5, 3, 10, 'Szén vegyjele?', 'C', '2026-03-16 23:08:51', 1, 0);
-
 -- --------------------------------------------------------
 
 --
@@ -604,7 +431,7 @@ CREATE TABLE `group_members` (
   `id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `role` enum('owner','moderator','member') NOT NULL DEFAULT 'member',
+  `role` enum('owner','member') NOT NULL DEFAULT 'member',
   `status` enum('accepted','pending') NOT NULL DEFAULT 'accepted',
   `joined_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
@@ -614,12 +441,7 @@ CREATE TABLE `group_members` (
 --
 
 INSERT INTO `group_members` (`id`, `group_id`, `user_id`, `role`, `status`, `joined_at`) VALUES
-(1, 0, 1, 'owner', 'accepted', '2026-02-10 09:10:06'),
-(2, 2, 1, 'owner', 'accepted', '2026-03-16 10:46:37'),
-(3, 2, 10, 'member', 'accepted', '2026-03-16 23:04:49'),
-(4, 3, 10, 'owner', 'accepted', '2026-03-16 23:05:43'),
-(5, 3, 11, 'member', 'accepted', '2026-03-16 23:33:19'),
-(6, 2, 11, 'member', 'accepted', '2026-03-16 23:35:30');
+(0, 0, 1, 'owner', 'accepted', '2026-03-19 20:07:21');
 
 -- --------------------------------------------------------
 
@@ -701,11 +523,7 @@ CREATE TABLE `messages` (
 --
 
 INSERT INTO `messages` (`id`, `fromid`, `toid`, `content`, `sent_at`) VALUES
-(1, 1, 8, 'Szia', '2026-01-25 19:04:32'),
-(2, 1, 8, 'Helló', '2026-03-29 21:45:28'),
-(3, 8, 1, 'Helló', '2026-03-29 21:45:33'),
-(4, 1, 8, 'Mizu?', '2026-03-29 21:45:37'),
-(5, 8, 1, 'Na mostmár működik a rendszer xd', '2026-03-29 21:45:48');
+(1, 1, 8, 'Szia', '2026-01-25 19:04:32');
 
 -- --------------------------------------------------------
 
@@ -1110,16 +928,10 @@ CREATE TABLE `notifys` (
 
 INSERT INTO `notifys` (`id`, `fromid`, `toid`, `notifytype`, `readed`) VALUES
 (1, 8, 1, 'friend', 1),
-(2, 36, 39, 'comment', 0),
-(3, 15, 18, 'group_invite', 0),
-(4, 24, 35, 'group_invite', 0),
-(5, 18, 12, 'friend_request', 0),
-(6, 25, 39, 'like', 0),
-(7, 31, 26, 'friend_request', 0),
-(8, 25, 29, 'friend_request', 0),
-(9, 25, 26, 'comment', 0),
-(10, 39, 25, 'friend_request', 0),
-(11, 31, 27, 'group_invite', 0);
+(2, 14, 1, 'friend', 1),
+(3, 1, 17, 'friend', 1),
+(4, 1, 18, 'friend', 0),
+(5, 20, 1, 'friend', 1);
 
 -- --------------------------------------------------------
 
@@ -1156,7 +968,7 @@ CREATE TABLE `premium_users` (
 --
 
 INSERT INTO `premium_users` (`id`, `user_id`, `premium_until`, `premium_ig`, `created_at`, `updated_at`) VALUES
-(5, 1, '0000-00-00 00:00:00', '2026-04-29 09:53:09', '2026-02-10 11:13:35', '2026-03-30 09:53:09');
+(2, 20, '0000-00-00 00:00:00', '2026-04-30 09:37:11', '2026-03-31 09:37:11', '2026-03-31 09:37:11');
 
 -- --------------------------------------------------------
 
@@ -1166,380 +978,74 @@ INSERT INTO `premium_users` (`id`, `user_id`, `premium_until`, `premium_ig`, `cr
 
 CREATE TABLE `profanity_filter` (
   `id` int(11) NOT NULL,
-  `words` varchar(100) NOT NULL,
-  `type` varchar(255) NOT NULL
+  `words` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 --
 -- A tábla adatainak kiíratása `profanity_filter`
 --
 
-INSERT INTO `profanity_filter` (`id`, `words`, `type`) VALUES
-(1, 'kaka', 'f'),
-(2, 'Aberált', 'm'),
-(3, 'Aberrált', 'm'),
-(4, 'Abortuszmaradék', 'f'),
-(5, 'Abszolút hülye', 'm'),
-(6, 'Agyalágyult', 'm'),
-(7, 'Agyatlan', 'm'),
-(8, 'Agybatetovált', 'm'),
-(9, 'Ágybavizelős', 'm'),
-(10, 'Agyfasz', 'f'),
-(11, 'Agyhalott', 'f'),
-(12, 'Agyonkúrt', 'm'),
-(13, 'Agyonvert', 'm'),
-(14, 'Agyrákos', 'm'),
-(15, 'AIDS-es', 'm'),
-(16, 'Alapvetően fasz', 'm'),
-(17, 'Animalsex-mániás', 'f'),
-(18, 'Antibarom', 'f'),
-(19, 'Aprófaszú', 'm'),
-(20, 'Arcbarakott', 'm'),
-(21, 'Aszaltfaszú', 'm'),
-(22, 'Aszott', 'm'),
-(23, 'Átbaszott', 'm'),
-(24, 'Azt a kurva de fasz', 'f'),
-(25, 'Balatonberényben napvilágot látott', 'm'),
-(26, 'Balfasz', 'f'),
-(27, 'Balfészek', 'f'),
-(28, 'Baromfifasz', 'f'),
-(29, 'Basz-o-matic', 'f'),
-(30, 'Baszhatatlan', 'm'),
-(31, 'Basznivaló', 'm'),
-(32, 'Bebaszott', 'm'),
-(33, 'Befosi', 'm'),
-(34, 'Békapicsa', 'm'),
-(35, 'Bélböfi', 'm'),
-(36, 'Beleiből kiforgatott', 'm'),
-(37, 'Bélszél', 'f'),
-(38, 'Bronz térdű', 'm'),
-(39, 'Brunya', 'f'),
-(40, 'Büdös szájú', 'm'),
-(41, 'Büdösszájú', 'm'),
-(42, 'Búvalbaszott', 'm'),
-(43, 'Buzeráns', 'f'),
-(44, 'Buzernyák', 'm'),
-(45, 'Buzi', 'f'),
-(46, 'Buzikurva', 'f'),
-(47, 'Cafat', 'f'),
-(48, 'Cafka', 'f'),
-(49, 'Céda', 'f'),
-(50, 'Cérnafaszú', 'm'),
-(51, 'Cottonfej', 'f'),
-(52, 'Csempe szobában felneveltetett', 'm'),
-(53, 'Cseszett', 'm'),
-(54, 'Csibefasz', 'f'),
-(55, 'Csipszar', 'f'),
-(56, 'Csirkefaszú', 'm'),
-(57, 'Csitri', 'f'),
-(58, 'Csöcs', 'f'),
-(59, 'Csöcsfej', 'f'),
-(60, 'Csöppszar', 'f'),
-(61, 'Csőszkunyhóban elrejtett', 'm'),
-(62, 'Csupaszfarkú', 'm'),
-(63, 'Cuncipunci', 'f'),
-(64, 'Deformáltfaszú', 'm'),
-(65, 'Dekorált pofájú', 'm'),
-(66, 'Döbbenetesen segg', 'm'),
-(67, 'Dobseggű', 'm'),
-(68, 'Dughatatlan', 'm'),
-(69, 'Dunyhavalagú', 'm'),
-(70, 'Duplafaszú', 'm'),
-(71, 'Ebfasz', 'f'),
-(72, 'Egyszerűen fasz', 'm'),
-(73, 'Elbaszott', 'm'),
-(74, 'Eleve hülye', 'm'),
-(75, 'Extrahülye', 'm'),
-(76, 'Fafogú rézfűrésszel megsebzett', 'm'),
-(77, 'Fantasztikusan segg', 'm'),
-(78, 'Fasszopó', 'f'),
-(79, 'Fasz', 'm'),
-(80, 'Fasz-emulátor', 'm'),
-(81, 'Faszagyú', 'm'),
-(82, 'Faszarc', 'f'),
-(83, 'Faszfej', 'f'),
-(84, 'Faszfészek', 'f'),
-(85, 'Faszkalap', 'f'),
-(86, 'Faszkarika', 'f'),
-(87, 'Faszkedvelő', 'm'),
-(88, 'Faszkópé', 'f'),
-(89, 'Faszogány', 'f'),
-(90, 'Faszpörgettyű', 'f'),
-(91, 'Faszsapka', 'f'),
-(92, 'Faszszagú', 'm'),
-(93, 'Faszszopó', 'f'),
-(94, 'Fasztalan', 'm'),
-(95, 'Fasztarisznya', 'f'),
-(96, 'Fasztengely', 'f'),
-(97, 'Fasztolvaj', 'f'),
-(98, 'Faszváladék', 'f'),
-(99, 'Faszverő', 'f'),
-(100, 'Félrebaszott', 'm'),
-(101, 'Félrefingott', 'm'),
-(102, 'Félreszart', 'm'),
-(103, 'Félribanc', 'f'),
-(104, 'Fing', 'f'),
-(105, 'Fölcsinált', 'm'),
-(106, 'Fölfingott', 'm'),
-(107, 'Fos', 'f'),
-(108, 'Foskemence', 'f'),
-(109, 'Fospisztoly', 'f'),
-(110, 'Fospumpa', 'f'),
-(111, 'Fostalicska', 'f'),
-(112, 'Fütyi', 'f'),
-(113, 'Fütyinyalogató', 'm'),
-(114, 'Fütykös', 'f'),
-(115, 'Geci', 'f'),
-(116, 'Gecinyelő', 'm'),
-(117, 'Geciszaró', 'm'),
-(118, 'Geciszívó', 'm'),
-(119, 'Genny', 'f'),
-(120, 'Gennyesszájú', 'm'),
-(121, 'Gennygóc', 'f'),
-(122, 'Genyac', 'f'),
-(123, 'Genyó', 'f'),
-(124, 'Gólyafos', 'f'),
-(125, 'Görbefaszú', 'm'),
-(126, 'Gyennyszopó', 'm'),
-(127, 'Gyíkfing', 'f'),
-(128, 'Hájpacni', 'f'),
-(129, 'Hatalmas nagy fasz', 'f'),
-(130, 'Hátbabaszott', 'm'),
-(131, 'Házikurva', 'f'),
-(132, 'Hererákos', 'm'),
-(133, 'Hígagyú', 'm'),
-(134, 'Hihetetlenül fasz', 'm'),
-(135, 'Hikomat', 'f'),
-(136, 'Hímnőstény', 'f'),
-(137, 'Hímringyó', 'f'),
-(138, 'Hiperstrici', 'm'),
-(139, 'Hitler-imádó', 'm'),
-(140, 'Hitlerista', 'm'),
-(141, 'Hivatásos balfasz', 'f'),
-(142, 'Hú de segg', 'm'),
-(143, 'Hugyagyú', 'm'),
-(144, 'Hugyos', 'm'),
-(145, 'Hugytócsa', 'f'),
-(146, 'Hüje', 'm'),
-(147, 'Hüle', 'm'),
-(148, 'Hülye', 'm'),
-(149, 'Hülyécske', 'm'),
-(150, 'Hülyegyerek', 'f'),
-(151, 'Inkubátor-szökevény', 'f'),
-(152, 'Integrált barom', 'f'),
-(153, 'Ionizált faszú', 'm'),
-(154, 'IQ bajnok', 'f'),
-(155, 'IQ fighter', 'f'),
-(156, 'IQ hiányos', 'm'),
-(157, 'Irdatlanul köcsög', 'm'),
-(158, 'Íveltfaszú', 'm'),
-(159, 'Jajj de barom', 'm'),
-(160, 'Jókora fasz', 'm'),
-(161, 'Kaka', 'f'),
-(162, 'Kakamatyi', 'f'),
-(163, 'Kaki', 'f'),
-(164, 'Kaksi', 'f'),
-(165, 'Kecskebaszó', 'm'),
-(166, 'Kellően fasz', 'm'),
-(167, 'Képlékeny faszú', 'm'),
-(168, 'Keresve sem található fasz', 'f'),
-(169, 'Kétfaszú', 'm'),
-(170, 'Kétszer agyonbaszott', 'm'),
-(171, 'Ki-bebaszott', 'm'),
-(172, 'Kibaszott', 'm'),
-(173, 'Kifingott', 'm'),
-(174, 'Kiherélt', 'm'),
-(175, 'Kikakkantott', 'm'),
-(176, 'Kikészült', 'm'),
-(177, 'Kimagaslóan fasz', 'm'),
-(178, 'Kimondhatatlan pöcs', 'm'),
-(179, 'Kis szaros', 'f'),
-(180, 'Kisfütyi', 'f'),
-(181, 'Klotyószagú', 'm'),
-(182, 'Ködmönbe bújtatott', 'm'),
-(183, 'Kojak-faszú', 'm'),
-(184, 'Kopárfaszú', 'm'),
-(185, 'Korlátolt gecizésű', 'm'),
-(186, 'Kotonszökevény', 'f'),
-(187, 'Középszar', 'm'),
-(188, 'Kretén', 'f'),
-(189, 'Kuki', 'f'),
-(190, 'Kula', 'f'),
-(191, 'Kunkorított faszú', 'm'),
-(192, 'Kurva', 'f'),
-(193, 'Kurvaanyjú', 'm'),
-(194, 'Kurvapecér', 'f'),
-(195, 'Kutyakaki', 'f'),
-(196, 'Kutyapina', 'f'),
-(197, 'Kutyaszar', 'f'),
-(198, 'Lankadtfaszú', 'm'),
-(199, 'Lebaszirgált', 'm'),
-(200, 'Lebaszott', 'm'),
-(201, 'Lecseszett', 'm'),
-(202, 'Leírhatatlanul segg', 'm'),
-(203, 'Lemenstruált', 'm'),
-(204, 'Leokádott', 'm'),
-(205, 'Lepkefing', 'f'),
-(206, 'Leprafészek', 'f'),
-(207, 'Leszart', 'm'),
-(208, 'Leszbikus', 'm'),
-(209, 'Lőcs', 'f'),
-(210, 'Lőcsgéza', 'f'),
-(211, 'Lófasz', 'f'),
-(212, 'Lógócsöcsű', 'm'),
-(213, 'Lóhugy', 'f'),
-(214, 'Lotyó', 'f'),
-(215, 'Lucskos', 'm'),
-(216, 'Lugnya', 'f'),
-(217, 'Lyukasbelű', 'm'),
-(218, 'Lyukasfaszú', 'm'),
-(219, 'Lyukát vakaró', 'm'),
-(220, 'Lyuktalanított', 'm'),
-(221, 'Mamutsegg', 'f'),
-(222, 'Maszturbációs görcs', 'f'),
-(223, 'Maszturbagép', 'f'),
-(224, 'Maszturbáltatott', 'm'),
-(225, 'Megfingatott', 'm'),
-(226, 'Megkettyintett', 'm'),
-(227, 'Megkúrt', 'm'),
-(228, 'Megszopatott', 'm'),
-(229, 'Mesterséges faszú', 'm'),
-(230, 'Méteres kékeres', 'f'),
-(231, 'Mikrotökű', 'm'),
-(232, 'Mocskos', 'm'),
-(233, 'Mojfing', 'f'),
-(234, 'Műfaszú', 'm'),
-(235, 'Muff', 'f'),
-(236, 'Multifasz', 'f'),
-(237, 'Műtöttpofájú', 'm'),
-(238, 'Náci', 'm'),
-(239, 'Nagyfejű', 'm'),
-(240, 'Nikotinpatkány', 'f'),
-(241, 'Nimfomániás', 'm'),
-(242, 'Nuna', 'f'),
-(243, 'Nunci', 'f'),
-(244, 'Nuncóka', 'f'),
-(245, 'Nyalábfasz', 'f'),
-(246, 'Nyelestojás', 'f'),
-(247, 'Nyúlszar', 'f'),
-(248, 'Oltári nagy fasz', 'f'),
-(249, 'Ondónyelő', 'm'),
-(250, 'Orbitálisan hülye', 'm'),
-(251, 'Ordenálé', 'm'),
-(252, 'Összebaszott', 'm'),
-(253, 'Ötcsillagos fasz', 'f'),
-(254, 'Óvszerezett', 'm'),
-(255, 'Pénisz', 'f'),
-(256, 'Peremesfaszú', 'm'),
-(257, 'Picsa', 'f'),
-(258, 'Picsafej', 'f'),
-(259, 'Picsameresztő', 'm'),
-(260, 'Picsánnyalt', 'm'),
-(261, 'Picsánrugott', 'm'),
-(262, 'Picsányi', 'm'),
-(263, 'Pikkelypáncélt hordó', 'm'),
-(264, 'Pina', 'f'),
-(265, 'Pisa', 'f'),
-(266, 'Pisaszagú', 'm'),
-(267, 'Pisis', 'm'),
-(268, 'Pöcs', 'f'),
-(269, 'Pöcsfej', 'f'),
-(270, 'Porbafingó', 'm'),
-(271, 'Pornóbuzi', 'f'),
-(272, 'Pornómániás', 'm'),
-(273, 'Pudvás', 'm'),
-(274, 'Pudváslikú', 'm'),
-(275, 'Puhafaszú', 'm'),
-(276, 'Punci', 'f'),
-(277, 'Puncimókus', 'f'),
-(278, 'Puncis', 'm'),
-(279, 'Punciutáló', 'f'),
-(280, 'Puncivirág', 'f'),
-(281, 'Qki', 'f'),
-(282, 'Qrva', 'f'),
-(283, 'Qtyaszar', 'f'),
-(284, 'Rabló', 'm'),
-(285, 'Rágcsáltfaszú', 'm'),
-(286, 'Redva', 'f'),
-(287, 'Rendkívül fasz', 'm'),
-(288, 'Repedtsarkú', 'm'),
-(289, 'Rétó-román', 'm'),
-(290, 'Rézhasú', 'm'),
-(291, 'Ribanc', 'f'),
-(292, 'Riherongy', 'f'),
-(293, 'Ritka fogú', 'm'),
-(294, 'Rivalizáló', 'm'),
-(295, 'Rőfös fasz', 'f'),
-(296, 'Rojtospicsájú', 'm'),
-(297, 'Rongyospinájú', 'm'),
-(298, 'Roppant hülye', 'm'),
-(299, 'Rossz kurva', 'f'),
-(300, 'Saját nemével kefélő', 'm'),
-(301, 'Segg', 'f'),
-(302, 'Seggarc', 'f'),
-(303, 'Seggdugó', 'f'),
-(304, 'Seggfej', 'f'),
-(305, 'Seggnyaló', 'f'),
-(306, 'Seggszőr', 'f'),
-(307, 'Seggtorlasz', 'f'),
-(308, 'Sikoltozásokba öltöztetett', 'm'),
-(309, 'Strici', 'f'),
-(310, 'Suttyó', 'm'),
-(311, 'Sutyerák', 'm'),
-(312, 'Szálkafaszú', 'm'),
-(313, 'Szar', 'f'),
-(314, 'Szaralak', 'f'),
-(315, 'Szárazfing', 'f'),
-(316, 'Szarbojler', 'f'),
-(317, 'Szarcsimbók', 'f'),
-(318, 'Szarevő', 'm'),
-(319, 'Szarfaszú', 'm'),
-(320, 'Szarházi', 'f'),
-(321, 'Szarjankó', 'f'),
-(322, 'Szarnivaló', 'm'),
-(323, 'Szarosvalagú', 'm'),
-(324, 'Szarrá vágott', 'm'),
-(325, 'Szarrágó', 'f'),
-(326, 'Szarszagú', 'm'),
-(327, 'Szarszájú', 'm'),
-(328, 'Szartragacs', 'f'),
-(329, 'Szarzsák', 'f'),
-(330, 'Szégyencsicska', 'f'),
-(331, 'Szifiliszes', 'm'),
-(332, 'Szivattyús kurva', 'f'),
-(333, 'Szófosó', 'm'),
-(334, 'Szokatlanul fasz', 'm'),
-(335, 'Szop-o-matic', 'f'),
-(336, 'Szopógép', 'f'),
-(337, 'Szopógörcs', 'f'),
-(338, 'Szopós kurva', 'f'),
-(339, 'Szopottfarkú', 'm'),
-(340, 'Szűklyukú', 'm'),
-(341, 'Szultán udvarát megjárt', 'm'),
-(342, 'Szúnyogfaszni', 'f'),
-(343, 'Szuperbuzi', 'f'),
-(344, 'Szuperkurva', 'f'),
-(345, 'Szűzhártya-repedéses', 'm'),
-(346, 'Szűzkurva', 'f'),
-(347, 'Szűzpicsa', 'f'),
-(348, 'Szűzpunci', 'f'),
-(349, 'Tetves', 'm'),
-(350, 'Tikfos', 'f'),
-(351, 'Tikszar', 'f'),
-(352, 'Tompatökű', 'm'),
-(353, 'Törpefaszú', 'm'),
-(354, 'Toszatlan', 'm'),
-(355, 'Toszott', 'm'),
-(356, 'Totálisan hülye', 'm'),
-(357, 'Tyű de picsa', 'm'),
-(358, 'Tyúkfasznyi', 'm'),
-(359, 'Tyúkszar', 'f'),
-(360, 'Vadfasz', 'f'),
-(361, 'Valag', 'f'),
-(362, 'Valagváladék', 'f'),
-(363, 'Végbélféreg', 'f'),
-(364, 'Xar', 'f'),
-(365, 'Zsugorított faszú', 'm');
+INSERT INTO `profanity_filter` (`id`, `words`) VALUES
+(2, 'szar'),
+(3, 'szarás'),
+(4, 'szaros'),
+(5, 'fos'),
+(6, 'fosás'),
+(7, 'fosni'),
+(8, 'geci'),
+(9, 'gecis'),
+(10, 'baszd'),
+(11, 'baszni'),
+(12, 'baszott'),
+(13, 'baszok'),
+(14, 'baszki'),
+(15, 'kurva'),
+(16, 'kurvázik'),
+(17, 'kurvára'),
+(18, 'picsa'),
+(19, 'pina'),
+(20, 'fasz'),
+(21, 'fasza'),
+(22, 'faszom'),
+(23, 'faszfej'),
+(24, 'lófasz'),
+(25, 'segg'),
+(26, 'seggfej'),
+(27, 'segglyuk'),
+(28, 'buzi'),
+(29, 'buziak'),
+(30, 'szop'),
+(31, 'szopás'),
+(32, 'szopni'),
+(33, 'anyád'),
+(34, 'anyádért'),
+(35, 'rohadt'),
+(36, 'rohadtul'),
+(37, 'szétbasz'),
+(38, 'szétcseszni'),
+(39, 'cseszni'),
+(40, 'cseszett'),
+(41, 'kibasz'),
+(42, 'kibaszott'),
+(43, 'elbasz'),
+(44, 'elbaszott'),
+(45, 'szétkúr'),
+(46, 'kúrni'),
+(47, 'kúrt'),
+(48, 'kúrás'),
+(49, 'szarházi'),
+(50, 'barom'),
+(51, 'idióta'),
+(52, 'hülye'),
+(53, 'hülyeség'),
+(54, 'szemét'),
+(55, 'szaralak'),
+(56, 'szarjankó'),
+(57, 'szarjancsi'),
+(58, 'szarjanni'),
+(59, 'szarjanyó'),
+(60, 'szarjanyócska'),
+(61, 'szarjanyóka');
 
 -- --------------------------------------------------------
 
@@ -1563,13 +1069,8 @@ CREATE TABLE `ratings` (
 INSERT INTO `ratings` (`id`, `file_id`, `user_id`, `rating`, `created_at`, `updated_at`) VALUES
 (1, 1, 4, 5, '2025-12-02 10:55:24', '2025-12-02 10:55:24'),
 (2, 2, 1, 5, '2025-12-16 01:00:56', '2026-01-17 20:16:40'),
-(3, 3, 1, 4, '2026-02-19 09:28:29', '2026-02-19 09:28:29'),
-(4, 5, 1, 5, '2026-02-25 13:21:40', '2026-02-25 13:21:40'),
-(5, 16, 35, 1, '2026-03-29 23:34:20', '2026-03-29 23:34:20'),
-(6, 26, 13, 2, '2026-03-29 23:34:20', '2026-03-29 23:34:20'),
-(7, 3, 33, 5, '2026-03-29 23:34:20', '2026-03-29 23:34:20'),
-(8, 16, 22, 2, '2026-03-29 23:34:20', '2026-03-29 23:34:20'),
-(9, 3, 27, 3, '2026-03-29 23:34:20', '2026-03-29 23:34:20');
+(3, 5, 20, 5, '2026-03-31 08:56:08', '2026-03-31 08:56:08'),
+(4, 2, 20, 4, '2026-03-31 09:06:42', '2026-03-31 09:06:42');
 
 -- --------------------------------------------------------
 
@@ -1585,6 +1086,15 @@ CREATE TABLE `registration_code_uses` (
   `used_ip` varchar(45) DEFAULT NULL,
   `user_agent` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- A tábla adatainak kiíratása `registration_code_uses`
+--
+
+INSERT INTO `registration_code_uses` (`id`, `user_id`, `reg_code`, `used_at`, `used_ip`, `user_agent`) VALUES
+(6, 19, 'TEST-BETA-CODE-2026', '2026-03-30 12:17:48', '89.135.121.121', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36'),
+(7, 20, 'SCHOLA-2026', '2026-03-31 08:52:42', '89.135.121.121', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36'),
+(8, 21, 'SCHOLA-2026', '2026-03-31 10:37:16', '176.77.149.36', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36');
 
 -- --------------------------------------------------------
 
@@ -1608,7 +1118,10 @@ CREATE TABLE `reg_codes` (
 --
 
 INSERT INTO `reg_codes` (`id`, `code`, `description`, `max_uses`, `used`, `expires_at`, `active`, `created_at`) VALUES
-(1, 'EARLY-BETA-2025', 'Nagyon korai béta tesztelő kód', 10, 4, NULL, 0, '2025-12-07 14:31:16');
+(1, 'EARLY-BETA-2025', 'Nagyon korai béta tesztelő kód', 10, 8, NULL, 0, '2025-12-07 14:31:16'),
+(4, 'TEST-BETA-CODE-2026', 'Béta kód teszteléshez', NULL, 5, '2027-01-01 00:00:00', 1, '2026-02-12 11:35:38'),
+(7, 'BMSZC-BLATHY-2026', 'Ez a regisztrációs kód kizárólag a BMSZC Bláthy Ottó iskolához tartozó diákok és munkatársak számára érvényes.', NULL, 0, NULL, 1, '2026-03-16 22:25:50'),
+(8, 'SCHOLA-2026', 'Ez a regisztrációs kód kizárólag a Schola Europa Akadémia iskolához tartozó diákok és munkatársak számára érvényes.', NULL, 2, NULL, 1, '2026-03-16 22:26:43');
 
 -- --------------------------------------------------------
 
@@ -1650,6 +1163,13 @@ CREATE TABLE `saved_searches` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `last_seen_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
+
+--
+-- A tábla adatainak kiíratása `saved_searches`
+--
+
+INSERT INTO `saved_searches` (`id`, `user_id`, `params_json`, `created_at`, `last_seen_at`) VALUES
+(1, 20, '{\"scope\":\"files\",\"type\":\"mp4\"}', '2026-03-31 09:30:40', NULL);
 
 -- --------------------------------------------------------
 
@@ -1761,14 +1281,6 @@ CREATE TABLE `tokens` (
   `token` int(10) UNSIGNED NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- A tábla adatainak kiíratása `tokens`
---
-
-INSERT INTO `tokens` (`id`, `user_id`, `token`, `created_at`) VALUES
-(1, 8, 120502, '2025-12-15 22:19:29'),
-(2, 9, 668874, '2026-02-11 14:15:18');
 
 -- --------------------------------------------------------
 
@@ -3168,9 +2680,9 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (1377, 'upload_label_tags', 'hu', 'Címkék:'),
 (1378, 'upload_label_tags', 'en', 'Tags:'),
 (1379, 'upload_label_tags', 'de', 'Tags:'),
-(1380, 'upload_placeholder_tags', 'hu', 'Címkék.'),
-(1381, 'upload_placeholder_tags', 'en', 'Tags.'),
-(1382, 'upload_placeholder_tags', 'de', 'Tags.'),
+(1380, 'upload_placeholder_tags', 'hu', 'Címkék'),
+(1381, 'upload_placeholder_tags', 'en', 'Tags'),
+(1382, 'upload_placeholder_tags', 'de', 'Tags'),
 (1383, 'upload_label_content_type', 'hu', 'Feltöltés típusa:'),
 (1384, 'upload_label_content_type', 'en', 'Upload type:'),
 (1385, 'upload_label_content_type', 'de', 'Upload-Typ:'),
@@ -3762,7 +3274,6 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (1970, 'rules_s2_li1', 'en', 'You are responsible for your account: do not share your password or 2FA (if applicable) with others.'),
 (1971, 'rules_s2_li1', 'de', 'Du bist für dein Konto verantwortlich: Teile dein Passwort oder 2FA (falls vorhanden) nicht mit anderen.'),
 (1972, 'rules_s2_li2', 'hu', 'Tilos más fiókjába belépni, vagy erre kísérletet tenni.'),
-(1973, 'rules_s2_li2', 'en', 'Accessing or attempting to access someone else\'s account is prohibited.'),
 (1974, 'rules_s2_li2', 'de', 'Der Zugang zu einem fremden Konto oder der Versuch dazu ist verboten.'),
 (1975, 'rules_s2_li3', 'hu', 'Gyanús tevékenységet jelents a platformon belül vagy az adminoknak.'),
 (1976, 'rules_s2_li3', 'en', 'Report suspicious activity within the platform or to the admins.'),
@@ -3780,7 +3291,6 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (1988, 'rules_s3_li2', 'en', '<strong>Prohibited:</strong> hate-inciting, harassing, pornographic, violent, self-harm-promoting or any other illegal content.'),
 (1989, 'rules_s3_li2', 'de', '<strong>Verboten:</strong> hassanstachelnde, belästigende, pornografische, gewalttätige, selbstverletzungsfördernde oder sonstige rechtswidrige Inhalte.'),
 (1990, 'rules_s3_li3', 'hu', '<strong>Tiltott:</strong> személyes adatok közzététele (pl. telefonszám, lakcím, mások e-mailje, osztálylista, igazolvány).'),
-(1991, 'rules_s3_li3', 'en', '<strong>Prohibited:</strong> publishing personal data (e.g. phone number, home address, others\' email, class list, ID card).'),
 (1992, 'rules_s3_li3', 'de', '<strong>Verboten:</strong> Veröffentlichung personenbezogener Daten (z. B. Telefonnummer, Wohnadresse, E-Mail anderer, Klassenliste, Ausweis).'),
 (1993, 'rules_s3_li4', 'hu', '<strong>Tiltott:</strong> vírusos / kártékony fájlok, linkek, adathalászat.'),
 (1994, 'rules_s3_li4', 'en', '<strong>Prohibited:</strong> virus/malware files, links, phishing.'),
@@ -3852,7 +3362,6 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (2060, 'rules_s9_intro', 'en', 'The <strong><a href=\"privacy.php\">Privacy Policy</a></strong> provides detailed information about the handling of personal data.'),
 (2061, 'rules_s9_intro', 'de', 'Die <strong><a href=\"privacy.php\">Datenschutzerklärung</a></strong> enthält detaillierte Informationen zur Verarbeitung personenbezogener Daten.'),
 (2062, 'rules_s9_li1', 'hu', 'Ne ossz meg mások személyes adatait.'),
-(2063, 'rules_s9_li1', 'en', 'Do not share other people\'s personal data.'),
 (2064, 'rules_s9_li1', 'de', 'Teile keine personenbezogenen Daten anderer Personen.'),
 (2065, 'rules_s9_li2', 'hu', 'Ha 13-18 éves vagy, különösen figyelj arra, hogy mit töltesz fel (név, osztály, iskola, arc a dokumentumon stb.).'),
 (2066, 'rules_s9_li2', 'en', 'If you are 13-18 years old, pay special attention to what you upload (name, class, school, face in a document, etc.).'),
@@ -3980,13 +3489,13 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (2188, 'contact_label_subject', 'hu', 'Tárgy *'),
 (2189, 'contact_label_subject', 'en', 'Subject *'),
 (2190, 'contact_label_subject', 'de', 'Betreff *'),
-(2191, 'contact_placeholder_subject', 'hu', 'Miről szeretnél írni?');
-INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
+(2191, 'contact_placeholder_subject', 'hu', 'Miről szeretnél írni?'),
 (2192, 'contact_placeholder_subject', 'en', 'What would you like to write about?'),
 (2193, 'contact_placeholder_subject', 'de', 'Worüber möchtest du schreiben?'),
 (2194, 'contact_label_message', 'hu', 'Üzenet *'),
 (2195, 'contact_label_message', 'en', 'Message *'),
-(2196, 'contact_label_message', 'de', 'Nachricht *'),
+(2196, 'contact_label_message', 'de', 'Nachricht *');
+INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (2197, 'contact_placeholder_message', 'hu', 'Írd ide az üzenedet...'),
 (2198, 'contact_placeholder_message', 'en', 'Write your message here...'),
 (2199, 'contact_placeholder_message', 'de', 'Schreib hier deine Nachricht...'),
@@ -4383,12 +3892,730 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (2590, 'upload_tags_hint', 'hu', 'Válassz a listából vagy írj be saját taget – Enter, vessző vagy pontosvessző a hozzáadáshoz • max. 10 tag • Backspace törli az utolsót'),
 (2591, 'upload_tags_hint', 'en', 'Pick from the list or type your own tag – Enter, comma or semicolon to add • max. 10 tags • Backspace removes the last one'),
 (2592, 'upload_tags_hint', 'de', 'Aus der Liste wählen oder eigenen Tag eingeben – Enter, Komma oder Semikolon zum Hinzufügen • max. 10 Tags • Rücktaste löscht das letzte'),
-(0, 'profile_saved_searches_title', 'hu', 'Mentett keresések'),
-(0, 'profile_saved_searches_empty', 'hu', 'Még nem mentettél el egyetlen keresést sem.'),
-(0, 'profile_saved_searches_title', 'en', 'Saved searches'),
-(0, 'profile_saved_searches_empty', 'en', 'You haven\'t saved any searches yet.'),
-(0, 'profile_saved_searches_title', 'de', 'Gespeicherte Suchen'),
-(0, 'profile_saved_searches_empty', 'de', 'Du hast noch keine Suchen gespeichert.');
+(2593, 'news_title', 'hu', 'Hírek'),
+(2594, 'news_title', 'en', 'News'),
+(2595, 'news_title', 'de', 'Nachrichten'),
+(2596, 'news_meta_description', 'hu', 'A Jegyzetár hivatalos hírei.'),
+(2597, 'news_meta_description', 'en', 'Official news from NoteShare.'),
+(2598, 'news_meta_description', 'de', 'Offizielle Nachrichten von NoteShare.'),
+(2599, 'news_heading', 'hu', 'Hírek'),
+(2600, 'news_heading', 'en', 'News'),
+(2601, 'news_heading', 'de', 'Nachrichten'),
+(2602, 'news_error_title_required', 'hu', 'A cím megadása kötelező.'),
+(2603, 'news_error_title_required', 'en', 'Title is required.'),
+(2604, 'news_error_title_required', 'de', 'Titel ist erforderlich.'),
+(2605, 'news_error_content_required', 'hu', 'A tartalom megadása kötelező.'),
+(2606, 'news_error_content_required', 'en', 'Content is required.'),
+(2607, 'news_error_content_required', 'de', 'Inhalt ist erforderlich.'),
+(2608, 'news_success_posted', 'hu', 'Hír sikeresen közzétéve.'),
+(2609, 'news_success_posted', 'en', 'News posted successfully.'),
+(2610, 'news_success_posted', 'de', 'Nachricht erfolgreich veröffentlicht.'),
+(2611, 'news_form_title', 'hu', 'Hír címe'),
+(2612, 'news_form_title', 'en', 'News title'),
+(2613, 'news_form_title', 'de', 'Nachrichtentitel'),
+(2614, 'news_form_content', 'hu', 'Hír szövege'),
+(2615, 'news_form_content', 'en', 'News content'),
+(2616, 'news_form_content', 'de', 'Nachrichteninhalt'),
+(2617, 'news_form_submit', 'hu', 'Közzétesz'),
+(2618, 'news_form_submit', 'en', 'Post'),
+(2619, 'news_form_submit', 'de', 'Veröffentlichen'),
+(2620, 'news_readonly_message', 'hu', 'Csak adminok adhatnak hozzá új híreket.'),
+(2621, 'news_readonly_message', 'en', 'Only admins can add news.'),
+(2622, 'news_readonly_message', 'de', 'Nur Admins können Nachrichten hinzufügen.'),
+(2623, 'news_posted_by', 'hu', 'Közzétette'),
+(2624, 'news_posted_by', 'en', 'Posted by'),
+(2625, 'news_posted_by', 'de', 'Veröffentlicht von'),
+(2626, 'news_posted_at', 'hu', 'Időpont:'),
+(2627, 'news_posted_at', 'en', 'At:'),
+(2628, 'news_posted_at', 'de', 'Um:'),
+(2629, 'news_anonymous', 'hu', 'Ismeretlen'),
+(2630, 'news_anonymous', 'en', 'Unknown'),
+(2631, 'news_anonymous', 'de', 'Unbekannt'),
+(2632, 'news_no_items', 'hu', 'Jelenleg nincsenek hírek.'),
+(2633, 'news_no_items', 'en', 'No news currently.'),
+(2634, 'news_no_items', 'de', 'Derzeit keine Nachrichten.'),
+(2635, 'profile_saved_searches_title', 'hu', 'Mentett keresések'),
+(2636, 'profile_saved_searches_empty', 'hu', 'Még nem mentettél el egyetlen keresést sem.'),
+(2637, 'profile_saved_searches_title', 'en', 'Saved searches'),
+(2639, 'profile_saved_searches_title', 'de', 'Gespeicherte Suchen'),
+(2640, 'profile_saved_searches_empty', 'de', 'Du hast noch keine Suchen gespeichert.'),
+(2641, 'error_bio_too_long', 'hu', 'A bemutatkozás túl hosszú. Maximum 1500 karakter.'),
+(2642, 'error_bio_too_long', 'en', 'Bio is too long. Maximum 1500 characters.'),
+(2643, 'error_bio_too_long', 'de', 'Die Biografie ist zu lang. Maximal 1500 Zeichen.'),
+(2644, 'label_downloads', 'hu', 'Letöltések'),
+(2645, 'label_downloads', 'en', 'Downloads'),
+(2646, 'label_downloads', 'de', 'Downloads'),
+(2647, 'msg_invalid_profile', 'hu', 'Érvénytelen profil.'),
+(2648, 'msg_invalid_profile', 'en', 'Invalid profile.'),
+(2649, 'msg_invalid_profile', 'de', 'Ungültiges Profil.'),
+(2650, 'msg_password_too_short', 'hu', 'A jelszó túl rövid. Legalább 8 karakter hosszúnak kell lennie.'),
+(2651, 'msg_password_too_short', 'en', 'The password is too short. It must be at least 8 characters.'),
+(2652, 'msg_password_too_short', 'de', 'Das Passwort ist zu kurz. Es muss mindestens 8 Zeichen lang sein.'),
+(2653, 'msg_too_many_attempts', 'hu', 'Túl sok próbálkozás. Próbáld újra később.'),
+(2654, 'msg_too_many_attempts', 'en', 'Too many attempts. Please try again later.'),
+(2655, 'msg_too_many_attempts', 'de', 'Zu viele Versuche. Bitte versuche es später noch einmal.'),
+(2656, 'save_search_already_saved', 'hu', 'Ezt a keresést már elmentetted.'),
+(2657, 'save_search_already_saved', 'en', 'You already saved this search.'),
+(2658, 'save_search_already_saved', 'de', 'Diese Suche hast du bereits gespeichert.'),
+(2659, 'save_search_btn', 'hu', 'Keresés mentése'),
+(2660, 'save_search_btn', 'en', 'Save search'),
+(2661, 'save_search_btn', 'de', 'Suche speichern'),
+(2662, 'save_search_btn_title', 'hu', 'Keresés mentése'),
+(2663, 'save_search_btn_title', 'en', 'Save search'),
+(2664, 'save_search_btn_title', 'de', 'Suche speichern'),
+(2665, 'save_search_delete', 'hu', 'Keresés törlése'),
+(2666, 'save_search_delete', 'en', 'Delete search'),
+(2667, 'save_search_delete', 'de', 'Suche löschen'),
+(2668, 'save_search_delete_confirm', 'hu', 'Biztosan törlöd ezt a mentett keresést?'),
+(2669, 'save_search_delete_confirm', 'en', 'Are you sure you want to delete this saved search?'),
+(2670, 'save_search_delete_confirm', 'de', 'Möchtest du diese gespeicherte Suche wirklich löschen?'),
+(2671, 'save_search_error', 'hu', 'Nincs menthető keresés.'),
+(2672, 'save_search_error', 'en', 'There is no search to save.'),
+(2673, 'save_search_error', 'de', 'Es gibt keine Suche zum Speichern.'),
+(2674, 'save_search_no_label', 'hu', 'Nincs címke'),
+(2675, 'save_search_no_label', 'en', 'No label'),
+(2676, 'save_search_no_label', 'de', 'Kein Label'),
+(2677, 'save_search_saved', 'hu', 'A keresés elmentve.'),
+(2678, 'save_search_saved', 'en', 'Search saved.'),
+(2679, 'save_search_saved', 'de', 'Suche gespeichert.'),
+(2680, 'msg_pfp_upload_success', 'hu', 'Profilkép sikeresen frissítve!'),
+(2681, 'msg_pfp_upload_success', 'en', 'Profile picture updated successfully!'),
+(2682, 'msg_pfp_upload_success', 'de', 'Profilbild erfolgreich aktualisiert!'),
+(2683, 'profile_error_gif_premium', 'hu', 'Animált (GIF) profilkép feltöltése csak prémium felhasználóknak elérhető.'),
+(2684, 'profile_error_gif_premium', 'en', 'Animated (GIF) profile picture uploads are available for premium users only.'),
+(2685, 'profile_error_gif_premium', 'de', 'Das Hochladen animierter (GIF) Profilbilder ist nur für Premium-Nutzer verfügbar.'),
+(2686, 'profile_error_unsupported_file', 'hu', 'Nem támogatott képfájl. Engedélyezett formátumok: JPG, PNG, WEBP%s.'),
+(2687, 'profile_error_unsupported_file', 'en', 'Unsupported image file. Allowed formats: JPG, PNG, WEBP%s.'),
+(2688, 'profile_error_unsupported_file', 'de', 'Nicht unterstützte Bilddatei. Zulässige Formate: JPG, PNG, WEBP%s.'),
+(2689, 'profile_error_gif_too_large', 'hu', 'A GIF fájl túl nagy. Maximum %s MB engedélyezett.'),
+(2690, 'profile_error_gif_too_large', 'en', 'The GIF file is too large. Maximum %s MB allowed.'),
+(2691, 'profile_error_gif_too_large', 'de', 'Die GIF-Datei ist zu groß. Maximal %s MB erlaubt.'),
+(2692, 'profile_error_file_too_large', 'hu', 'A képfájl túl nagy. Maximum %s MB engedélyezett.'),
+(2693, 'profile_error_file_too_large', 'en', 'The image file is too large. Maximum %s MB allowed.'),
+(2694, 'profile_error_file_too_large', 'de', 'Die Bilddatei ist zu groß. Maximal %s MB erlaubt.'),
+(2695, 'profile_discord_unlinked', 'hu', 'Discord fiók sikeresen leválasztva!'),
+(2696, 'profile_discord_unlinked', 'en', 'Discord account successfully unlinked!'),
+(2697, 'profile_discord_unlinked', 'de', 'Discord-Konto erfolgreich getrennt!'),
+(2698, 'profile_css_too_long', 'hu', 'A CSS túl hosszú (max 20000 byte).'),
+(2699, 'profile_css_too_long', 'en', 'The CSS is too long (max 20000 bytes).'),
+(2700, 'profile_css_too_long', 'de', 'Das CSS ist zu lang (maximal 20000 Byte).'),
+(2701, 'profile_css_request_sent', 'hu', 'A CSS kérelmet elküldtük; várj admin jóváhagyásra.'),
+(2702, 'profile_css_request_sent', 'en', 'The CSS request has been sent; please wait for admin approval.'),
+(2703, 'profile_css_request_sent', 'de', 'Die CSS-Anfrage wurde gesendet. Bitte warte auf die Genehmigung durch den Admin.'),
+(2704, 'profile_css_save_error', 'hu', 'Hiba történt a CSS mentésekor.'),
+(2705, 'profile_css_save_error', 'en', 'An error occurred while saving the CSS.'),
+(2706, 'profile_css_save_error', 'de', 'Beim Speichern des CSS ist ein Fehler aufgetreten.'),
+(2707, 'profile_error_username_same', 'hu', 'Ugyanazt a felhasználónevet adtad meg.'),
+(2708, 'profile_error_username_same', 'en', 'You entered the same username.'),
+(2709, 'profile_error_username_same', 'de', 'Du hast denselben Benutzernamen eingegeben.'),
+(2710, 'profile_error_username_taken', 'hu', 'Ez a felhasználónév már foglalt.'),
+(2711, 'profile_error_username_taken', 'en', 'This username is already taken.'),
+(2712, 'profile_error_username_taken', 'de', 'Dieser Benutzername ist bereits vergeben.'),
+(2713, 'profile_error_folder_exists', 'hu', 'A célmappa már létezik.'),
+(2714, 'profile_error_folder_exists', 'en', 'The target folder already exists.'),
+(2715, 'profile_error_folder_exists', 'de', 'Der Zielordner existiert bereits.'),
+(2716, 'profile_error_rename_folder', 'hu', 'Nem sikerült átnevezni a user mappát.'),
+(2717, 'profile_error_rename_folder', 'en', 'Failed to rename the user folder.'),
+(2718, 'profile_error_rename_folder', 'de', 'Der Benutzerordner konnte nicht umbenannt werden.'),
+(2719, 'profile_error_username_modify', 'hu', 'Hiba a felhasználónév módosításakor: %s'),
+(2720, 'profile_error_username_modify', 'en', 'Error changing username: %s'),
+(2721, 'profile_error_username_modify', 'de', 'Fehler beim Ändern des Benutzernamens: %s'),
+(2722, 'profile_bio_empty_no_intro', 'hu', 'Ez a felhasználó még nem dobott be bemutatkozást.'),
+(2723, 'profile_bio_empty_no_intro', 'en', 'This user has not added an introduction yet.'),
+(2724, 'profile_bio_empty_no_intro', 'de', 'Dieser Benutzer hat noch keine Vorstellung hinzugefügt.'),
+(2725, 'profile_bio_empty_if_exists', 'hu', 'Itt lenne a bio… ha lenne bio.'),
+(2726, 'profile_bio_empty_if_exists', 'en', 'This is where the bio would be… if there was one.'),
+(2727, 'profile_bio_empty_if_exists', 'de', 'Hier wäre die Bio… wenn es eine gäbe.'),
+(2728, 'profile_bio_empty_dlc_not_installed', 'hu', 'A bemutatkozás DLC még nem lett telepítve.'),
+(2729, 'profile_bio_empty_dlc_not_installed', 'en', 'The bio DLC is not installed yet.'),
+(2730, 'profile_bio_empty_dlc_not_installed', 'de', 'Das Bio-DLC ist noch nicht installiert.'),
+(2731, 'profile_bio_empty_silence', 'hu', 'Csend van… túl nagy a csend.'),
+(2733, 'profile_bio_empty_silence', 'de', 'Es ist ruhig... zu ruhig.'),
+(2734, 'profile_bio_empty_vibe', 'hu', 'Bio nincs, de a vibe megvan.'),
+(2735, 'profile_bio_empty_vibe', 'en', 'No bio, but the vibe is there.'),
+(2736, 'profile_bio_empty_vibe', 'de', 'Keine Bio, aber die Stimmung stimmt.'),
+(2737, 'profile_upload_format_not_supported_gif', 'hu', 'Nem támogatott formátum. Engedélyezett: JPG, PNG, WEBP, GIF.'),
+(2738, 'profile_upload_format_not_supported_gif', 'en', 'Unsupported format. Allowed: JPG, PNG, WEBP, GIF.'),
+(2739, 'profile_upload_format_not_supported_gif', 'de', 'Nicht unterstütztes Format. Erlaubt: JPG, PNG, WEBP, GIF.'),
+(2740, 'profile_upload_format_not_supported_premium', 'hu', 'Nem támogatott formátum. Engedélyezett: JPG, PNG, WEBP.\nGIF feltöltéshez prémium előfizetés szükséges.'),
+(2741, 'profile_upload_format_not_supported_premium', 'en', 'Unsupported format. Allowed: JPG, PNG, WEBP.\nUploading GIFs requires a premium subscription.'),
+(2742, 'profile_upload_format_not_supported_premium', 'de', 'Nicht unterstütztes Format. Erlaubt: JPG, PNG, WEBP.\nDas Hochladen von GIFs erfordert ein Premium-Abo.'),
+(2743, 'profile_upload_file_too_large_template', 'hu', 'A fájl túl nagy! Maximum %s MB engedélyezett %s esetén.'),
+(2744, 'profile_upload_file_too_large_template', 'en', 'The file is too large! Maximum %s MB allowed for %s.'),
+(2745, 'profile_upload_file_too_large_template', 'de', 'Die Datei ist zu groß! Maximal %s MB erlaubt für %s.'),
+(2746, 'upload_file_type_gif', 'hu', 'GIF'),
+(2747, 'upload_file_type_gif', 'en', 'GIF'),
+(2748, 'upload_file_type_gif', 'de', 'GIF'),
+(2749, 'upload_file_type_images', 'hu', 'képek'),
+(2750, 'upload_file_type_images', 'en', 'images'),
+(2751, 'upload_file_type_images', 'de', 'Bilder'),
+(2752, 'profile_upload_in_progress', 'hu', 'Feltöltés...'),
+(2753, 'profile_upload_in_progress', 'en', 'Uploading...'),
+(2754, 'profile_upload_in_progress', 'de', 'Hochladen...'),
+(2755, 'profile_discord_connected', 'hu', 'Discord fiók összekapcsolva'),
+(2756, 'profile_discord_connected', 'en', 'Discord account connected'),
+(2757, 'profile_discord_connected', 'de', 'Discord-Konto verbunden'),
+(2758, 'profile_discord_id', 'hu', 'Discord ID'),
+(2759, 'profile_discord_id', 'en', 'Discord ID'),
+(2760, 'profile_discord_id', 'de', 'Discord-ID');
+INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
+(2761, 'profile_discord_not_connected', 'hu', 'Discord fiók nincs összekapcsolva. Összekapcsolva azonosítható vagy megoszthatod a Discord profilodat.'),
+(2762, 'profile_discord_not_connected', 'en', 'Discord is not connected. Connecting it lets you identify or share your Discord profile.'),
+(2763, 'profile_discord_not_connected', 'de', 'Discord ist nicht verbunden. Durch die Verbindung kannst du dein Discord-Profil identifizieren oder teilen.'),
+(2764, 'profile_discord_link', 'hu', 'Discord összekapcsolása'),
+(2765, 'profile_discord_link', 'en', 'Connect Discord'),
+(2766, 'profile_discord_link', 'de', 'Discord verbinden'),
+(2767, 'profile_status', 'hu', 'Állapot'),
+(2768, 'profile_status', 'en', 'Status'),
+(2769, 'profile_status', 'de', 'Status'),
+(2770, 'profile_backup_codes_label', 'hu', 'Backup kódok'),
+(2771, 'profile_backup_codes_label', 'en', 'Backup codes'),
+(2772, 'profile_backup_codes_label', 'de', 'Backup-Codes'),
+(2773, 'profile_backup_codes_description', 'hu', 'Ha nem fér hozzá az emailedhez, backup kódokkal bejelentkezhetsz.'),
+(2774, 'profile_backup_codes_description', 'en', 'If you cannot access your email, you can sign in with backup codes.'),
+(2775, 'profile_backup_codes_description', 'de', 'Falls du keinen Zugriff auf deine E-Mails hast, kannst du dich mit Backup-Codes anmelden.'),
+(2776, 'profile_backup_codes_view', 'hu', 'Backup kódok megtekintése'),
+(2777, 'profile_backup_codes_view', 'en', 'View backup codes'),
+(2778, 'profile_backup_codes_view', 'de', 'Backup-Codes anzeigen'),
+(2779, 'exam_sw_title', 'hu', 'Szoftverfejlesztő és tesztelő – Vizsgák'),
+(2780, 'exam_sw_subtitle', 'hu', 'Áttekintés az ágazati alapvizsgáról és a szakmai vizsgáról, a mérés és értékelés szempontjaival.'),
+(2781, 'exam_sw_section1_heading', 'hu', 'Ágazati alapvizsga – Írásbeli vizsga (interaktív teszt)'),
+(2782, 'exam_sw_section1_item1', 'hu', 'Megnevezés: „Informatikai és távközlési alapok interaktív teszt”.'),
+(2783, 'exam_sw_section1_item2', 'hu', '15 db számítógépen megoldandó tesztfeladatból áll.'),
+(2784, 'exam_sw_section1_item3', 'hu', 'Feladattípusok: feleletválasztós (egyszeres, többszörös, illesztés) és kiegészítést igénylő feleletalkotó.'),
+(2785, 'exam_sw_section1_item4', 'hu', 'A teszt értékelésének automatizálhatónak kell lennie.'),
+(2786, 'exam_sw_section1_item5', 'hu', 'Segédanyag nem használható.'),
+(2787, 'exam_sw_section1_item6', 'hu', 'Időtartam: 30 perc.'),
+(2788, 'exam_sw_section1_item7', 'hu', 'Aránya az ágazati alapvizsgán belül: 10%.'),
+(2789, 'exam_sw_section2_heading', 'hu', 'Ágazati alapvizsga – Írásbeli értékelés'),
+(2790, 'exam_sw_section2_item1', 'hu', 'Minden feladat 2 pontot ér.'),
+(2791, 'exam_sw_section2_item2', 'hu', 'Részleges megoldásért részpontszám adható.'),
+(2792, 'exam_sw_section2_item3', 'hu', 'Nem adható maximális pont, ha a megoldás hibás választ is tartalmaz.'),
+(2793, 'exam_sw_section2_item4', 'hu', 'Az értékelés százalékos formában történik.'),
+(2794, 'exam_sw_section2_item5', 'hu', 'Eredményes, ha a megszerezhető összes pontszám legalább 40%-át eléri a tanuló.'),
+(2795, 'exam_sw_section3_heading', 'hu', 'Ágazati alapvizsga – Gyakorlati vizsga (feladatsor)'),
+(2796, 'exam_sw_section3_item1', 'hu', 'Megnevezés: „Weboldalak kódolása, programozás, hálózatok gyakorlat”.'),
+(2797, 'exam_sw_section3_item2', 'hu', 'Az írásbeli és a gyakorlati vizsgatevékenység külön napon kerül megrendezésre.'),
+(2798, 'exam_sw_section3_item3', 'hu', 'Időtartam: egybefüggő 180 perc; a 3 feladatrészre javasolt időkeret 60–60 perc (a beosztás a vizsgázó döntése).'),
+(2799, 'exam_sw_section3_item4', 'hu', 'Internetkapcsolat biztosított lehet, de csak általános keresésre; kommunikációra vagy célirányos anyagletöltésre nem használható (az adott feladat útmutatója szerint akár korlátozva is lehet).'),
+(2800, 'exam_sw_section3_item5', 'hu', 'A gyakorlati vizsga 3 feladatrészből áll.'),
+(2801, 'exam_sw_section4_heading', 'hu', 'Ágazati alapvizsga – Gyakorlati A) Weboldalak kódolása (mit kell csinálni?)'),
+(2802, 'exam_sw_section4_item1', 'hu', 'Egy egyszerű, de reszponzív weblapot kell elkészíteni.'),
+(2803, 'exam_sw_section4_item2', 'hu', 'Kapott anyagok: wireframe (vázszerkezet), forrásszövegek, képek, formai elváráslista.'),
+(2804, 'exam_sw_section4_item3', 'hu', 'A HTML-oldalnak tartalmaznia kell az előírt alapvető és szemantikus HTML-elemeket.'),
+(2805, 'exam_sw_section4_item4', 'hu', 'Formázás csatolt CSS fájllal történik.'),
+(2806, 'exam_sw_section4_item5', 'hu', 'A kész oldalt HTML-validátorral ellenőrizni kell.'),
+(2807, 'exam_sw_section5_heading', 'hu', 'Ágazati alapvizsga – Gyakorlati A) Weboldalak kódolása (mért készségek – példák)'),
+(2808, 'exam_sw_section5_item1', 'hu', 'HTML5 oldalszerkezet (!DOCTYPE, html, head, body, meta) és szemantikus elemek (header, nav, main, section, footer).'),
+(2809, 'exam_sw_section5_item2', 'hu', 'Strukturális elemek (p, title, h1–h6, img, a, link, strong, em, figure, figcaption, div, span).'),
+(2810, 'exam_sw_section5_item3', 'hu', 'Attribútumok (href, target, src, alt, lang, charset stb.).'),
+(2811, 'exam_sw_section5_item4', 'hu', 'Listák, táblázatok készítése.'),
+(2812, 'exam_sw_section5_item5', 'hu', 'CSS: inline/internal/external; szelektorok; alapvető CSS3 jellemzők; media query, töréspontok; egységek (em/rem/%/vw/vh).'),
+(2813, 'exam_sw_section5_item6', 'hu', 'Bootstrap alapok (ha a kiadott feladatban szerepel).'),
+(2814, 'exam_sw_section6_heading', 'hu', 'Szakmai vizsga – A vizsga célja'),
+(2815, 'exam_sw_section6_paragraph', 'hu', 'A szakmai vizsga célja annak igazolása, hogy a vizsgázó képes önállóan szakmai feladatokat megoldani, érti a szoftverfejlesztés és tesztelés alapelveit, és azokat gyakorlati környezetben alkalmazni tudja. Ez a vizsga már összetettebb feladatokon keresztül'),
+(2816, 'exam_sw_section7_heading', 'hu', 'Szakmai vizsga – A vizsga részei'),
+(2817, 'exam_sw_section7_item1', 'hu', 'Központi interaktív vizsgarész (inkább elméleti jellegű, teszt vagy feladatsor formában).'),
+(2818, 'exam_sw_section7_item2', 'hu', 'Gyakorlati vizsgarész vagy projektfeladat, ahol egy komplexebb feladatot kell megoldani.'),
+(2819, 'exam_sw_section7_item3', 'hu', 'A gyakorlati részhez gyakran dokumentáció készítése is tartozik.'),
+(2820, 'exam_sw_section8_heading', 'hu', 'Szakmai vizsga – Mit mér a vizsga?'),
+(2821, 'exam_sw_section8_item1', 'hu', 'Szoftverfejlesztési alapismeretek (tervezés, megvalósítás, tesztelés).'),
+(2822, 'exam_sw_section8_item2', 'hu', 'Programozási és adatkezelési ismeretek.'),
+(2823, 'exam_sw_section8_item3', 'hu', 'Hibakeresési és tesztelési képességek.'),
+(2824, 'exam_sw_section8_item4', 'hu', 'Dokumentálási készség.'),
+(2825, 'exam_sw_section8_item5', 'hu', 'A szakmai szabályok és jó gyakorlatok betartása.'),
+(2826, 'exam_sw_section9_heading', 'hu', 'Szakmai vizsga – Értékelés szempontjai'),
+(2827, 'exam_sw_section9_item1', 'hu', 'A megoldás szakmai helyessége.'),
+(2828, 'exam_sw_section9_item2', 'hu', 'A program vagy alkalmazás működőképessége.'),
+(2829, 'exam_sw_section9_item3', 'hu', 'A feladat teljes körű megvalósítása.'),
+(2830, 'exam_sw_section9_item4', 'hu', 'A kód és a megoldás áttekinthetősége, struktúrája.'),
+(2831, 'exam_sw_section9_item5', 'hu', 'A dokumentáció minősége.'),
+(2832, 'exam_sw_section9_item6', 'hu', 'A vizsgázó munkamódszere és problémamegoldása.'),
+(2833, 'exam_sys_title', 'hu', 'Informatikai rendszer- és alkalmazás-üzemeltető – Vizsgák'),
+(2834, 'exam_sys_subtitle', 'hu', 'Áttekintés az ágazati alapvizsgáról és a szakmai vizsgáról, a mérés és értékelés fő szempontjaival.'),
+(2835, 'exam_sys_section1_heading', 'hu', 'Ágazati alapvizsga – Vizsgára bocsátás feltétele'),
+(2836, 'exam_sys_section1_paragraph', 'hu', 'Az ágazati alapvizsgára bocsátás feltétele: valamennyi előírt képzési évfolyam eredményes teljesítése.'),
+(2837, 'exam_sys_section2_heading', 'hu', 'Ágazati alapvizsga – Írásbeli vizsga (interaktív teszt)'),
+(2838, 'exam_sys_section2_item1', 'hu', 'Megnevezés: „Informatikai és távközlési alapok interaktív teszt”.'),
+(2839, 'exam_sys_section2_item2', 'hu', '15 db számítógépen megoldandó tesztfeladatból áll.'),
+(2840, 'exam_sys_section2_item3', 'hu', 'Feladattípusok: feleletválasztós (egyszeres, többszörös, illesztés) és kiegészítést igénylő feleletalkotó.'),
+(2841, 'exam_sys_section2_item4', 'hu', 'A teszt értékelésének automatizálhatónak kell lennie.'),
+(2842, 'exam_sys_section2_item5', 'hu', 'Segédanyag nem használható.'),
+(2843, 'exam_sys_section2_item6', 'hu', 'Időtartam: 30 perc.'),
+(2844, 'exam_sys_section2_item7', 'hu', 'Aránya az ágazati alapvizsgán belül: 10%.'),
+(2845, 'exam_sys_section3_heading', 'hu', 'Ágazati alapvizsga – Írásbeli értékelés'),
+(2846, 'exam_sys_section3_item1', 'hu', 'Minden feladat 2 pontot ér.'),
+(2847, 'exam_sys_section3_item2', 'hu', 'Részleges megoldásért részpontszám adható.'),
+(2848, 'exam_sys_section3_item3', 'hu', 'Nem adható maximális pont, ha a megoldás hibás választ is tartalmaz.'),
+(2849, 'exam_sys_section3_item4', 'hu', 'Az értékelés százalékos formában történik.'),
+(2850, 'exam_sys_section3_item5', 'hu', 'Eredményes, ha a megszerezhető összes pontszám legalább 40%-át eléri a tanuló.'),
+(2851, 'exam_sys_section4_heading', 'hu', 'Ágazati alapvizsga – Gyakorlati vizsga (feladatsor)'),
+(2852, 'exam_sys_section4_item1', 'hu', 'Megnevezés: „Weboldalak kódolása, programozás, hálózatok gyakorlat”.'),
+(2853, 'exam_sys_section4_item2', 'hu', 'Az írásbeli és a gyakorlati vizsgatevékenység külön napon kerül megrendezésre.'),
+(2854, 'exam_sys_section4_item3', 'hu', 'Időtartam: egybefüggő 180 perc; a 3 feladatrészre javasolt időkeret 60–60 perc (a beosztás a vizsgázó döntése).'),
+(2855, 'exam_sys_section4_item4', 'hu', 'Internetkapcsolat biztosított lehet, de csak általános keresésre; kommunikációra vagy célirányos anyagletöltésre nem használható (az adott feladat útmutatója szerint akár korlátozva is lehet).'),
+(2856, 'exam_sys_section4_item5', 'hu', 'A gyakorlati vizsga 3 feladatrészből áll.'),
+(2857, 'exam_sys_section5_heading', 'hu', 'Ágazati alapvizsga – Gyakorlati A) Weboldalak kódolása (mit kell csinálni?)'),
+(2858, 'exam_sys_section5_item1', 'hu', 'Egy egyszerű, de reszponzív weblapot kell elkészíteni.'),
+(2859, 'exam_sys_section5_item2', 'hu', 'Kapott anyagok: wireframe (vázszerkezet), forrásszövegek, képek, formai elváráslista.'),
+(2860, 'exam_sys_section5_item3', 'hu', 'A HTML-oldalnak tartalmaznia kell az előírt alapvető és szemantikus HTML-elemeket.'),
+(2861, 'exam_sys_section5_item4', 'hu', 'Formázás csatolt CSS fájllal történik.'),
+(2862, 'exam_sys_section5_item5', 'hu', 'A kész oldalt HTML-validátorral ellenőrizni kell.'),
+(2863, 'exam_sys_section6_heading', 'hu', 'Ágazati alapvizsga – Gyakorlati A) Weboldalak kódolása (mért készségek – példák)'),
+(2864, 'exam_sys_section6_item1', 'hu', 'HTML5 oldalszerkezet (!DOCTYPE, html, head, body, meta) és szemantikus elemek (header, nav, main, section, footer).'),
+(2865, 'exam_sys_section6_item2', 'hu', 'Strukturális elemek (p, title, h1–h6, img, a, link, strong, em, figure, figcaption, div, span).'),
+(2866, 'exam_sys_section6_item3', 'hu', 'Attribútumok (href, target, src, alt, lang, charset stb.).'),
+(2867, 'exam_sys_section6_item4', 'hu', 'Listák, táblázatok készítése.'),
+(2868, 'exam_sys_section6_item5', 'hu', 'CSS: inline/internal/external; szelektorok; alapvető CSS3 jellemzők; media query, töréspontok; egységek (em/rem/%/vw/vh).'),
+(2869, 'exam_sys_section6_item6', 'hu', 'Bootstrap alapok (ha a kiadott feladatban szerepel).'),
+(2870, 'exam_sys_section7_heading', 'hu', 'Szakmai vizsga – Áttekintés'),
+(2871, 'exam_sys_section7_paragraph', 'hu', 'A szakmai vizsga célja annak mérése, hogy a vizsgázó a rendszer- és alkalmazásüzemeltetési feladatokat önállóan, szakszerűen és dokumentáltan képes-e elvégezni (konfigurálás, üzemeltetés, hibakeresés, hálózati beállítások, biztonsági alapelvek).'),
+(2872, 'exam_sys_section8_heading', 'hu', 'Szakmai vizsga – Mit szoktak mérni?'),
+(2873, 'exam_sys_section8_item1', 'hu', 'Rendszer- és hálózati beállítások helyessége, működőképessége.'),
+(2874, 'exam_sys_section8_item2', 'hu', 'Hibakeresés módszeressége (logok, diagnosztika, lépések dokumentálása).'),
+(2875, 'exam_sys_section8_item3', 'hu', 'Biztonságos beállítások (jogosultságok, jelszavak, alap védelmi elvek).'),
+(2876, 'exam_sys_section8_item4', 'hu', 'Dokumentáció minősége (mit, miért, hogyan állítottál be).'),
+(2877, 'exam_sys_section9_heading', 'hu', 'Szakmai vizsga – Értékelés fő szempontjai'),
+(2878, 'exam_sys_section9_item1', 'hu', 'A megoldás működése (a szolgáltatás/hálózat tényleg megy-e).'),
+(2879, 'exam_sys_section9_item2', 'hu', 'A feladat teljessége (minden elvárt rész megvan-e).'),
+(2880, 'exam_sys_section9_item3', 'hu', 'Szakszerűség (jó gyakorlatok, átlátható konfiguráció).'),
+(2881, 'exam_sys_section9_item4', 'hu', 'Dokumentáltság és ellenőrzések (show/parancsok, tesztek, logolás).'),
+(2882, 'admin_action_approve', 'hu', 'Elfogad'),
+(2883, 'admin_action_approve', 'en', 'Approve'),
+(2884, 'admin_action_approve', 'de', 'Genehmigen'),
+(2885, 'admin_action_reject', 'hu', 'Elutasít'),
+(2886, 'admin_action_reject', 'en', 'Reject'),
+(2887, 'admin_action_reject', 'de', 'Ablehnen'),
+(2888, 'admin_badge_description_placeholder', 'hu', 'Leírás'),
+(2889, 'admin_badge_description_placeholder', 'en', 'Description'),
+(2890, 'admin_badge_description_placeholder', 'de', 'Beschreibung'),
+(2891, 'admin_badge_icon_placeholder', 'hu', 'Emoji vagy ikon kód'),
+(2892, 'admin_badge_icon_placeholder', 'en', 'Emoji or icon code'),
+(2893, 'admin_badge_icon_placeholder', 'de', 'Emoji oder Icon-Code'),
+(2894, 'admin_badge_name_placeholder', 'hu', 'Badge neve'),
+(2895, 'admin_badge_name_placeholder', 'en', 'Badge name'),
+(2896, 'admin_badge_name_placeholder', 'de', 'Badge-Name'),
+(2897, 'admin_badge_slug_placeholder', 'hu', 'slug-form'),
+(2898, 'admin_badge_slug_placeholder', 'en', 'slug-form'),
+(2899, 'admin_badge_slug_placeholder', 'de', 'slug-form'),
+(2900, 'admin_badges_add_button', 'hu', 'Hozzáadás'),
+(2901, 'admin_badges_add_button', 'en', 'Add'),
+(2902, 'admin_badges_add_button', 'de', 'Hinzufügen'),
+(2903, 'admin_badges_add_title', 'hu', 'Új badge létrehozása'),
+(2904, 'admin_badges_add_title', 'en', 'Create New Badge'),
+(2905, 'admin_badges_add_title', 'de', 'Neues Badge erstellen'),
+(2906, 'admin_badges_description', 'hu', 'Kis jelvények, amikkel jutalmazhatod a felhasználókat.'),
+(2907, 'admin_badges_description', 'en', 'Small badges to reward users.'),
+(2908, 'admin_badges_description', 'de', 'Kleine Abzeichen zur Belohnung von Benutzern.'),
+(2909, 'admin_badges_description_label', 'hu', 'Leírás'),
+(2910, 'admin_badges_description_label', 'en', 'Description'),
+(2911, 'admin_badges_description_label', 'de', 'Beschreibung'),
+(2912, 'admin_badges_existing_title', 'hu', 'Meglévő badge-ek'),
+(2913, 'admin_badges_existing_title', 'en', 'Existing Badges'),
+(2914, 'admin_badges_existing_title', 'de', 'Vorhandene Badges'),
+(2915, 'admin_badges_icon', 'hu', 'Ikon (emoji / rövid kód)'),
+(2916, 'admin_badges_icon', 'en', 'Icon (emoji / short code)'),
+(2917, 'admin_badges_icon', 'de', 'Symbol (Emoji / Kurzcode)'),
+(2918, 'admin_badges_name', 'hu', 'Név'),
+(2919, 'admin_badges_name', 'en', 'Name'),
+(2920, 'admin_badges_name', 'de', 'Name'),
+(2921, 'admin_badges_preview', 'hu', 'Előnézet'),
+(2922, 'admin_badges_preview', 'en', 'Preview'),
+(2923, 'admin_badges_preview', 'de', 'Vorschau'),
+(2924, 'admin_badges_save', 'hu', 'Mentés'),
+(2925, 'admin_badges_save', 'en', 'Save'),
+(2926, 'admin_badges_save', 'de', 'Speichern'),
+(2927, 'admin_badges_slug', 'hu', 'Slug'),
+(2928, 'admin_badges_slug', 'en', 'Slug'),
+(2929, 'admin_badges_slug', 'de', 'Slug'),
+(2930, 'admin_badges_title', 'hu', 'Badge-ek kezelése'),
+(2931, 'admin_badges_title', 'en', 'Manage Badges'),
+(2932, 'admin_badges_title', 'de', 'Badges verwalten'),
+(2933, 'admin_comment_action', 'hu', 'Művelet'),
+(2934, 'admin_comment_action', 'en', 'Action'),
+(2935, 'admin_comment_action', 'de', 'Aktion'),
+(2936, 'admin_comment_file_id', 'hu', 'Fájl ID'),
+(2937, 'admin_comment_file_id', 'en', 'File ID'),
+(2938, 'admin_comment_file_id', 'de', 'Datei-ID'),
+(2939, 'admin_comment_id', 'hu', 'ID'),
+(2940, 'admin_comment_id', 'en', 'ID'),
+(2941, 'admin_comment_id', 'de', 'ID'),
+(2942, 'admin_comment_text', 'hu', 'Szöveg'),
+(2943, 'admin_comment_text', 'en', 'Text'),
+(2944, 'admin_comment_text', 'de', 'Text'),
+(2945, 'admin_comment_user', 'hu', 'Felhasználó'),
+(2946, 'admin_comment_user', 'en', 'User'),
+(2947, 'admin_comment_user', 'de', 'Benutzer'),
+(2948, 'admin_comments_title', 'hu', 'Kommentek kezelése'),
+(2949, 'admin_comments_title', 'en', 'Manage Comments'),
+(2950, 'admin_comments_title', 'de', 'Kommentare verwalten'),
+(2951, 'admin_confirm_approve_css', 'hu', 'Biztosan jóváhagyod ezt a CSS-t?'),
+(2952, 'admin_confirm_approve_css', 'en', 'Are you sure you want to approve this CSS?'),
+(2953, 'admin_confirm_approve_css', 'de', 'Möchtest du dieses CSS wirklich genehmigen?'),
+(2954, 'admin_confirm_approve_group', 'hu', 'Biztosan jóváhagyod ezt a csoportot?'),
+(2955, 'admin_confirm_approve_group', 'en', 'Are you sure you want to approve this group?'),
+(2956, 'admin_confirm_approve_group', 'de', 'Möchtest du diese Gruppe wirklich genehmigen?'),
+(2957, 'admin_confirm_delete_badge', 'hu', 'Biztosan törölsz ezt a badge-et?'),
+(2958, 'admin_confirm_delete_badge', 'en', 'Are you sure you want to delete this badge?'),
+(2959, 'admin_confirm_delete_badge', 'de', 'Möchtest du dieses Badge wirklich löschen?'),
+(2960, 'admin_confirm_delete_comment', 'hu', 'Biztosan törölsz ezt a kommentet?'),
+(2961, 'admin_confirm_delete_comment', 'en', 'Are you sure you want to delete this comment?'),
+(2962, 'admin_confirm_delete_comment', 'de', 'Möchtest du diesen Kommentar wirklich löschen?'),
+(2963, 'admin_confirm_delete_file', 'hu', 'Biztosan törölsz ezt a fájlt?'),
+(2964, 'admin_confirm_delete_file', 'en', 'Are you sure you want to delete this file?'),
+(2965, 'admin_confirm_delete_file', 'de', 'Möchtest du diese Datei wirklich löschen?'),
+(2966, 'admin_confirm_delete_reg_code', 'hu', 'Biztosan törölsz ezt a kódot?'),
+(2967, 'admin_confirm_delete_reg_code', 'en', 'Are you sure you want to delete this code?'),
+(2968, 'admin_confirm_delete_reg_code', 'de', 'Möchtest du diesen Code wirklich löschen?'),
+(2969, 'admin_confirm_delete_user', 'hu', 'Biztosan törölsz ezt a felhasználót?'),
+(2970, 'admin_confirm_delete_user', 'en', 'Are you sure you want to delete this user?'),
+(2971, 'admin_confirm_delete_user', 'de', 'Möchtest du diesen Benutzer wirklich löschen?'),
+(2972, 'admin_confirm_delete_user_badge', 'hu', 'Biztosan eltávolítod ezt a badge-et?'),
+(2973, 'admin_confirm_delete_user_badge', 'en', 'Are you sure you want to remove this badge?'),
+(2974, 'admin_confirm_delete_user_badge', 'de', 'Möchtest du dieses Badge wirklich entfernen?'),
+(2975, 'admin_confirm_reject_css', 'hu', 'Biztosan elutasítod ezt a CSS-t?'),
+(2976, 'admin_confirm_reject_css', 'en', 'Are you sure you want to reject this CSS?'),
+(2977, 'admin_confirm_reject_css', 'de', 'Möchtest du dieses CSS wirklich ablehnen?'),
+(2978, 'admin_confirm_reject_group', 'hu', 'Biztosan elutasítod ezt a csoportot?'),
+(2979, 'admin_confirm_reject_group', 'en', 'Are you sure you want to reject this group?'),
+(2980, 'admin_confirm_reject_group', 'de', 'Möchtest du diese Gruppe wirklich ablehnen?'),
+(2981, 'admin_css_requests_title', 'hu', 'Profil CSS kérések'),
+(2982, 'admin_css_requests_title', 'en', 'Profile CSS Requests'),
+(2983, 'admin_css_requests_title', 'de', 'Profil-CSS-Anfragen'),
+(2984, 'admin_deleted_deleted_at', 'hu', 'Törölve'),
+(2985, 'admin_deleted_deleted_at', 'en', 'Deleted at'),
+(2986, 'admin_deleted_deleted_at', 'de', 'Gelöscht am'),
+(2987, 'admin_deleted_deleted_by', 'hu', 'Törölte'),
+(2988, 'admin_deleted_deleted_by', 'en', 'Deleted by'),
+(2989, 'admin_deleted_deleted_by', 'de', 'Gelöscht von'),
+(2990, 'admin_deleted_fullname', 'hu', 'Teljes név'),
+(2991, 'admin_deleted_fullname', 'en', 'Full name'),
+(2992, 'admin_deleted_fullname', 'de', 'Vollständiger Name'),
+(2993, 'admin_deleted_registered', 'hu', 'Regisztrált'),
+(2994, 'admin_deleted_registered', 'en', 'Registered'),
+(2995, 'admin_deleted_registered', 'de', 'Registriert'),
+(2996, 'admin_deleted_role', 'hu', 'Szerepkör'),
+(2997, 'admin_deleted_role', 'en', 'Role'),
+(2998, 'admin_deleted_role', 'de', 'Rolle'),
+(2999, 'admin_deleted_username', 'hu', 'Felhasználónév'),
+(3000, 'admin_deleted_username', 'en', 'Username'),
+(3001, 'admin_deleted_username', 'de', 'Benutzername'),
+(3002, 'admin_deleted_users_none', 'hu', 'Még egyetlen felhasználó sem lett törölve.'),
+(3003, 'admin_deleted_users_none', 'en', 'No users have been deleted yet.'),
+(3004, 'admin_deleted_users_none', 'de', 'Bisher wurde kein Benutzer gelöscht.'),
+(3005, 'admin_deleted_users_title', 'hu', 'Törölt felhasználók archívuma'),
+(3006, 'admin_deleted_users_title', 'en', 'Deleted Users Archive'),
+(3007, 'admin_deleted_users_title', 'de', 'Archiv gelöschter Benutzer'),
+(3008, 'admin_file_action', 'hu', 'Művelet'),
+(3009, 'admin_file_action', 'en', 'Action'),
+(3010, 'admin_file_action', 'de', 'Aktion'),
+(3011, 'admin_file_description', 'hu', 'Leírás'),
+(3012, 'admin_file_description', 'en', 'Description'),
+(3013, 'admin_file_description', 'de', 'Beschreibung'),
+(3014, 'admin_file_id', 'hu', 'ID'),
+(3015, 'admin_file_id', 'en', 'ID'),
+(3016, 'admin_file_id', 'de', 'ID'),
+(3017, 'admin_file_name', 'hu', 'Név'),
+(3018, 'admin_file_name', 'en', 'Name'),
+(3019, 'admin_file_name', 'de', 'Name'),
+(3020, 'admin_file_uploader', 'hu', 'Feltöltő'),
+(3021, 'admin_file_uploader', 'en', 'Uploader'),
+(3022, 'admin_file_uploader', 'de', 'Hochgeladener Benutzer'),
+(3023, 'admin_files_title', 'hu', 'Fájlok kezelése'),
+(3024, 'admin_files_title', 'en', 'Manage Files'),
+(3025, 'admin_files_title', 'de', 'Dateien verwalten'),
+(3026, 'admin_group_description', 'hu', 'Leírás'),
+(3027, 'admin_group_description', 'en', 'Description'),
+(3028, 'admin_group_description', 'de', 'Beschreibung'),
+(3029, 'admin_group_name', 'hu', 'Név'),
+(3030, 'admin_group_name', 'en', 'Name'),
+(3031, 'admin_group_name', 'de', 'Name'),
+(3032, 'admin_group_none', 'hu', 'Nincs csoport.'),
+(3033, 'admin_group_none', 'en', 'No groups.'),
+(3034, 'admin_group_none', 'de', 'Keine Gruppen.'),
+(3035, 'admin_group_owner', 'hu', 'Tulajdonos'),
+(3036, 'admin_group_owner', 'en', 'Owner'),
+(3037, 'admin_group_owner', 'de', 'Eigentümer'),
+(3038, 'admin_group_private', 'hu', 'Privát'),
+(3039, 'admin_group_private', 'en', 'Private'),
+(3040, 'admin_group_private', 'de', 'Privat'),
+(3041, 'admin_group_status', 'hu', 'Státusz'),
+(3042, 'admin_group_status', 'en', 'Status'),
+(3043, 'admin_group_status', 'de', 'Status'),
+(3044, 'admin_groups_title', 'hu', 'Csoportok jóváhagyása'),
+(3045, 'admin_groups_title', 'en', 'Approve Groups'),
+(3046, 'admin_groups_title', 'de', 'Gruppen genehmigen'),
+(3047, 'admin_invite_code_actions', 'hu', 'Műveletek'),
+(3048, 'admin_invite_code_actions', 'en', 'Actions'),
+(3049, 'admin_invite_code_actions', 'de', 'Aktionen'),
+(3050, 'admin_invite_code_activate', 'hu', 'Aktiválás'),
+(3051, 'admin_invite_code_activate', 'en', 'Activate'),
+(3052, 'admin_invite_code_activate', 'de', 'Aktivieren'),
+(3053, 'admin_invite_code_active', 'hu', 'Aktív'),
+(3054, 'admin_invite_code_active', 'en', 'Active'),
+(3055, 'admin_invite_code_active', 'de', 'Aktiv'),
+(3056, 'admin_invite_code_add_title', 'hu', 'Új kód létrehozása'),
+(3057, 'admin_invite_code_add_title', 'en', 'Create New Code'),
+(3058, 'admin_invite_code_add_title', 'de', 'Neuen Code erstellen'),
+(3059, 'admin_invite_code_code', 'hu', 'Kód'),
+(3060, 'admin_invite_code_code', 'en', 'Code'),
+(3061, 'admin_invite_code_code', 'de', 'Code'),
+(3062, 'admin_invite_code_create_button', 'hu', 'Kód létrehozása'),
+(3063, 'admin_invite_code_create_button', 'en', 'Create Code'),
+(3064, 'admin_invite_code_create_button', 'de', 'Code erstellen'),
+(3065, 'admin_invite_code_created', 'hu', 'Létrehozva'),
+(3066, 'admin_invite_code_created', 'en', 'Created'),
+(3067, 'admin_invite_code_created', 'de', 'Erstellt'),
+(3068, 'admin_invite_code_deactivate', 'hu', 'Deaktiválás'),
+(3069, 'admin_invite_code_deactivate', 'en', 'Deactivate'),
+(3070, 'admin_invite_code_deactivate', 'de', 'Deaktivieren'),
+(3071, 'admin_invite_code_delete', 'hu', 'Törlés'),
+(3072, 'admin_invite_code_delete', 'en', 'Delete'),
+(3073, 'admin_invite_code_delete', 'de', 'Löschen'),
+(3074, 'admin_invite_code_existing_title', 'hu', 'Meglévő kódok'),
+(3075, 'admin_invite_code_existing_title', 'en', 'Existing Codes'),
+(3076, 'admin_invite_code_existing_title', 'de', 'Vorhandene Codes'),
+(3077, 'admin_invite_code_expires', 'hu', 'Lejárat'),
+(3078, 'admin_invite_code_expires', 'en', 'Expires'),
+(3079, 'admin_invite_code_expires', 'de', 'Läuft ab'),
+(3080, 'admin_invite_code_expires_none', 'hu', 'Nincs'),
+(3081, 'admin_invite_code_expires_none', 'en', 'None'),
+(3082, 'admin_invite_code_expires_none', 'de', 'Keine'),
+(3083, 'admin_invite_code_label_code', 'hu', 'Kód'),
+(3084, 'admin_invite_code_label_code', 'en', 'Code'),
+(3085, 'admin_invite_code_label_code', 'de', 'Code'),
+(3086, 'admin_invite_code_label_description', 'hu', 'Leírás'),
+(3087, 'admin_invite_code_label_description', 'en', 'Description'),
+(3088, 'admin_invite_code_label_description', 'de', 'Beschreibung'),
+(3089, 'admin_invite_code_label_expires', 'hu', 'Lejárat'),
+(3090, 'admin_invite_code_label_expires', 'en', 'Expires'),
+(3091, 'admin_invite_code_label_expires', 'de', 'Läuft ab'),
+(3092, 'admin_invite_code_label_max_uses', 'hu', 'Max. felhasználás'),
+(3093, 'admin_invite_code_label_max_uses', 'en', 'Max uses'),
+(3094, 'admin_invite_code_label_max_uses', 'de', 'Max. Verwendungen'),
+(3095, 'admin_invite_code_none', 'hu', 'Még nincs regisztrációs kód.'),
+(3096, 'admin_invite_code_none', 'en', 'No registration codes yet.'),
+(3097, 'admin_invite_code_none', 'de', 'Noch keine Registrierungscodes.'),
+(3098, 'admin_invite_code_status_active', 'hu', 'Aktív'),
+(3099, 'admin_invite_code_status_active', 'en', 'Active'),
+(3100, 'admin_invite_code_status_active', 'de', 'Aktiv'),
+(3101, 'admin_invite_code_status_expired_active', 'hu', 'Lejárt, még aktív'),
+(3102, 'admin_invite_code_status_expired_active', 'en', 'Expired, still active'),
+(3103, 'admin_invite_code_status_expired_active', 'de', 'Abgelaufen, noch aktiv'),
+(3104, 'admin_invite_code_status_inactive', 'hu', 'Inaktív'),
+(3105, 'admin_invite_code_status_inactive', 'en', 'Inactive'),
+(3106, 'admin_invite_code_status_inactive', 'de', 'Inaktiv'),
+(3107, 'admin_invite_code_used_max', 'hu', 'Felhasznált / Max'),
+(3108, 'admin_invite_code_used_max', 'en', 'Used / Max'),
+(3109, 'admin_invite_code_used_max', 'de', 'Verwendet / Max'),
+(3110, 'admin_invite_codes_help', 'hu', 'Belépőkódok osztályoknak / eseményeknek – látható statisztikával.'),
+(3111, 'admin_invite_codes_help', 'en', 'Registration codes for classes / events – with visible statistics.'),
+(3112, 'admin_invite_codes_help', 'de', 'Registrierungscodes für Klassen / Veranstaltungen – mit sichtbarer Statistik.'),
+(3113, 'admin_invite_codes_title', 'hu', 'Regisztrációs kódok'),
+(3114, 'admin_invite_codes_title', 'en', 'Registration Codes'),
+(3115, 'admin_invite_codes_title', 'de', 'Registrierungscodes'),
+(3116, 'admin_no_action', 'hu', 'Nincs művelet'),
+(3117, 'admin_no_action', 'en', 'No action'),
+(3118, 'admin_no_action', 'de', 'Keine Aktion'),
+(3119, 'admin_panel_no_access', 'hu', 'Nincs jogosultságod az admin felület megtekintéséhez.'),
+(3120, 'admin_panel_no_access', 'en', 'You do not have permission to view the admin interface.'),
+(3121, 'admin_panel_no_access', 'de', 'Du hast keine Berechtigung, die Admin-Oberfläche anzuzeigen.'),
+(3122, 'admin_panel_no_permission', 'hu', 'Hozzáférés megtagadva. Nincs admin jogosultság.'),
+(3123, 'admin_panel_no_permission', 'en', 'Access denied. No admin permission.'),
+(3124, 'admin_panel_no_permission', 'de', 'Zugriff verweigert. Keine Admin-Berechtigung.'),
+(3125, 'admin_panel_title', 'hu', 'Admin Panel'),
+(3126, 'admin_panel_title', 'en', 'Admin Panel'),
+(3127, 'admin_panel_title', 'de', 'Admin-Panel'),
+(3128, 'admin_reg_code_description_placeholder', 'hu', 'Leírás (opcionális)'),
+(3129, 'admin_reg_code_description_placeholder', 'en', 'Description (optional)'),
+(3130, 'admin_reg_code_description_placeholder', 'de', 'Beschreibung (optional)'),
+(3131, 'admin_reg_code_expires_placeholder', 'hu', 'Opcionális'),
+(3132, 'admin_reg_code_expires_placeholder', 'en', 'Optional'),
+(3133, 'admin_reg_code_expires_placeholder', 'de', 'Optional'),
+(3134, 'admin_reg_code_max_uses_placeholder', 'hu', 'Opcionális'),
+(3135, 'admin_reg_code_max_uses_placeholder', 'en', 'Optional'),
+(3136, 'admin_reg_code_max_uses_placeholder', 'de', 'Optional'),
+(3137, 'admin_reg_code_placeholder', 'hu', 'pl.: CLASS-2024-A'),
+(3138, 'admin_reg_code_placeholder', 'en', 'e.g.: CLASS-2024-A'),
+(3139, 'admin_reg_code_placeholder', 'de', 'z.B.: CLASS-2024-A'),
+(3140, 'admin_report_accept', 'hu', 'Elfogad'),
+(3141, 'admin_report_accept', 'en', 'Accept'),
+(3142, 'admin_report_accept', 'de', 'Akzeptieren'),
+(3143, 'admin_report_reject', 'hu', 'Elutasít'),
+(3144, 'admin_report_reject', 'en', 'Reject'),
+(3145, 'admin_report_reject', 'de', 'Ablehnen'),
+(3146, 'admin_report_rejected', 'hu', 'Elutasítva'),
+(3147, 'admin_report_rejected', 'en', 'Rejected'),
+(3148, 'admin_report_rejected', 'de', 'Abgelehnt'),
+(3149, 'admin_reports_action', 'hu', 'Művelet'),
+(3150, 'admin_reports_action', 'en', 'Action'),
+(3151, 'admin_reports_action', 'de', 'Aktion'),
+(3152, 'admin_reports_date', 'hu', 'Dátum'),
+(3153, 'admin_reports_date', 'en', 'Date'),
+(3154, 'admin_reports_date', 'de', 'Datum'),
+(3155, 'admin_reports_none', 'hu', 'Nincs még jelentés.'),
+(3156, 'admin_reports_none', 'en', 'No reports yet.'),
+(3157, 'admin_reports_none', 'de', 'Noch keine Berichte.'),
+(3158, 'admin_reports_reason', 'hu', 'Indok'),
+(3159, 'admin_reports_reason', 'en', 'Reason'),
+(3160, 'admin_reports_reason', 'de', 'Grund'),
+(3161, 'admin_reports_reporter', 'hu', 'Jelentő'),
+(3162, 'admin_reports_reporter', 'en', 'Reporter'),
+(3163, 'admin_reports_reporter', 'de', 'Melder'),
+(3164, 'admin_reports_status', 'hu', 'Állapot'),
+(3165, 'admin_reports_status', 'en', 'Status'),
+(3166, 'admin_reports_status', 'de', 'Status'),
+(3167, 'admin_reports_target', 'hu', 'Cél'),
+(3168, 'admin_reports_target', 'en', 'Target'),
+(3169, 'admin_reports_target', 'de', 'Ziel'),
+(3170, 'admin_reports_title', 'hu', 'Jelentések'),
+(3171, 'admin_reports_title', 'en', 'Reports'),
+(3172, 'admin_reports_title', 'de', 'Berichte'),
+(3173, 'admin_reports_type', 'hu', 'Típus'),
+(3174, 'admin_reports_type', 'en', 'Type'),
+(3175, 'admin_reports_type', 'de', 'Typ'),
+(3176, 'admin_roles_title', 'hu', 'Rangok kezelése'),
+(3177, 'admin_roles_title', 'en', 'Manage Roles'),
+(3178, 'admin_roles_title', 'de', 'Rollen verwalten'),
+(3179, 'admin_search_help', 'hu', 'Kezdj el gépelni a felhasználó nevét vagy felhasználónevét.'),
+(3181, 'admin_search_help', 'de', 'Beginne mit der Eingabe des Benutzernamens oder Benutzernamen.'),
+(3182, 'admin_search_user_placeholder', 'hu', 'Felhasználó keresése...'),
+(3183, 'admin_search_user_placeholder', 'en', 'Search user...'),
+(3184, 'admin_search_user_placeholder', 'de', 'Benutzer durchsuchen...'),
+(3185, 'admin_target_group_id_label', 'hu', 'Csoport ID: %d'),
+(3186, 'admin_target_group_id_label', 'en', 'Group ID: %d'),
+(3187, 'admin_target_group_id_label', 'de', 'Gruppen-ID: %d'),
+(3188, 'admin_target_group_label', 'hu', 'Csoport: %s'),
+(3189, 'admin_target_group_label', 'en', 'Group: %s'),
+(3190, 'admin_target_group_label', 'de', 'Gruppe: %s'),
+(3191, 'admin_target_note_id_label', 'hu', 'Jegyzet ID: %d'),
+(3192, 'admin_target_note_id_label', 'en', 'Note ID: %d'),
+(3193, 'admin_target_note_id_label', 'de', 'Notiz-ID: %d'),
+(3194, 'admin_target_note_label', 'hu', 'Jegyzet: %s'),
+(3195, 'admin_target_note_label', 'en', 'Note: %s'),
+(3196, 'admin_target_note_label', 'de', 'Notiz: %s'),
+(3197, 'admin_target_user_id_label', 'hu', 'Felhasználó ID: %d'),
+(3198, 'admin_target_user_id_label', 'en', 'User ID: %d'),
+(3199, 'admin_target_user_id_label', 'de', 'Benutzer-ID: %d'),
+(3200, 'admin_target_user_label', 'hu', 'Felhasználó: %s'),
+(3201, 'admin_target_user_label', 'en', 'User: %s'),
+(3202, 'admin_target_user_label', 'de', 'Benutzer: %s'),
+(3203, 'admin_unknown_target', 'hu', 'Ismeretlen cél'),
+(3204, 'admin_unknown_target', 'en', 'Unknown target'),
+(3205, 'admin_unknown_target', 'de', 'Unbekanntes Ziel'),
+(3206, 'admin_user_action', 'hu', 'Művelet'),
+(3207, 'admin_user_action', 'en', 'Action'),
+(3208, 'admin_user_action', 'de', 'Aktion'),
+(3209, 'admin_user_admin', 'hu', 'Admin'),
+(3210, 'admin_user_admin', 'en', 'Admin'),
+(3211, 'admin_user_admin', 'de', 'Admin'),
+(3212, 'admin_user_badges_add_button', 'hu', 'Hozzáadás'),
+(3213, 'admin_user_badges_add_button', 'en', 'Add'),
+(3214, 'admin_user_badges_add_button', 'de', 'Hinzufügen'),
+(3215, 'admin_user_badges_add_title', 'hu', 'Új badge hozzárendelése'),
+(3216, 'admin_user_badges_add_title', 'en', 'Assign New Badge'),
+(3217, 'admin_user_badges_add_title', 'de', 'Neues Badge zuweisen'),
+(3218, 'admin_user_badges_badge', 'hu', 'Badge'),
+(3219, 'admin_user_badges_badge', 'en', 'Badge'),
+(3220, 'admin_user_badges_badge', 'de', 'Badge'),
+(3221, 'admin_user_badges_existing_title', 'hu', 'Meglévő user_badge-ek'),
+(3222, 'admin_user_badges_existing_title', 'en', 'Existing User Badges'),
+(3223, 'admin_user_badges_existing_title', 'de', 'Vorhandene Benutzer-Badges'),
+(3224, 'admin_user_badges_granted_by', 'hu', 'Adta'),
+(3225, 'admin_user_badges_granted_by', 'en', 'Granted by'),
+(3226, 'admin_user_badges_granted_by', 'de', 'Gewährt von'),
+(3227, 'admin_user_badges_granted_by', 'de', 'Gewährt von'),
+(3228, 'admin_user_badges_label_badge', 'hu', 'Badge:'),
+(3229, 'admin_user_badges_label_badge', 'en', 'Badge:'),
+(3230, 'admin_user_badges_label_badge', 'de', 'Badge:'),
+(3231, 'admin_user_badges_label_user', 'hu', 'Felhasználó:'),
+(3232, 'admin_user_badges_label_user', 'en', 'User:'),
+(3233, 'admin_user_badges_label_user', 'de', 'Benutzer:'),
+(3234, 'admin_user_badges_select_badge_placeholder', 'hu', 'Válassz badge-et'),
+(3235, 'admin_user_badges_select_badge_placeholder', 'de', 'Badge auswählen'),
+(3236, 'admin_user_badges_select_badge_placeholder', 'en', 'Select badge'),
+(3237, 'admin_user_badges_select_badge_placeholder', 'de', 'Badge auswählen'),
+(3238, 'admin_user_badges_select_user_placeholder', 'hu', 'Válassz felhasználót'),
+(3239, 'admin_user_badges_select_user_placeholder', 'en', 'Select user'),
+(3240, 'admin_user_badges_select_user_placeholder', 'de', 'Benutzer auswählen'),
+(3241, 'admin_user_badges_title', 'hu', 'User badge-ek kezelése'),
+(3242, 'admin_user_badges_title', 'en', 'Manage User Badges'),
+(3243, 'admin_user_badges_title', 'de', 'Benutzer-Badges verwalten'),
+(3244, 'admin_user_badges_user', 'hu', 'Felhasználó'),
+(3245, 'admin_user_badges_user', 'en', 'User'),
+(3246, 'admin_user_badges_user', 'de', 'Benutzer'),
+(3247, 'admin_user_email', 'hu', 'Email'),
+(3248, 'admin_user_email', 'en', 'Email'),
+(3249, 'admin_user_email', 'de', 'E-Mail'),
+(3250, 'admin_user_id', 'hu', 'ID'),
+(3251, 'admin_user_id', 'en', 'ID'),
+(3252, 'admin_user_id', 'de', 'ID'),
+(3253, 'admin_user_name', 'hu', 'Név'),
+(3254, 'admin_user_name', 'en', 'Name'),
+(3255, 'admin_user_name', 'de', 'Name'),
+(3256, 'admin_user_own_account', 'hu', 'Saját fiók'),
+(3257, 'admin_user_own_account', 'en', 'Own account'),
+(3258, 'admin_user_own_account', 'de', 'Eigenes Konto'),
+(3259, 'admin_user_teacher', 'hu', 'Tanár'),
+(3260, 'admin_user_teacher', 'en', 'Teacher'),
+(3261, 'admin_user_teacher', 'de', 'Lehrer/in'),
+(3262, 'admin_user_username', 'hu', 'Felhasználónév'),
+(3263, 'admin_user_username', 'en', 'Username'),
+(3264, 'admin_user_username', 'de', 'Benutzername'),
+(3265, 'admin_users_title', 'hu', 'Felhasználók kezelése'),
+(3266, 'admin_users_title', 'en', 'Manage Users'),
+(3267, 'admin_users_title', 'de', 'Benutzer verwalten'),
+(3268, 'homepage_about_us', 'hu', 'A <strong>Jegyzetár</strong> egy ingyenes közösségi platform, ahol diákok és tanárok megoszthatják egymással tananyagokat, összefoglalókat, feladatsorokat és egyéb iskolai segédanyagokat. Keress tantárgy, évfolyam vagy kulcsszó alapján - töltsd le, értéke'),
+(3269, 'homepage_about_us', 'en', '<strong>Jegyzetár</strong> is a free community platform where students and teachers can share lesson plans, summaries, worksheets, and other school resources with one another. Search by subject, grade level, or keyword—download, rate, and contribute yours'),
+(3270, 'homepage_about_us', 'de', '<strong>Jegyzetár</strong> ist eine kostenlose Community-Plattform, auf der Schüler und Lehrer Unterrichtsmaterialien, Zusammenfassungen, Aufgabenstellungen und andere schulische Hilfsmittel miteinander teilen können. Suche nach Fach, Jahrgangsstufe oder '),
+(3271, 'homepage_free_notes', 'hu', 'Ingyenes jegyzetek'),
+(3272, 'homepage_free_notes', 'en', 'Free notes'),
+(3273, 'homepage_free_notes', 'de', 'Kostenlose Notizen'),
+(3274, 'homepage_collaborative_learning', 'hu', 'Közösségi tanulás'),
+(3275, 'homepage_collaborative_learning', 'en', 'Collaborative learning'),
+(3276, 'homepage_collaborative_learning', 'de', 'Gemeinschaftliches Lernen'),
+(3277, 'homepage_free_register', 'hu', 'Regisztráció - Ingyenes'),
+(3278, 'homepage_free_register', 'en', 'Registration - Free'),
+(3279, 'homepage_free_register', 'de', 'Registrierung – Kostenlos'),
+(3280, 'homepage_browse_btn', 'hu', 'Böngészés bejelentkezés nélkül'),
+(3281, 'homepage_browse_btn', 'en', 'Browse without logging in'),
+(3282, 'homepage_browse_btn', 'de', 'Surfen ohne Anmeldung'),
+(3283, 'homepage_teachers_students', 'hu', 'Diákoknak & tanároknak'),
+(3284, 'homepage_teachers_students', 'en', 'For Students & Teachers'),
+(3285, 'homepage_teachers_students', 'de', 'Für Schüler und Lehrer'),
+(3286, 'partner_rangerbot_tagline', 'hu', 'Egy Discord bot, ami újraépült és folyamatosan fejlődik.'),
+(3287, 'partner_rangerbot_tagline', 'en', 'A Discord bot that was rebuilt and is continuously evolving.'),
+(3288, 'partner_rangerbot_tagline', 'de', 'Ein Discord-Bot, der neu aufgebaut wurde und sich ständig weiterentwickelt.'),
+(3289, 'partner_rangerbot_s1_title', 'hu', 'A kezdetek'),
+(3290, 'partner_rangerbot_s1_title', 'en', 'The beginnings'),
+(3291, 'partner_rangerbot_s1_title', 'de', 'Die Anfänge'),
+(3292, 'partner_rangerbot_s1_text', 'hu', 'Kezdetben Aki26 és MasterofAll, Aki26 apukája kezdte el a Botot csinálgatni. Eleinte csak maguknak, hogy Aki26 tanulhasson, majd később Aki26 felhozta, hogy lehetne publikus a Bot. Ezzel kezdődött minden.'),
+(3293, 'partner_rangerbot_s1_text', 'en', 'Initially Aki26 and MasterofAll, Aki26\'s father, started building the bot. At first just for themselves so Aki26 could learn, then Aki26 suggested making it public. That is how it all began.'),
+(3294, 'partner_rangerbot_s1_text', 'de', 'Zunächst begannen Aki26 und MasterofAll, Aki26s Vater, den Bot zu bauen. Zuerst nur für sich selbst, damit Aki26 lernen konnte, dann schlug Aki26 vor, ihn öffentlich zu machen. So fing alles an.'),
+(3295, 'partner_rangerbot_s2_title', 'hu', 'Később...'),
+(3296, 'partner_rangerbot_s2_title', 'en', 'Later on...'),
+(3297, 'partner_rangerbot_s2_title', 'de', 'Später...'),
+(3298, 'partner_rangerbot_s2_text', 'hu', '2020. 10. 14-én Aki26-t, a Bot fejlesztőjét feltörték, ezáltal a RangerBot-nak megszerezték a Token-jét, és elkezdtek vele, illetve Aki26 fiókjával hirdetni. A RangerBot-ot kidobták a szerverekről, mert károkat is okozott bőven. A Support szerver törlődöt'),
+(3299, 'partner_rangerbot_s2_text', 'en', 'On 14 October 2020 Aki26, the bot developer, was hacked. The attacker obtained RangerBot\'s token and began spamming with it and Aki26\'s account. RangerBot was removed from servers due to the damage it caused, and the support server was deleted by the hack'),
+(3300, 'partner_rangerbot_s2_text', 'de', 'Am 14. Oktober 2020 wurde Aki26, der Bot-Entwickler, gehackt. Der Angreifer erlangte RangerBots Token und begann, damit und mit Aki26s Konto zu werben. RangerBot wurde von Servern entfernt, da er erheblichen Schaden anrichtete, und der Support-Server wurd'),
+(3301, 'partner_rangerbot_s3_title', 'hu', 'AvokádóZ hatására'),
+(3302, 'partner_rangerbot_s3_title', 'en', 'Thanks to AvokádóZ'),
+(3303, 'partner_rangerbot_s3_title', 'de', 'Dank AvokádóZ'),
+(3304, 'partner_rangerbot_s3_text', 'hu', 'AvokádóZ kiírta a Discord Állapotába, hogy Bot fejlesztőket keres. MesterDavid írt Aki26-nak, hogy ezt látta. Aki26 ezáltal felkereste AvokádóZ-t. Avo azt találta ki, hogy kezdjenek el fejleszteni egy új Botot, viszont Aki26-nak ötlete támadt: mi lenne, h'),
+(3305, 'partner_rangerbot_s3_text', 'en', 'AvokádóZ posted in their Discord status that they were looking for bot developers. MesterDavid told Aki26 about it, and Aki26 reached out to AvokádóZ. Avo suggested starting a new bot, but Aki26 had an idea: what if they continued RangerBot? Aki26 rewrote'),
+(3306, 'partner_rangerbot_s3_text', 'de', 'AvokádóZ postete in seinem Discord-Status, dass er Bot-Entwickler suche. MesterDavid informierte Aki26 darüber, und Aki26 wandte sich an AvokádóZ. Avo schlug vor, einen neuen Bot zu entwickeln, doch Aki26 hatte eine Idee: Was, wenn sie RangerBot fortsetze'),
+(3307, 'partner_rangerbot_s4_title', 'hu', 'Hitelesítés!'),
+(3308, 'partner_rangerbot_s4_title', 'en', 'Verification!'),
+(3309, 'partner_rangerbot_s4_title', 'de', 'Verifizierung!'),
+(3310, 'partner_rangerbot_s4_text', 'hu', '2021. 04. 16-án meglett a 75 szerver, mely után 10 nappal, 04. 26-án el lett küldve Aki26 és MesterDavid által a hitelesítési kérelem a Discordnak. Ezek után kicsit több, mint egy hónappal, 06. 06-án elfogadták azt, viszont Intenteket nem kapott a Bot, ez'),
+(3311, 'partner_rangerbot_s4_text', 'en', 'On 16 April 2021 the bot reached 75 servers. Ten days later, on 26 April, Aki26 and MesterDavid submitted the verification request to Discord. Just over a month later, on 6 June, it was approved – but without intents. A few days later, on 8 June, Aki26 su'),
+(3312, 'partner_rangerbot_s4_text', 'de', 'Am 16. April 2021 erreichte der Bot 75 Server. Zehn Tage später, am 26. April, reichten Aki26 und MesterDavid den Verifikationsantrag bei Discord ein. Etwas mehr als einen Monat später, am 6. Juni, wurde er genehmigt – jedoch ohne Intents. Wenige Tage spä'),
+(3313, 'partner_rangerbot_s5_title', 'hu', 'Újraírás - búcsúzunk a C#-tól.'),
+(3314, 'partner_rangerbot_s5_title', 'en', 'Rewrite – farewell to C#.'),
+(3315, 'partner_rangerbot_s5_title', 'de', 'Neuschreibung – Abschied von C#.'),
+(3316, 'partner_rangerbot_s5_text', 'hu', 'Aki26 úgy döntött, ideje haladni a korral és újraírni a Botot egy modernebb, szélesebb körben használt nyelvben. A C# Bot már 2024. 05. 06-a óta offline, viszont Aki26 2026. 01. 18-án kiadta az új Botot (volt egy apróbb kihagyás :D), melynek programozási '),
+(3317, 'partner_rangerbot_s5_text', 'en', 'Aki26 decided it was time to move with the times and rewrite the bot in a more modern, widely used language. The C# bot has been offline since 6 May 2024, but on 18 January 2026 Aki26 released the new bot (with a minor hiatus :D), now written in Python.'),
+(3318, 'partner_rangerbot_s5_text', 'de', 'Aki26 entschied, es sei Zeit, mit der Zeit zu gehen und den Bot in einer moderneren, weit verbreiteten Sprache neu zu schreiben. Der C#-Bot ist seit dem 6. Mai 2024 offline, doch am 18. Januar 2026 veröffentlichte Aki26 den neuen Bot (mit einer kleinen Pa');
 
 -- --------------------------------------------------------
 
@@ -4409,7 +4636,7 @@ CREATE TABLE `users` (
   `security_question` varchar(255) NOT NULL,
   `security_answer` varchar(255) NOT NULL,
   `admin` tinyint(1) NOT NULL,
-  `teacher` tinyint(1) DEFAULT NULL,
+  `teacher` tinyint(1) NOT NULL,
   `registration_date` datetime DEFAULT NULL,
   `language` varchar(5) NOT NULL DEFAULT 'hu',
   `oauth_provider` varchar(20) DEFAULT NULL,
@@ -4430,38 +4657,15 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `lastname`, `firstname`, `username`, `birthdate`, `gender`, `email`, `profile_picture`, `password`, `security_question`, `security_answer`, `admin`, `teacher`, `registration_date`, `language`, `oauth_provider`, `oauth_sub`, `email_verified`, `bio`, `profile_theme`, `twofa_enabled`, `used_reg_code`, `used_reg_code_at`, `show_fullname`, `show_email`, `show_birthdate`) VALUES
-(1, 'Csontos', 'Kincső', 'csontoskincso05', '2005-04-04', 'female', 'csontoskincso@doomhyena.hu', 'Rudo Surebrec.jpg', '$2y$10$ZLWnsc4oApKzTPcMkkeC8OcVEmKA3PVyV2Fu7Mn4cCKTrQR5wmLgK', 'Mi a kedvenc könyved?', 'Harry Potter', 1, NULL, '2026-01-21 15:42:52', 'hu', 'discord', '864583234158460938', 1, 'Software & Systems Engineer Student', 'light', 0, NULL, NULL, 0, 0, 0),
-(8, 'Teszt', 'User', 'tesztuser', '2005-12-16', 'female', 'csontoskincso05@gmail.com', NULL, '$2y$10$rsRPmF5j81OCfV3xbpkIHOCGXeKXLTOkUIb7tH4j73o74H8QQiHRK', 'Mi az édesanyád leánykori neve?', 'Harry Potter', 0, NULL, '2025-12-10 21:51:35', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
-(9, 'Csontos', 'Kincső', 'doomhyena', '2005-04-04', 'female', 'csontoskincso@proton.me', NULL, '$2y$10$i7QzVcekWMXr3DJD6BUmgeR0Wal7AmZyBjDfjjVf6eowweutMErEa', 'Mi a kedvenc könyved?', '$2y$10$c5BtBT/ODqFT/OeHGYLuCeMCsdJ5sScb2Xjgg/lkJ77I9whd323tG', 0, 1, '2026-02-20 15:54:27', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
-(10, 'Horváth', 'Eszter', 'user10', '2006-07-03', 'other', 'user10@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'budapest', 0, NULL, '2026-01-15 15:30:27', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(11, 'Horváth', 'Levente', 'user11', '2002-12-05', 'other', 'user11@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'kutyus', 0, NULL, '2025-12-16 13:28:36', 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
-(12, 'Farkas', 'Nóra', 'user12', '2003-01-12', 'female', 'user12@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'cica', 0, NULL, '2025-12-06 14:29:18', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(13, 'Kiss', 'Nóra', 'user13', '2006-02-19', 'male', 'user13@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'teszt123', 0, NULL, '2026-02-24 15:59:17', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(14, 'Kovács', 'Eszter', 'user14', '2008-02-09', 'male', 'user14@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'cica', 0, NULL, '2026-01-08 11:22:56', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(15, 'Nagy', 'Anna', 'user15', '2000-12-03', 'female', 'user15@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'alma', 0, NULL, '2026-02-10 18:22:14', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(16, 'Szabó', 'Dávid', 'user16', '2007-07-17', 'female', 'user16@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'cica', 0, NULL, '2026-02-17 12:36:14', 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
-(17, 'Kiss', 'Eszter', 'user17', '2001-12-11', 'other', 'user17@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'anon', 0, NULL, '2025-12-12 20:08:24', 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
-(18, 'Tóth', 'Ádám', 'user18', '2001-07-27', 'female', 'user18@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'budapest', 0, NULL, '2026-03-20 11:13:28', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(19, 'Tóth', 'Anna', 'user19', '2008-02-15', 'male', 'user19@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'csoki', 0, NULL, '2026-02-24 14:00:26', 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
-(20, 'Szabó', 'Máté', 'user20', '2001-08-13', 'other', 'user20@test.hu', NULL, 'hashed', 'Mi az édesanyád leánykori neve?', 'anon', 0, NULL, '2026-01-27 15:07:10', 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
-(21, 'Farkas', 'Luca', 'user21', '2002-12-04', 'male', 'user21@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'csoki', 0, NULL, '2026-02-18 11:12:24', 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
-(22, 'Horváth', 'Luca', 'user22', '2008-06-18', 'female', 'user22@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'cica', 0, NULL, '2026-01-25 10:51:05', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(23, 'Szabó', 'Ádám', 'user23', '2006-08-18', 'female', 'user23@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'anon', 0, NULL, '2026-03-20 15:19:07', 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
-(24, 'Tóth', 'Anna', 'user24', '2009-02-26', 'other', 'user24@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'kutyus', 0, NULL, '2026-01-19 19:23:39', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(25, 'Balogh', 'Zsófia', 'user25', '1999-04-14', 'female', 'user25@test.hu', NULL, 'hashed', 'Mi az édesanyád leánykori neve?', 'anon', 0, NULL, '2026-02-15 20:37:26', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(26, 'Molnár', 'Bence', 'user26', '2003-05-08', 'female', 'user26@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'cica', 0, NULL, '2026-01-27 19:18:31', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(27, 'Szabó', 'Bence', 'user27', '2005-04-30', 'other', 'user27@test.hu', NULL, 'hashed', 'Mi az édesanyád leánykori neve?', 'budapest', 0, NULL, '2026-01-19 19:14:49', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(28, 'Farkas', 'Máté', 'user28', '2008-02-18', 'other', 'user28@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'cica', 0, NULL, '2026-02-09 17:54:52', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(29, 'Varga', 'Ádám', 'user29', '2002-10-14', 'male', 'user29@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'kutyus', 0, NULL, '2026-01-30 17:09:14', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(30, 'Tóth', 'Levente', 'user30', '2003-12-31', 'female', 'user30@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'anon', 0, NULL, '2026-01-21 14:41:40', 'hu', NULL, NULL, 0, '📚 Szeretek tanulni és jegyzeteket készíteni.', 'default', 0, NULL, NULL, 1, 0, 0),
-(31, 'Varga', 'Nóra', 'user31', '2001-08-22', 'male', 'user31@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'kutyus', 0, NULL, '2026-02-15 10:48:39', 'hu', NULL, NULL, 0, '🚀 Cél: minél jobb eredmény!', 'default', 0, NULL, NULL, 1, 0, 0),
-(32, 'Kovács', 'Zsófia', 'user32', '2007-08-02', 'other', 'user32@test.hu', NULL, 'hashed', 'Mi volt az első háziállatod neve?', 'csoki', 0, NULL, '2026-01-16 19:09:24', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(33, 'Nagy', 'Nóra', 'user33', '2009-02-25', 'other', 'user33@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'pizza', 0, NULL, '2026-02-14 20:40:43', 'hu', NULL, NULL, 0, '📚 Szeretek tanulni és jegyzeteket készíteni.', 'default', 0, NULL, NULL, 1, 0, 0),
-(34, 'Kovács', 'Anna', 'user34', '2007-12-15', 'male', 'user34@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'csoki', 0, NULL, '2026-02-02 10:29:17', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(35, 'Molnár', 'Luca', 'user35', '2001-01-27', 'male', 'user35@test.hu', NULL, 'hashed', 'Mi a születési városod?', 'anon', 0, NULL, '2026-02-07 19:09:49', 'hu', NULL, NULL, 0, '🎓 Érettségire készülök, minden segítség jól jön!', 'default', 0, NULL, NULL, 1, 0, 0),
-(36, 'Farkas', 'Bence', 'user36', '2004-04-19', 'male', 'user36@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'csoki', 0, NULL, '2025-12-11 11:43:03', 'hu', NULL, NULL, 0, '📖 Jegyzeteket gyűjtök és megosztok.', 'default', 0, NULL, NULL, 1, 0, 0),
-(37, 'Horváth', 'Luca', 'user37', '2001-04-01', 'male', 'user37@test.hu', NULL, 'hashed', 'Mi a kedvenc könyved?', 'kutyus', 0, NULL, '2026-01-23 20:09:47', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0),
-(38, 'Molnár', 'Zsófia', 'user38', '2003-04-09', 'other', 'user38@test.hu', NULL, 'hashed', 'Mi a kedvenc ételed?', 'pizza', 0, NULL, '2026-03-13 19:38:26', 'hu', NULL, NULL, 0, '💻 Programozás és matek fan.', 'default', 0, NULL, NULL, 1, 0, 0);
+(1, 'Csontos', 'Kincső Anasztázia', 'doomhyena', '2005-04-04', 'female', 'contact@doomhyena.hu', 'Rudo Surebrec.jpg', '$2y$10$pSCPNVMs2htrcyZGRGLIOO2.aMYL41iKbnWl2YXXSn2GJ1uq8EzLG', 'Mi a kedvenc könyved?', 'Harry Potter', 1, 0, '2025-12-02 08:52:05', 'hu', NULL, NULL, 1, 'Software & Systems Engineer Student', 'light', 0, NULL, NULL, 0, 0, 1),
+(2, 'Giczy', 'Gergő Ákos', 'aggiczy', '2006-09-12', 'male', 'akos.gergo@giczy.hu', NULL, '$2y$10$MC981XXw6jSVBMFDfxnk9O3eYEw/C57LG8q/Zl2buKEcnsZ4zhaOq', 'Mi a kedvenc könyved?', 'mittomen', 0, 1, '2025-12-07 18:11:22', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
+(3, 'Solid', 'Wild', 'solidwild', '1848-03-15', 'male', 'kissgabor0110110@gmail.com', NULL, '$2y$10$hkZMNbCUkLT65n3bLSdTU.H7HkZOxp5ibNNh.SpbBqdRxseVZgpzW', 'Mi a születési városod?', 'Budapest', 0, 1, '2025-12-10 21:17:11', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
+(4, 'Víg', 'Balázs', 'balazsgaming965', '1525-08-04', 'male', 'vigbazs@gmail.com', 'd70bc4b3b87f48e7a840966fc88c2783~tplv-jj85edgx6n-image-origin.jpeg', '$2y$10$oWXGT.jyOjADamDAH3qHf.b1fwRSCto9rUyPbvXJX4EeIg8Ca6rYu', 'Mi a kedvenc könyved?', 'füles', 0, 1, '2025-12-11 15:51:06', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
+(5, 'asd', 'xdddasd', 'balint1414', '2001-09-11', 'male', 'balint3@balint1414.dev', 'RPESr2v.gif', '$2y$10$10wHSCYF3LBaV/pMt3UGhuDnrHS9TW.zjUoBytVQRqh0u64co1mpq', 'Mi volt az első háziállatod neve?', 'macska', 0, 1, '2025-12-12 13:54:10', 'hu', NULL, NULL, 1, '                              xd                                              ', 'default', 0, NULL, NULL, 1, 0, 0),
+(6, 'Tompos', 'Patrik', 'mult1c', '2009-02-17', 'male', 'patrikktompos@gmail.com', 'age-of-moon.jpg', '$2y$10$U843lfW/.5UosiaGk4fEsu6wineW6eI06/iI.cy.4IXmIg.Djog8W', 'Mi az édesanyád leánykori neve?', '$2y$10$dpVli6kRyFPlcbVLdkK5BO35saQRTuS2UuAgivdVYgd78VQ1BETgS', 0, 1, '2026-01-17 16:19:52', 'hu', NULL, NULL, 1, NULL, 'default', 0, NULL, NULL, 1, 0, 0),
+(19, 'Doe', 'John', 'johndoe', '2005-05-30', 'male', 'csontoskincso@proton.me', NULL, '$2y$12$uIFQDbDlWTdPhjCxYn8LEO9wphmRkvwyAu19lnGJ4j5lDCToy4zv.', 'Mi volt az első háziállatod neve?', '$2y$12$aFGkTs3aekN.ev96Lzvsc.vms.WB5ClOElbiaeGZf58484eElrs5u', 0, 0, '2026-03-30 10:17:48', 'hu', NULL, NULL, 1, NULL, 'default', 0, 'TEST-BETA-CODE-2026', '2026-03-30 12:17:48', 1, 0, 0),
+(20, 'Szekeres', 'Levente', 'Paladin', '2001-03-20', 'male', 'szekilevi035@gmail.com', 'cat-catfish.gif', '$2y$12$CnkV87lvb8AzwhyedKX8geogAYNcpxsu3f2HKHfwq4n4E7aD4XxlW', 'Mi a kedvenc könyved?', '$2y$12$iycVVWZENmUHiFWimnfiHuFl/HYa0DLX/M/.SIg/qkuQmObXxGdgS', 1, 0, '2026-03-31 06:52:41', 'hu', NULL, NULL, 1, NULL, 'default', 1, 'SCHOLA-2026', '2026-03-31 08:52:42', 1, 1, 1),
+(21, 'Hujber', 'Balázs', 'Humbi', '2001-07-28', 'male', 'hujber.balazs28@gmail.com', NULL, '$2y$12$SLw2/JqbX4cukaFlT20T1uXwCDtVHxHn/ne7.HkBoDxRtGL4GGkFi', 'Mi az édesanyád leánykori neve?', '$2y$12$we.h.ghrfSUHS3D2N4XNkeFl1/tjtY2oJ98lHJF5aVF455SfI.ktS', 0, 1, '2026-03-31 08:37:16', 'hu', NULL, NULL, 1, NULL, 'default', 0, 'SCHOLA-2026', '2026-03-31 10:37:16', 1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -4483,7 +4687,14 @@ CREATE TABLE `user_badges` (
 
 INSERT INTO `user_badges` (`id`, `user_id`, `badge_id`, `granted_by`, `granted_at`) VALUES
 (2, 1, 1, 1, '2026-01-25 18:58:27'),
-(4, 1, 2, NULL, '2026-02-10 11:13:35');
+(4, 2, 3, 1, '2026-02-03 00:08:02'),
+(6, 4, 3, 1, '2026-02-03 00:08:18'),
+(7, 5, 3, 1, '2026-02-03 00:08:23'),
+(8, 6, 3, 1, '2026-02-03 00:09:04'),
+(9, 3, 3, 1, '2026-02-03 00:09:12'),
+(10, 2, 4, 1, '2026-02-18 23:28:04'),
+(14, 20, 6, NULL, '2026-03-31 09:37:11'),
+(15, 20, 1, 20, '2026-03-31 13:02:31');
 
 -- --------------------------------------------------------
 
@@ -4537,6 +4748,13 @@ ALTER TABLE `2fa_codes`
   ADD PRIMARY KEY (`id`);
 
 --
+-- A tábla indexei `announcements`
+--
+ALTER TABLE `announcements`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `created_by` (`created_by`);
+
+--
 -- A tábla indexei `badges`
 --
 ALTER TABLE `badges`
@@ -4583,7 +4801,14 @@ ALTER TABLE `favorites`
 -- A tábla indexei `files`
 --
 ALTER TABLE `files`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_files_download_count` (`download_count`),
+  ADD KEY `idx_files_year_id` (`id`),
+  ADD KEY `idx_files_id` (`id`),
+  ADD KEY `idx_files_name` (`name`),
+  ADD KEY `idx_files_edu` (`edu_stage`,`edu_level`);
+ALTER TABLE `files` ADD FULLTEXT KEY `ft_files` (`name`,`description`,`tags`);
+ALTER TABLE `files` ADD FULLTEXT KEY `ft_files_all` (`name`,`description`,`content_text`);
 
 --
 -- A tábla indexei `file_events`
@@ -4613,60 +4838,6 @@ ALTER TABLE `friends`
 -- A tábla indexei `groups`
 --
 ALTER TABLE `groups`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_comments`
---
-ALTER TABLE `group_comments`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_events`
---
-ALTER TABLE `group_events`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_files`
---
-ALTER TABLE `group_files`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_file_comments`
---
-ALTER TABLE `group_file_comments`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_flashcards`
---
-ALTER TABLE `group_flashcards`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_members`
---
-ALTER TABLE `group_members`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_polls`
---
-ALTER TABLE `group_polls`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_poll_options`
---
-ALTER TABLE `group_poll_options`
-  ADD PRIMARY KEY (`id`);
-
---
--- A tábla indexei `group_poll_votes`
---
-ALTER TABLE `group_poll_votes`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -4701,12 +4872,6 @@ ALTER TABLE `password_reset_attempts`
 ALTER TABLE `premium_users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `uq_user` (`user_id`);
-
---
--- A tábla indexei `profanity_filter`
---
-ALTER TABLE `profanity_filter`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- A tábla indexei `ratings`
@@ -4760,6 +4925,12 @@ ALTER TABLE `tokens`
   ADD KEY `idx_tokens_user_id` (`user_id`);
 
 --
+-- A tábla indexei `translations`
+--
+ALTER TABLE `translations`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- A tábla indexei `users`
 --
 ALTER TABLE `users`
@@ -4799,13 +4970,19 @@ ALTER TABLE `user_custom_css_requests`
 -- AUTO_INCREMENT a táblához `2fa_codes`
 --
 ALTER TABLE `2fa_codes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+
+--
+-- AUTO_INCREMENT a táblához `announcements`
+--
+ALTER TABLE `announcements`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT a táblához `badges`
 --
 ALTER TABLE `badges`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT a táblához `bug_reports`
@@ -4817,103 +4994,43 @@ ALTER TABLE `bug_reports`
 -- AUTO_INCREMENT a táblához `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=102;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT a táblához `contact_messages`
 --
 ALTER TABLE `contact_messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT a táblához `deleted_users`
---
-ALTER TABLE `deleted_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT a táblához `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT a táblához `files`
 --
 ALTER TABLE `files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT a táblához `file_events`
 --
 ALTER TABLE `file_events`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT a táblához `friends`
 --
 ALTER TABLE `friends`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT a táblához `groups`
 --
 ALTER TABLE `groups`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT a táblához `group_comments`
---
-ALTER TABLE `group_comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT a táblához `group_events`
---
-ALTER TABLE `group_events`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT a táblához `group_files`
---
-ALTER TABLE `group_files`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT a táblához `group_file_comments`
---
-ALTER TABLE `group_file_comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT a táblához `group_flashcards`
---
-ALTER TABLE `group_flashcards`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT a táblához `group_members`
---
-ALTER TABLE `group_members`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT a táblához `group_polls`
---
-ALTER TABLE `group_polls`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT a táblához `group_poll_options`
---
-ALTER TABLE `group_poll_options`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT a táblához `group_poll_votes`
---
-ALTER TABLE `group_poll_votes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT a táblához `languages`
@@ -4925,13 +5042,13 @@ ALTER TABLE `languages`
 -- AUTO_INCREMENT a táblához `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT a táblához `notifys`
 --
 ALTER TABLE `notifys`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT a táblához `password_reset_attempts`
@@ -4943,31 +5060,25 @@ ALTER TABLE `password_reset_attempts`
 -- AUTO_INCREMENT a táblához `premium_users`
 --
 ALTER TABLE `premium_users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
--- AUTO_INCREMENT a táblához `profanity_filter`
---
-ALTER TABLE `profanity_filter`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=367;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT a táblához `ratings`
 --
 ALTER TABLE `ratings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT a táblához `registration_code_uses`
 --
 ALTER TABLE `registration_code_uses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT a táblához `reg_codes`
 --
 ALTER TABLE `reg_codes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT a táblához `reports`
@@ -4979,7 +5090,7 @@ ALTER TABLE `reports`
 -- AUTO_INCREMENT a táblához `saved_searches`
 --
 ALTER TABLE `saved_searches`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT a táblához `search_logs`
@@ -4991,19 +5102,25 @@ ALTER TABLE `search_logs`
 -- AUTO_INCREMENT a táblához `tokens`
 --
 ALTER TABLE `tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT a táblához `translations`
+--
+ALTER TABLE `translations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3319;
 
 --
 -- AUTO_INCREMENT a táblához `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT a táblához `user_badges`
 --
 ALTER TABLE `user_badges`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT a táblához `user_custom_css_archive`
@@ -5015,7 +5132,7 @@ ALTER TABLE `user_custom_css_archive`
 -- AUTO_INCREMENT a táblához `user_custom_css_requests`
 --
 ALTER TABLE `user_custom_css_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Megkötések a kiírt táblákhoz

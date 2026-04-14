@@ -66,16 +66,16 @@
         $msg_body = trim($_POST['message'] ?? '');
 
         if (empty($name)) {
-            $message = 'A név megadása kötelező.';
+            $message = t('contact_error_name_required');
             $message_type = 'error';
         } elseif (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $message = 'Kérjük, adjon meg érvényes email címet.';
+            $message = t('contact_error_valid_email');
             $message_type = 'error';
         } elseif (empty($subject)) {
-            $message = 'A tárgy megadása kötelező.';
+            $message = t('contact_error_subject_required');
             $message_type = 'error';
         } elseif (empty($msg_body) || strlen($msg_body) < 10) {
-            $message = 'Az üzenetnek legalább 10 karakter hosszúnak kell lennie.';
+            $message = t('contact_error_message_length');
             $message_type = 'error';
         } else {
             $admin_email = 'admin@jegyzetar.eu';
@@ -220,7 +220,7 @@
                         error_log("User reply mail error: " . $e->getMessage());
                     }
 
-                    $message = 'Az üzenetét sikeresen elküldtük! Hamarosan válaszolunk.';
+                    $message = t('contact_success_sent');
                     $message_type = 'success';
 
                     $_POST['name'] = '';
@@ -228,12 +228,12 @@
                     $_POST['subject'] = '';
                     $_POST['message'] = '';
                 } else {
-                    $message = 'Hiba történt az üzenet küldése során. Kérjük, próbálja később.';
+                    $message = t('contact_error_send_failed');
                     $message_type = 'error';
                 }
             } catch (Exception $e) {
                 error_log("Contact mail error: " . $e->getMessage());
-                $message = 'Hiba történt az üzenet küldése során. Kérjük, próbálja később.';
+                $message = t('contact_error_send_failed');
                 $message_type = 'error';
             }
         }
