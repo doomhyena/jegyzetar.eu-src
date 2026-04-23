@@ -359,7 +359,7 @@
                     <div>
                         <label for="password1" class="text-sm md:text-base font-semibold"><?= t('label_password') ?></label>
                         <div class="relative">
-                            <input class="input w-full text-sm md:text-base pr-12" type="password" name="password1" id="password1" required>
+                            <input class="input w-full text-sm md:text-base pr-12" type="password" name="password1" id="password1" required pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}" title="A jelszónak legalább 8 karakter hosszúnak kell lennie, és tartalmaznia kell kisbetűt, nagybetűt és számot.">
                             <button type="button" class="toggle-pass absolute right-2 top-1/2 -translate-y-1/2 text-sm opacity-80 hover:opacity-100"
                                     data-target="password1" aria-label="<?= t('msg_show_password') ?>">
                                 👁
@@ -379,7 +379,7 @@
                     <div>
                         <label for="password2" class="text-sm md:text-base font-semibold"><?= t('label_password_again') ?></label>
                         <div class="relative">
-                            <input class="input w-full text-sm md:text-base pr-12" type="password" name="password2" id="password2" required>
+                            <input class="input w-full text-sm md:text-base pr-12" type="password" name="password2" id="password2" required pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}" title="A jelszónak legalább 8 karakter hosszúnak kell lennie, és tartalmaznia kell kisbetűt, nagybetűt és számot.">
                             <button type="button" class="toggle-pass absolute right-2 top-1/2 -translate-y-1/2 text-sm opacity-80 hover:opacity-100"
                                     data-target="password2" aria-label="<?= t('msg_show_password') ?>">
                                 👁

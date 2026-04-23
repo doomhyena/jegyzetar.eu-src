@@ -44,14 +44,14 @@
     <div class="main w-full max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-6">
         <div class="section-titlebar flex flex-col md:flex-row justify-between items-start gap-4 mb-6">
             <div class="min-w-0">
-                <h1 class="text-2xl md:text-3xl lg:text-4xl mb-2">Tanuló csoportok</h1>
+                <h1 class="text-2xl md:text-3xl lg:text-4xl mb-2"><?= t('groups_page_title') ?></h1>
                 <p class="entry-meta text-sm md:text-base">
-                    Itt találod az összes elérhető tanuló csoportot.
+                    <?= t('groups_page_subtitle') ?>
                 </p>
             </div>
             <div class="titlebar-actions">
                 <a href="create_group.php" class="btn-cta text-sm md:text-base whitespace-nowrap">
-                    Új csoport létrehozása
+                    <?= t('groups_create_button') ?>
                 </a>
             </div>
         </div>
@@ -65,9 +65,9 @@
                         $csoport_privat = $egy_csoport['is_private'];
 
                         if ($csoport_privat == 1) {
-                            $privat_szoveg = "Privát csoport";
+                            $privat_szoveg = t('groups_private_label');
                         } else {
-                            $privat_szoveg = "Nyilvános csoport";
+                            $privat_szoveg = t('groups_public_label');
                         }
                     ?>
                     <article class="card p-4 md:p-6 flex flex-col break-words">
@@ -82,7 +82,7 @@
                             </span>
 							<?php if ($csoport_statusz === 'pending'): ?>
 							<span class="entry-meta text-xs md:text-sm inline-block px-2 py-1 rounded bg-yellow-500/20 text-yellow-300">
-							Jóváhagyásra vár
+							<?= t('groups_pending_label') ?>
 							</span>
 							<?php endif; ?>
                         </div>
@@ -92,17 +92,17 @@
                             </p>
                         <?php else: ?>
                             <p class="entry-meta text-sm md:text-base mb-3 opacity-75">
-                                Ehhez a csoporthoz még nincs leírás megadva.
+                                <?= t('groups_no_description') ?>
                             </p>
                         <?php endif; ?>
                         <div class="mt-auto">
 						<?php if ($csoport_statusz === 'approved'): ?>
 							<a href="group.php?id=<?= (int)$csoport_id ?>" class="btn-ghost text-sm md:text-base">
-								Csoport megnyitása
+								<?= t('groups_open_button') ?>
 							</a>
 						<?php else: ?>
 							<span class="btn-ghost text-sm md:text-base opacity-50 cursor-not-allowed">
-								A csoport még nem elérhető
+								<?= t('groups_not_available') ?>
 							</span>
 						<?php endif; ?>
                         </div>
@@ -111,7 +111,7 @@
             </div>
         <?php else: ?>
             <div class="card p-6">
-                <p class="entry-meta text-sm md:text-base">Nincs megjeleníthető csoport.</p>
+                <p class="entry-meta text-sm md:text-base"><?= t('groups_none') ?></p>
             </div>
         <?php endif; ?>
     </div>

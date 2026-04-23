@@ -44,7 +44,7 @@
             <li><a href="upload.php"><?= t('nav_upload') ?></a></li>
             <li><a href="groups.php"><?= t('nav_groups') ?></a></li>
             <li><a href="exams.php"><?= t('nav_exams') ?></a></li>
-            <li><a href="news.php">Hírek</a></li>
+            <li><a href="news.php"><?= t('nav_news') ?></a></li>
             <?php if ($isLoggedIn && $currentUsername): ?>
                 <li class="nav-item-has-dropdown">
                     <a href="#" class="nav-account-link">

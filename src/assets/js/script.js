@@ -690,3 +690,19 @@ function nextCard() {
 
     widget.addEventListener('click', () => textInput.focus());
 })();
+
+document.addEventListener('DOMContentLoaded', () => {
+    const tutorial = document.getElementById('css-tutorial');
+    if (!tutorial) return;
+
+    function syncTutorialMode() {
+        if (tutorial.open) {
+            document.body.classList.add('css-tutorial-open');
+        } else {
+            document.body.classList.remove('css-tutorial-open');
+        }
+    }
+
+    tutorial.addEventListener('toggle', syncTutorialMode);
+    syncTutorialMode();
+});

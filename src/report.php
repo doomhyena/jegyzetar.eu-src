@@ -3,10 +3,10 @@
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
 
-    require_login();
     require "assets/php/db.php";
     require "assets/php/lang.php";
     require "assets/php/functions.php";
+    require_login();
 
     $BUG_TABLE = "bug_reports";
 

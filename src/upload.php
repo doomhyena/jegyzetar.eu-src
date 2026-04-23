@@ -8,27 +8,38 @@
     require_once "assets/php/functions.php";
     require_once "assets/php/premium.php";
 
-    if (!isset($_COOKIE['id']) || !ctype_digit($_COOKIE['id'])) {
-        header("Location: reglog.php");
-        exit;
+    $isLoggedIn = auth_is_logged_in();
+    $user = null;
+    $notify_number = 0;
+
+    if ($isLoggedIn) {
+        $uid = (int)auth_user_id();
+        $res = db_query($conn, "SELECT id, username, firstname FROM users WHERE id = ? LIMIT 1", "i", [$uid]);
+        if ($res && $res->num_rows > 0) {
+            $user = $res->fetch_assoc();
+        }
+
+        $nf = db_query($conn, "SELECT id FROM notifys WHERE toid = ? AND readed = 0", "i", [$uid]);
+        $notify_number = $nf->num_rows;
     }
+
 
     if (($_GET['profanity'] ?? '') === '1') {
-        echo "<script>alert('Ne használj trágár szavakat jegyzet feltöltésnél!')</script>";
+        echo '<script> alert('.json_encode(t('upload_err_profanity')).');</script>';
     }
 
-    $userid = (int)$_COOKIE['id'];
+    $userid = auth_user_id();
+    if ($userid === null) {
+        header('Location: reglog.php');
+        exit;
+    }
 
     $premium_van = user_premium($conn, $userid);
 
-    $found_user = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$userid]);
-    $user = ($found_user && $found_user->num_rows > 0) ? $found_user->fetch_assoc() : null;
-
     if (!$user) {
-        header("Location: reglog.php");
-        exit;
+        $found_user = db_query($conn, "SELECT * FROM users WHERE id = ? LIMIT 1", "i", [$userid]);
+        $user = ($found_user && $found_user->num_rows > 0) ? $found_user->fetch_assoc() : null;
     }
-	
 	require_once "assets/php/require_teacher.php";
 
     $hasEduStage = false;
@@ -101,7 +112,7 @@
         if ($hasIsPrivate) {
             $is_private = isset($_POST['is_private']) ? 1 : 0;
             if ($is_private === 1 && !$premium_van) {
-                $uploadError = 'A privát jegyzet csak prémium előfizetőknek elérhető.';
+                $uploadError = t('upload_err_private_premium_required');
             }
         }
 
@@ -126,7 +137,7 @@
         }
 
         if ($uploadError === '' && ($displayName === '' || $description === '')) {
-            $uploadError = 'Kérlek tölts ki minden kötelező mezőt (név, leírás).';
+            $uploadError = t('upload_err_required_fields');
         }
 
         if ($uploadError === '') {
@@ -147,19 +158,19 @@
         if ($mode === 'markdown') {
 
             if (!$hasContentType || !$hasNoteMarkdown) {
-                $uploadError = "A jegyzet feltöltéshez hiányzik az adatbázis frissítés (content_type / note_markdown).";
+                $uploadError = t('upload_err_missing_markdown_migration');
             } else {
                 $md = (string)($_POST['markdown_note'] ?? '');
                 $md = str_replace("\r\n", "\n", $md);
 
                 if (trim($md) === '') {
-                    $uploadError = 'A Markdown jegyzet nem lehet üres.';
+                    $uploadError = t('upload_err_markdown_empty');
                 } else {
                     $MAX_MD_SIZE = 2 * 1024 * 1024; // 2MB
                     $file_size = strlen($md); // byte
 
                     if ($file_size > $MAX_MD_SIZE) {
-                        $uploadError = 'A Markdown jegyzet maximum 2MB lehet.';
+                        $uploadError = t('upload_err_markdown_too_large_fmt', 2);
                     } else {
                         $sumRes = db_query($conn, "SELECT COALESCE(SUM(file_size), 0) AS used_bytes FROM files WHERE uploaded_by = ?", "i", [$user['id']]);
                         $sumRow   = $sumRes ? $sumRes->fetch_assoc() : ['used_bytes' => 0];
@@ -170,7 +181,7 @@
                             $maxMb = round($MAX_USER_TOTAL / 1024 / 1024);
                             $usedMb = round($usedNow / 1024 / 1024);
                             $mdMb = round($file_size / 1024 / 1024, 2);
-                            $uploadError = "Nincs elég hely a kvótádban. Max {$maxMb} MB. Jelenleg ~{$usedMb} MB, a jegyzet ~{$mdMb} MB.";
+                            $uploadError = t('upload_err_quota_fmt', $maxMb, $usedMb, $mdMb);
                         } else {
                             $excerpt = trim(preg_replace('/\s+/', ' ', strip_tags($md)));
                             $excerpt = mb_substr($excerpt, 0, 255, 'UTF-8');
@@ -215,30 +226,24 @@
             }
 		} elseif ($mode === 'link') {
             if (!$hasContentType || !$hasExternalUrl) {
-                $uploadError = "Hiányzik az adatbázis frissítés (content_type / external_url).";
+                $uploadError = t('upload_err_missing_migration');
             } else {
 
                 $url = trim((string)($_POST['external_url'] ?? ''));
 
                 if ($url === '') {
-                    $uploadError = "A videó/link mező nem lehet üres.";
+                    $uploadError = t('upload_err_link_empty');
                 } elseif (!filter_var($url, FILTER_VALIDATE_URL)) {
-                    $uploadError = "Érvénytelen link.";
+                    $uploadError = t('upload_err_invalid_link');
                 } else {
 
                     $scheme = parse_url($url, PHP_URL_SCHEME);
-                    if (!in_array($scheme, ['http','https'], true)) {
-                        $uploadError = "Csak http/https link engedélyezett.";
+                    if (!in_array($scheme, ['http', 'https'], true)) {
+                        $uploadError = t('upload_err_only_http');
                     } else {
-
-                        $file_size = 0;
-
-                        $file_name_dummy = 'link';
-                        $file_path_dummy = '';
-
                         $colsIns = ['uploaded_by', 'name', 'file_name', 'description', 'file_path', 'subject', 'tags', 'file_size', 'content_type', 'external_url'];
-                        $vals = [$user['id'], $displayName, $file_name_dummy, $description, $file_path_dummy, $subject, $tags, 0, 'link', $url];
-                        $types = "issssssiss";	
+                        $vals    = [$user['id'], $displayName, 'link', $description, '', $subject, $tags, 0, 'link', $url];
+                        $types   = "issssssiss";
 
                         if ($hasIsPrivate) { $colsIns[] = 'is_private'; $vals[] = $is_private; $types .= 'i'; }
                         if ($hasIsPublic)  { $colsIns[] = 'is_public';  $vals[] = $is_public;  $types .= 'i'; }
@@ -259,17 +264,17 @@
             }
             } else {
                 if (!isset($_FILES['upload-file']) || ($_FILES['upload-file']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-                    $uploadError = 'Hiba a fájl feltöltésekor.';
+                    $uploadError = t('upload_err_file_upload');
                 } else {
                     $file_name = (string)($_FILES['upload-file']['name'] ?? '');
                     $tmp_name  = (string)($_FILES['upload-file']['tmp_name'] ?? '');
                     $file_size = (int)($_FILES['upload-file']['size'] ?? 0);
 
                     if ($file_size <= 0) {
-                        $uploadError = 'Üres fájl vagy ismeretlen fájlméret.';
+                        $uploadError = t('upload_err_empty_file');
                     } elseif ($file_size > $MAX_FILE_SIZE) {
                         $mb = round($MAX_FILE_SIZE / 1024 / 1024);
-                        $uploadError = "Túl nagy a fájl. Maximum {$mb} MB-os fájlt tölthetsz fel.";
+                        $uploadError = t('upload_err_file_too_large_fmt', $mb);
                     } else {
                         $sumRes = db_query($conn, "SELECT COALESCE(SUM(file_size), 0) AS used_bytes FROM files WHERE uploaded_by = ?", "i", [$user['id']]);
                         $sumRow   = $sumRes ? $sumRes->fetch_assoc() : ['used_bytes' => 0];
@@ -280,7 +285,7 @@
                             $maxMb = round($MAX_USER_TOTAL / 1024 / 1024);
                             $usedMb  = round($usedNow / 1024 / 1024);
                             $fileMb  = round($file_size / 1024 / 1024);
-                            $uploadError = "Nincs elég hely a felhasználói kvótádban. Max {$maxMb} MB-ot használhatsz. Jelenleg ~{$usedMb} MB-ot használsz, a fájl mérete ~{$fileMb} MB.";
+                            $uploadError = t('upload_err_quota_fmt', $maxMb, $usedMb, $fileMb);
                         } else {
                             $file_type = @mime_content_type($tmp_name);
                             $file_ext  = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
@@ -289,7 +294,7 @@
                             $allowed_types = ['application/pdf','video/mp4','application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
 
                             if (!in_array($file_ext, $allowed_extensions, true) || !in_array((string)$file_type, $allowed_types, true)) {
-                                $uploadError = 'Ez a fájltípus nem engedélyezett. Csak PDF, MP4 és DOCX tölthető fel.';
+                                $uploadError = t('upload_err_file_type_not_allowed');
                             } else {
                                 $targetPath = $dir . $file_name;
                                 if (file_exists($targetPath)) {
@@ -305,7 +310,7 @@
                                         $vals[] = 'file';
                                         $types .= 's';
                                     }
-                                    $uploadError = 'A fájl mozgatása a célmappába nem sikerült.';
+                                    $uploadError = t('upload_err_file_move_failed');
                                 }
                             }
                         }
@@ -379,7 +384,7 @@
     <div class="main w-full max-w-3xl mx-auto px-4 md:px-6 lg:px-8 py-6">
         <h1 class="text-2xl md:text-3xl lg:text-4xl mb-6"><?= htmlspecialchars(t('upload_page_title')) ?></h1>
         <?php if (isset($_GET['ok'])): ?>
-            <div class="toast toast-success">A fájl sikeresen feltöltve!</div>
+            <div class="toast toast-success"><?= htmlspecialchars(t('upload_ok')) ?></div>
         <?php endif; ?>
         <?php if ($uploadError !== ''): ?>
             <div class="toast toast-error"><?= htmlspecialchars($uploadError) ?></div>
@@ -491,59 +496,66 @@
                 <label for="markdown_note" class="text-sm md:text-base font-semibold">
                     <?= htmlspecialchars(t('upload_label_markdown')) ?>
                 </label>
-
-                <details class="css-tutorial" style="margin: 8px 0 10px;">
-                    <summary>Mi az a Markdown és hogyan kell használni?</summary>
-                    <div class="css-tutorial-body">
-                        <p>A <strong>Markdown</strong> egy egyszerű szövegformázási nyelv — sima szövegként írod, és az oldal szépen formázva jeleníti meg. Nem kell HTML-t tudni hozzá.</p>
-                        <p><strong>Legfontosabb elemek:</strong></p>
-                        <pre><code># Nagy cím (H1)
-## Közepes cím (H2)
-### Kis cím (H3)
-
-**félkövér szöveg**
-*dőlt szöveg*
-
-- felsorolás első elem
-- felsorolás második elem
-
-1. számozott lista
-2. második elem
-
-> idézet / kiemelt szöveg
-
-`kódrészlet` egy sorban
-
-```
-többsoros
-kódblokk
-```
-
-[link szövege](https://url.hu)
-</code></pre>
-                        <p><strong>Tipp:</strong> Használj címsorokat (<code>#</code>, <code>##</code>) a fejezetek tagolásához, és felsorolásokat a tételek listázásához. A kész jegyzet pontosan úgy jelenik meg, ahogy a Markdown előírja.</p>
+                <details class="css-tutorial" style="margin-top:10px;">
+                    <summary><?= htmlspecialchars(t('markdown_tutorial_title')) ?></summary>
+                    <div class="entry-meta" style="margin-top:6px;">
+                        <?= htmlspecialchars(t('markdown_tutorial_subtitle')) ?>
                     </div>
                 </details>
-
-                <textarea class="input w-full text-sm md:text-base" name="markdown_note" id="markdown_note" rows="14" placeholder="<?= htmlspecialchars(t('upload_placeholder_markdown')) ?>"></textarea>
-                <p class="entry-meta" style="margin-top:6px;">
-                    <?= htmlspecialchars(t('upload_markdown_tip')) ?>
-                </p>
+                <textarea
+                    class="input w-full text-sm md:text-base"
+                    name="markdown_note"
+                    id="markdown_note"
+                    rows="16"
+                    placeholder="<?= htmlspecialchars(t('upload_placeholder_markdown')) ?>"
+                    style="margin-top:8px; font-family: monospace; resize: vertical;"></textarea>
             </div>
             <div id="link_wrap" style="display:none;">
                 <label for="external_url" class="text-sm md:text-base font-semibold">
                     <?= htmlspecialchars(t('upload_label_video_link')) ?>
                 </label>
-                <input class="input w-full text-sm md:text-base" type="url" name="external_url" id="external_url" placeholder="<?= htmlspecialchars(t('upload_placeholder_video_link')) ?>">
+                <input
+                    class="input w-full text-sm md:text-base"
+                    type="url"
+                    name="external_url"
+                    id="external_url"
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    style="margin-top:8px;">
                 <p class="entry-meta" style="margin-top:6px;">
-                    <?= htmlspecialchars(t('upload_video_tip')) ?>
+                    <?= htmlspecialchars(t('upload_help_video_link')) ?>
                 </p>
+                <div id="link-preview" style="display:none; margin-top:10px;">
+                    <p class="entry-meta" style="color:var(--ok); font-weight:700;"><?= htmlspecialchars(t('upload_invalid_link')) ?></p>
+                </div>
             </div>
             <button type="submit" name="upload-btn" class="btn-cta w-full md:w-auto text-sm md:text-base mt-2">
                 <?= htmlspecialchars(t('upload_submit')) ?>
             </button>
         </form>
+        <script>
+        (function() {
+            const urlInput = document.getElementById('external_url');
+            const preview  = document.getElementById('link-preview');
+            if (!urlInput || !preview) return;
+
+            urlInput.addEventListener('input', function() {
+                const val = urlInput.value.trim();
+                if (!val) { preview.style.display = 'none'; return; }
+                try {
+                    const u = new URL(val);
+                    if (u.protocol === 'http:' || u.protocol === 'https:') {
+                        preview.style.display = 'block';
+                    } else {
+                        preview.style.display = 'none';
+                    }
+                } catch(e) {
+                    preview.style.display = 'none';
+                }
+            });
+        })();
+        </script>
     </div>
+</div>
 </div>
 <?php include 'assets/php/footer.php'; ?>
 </body>

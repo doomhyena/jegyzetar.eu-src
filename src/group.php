@@ -688,7 +688,7 @@
                                 <article class="mini-card">
                                     <div class="mini-main">
                                         <h4 class="mini-title"><?= htmlspecialchars($o['option_text']) ?></h4>
-                                        <p class="mini-meta"><?= $percent ?>% (<?= $votes ?> szavazat)</p>
+                                        <p class="mini-meta"><?= $percent ?>% (<?= $votes ?> <?= t('group_poll_votes_label') ?>)</p>
                                     </div>
                                 </article>
                             <?php endif; ?>
@@ -697,7 +697,7 @@
                         <?php if ((int)$p['closed'] === 0): ?>
                             <p class="sidebar-meta"><?= t('group_poll_total_votes') ?><?= $total_votes ?></p>
                         <?php else: ?>
-                            <p class="sidebar-meta">A szavazás lezárva. <?= t('group_poll_total_votes') ?><?= $total_votes ?></p>
+                            <p class="sidebar-meta"><?= t('group_poll_closed_label') ?> <?= t('group_poll_total_votes') ?><?= $total_votes ?></p>
                         <?php endif; ?>
 
                         <?php if ($aktualis_felhasznalo_tulaj && (int)$p['closed'] === 0): ?>

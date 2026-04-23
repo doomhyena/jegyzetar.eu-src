@@ -101,9 +101,7 @@
     <script src="assets/js/script.js" defer></script>
 </head>
 <body>
-    <?php
-        include 'assets/php/navbar.php';
-    ?>
+    <?php include 'assets/php/navbar.php'; ?>
     <div class="content-wrapper w-full">
         <?php include "assets/php/ads.php"; ?>
         <div class="main w-full max-w-6xl mx-auto px-4 md:px-6 lg:px-8">

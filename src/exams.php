@@ -10,7 +10,7 @@
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($lang) ?>">
    <head>
-       <title>Vizsgák</title>
+       <title><?= t('exams_page_title') ?></title>
        <meta charset="UTF-8">
        <meta name="description" content="<?= t('meta_description_home') ?>">
        <meta name="keywords" content="<?= t('meta_keywords_home') ?>">
@@ -27,18 +27,18 @@
         <div class="content-wrapper">
         <?php include "assets/php/ads.php"; ?>
         <main class="main">
-            <h1>Vizsgák</h1>
-            <p class="entry-meta">Itt találod röviden és érthetően, hogyan zajlanak a vizsgák.</p>
+            <h1><?= t('exams_page_title') ?></h1>
+            <p class="entry-meta"><?= t('exams_page_subtitle') ?></p>
             <div class="content-grid">
             <article class="card">
-                <h3>Szoftverfejlesztő vizsga</h3>
-                <p class="entry-meta">Felépítés, menetrend, mire figyelj, tippek.</p>
-                <a class="btn-cta" href="exam.php?type=sw">Megnyitás</a>
+                <h3><?= t('exams_sw_title') ?></h3>
+                <p class="entry-meta"><?= t('exams_sw_subtitle') ?></p>
+                <a class="btn-cta" href="exam.php?type=sw"><?= t('exams_open_button') ?></a>
             </article>
             <article class="card">
-                <h3>Rendszerüzemeltető vizsga</h3>
-                <p class="entry-meta">Felépítés, menetrend, tipikus feladatok, tippek.</p>
-                <a class="btn-cta" href="exam.php?type=sys">Megnyitás</a>
+                <h3><?= t('exams_sys_title') ?></h3>
+                <p class="entry-meta"><?= t('exams_sys_subtitle') ?></p>
+                <a class="btn-cta" href="exam.php?type=sys"><?= t('exams_open_button') ?></a>
             </article>
             </div>
         </main>

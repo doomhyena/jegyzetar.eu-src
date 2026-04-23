@@ -434,7 +434,7 @@ body.theme-pastel .navbar select{
 
 .main{
     flex: 0 1 1200px;
-    margin: 110px 0 72px 0;
+    margin: 110px auto 72px;
     padding: 36px;
     border-radius:22px;
     background: rgba(255,255,255,.035);
@@ -443,8 +443,8 @@ body.theme-pastel .navbar select{
     -webkit-backdrop-filter: var(--card-blur);
     box-shadow: var(--shadow-lg);
     width: 100%;
+    max-width: 1200px;
     min-width: 0;
-    margin: 110px 0 72px 0;
 }
 
 .main > .card{
@@ -1094,159 +1094,6 @@ select option, .select option{ background-color:#020617; color:#e5e7eb; }
     max-width: 100%;
     border-radius: 8px;
     margin-bottom: 12px;
-}
-
-.note-header-wrap {
-    display: grid;
-    grid-template-columns: 1fr 210px;
-    gap: 20px;
-    align-items: start;
-    margin-bottom: 24px;
-}
-.note-action-col {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-.note-action-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    padding: 10px 14px;
-    border-radius: 12px;
-    font-family: inherit;
-    font-size: .88rem;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-    border: 1px solid transparent;
-    box-sizing: border-box;
-    transition: filter .15s, transform .12s, background .15s, border-color .15s;
-}
-.note-action-btn:hover { transform: translateY(-1px); text-decoration: none !important; }
-.note-action-btn--dl {
-    background: rgba(125,211,252,.92);
-    border-color: rgba(255,255,255,.22);
-    color: #09111f !important;
-}
-.note-action-btn--dl:hover { filter: brightness(.96); }
-.note-action-btn--ghost {
-    background: rgba(255,255,255,.05);
-    border-color: var(--stroke);
-    color: var(--text) !important;
-}
-.note-action-btn--ghost:hover { background: rgba(255,255,255,.09); }
-.note-action-btn--fav {
-    background: rgba(244,114,182,.12);
-    border-color: rgba(244,114,182,.35);
-    color: var(--accent) !important;
-}
-.note-action-btn--fav:hover { background: rgba(244,114,182,.20); }
-/* Report widget gomb override */
-.note-report-wrap { width: 100%; }
-.note-report-wrap > .report-widget { width: 100%; }
-.note-report-wrap > .report-widget > button {
-    display: flex !important;
-    align-items: center !important;
-    gap: 10px !important;
-    width: 100% !important;
-    padding: 10px 14px !important;
-    border-radius: 12px !important;
-    font-size: .88rem !important;
-    font-weight: 700 !important;
-    height: auto !important;
-    min-width: 0 !important;
-    justify-content: flex-start !important;
-    background: rgba(255,255,255,.05) !important;
-    border: 1px solid var(--stroke) !important;
-    color: var(--muted) !important;
-    transition: background .15s, border-color .15s, color .15s, transform .12s !important;
-}
-.note-report-wrap > .report-widget > button:hover {
-    background: rgba(220,38,38,.08) !important;
-    border-color: rgba(220,38,38,.28) !important;
-    color: #fca5a5 !important;
-    transform: translateY(-1px) !important;
-}
-@media (max-width: 600px) {
-    .note-header-wrap { grid-template-columns: 1fr; }
-}
-.note-header-wrap {
-    display: grid;
-    grid-template-columns: 1fr 210px;
-    gap: 20px;
-    align-items: start;
-    margin-bottom: 24px;
-}
-.note-action-col { display: flex; flex-direction: column; gap: 8px; }
-.note-action-btn {
-    display: flex; align-items: center; gap: 10px;
-    width: 100%; padding: 10px 14px; border-radius: 12px;
-    font-family: inherit; font-size: .88rem; font-weight: 700;
-    cursor: pointer; text-decoration: none; border: 1px solid transparent;
-    box-sizing: border-box;
-    transition: filter .15s, transform .12s, background .15s, border-color .15s;
-}
-.note-action-btn:hover { 
-    transform: translateY(-1px); 
-    text-decoration: none !important; 
-}
-
-.note-action-btn--dl { 
-    background: rgba(125,211,252,.92); 
-    border-color: rgba(255,255,255,.22); 
-    color: #09111f !important; 
-}
-
-.note-action-btn--dl:hover { 
-    filter: brightness(.96); 
-}
-
-.note-action-btn--ghost { 
-    background: rgba(255,255,255,.05); 
-    border-color: var(--stroke); 
-    color: var(--text) !important; 
-}
-
-.note-action-btn--ghost:hover { 
-    background: rgba(255,255,255,.09); 
-}
-
-.note-action-btn--fav { 
-    background: rgba(244,114,182,.12); 
-    border-color: rgba(244,114,182,.35); 
-    color: var(--accent) !important; 
-}
-
-.note-action-btn--fav:hover { 
-    background: rgba(244,114,182,.20); 
-}
-
-.note-report-wrap { 
-    width: 100%; 
-}
-
-.note-report-wrap .report-widget { 
-    width: 100%; 
-}
-
-.note-report-wrap .report-widget > button {
-    display: flex !important; align-items: center !important; gap: 10px !important;
-    width: 100% !important; padding: 10px 14px !important; border-radius: 12px !important;
-    font-size: .88rem !important; font-weight: 700 !important;
-    height: auto !important; min-width: 0 !important; justify-content: flex-start !important;
-    background: rgba(255,255,255,.05) !important; border: 1px solid var(--stroke) !important;
-    color: var(--muted) !important;
-    transition: background .15s, border-color .15s, color .15s, transform .12s !important;
-}
-.note-report-wrap .report-widget > button:hover {
-    background: rgba(220,38,38,.08) !important; border-color: rgba(220,38,38,.28) !important;
-    color: #fca5a5 !important; transform: translateY(-1px) !important;
-}
-
-@media (max-width: 600px) {
-    .note-header-wrap { grid-template-columns: 1fr; }
 }
 
 .mini-main {
@@ -2188,43 +2035,7 @@ a:not(.btn-cta):not(.btn-ghost):not(.btn-primary):not(.btn-soft):not(.btn-danger
 }
 
 .profile-social-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: flex-start;
     margin-bottom: 14px;
-}
-
-.profile-social-actions .profile-friendship,
-.profile-social-actions .profile-report {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    flex: 0 1 260px;
-    min-width: 220px;
-    max-width: 260px;
-}
-
-.profile-social-actions .profile-friendship form,
-.profile-social-actions .profile-report .report-widget {
-    margin: 0;
-}
-
-.profile-social-actions .profile-friendship p,
-.profile-social-actions .profile-friendship h3 {
-    margin: 0;
-}
-
-.profile-social-actions .profile-friendship form button,
-.profile-social-actions .profile-report .report-trigger {
-    width: 100%;
-    min-width: 0;
-}
-
-@media (max-width: 740px) {
-    .profile-social-actions {
-        flex-direction: column;
-    }
 }
 
 .profile-moderation-actions {
@@ -2241,6 +2052,7 @@ a:not(.btn-cta):not(.btn-ghost):not(.btn-primary):not(.btn-soft):not(.btn-danger
     background: #dc2626;
 }
 
+.profile-social-actions,
 .profile-moderation-actions {
     display: block !important;
     margin-bottom: 16px !important;
@@ -3080,20 +2892,8 @@ body.theme-pastel .profile-visibility-form .privacy-toggle{
     display:none !important;
 }
 
-body.css-help-open .profile-main-columns {
-    grid-template-columns: 1fr;
-}
-
-body.css-help-open #profile-main-content {
-    display: none;
-}
-
-body.css-help-open .profile-column-left {
-    max-width: 100%;
-}
-
-body.css-help-open .sidebar-card-accordion[open] .profile-bio-input {
-    min-height: 200px;
+body.css-help-open #profile-main-content{
+    display:none;
 }
 
 .ads:empty,
@@ -4166,8 +3966,8 @@ body.theme-pastel .site-footer {
 }
 
 .profile-picture {
-    width: 160px;
-    height: 160px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(255,255,255,.14);
@@ -4600,19 +4400,11 @@ body.theme-pastel .site-footer {
 
 .profile-social-actions {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid rgba(255,255,255,.07);
-}
-
-.profile-social-actions .profile-friendship,
-.profile-social-actions .profile-report {
-    flex: 0 1 260px;
-    min-width: 220px;
-    max-width: 260px;
 }
 
 @media (max-width: 768px) {
@@ -4637,17 +4429,18 @@ body.theme-pastel .site-footer {
    ================================================== */
 
 .profile-header {
-    max-width: 700px !important;
+    max-width: 860px !important;
 }
 
 .profile-header-grid {
-    grid-template-columns: auto 1fr !important;
-    column-gap: 22px !important;
+    grid-template-columns: auto 1fr auto !important;
+    column-gap: 24px !important;
+    align-items: center !important;
 }
 
 .profile-picture {
-    width: 160px !important;
-    height: 160px !important;
+    width: 180px !important;
+    height: 180px !important;
 }
 
 .profile-identity {
@@ -4828,7 +4621,6 @@ body.theme-pastel .site-footer {
 .sidebar-accordion-body {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: 10px;
     padding: 6px 0 12px 0;
 }
@@ -4880,7 +4672,6 @@ body.theme-pastel .site-footer {
     padding: 16px 20px 18px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: 14px;
 }
 
@@ -4925,28 +4716,26 @@ body.theme-pastel .site-footer {
 .profile-identity {
     max-width: 100% !important;
     width: 100%;
-    display: grid !important;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto auto auto auto;
-    column-gap: 20px;
-    row-gap: 6px;
-    align-items: start;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px !important;
+    align-items: flex-start;
 }
 
 .profile-name {
-    grid-column: 1 / -1;
+    grid-column: unset !important;
 }
 
 .entry-meta.profile-username {
-    grid-column: 1 / -1;
+    grid-column: unset !important;
 }
 
 .profile-identity > .profile-badges {
-    grid-column: 1 / -1;
+    grid-column: unset !important;
 }
 
 .profile-identity > .profile-actions.inline {
-    grid-column: 1 / -1;
+    grid-column: unset !important;
     margin-top: 6px !important;
 }
 
@@ -5119,8 +4908,8 @@ body.theme-pastel .site-footer {
 
 .avatar-wrap {
     position: relative;
-    width: 160px;
-    height: 160px;
+    width: 180px;
+    height: 180px;
     flex-shrink: 0;
 }
 
@@ -5143,8 +4932,8 @@ body.theme-pastel .site-footer {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 134px;
-    height: 134px;
+    width: 204px;
+    height: 204px;
     pointer-events: none;
     animation: ring-spin 12s linear infinite;
 }
@@ -5432,320 +5221,136 @@ body.theme-pastel .site-footer {
     color: var(--muted);
     opacity: .7;
 }
-
 /* ==================================================
-   CSS EDITOR MODAL
+   PROFILE LAYOUT – VÉGLEGES KONSZOLIDÁLT SZABÁLYOK
+   (ezek felülírnak mindent feljebb)
    ================================================== */
 
-.css-editor-card {
-    gap: 10px !important;
-    grid-column: 1 / -1;
+.profile-header {
+    max-width: 860px !important;
+    padding: 28px 32px !important;
 }
 
-.css-editor-card-header {
+.profile-header-grid {
+    display: grid !important;
+    grid-template-columns: auto 1fr auto !important;
+    column-gap: 24px !important;
+    align-items: center !important;
+}
+
+.profile-header-avatar {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
     gap: 10px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
-.css-editor-card-header h3 {
-    margin: 0 !important;
-    border-bottom: none !important;
-    padding-bottom: 0 !important;
+.avatar-wrap {
+    position: relative;
+    width: 180px !important;
+    height: 180px !important;
+    flex-shrink: 0;
 }
 
-.css-status-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: .75rem;
-    font-weight: 700;
-    letter-spacing: .3px;
-}
-
-.css-status-approved { background: rgba(34,197,94,.15); color: #6ee7b7; border: 1px solid rgba(34,197,94,.3); }
-.css-status-pending  { background: rgba(251,191,36,.12); color: #fde68a; border: 1px solid rgba(251,191,36,.3); }
-.css-status-rejected { background: rgba(239,68,68,.12);  color: #fca5a5; border: 1px solid rgba(239,68,68,.3); }
-
-.css-modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .22s ease;
-    /* Nincs background itt - a panelen lesz */
-}
-
-.css-modal-overlay.is-open {
-    opacity: 1;
-    pointer-events: none; /* overlay maga nem blokkolja a scrollt */
-}
-
-.css-modal-overlay.is-open .css-modal-panel {
-    pointer-events: all; /* csak a panel fogja a kattintásokat */
-}
-
-.css-modal-panel {
+.avatar-box {
+    position: relative;
     width: 100%;
-    max-width: 1100px;
-    max-height: 90vh;
-    border-radius: 20px;
-    background: var(--bg-2);
-    border: 1px solid rgba(125,211,252,.22);
-    box-shadow: 0 32px 80px rgba(0,0,0,.75), 0 0 0 9999px rgba(2,6,23,.6);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transform: translateY(16px) scale(.98);
-    transition: transform .22s ease;
-}
-
-.css-modal-overlay.is-open .css-modal-panel {
-    transform: translateY(0) scale(1);
-}
-
-.css-modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 24px;
-    border-bottom: 1px solid rgba(125,211,252,.12);
-    flex-shrink: 0;
-    background: rgba(125,211,252,.04);
-}
-
-.css-modal-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.css-modal-icon { font-size: 1.3rem; }
-
-.css-modal-title h2 {
-    margin: 0;
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--text);
-}
-
-.css-modal-close {
-    background: rgba(255,255,255,.06);
-    border: 1px solid rgba(255,255,255,.12);
-    border-radius: 8px;
-    color: var(--muted);
-    font-size: 1rem;
-    width: 34px;
-    height: 34px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background .15s ease, color .15s ease;
-    flex-shrink: 0;
-}
-
-.css-modal-close:hover {
-    background: rgba(239,68,68,.15);
-    border-color: rgba(239,68,68,.3);
-    color: #fca5a5;
-}
-
-.css-modal-body {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    overflow: hidden;
-    flex: 1;
-    min-height: 0;
-}
-
-.css-modal-left {
-    padding: 20px;
-    border-right: 1px solid rgba(255,255,255,.07);
-    overflow-y: auto;
-}
-
-.css-modal-right {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    overflow-y: auto;
-}
-
-.css-modal-form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
     height: 100%;
 }
 
-.css-modal-label {
-    font-size: .8rem;
-    font-weight: 700;
-    letter-spacing: .5px;
-    text-transform: uppercase;
-    color: var(--muted);
+.profile-picture,
+.avatar-box .profile-picture {
+    width: 180px !important;
+    height: 180px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    display: block;
 }
 
-.css-modal-textarea {
-    flex: 1;
-    min-height: 280px;
+.profile-header-main {
     width: 100%;
-    padding: 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(125,211,252,.2);
-    background: rgba(5,12,30,.7);
-    color: var(--text);
-    font-family: "JetBrains Mono", Consolas, monospace;
-    font-size: .85rem;
-    line-height: 1.65;
-    resize: vertical;
-    outline: none;
-    transition: border-color .15s ease, box-shadow .15s ease;
-    box-sizing: border-box;
-}
-
-.css-modal-textarea:focus {
-    border-color: rgba(125,211,252,.45);
-    box-shadow: 0 0 0 3px rgba(125,211,252,.1);
-}
-
-.css-modal-note {
-    margin: 0 !important;
-    font-size: .8rem !important;
-}
-
-.css-modal-actions {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    padding-top: 4px;
-}
-
-@media (max-width: 720px) {
-    .css-modal-body {
-        grid-template-columns: 1fr;
-    }
-    .css-modal-left {
-        border-right: none;
-        border-bottom: 1px solid rgba(255,255,255,.07);
-        max-height: 240px;
-    }
-}
-/* ==================================================
-   RADIO CARD GROUP
-   ================================================== */
-
-.radio-group {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.radio-card {
-    cursor: pointer;
-    flex: 1 1 0;
+    align-self: center;
     min-width: 0;
 }
 
-.radio-card input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-    width: 0;
-    height: 0;
+.profile-identity {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    min-width: 0;
 }
 
-.radio-card-inner {
+.profile-identity > * {
+    grid-column: unset !important;
+}
+
+.profile-header-stats {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 46px;
-    padding: 0 16px;
-    border-radius: 14px;
-    border: 1px solid var(--stroke);
-    background: rgba(255,255,255,.04);
-    text-align: center;
-    white-space: nowrap;
-    transition:
-        background .16s ease,
-        border-color .16s ease,
-        box-shadow .16s ease,
-        transform .12s ease;
-    user-select: none;
+    flex-direction: column;
+    gap: 6px;
+    align-self: center;
+    padding-left: 20px;
+    border-left: 1px solid rgba(255,255,255,.09);
+    flex-shrink: 0;
 }
 
-.radio-card:hover .radio-card-inner {
-    background: rgba(255,255,255,.08);
-    border-color: rgba(148,163,184,.45);
-    transform: translateY(-1px);
+.main {
+    margin: 110px auto 72px !important;
+    max-width: 1200px;
 }
 
-.radio-card input[type="radio"]:checked + .radio-card-inner {
-    background: rgba(125,211,252,.12);
-    border-color: rgba(125,211,252,.55);
-    box-shadow: 0 0 0 3px rgba(125,211,252,.10), 0 8px 20px rgba(125,211,252,.08);
-}
-
-.radio-card-label {
-    font-size: .9rem;
-    font-weight: 700;
-    color: var(--muted);
-    letter-spacing: .1px;
-    transition: color .16s ease;
-}
-
-.radio-card input[type="radio"]:checked + .radio-card-inner .radio-card-label {
-    color: var(--primary);
-}
-
-body.theme-light .radio-card-inner,
-body.theme-pastel .radio-card-inner {
-    background: rgba(2,6,23,.04);
-    border-color: rgba(15,23,42,.12);
-}
-
-body.theme-light .radio-card:hover .radio-card-inner,
-body.theme-pastel .radio-card:hover .radio-card-inner {
-    background: rgba(2,6,23,.08);
-    border-color: rgba(15,23,42,.25);
-}
-
-body.theme-light .radio-card input[type="radio"]:checked + .radio-card-inner,
-body.theme-pastel .radio-card input[type="radio"]:checked + .radio-card-inner {
-    background: rgba(14,165,233,.10);
-    border-color: rgba(14,165,233,.45);
-    box-shadow: 0 0 0 3px rgba(14,165,233,.08);
-}
-
-.empty-state {
-    border: 1px dashed rgba(255,255,255,0.2);
-    border-radius: 12px;
-    background: rgba(255,255,255,0.03);
-}
-
-.empty-state {
-    border: 1px dashed rgba(255,255,255,0.2);
-    border-radius: 16px;
-    background: rgba(255,255,255,0.03);
-    backdrop-filter: blur(6px);
-}
-
-@media (max-width: 480px) {
-    .radio-card {
-        flex: 1 1 100%;
+@media (max-width: 768px) {
+    .profile-header-grid {
+        grid-template-columns: auto 1fr !important;
+        column-gap: 16px !important;
     }
-    .radio-card-inner {
-        justify-content: flex-start;
-        padding: 0 14px;
+    .profile-header-stats {
+        display: none !important;
     }
+    .profile-header {
+        padding: 20px !important;
+    }
+    .avatar-wrap {
+        width: 90px !important;
+        height: 90px !important;
+    }
+    .profile-picture,
+    .avatar-box .profile-picture {
+        width: 90px !important;
+        height: 90px !important;
+    }
+}
+
+
+body.css-tutorial-open .profile-main-columns {
+    grid-template-columns: 1fr !important;
+}
+
+body.css-tutorial-open .profile-column-right {
+    display: none !important;
+}
+
+body.css-tutorial-open .profile-column-left {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* Minden card a bal oszlopban elrejt, kivéve az Egyedi CSS kérés card */
+body.css-tutorial-open .profile-column-left > .card:not(.css-card-wide) {
+    display: none !important;
+}
+
+/* Az Egyedi CSS kérés card teljes szélességre nyúlik */
+body.css-tutorial-open .profile-column-left > .card.css-card-wide {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+body.css-tutorial-open .css-tutorial {
+    max-width: 100% !important;
 }

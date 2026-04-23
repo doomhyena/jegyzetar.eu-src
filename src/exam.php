@@ -3,7 +3,7 @@
     header("X-Content-Type-Options: nosniff");
     header("Referrer-Policy: no-referrer");
 
-    require_once "assets/php/db.php";
+    require "assets/php/db.php";
     require_once "assets/php/lang.php";
     require_once "assets/php/functions.php";
 
@@ -217,7 +217,7 @@
                     <h1 class="entry-title"><?= htmlspecialchars($page['title']) ?></h1>
                     <p class="entry-meta"><?= htmlspecialchars($page['subtitle']) ?></p>
                     </div>
-                    <a class="btn-ghost" href="exams.php"><- Vissza</a>
+                    <a class="btn-ghost" href="exams.php"><?= t('btn_back_to_exams') ?></a>
                 </header>
                 <div class="exam-sections">
                     <?php foreach ($page['sections'] as $s): ?>
