@@ -1,0 +1,228 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\notedetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|solutionrelative:jegyzetar\\notedetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|solutionrelative:jegyzetar\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\main.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|solutionrelative:jegyzetar\\main.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\notedetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|solutionrelative:jegyzetar\\notedetails.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\notedetails.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|solutionrelative:jegyzetar\\notedetails.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\login.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|solutionrelative:jegyzetar\\login.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|c:\\users\\ceci\\source\\repos\\jegyzetar\\jegyzetar\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|solutionrelative:jegyzetar\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|solutionrelative:jegyzetar\\main.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\usersession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|solutionrelative:jegyzetar\\usersession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\login.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|solutionrelative:jegyzetar\\login.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\login.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{F198DD95-B780-465F-AB64-896B92F16B1C}|jegyzetar\\jegyzetar.csproj|solutionrelative:jegyzetar\\login.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 7,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{40ea2e6b-2121-4bb8-a43e-c83c04b51041}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "NoteDetails.cs",
+              "DocumentMoniker": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\NoteDetails.cs",
+              "RelativeDocumentMoniker": "jegyzetar\\NoteDetails.cs",
+              "ToolTip": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\NoteDetails.cs",
+              "RelativeToolTip": "jegyzetar\\NoteDetails.cs",
+              "ViewState": "AgIAACYBAAAAAAAAAAAAADoBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-14T11:07:05.5Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Program.cs",
+              "RelativeDocumentMoniker": "jegyzetar\\Program.cs",
+              "ToolTip": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Program.cs",
+              "RelativeToolTip": "jegyzetar\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-09T11:06:39.301Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Main.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Main.Designer.cs",
+              "RelativeDocumentMoniker": "jegyzetar\\Main.Designer.cs",
+              "ToolTip": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Main.Designer.cs",
+              "RelativeToolTip": "jegyzetar\\Main.Designer.cs",
+              "ViewState": "AgIAAFYAAAAAAAAAAAAuwGsAAAAnAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-29T10:06:58.089Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "NoteDetails.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\NoteDetails.cs",
+              "RelativeDocumentMoniker": "jegyzetar\\NoteDetails.cs",
+              "ToolTip": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\NoteDetails.cs [Design]",
+              "RelativeToolTip": "jegyzetar\\NoteDetails.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-23T08:44:54.513Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Login.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Login.Designer.cs",
+              "RelativeDocumentMoniker": "jegyzetar\\Login.Designer.cs",
+              "ToolTip": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Login.Designer.cs",
+              "RelativeToolTip": "jegyzetar\\Login.Designer.cs",
+              "ViewState": "AgIAAEcAAAAAAAAAAAAIwFwAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-23T08:49:29.662Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "NoteDetails.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\NoteDetails.Designer.cs",
+              "RelativeDocumentMoniker": "jegyzetar\\NoteDetails.Designer.cs",
+              "ToolTip": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\NoteDetails.Designer.cs",
+              "RelativeToolTip": "jegyzetar\\NoteDetails.Designer.cs",
+              "ViewState": "AgIAALQAAAAAAAAAAIAwwMMAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-23T08:43:50.77Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Main.cs",
+              "DocumentMoniker": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Main.cs",
+              "RelativeDocumentMoniker": "jegyzetar\\Main.cs",
+              "ToolTip": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Main.cs",
+              "RelativeToolTip": "jegyzetar\\Main.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAANQAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-16T06:19:03.543Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "UserSession.cs",
+              "DocumentMoniker": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\UserSession.cs",
+              "RelativeDocumentMoniker": "jegyzetar\\UserSession.cs",
+              "ToolTip": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\UserSession.cs",
+              "RelativeToolTip": "jegyzetar\\UserSession.cs",
+              "ViewState": "AgIAACkAAAAAAAAAAAAgwCYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-09T11:04:48.897Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Main.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Main.cs",
+              "RelativeDocumentMoniker": "jegyzetar\\Main.cs",
+              "ToolTip": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Main.cs [Design]",
+              "RelativeToolTip": "jegyzetar\\Main.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T11:24:05.871Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Login.cs",
+              "DocumentMoniker": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Login.cs",
+              "RelativeDocumentMoniker": "jegyzetar\\Login.cs",
+              "ToolTip": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Login.cs",
+              "RelativeToolTip": "jegyzetar\\Login.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T10:27:06.576Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "Login.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Login.cs",
+              "RelativeDocumentMoniker": "jegyzetar\\Login.cs",
+              "ToolTip": "C:\\Users\\Ceci\\source\\repos\\jegyzetar\\jegyzetar\\Login.cs [Design]",
+              "RelativeToolTip": "jegyzetar\\Login.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-09T10:17:36.156Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

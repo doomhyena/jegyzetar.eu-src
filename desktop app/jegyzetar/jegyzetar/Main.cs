@@ -127,7 +127,16 @@ namespace jegyzetar
         {
             try
             {
-                Process.Start(new ProcessStartInfo("https://jegyzetar.eu") { UseShellExecute = true });
+                if (string.IsNullOrWhiteSpace(username))
+                {
+                    MessageBox.Show("A felhasználónév nem érhető el.");
+                    return;
+                }
+
+                string encodedUsername = Uri.EscapeDataString(username);
+                string profileUrl = $"https://jegyzetar.hu/profile.php?username={encodedUsername}";
+
+                Process.Start(new ProcessStartInfo(profileUrl) { UseShellExecute = true });
             }
             catch (Exception ex)
             {
@@ -234,8 +243,8 @@ namespace jegyzetar
                 {
                     con.Open();
 
-                    string sql = "SELECT id, name, description, subject, tags, uploaded_by FROM files " +
-                                 "WHERE name LIKE @query OR description LIKE @query OR subject LIKE @query " +
+                    string sql = "SELECT id, name, description, tags, uploaded_by FROM files " +
+                                 "WHERE name LIKE @query OR description LIKE @query OR tags LIKE @query " +
                                  "ORDER BY id DESC";
                     using (MySqlCommand cmd = new MySqlCommand(sql, con))
                     {
@@ -248,9 +257,9 @@ namespace jegyzetar
                                 var id = reader.GetInt32("id");
                                 var name = reader["name"]?.ToString() ?? "";
                                 var desc = reader["description"]?.ToString() ?? "";
-                                var subject = reader["subject"]?.ToString() ?? "";
+                                var tags = reader["tags"]?.ToString() ?? "";
 
-                                var card = CreateNoteCard(id, name, desc, subject);
+                                var card = CreateNoteCard(id, name, desc, tags);
                                 notesFlowPanel.Controls.Add(card);
                             }
                         }
@@ -266,27 +275,25 @@ namespace jegyzetar
         private void LoadNotes()
         {
             notesFlowPanel.Controls.Clear();
-            settingsPanel.Visible = false;
-            favoritesFlowPanel.Visible = false;
 
             try
             {
                 using (MySqlConnection con = new MySqlConnection(constring))
                 {
                     con.Open();
+                    string query = "SELECT id, name, description, tags FROM files ORDER BY id DESC";
 
-                    string query = "SELECT id, name, description, subject, tags, uploaded_by FROM files ORDER BY id DESC";
                     using (MySqlCommand cmd = new MySqlCommand(query, con))
                     using (MySqlDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            var id = reader.GetInt32("id");
-                            var name = reader["name"]?.ToString() ?? "";
-                            var desc = reader["description"]?.ToString() ?? "";
-                            var subject = reader["subject"]?.ToString() ?? "";
+                            int id = Convert.ToInt32(reader["id"]);
+                            string name = reader["name"]?.ToString() ?? "";
+                            string description = reader["description"]?.ToString() ?? "";
+                            string tags = reader["tags"]?.ToString() ?? "";
 
-                            var card = CreateNoteCard(id, name, desc, subject);
+                            var card = CreateNoteCard(id, name, description, tags);
                             notesFlowPanel.Controls.Add(card);
                         }
                     }
@@ -294,7 +301,7 @@ namespace jegyzetar
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"{ex.Message}");
+                MessageBox.Show($"Hiba: {ex.Message}");
             }
         }
 
@@ -310,7 +317,7 @@ namespace jegyzetar
                 {
                     con.Open();
 
-                    string query = @"SELECT f.id AS fav_id, fl.id, fl.name, fl.description, fl.subject
+                    string query = @"SELECT f.id AS fav_id, fl.id, fl.name, fl.description, fl.tags
                                      FROM favorites f
                                      JOIN files fl ON f.file_id = fl.id
                                      WHERE f.user_id = @userId
@@ -326,9 +333,9 @@ namespace jegyzetar
                                 var id = Convert.ToInt32(reader["id"]);
                                 var name = reader["name"]?.ToString() ?? "";
                                 var desc = reader["description"]?.ToString() ?? "";
-                                var subject = reader["subject"]?.ToString() ?? "";
+                                var tags = reader["tags"]?.ToString() ?? "";
 
-                                var card = CreateNoteCard(id, name, desc, subject);
+                                var card = CreateNoteCard(id, name, desc, tags);
                                 favoritesFlowPanel.Controls.Add(card);
                             }
                         }
@@ -341,7 +348,7 @@ namespace jegyzetar
             }
         }
 
-        private Control CreateNoteCard(int id, string name, string description, string subject)
+        private Control CreateNoteCard(int id, string name, string description, string tags)
         {
             var panel = new Panel
             {
@@ -365,7 +372,7 @@ namespace jegyzetar
 
             var subj = new Label
             {
-                Text = subject,
+                Text = tags,
                 Font = new Font("Segoe UI", 9F),
                 ForeColor = Color.FromArgb(180, 180, 200),
                 Location = new Point(10, 34),
@@ -401,19 +408,23 @@ namespace jegyzetar
             detailsBtn.FlatAppearance.BorderSize = 0;
             detailsBtn.Click += DetailsBtn_Click;
 
+            bool alreadyDownloaded = IsNoteDownloaded(id);
+
             var downloadBtn = new Button
             {
-                Text = "Letöltés",
-                BackColor = Color.FromArgb(45, 45, 60),
-                ForeColor = Color.White,
+                Text = alreadyDownloaded ? "Letöltve" : "Letöltés",
+                BackColor = alreadyDownloaded ? Color.White  : Color.FromArgb(45, 45, 60),
+                ForeColor = alreadyDownloaded ? Color.White : Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Location = new Point(panel.Width - 120, 50),
                 Size = new Size(100, 30),
                 Tag = id,
-                Anchor = AnchorStyles.Top | AnchorStyles.Right
+                Anchor = AnchorStyles.Top | AnchorStyles.Right,
+                Enabled = !alreadyDownloaded
             };
             downloadBtn.FlatAppearance.BorderSize = 0;
-            downloadBtn.Click += DownloadBtn_Click;
+            if (!alreadyDownloaded)
+                downloadBtn.Click += DownloadBtn_Click;
 
             panel.Controls.Add(title);
             panel.Controls.Add(subj);
@@ -535,6 +546,25 @@ namespace jegyzetar
             }
         }
 
+        private bool IsNoteDownloaded(int id)
+        {
+            string destFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "jegyzetar");
+            if (!Directory.Exists(destFolder))
+                return false;
+
+            foreach (string metaFile in Directory.GetFiles(destFolder, "*.meta"))
+            {
+                try
+                {
+                    string content = File.ReadAllText(metaFile).Trim();
+                    if (content == id.ToString())
+                        return true;
+                }
+                catch { }
+            }
+            return false;
+        }
+
         private void DownloadBtn_Click(object sender, EventArgs e)
         {
             var btn = sender as Button;
@@ -650,7 +680,16 @@ namespace jegyzetar
                 {
                 }
 
-                MessageBox.Show("Sikeres letöltés.");
+                //MessageBox.Show("Sikeres letöltés.");
+
+                if (notesFlowPanel.Visible)
+                {
+                    LoadNotes();
+                }
+                else if (favoritesFlowPanel.Visible)
+                {
+                    LoadFavorites();
+                }
 
                 if (settingsPanel.Visible)
                 {
