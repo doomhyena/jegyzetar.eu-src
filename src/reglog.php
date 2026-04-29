@@ -76,7 +76,7 @@
         $registration_date = date('Y-m-d H:i:s');
         $security_question = (string)($_POST['security_question'] ?? '');
         $security_answer_plain = trim($_POST['security_answer'] ?? '');
-        $regCode = trim($_POST['reg_code'] ?? '');
+        // $regCode = trim($_POST['reg_code'] ?? '');
         $role = trim($_POST['role'] ?? 'student');
         $isTeacher = ($role === 'teacher') ? 1 : 0;
 
@@ -84,7 +84,7 @@
         $ua = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255);
 
 
-        if ($lastname === '' || $firstname === '' || $username === '' || $birthdate === '' || $gender === '' || $email === '' || $regCode === '' || $security_answer_plain === '') {
+        if ($lastname === '' || $firstname === '' || $username === '' || $birthdate === '' || $gender === '' || $email === '' || /* $regCode === '' || */ $security_answer_plain === '') {
             $errors[] = t('msg_all_fields_required');
         }
 
@@ -118,11 +118,7 @@
 
         if (empty($errors)) {
 
-            $codeRes = db_query($conn, "SELECT * FROM reg_codes WHERE code = ? AND active = 1 AND (expires_at IS NULL OR expires_at > NOW()) AND (max_uses IS NULL OR used < max_uses) LIMIT 1", "s", [$regCode]);
-
-            if ($codeRes->num_rows !== 1) {
-                $errors[] = "Érvénytelen vagy lejárt regisztrációs kód.";
-            } else {
+            // $codeRes = db_query($conn, "SELECT * FROM reg_codes WHERE code = ? AND active = 1 AND (expires_at IS NULL OR expires_at > NOW()) AND (max_uses IS NULL OR used < max_uses) LIMIT 1", "s", [$regCode]);
 
                 $found_user = db_query($conn, "SELECT id FROM users WHERE username = ? LIMIT 1", "s", [$username]);
                 if ($found_user->num_rows > 0) {
@@ -134,39 +130,39 @@
                     }
                 }
 
-                if (empty($errors)) {
-                    $security_answer = password_hash($security_answer_plain, PASSWORD_DEFAULT);
-                    $hashed = password_hash($password, PASSWORD_DEFAULT);
+            /*
+            if ($codeRes->num_rows <= 0) {
+                $errors[] = "Érvénytelen regisztrációs kód.";
+            }
+            */
 
-                    $stmt = db_stmt($conn, "INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin, teacher) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)", "ssssssssssi", [$lastname, $firstname, $username, $birthdate, $gender, $email, $hashed, $security_question, $security_answer, $registration_date, $isTeacher]);
-                    $stmt->close();
-
-                    $newUserId = (int)$conn->insert_id;
-                    if ($newUserId <= 0) {
-                        $errors[] = "Hiba történt a regisztráció során.";
-                    } else {
-                        $codeRow = $codeRes->fetch_assoc();
-                        db_stmt($conn, "UPDATE reg_codes SET used = used + 1, active = CASE WHEN max_uses IS NOT NULL AND used + 1 >= max_uses THEN 0 ELSE active END WHERE id = ?", "i", [$codeRow['id']])->close();
-
-                        $folder = getcwd();
-                        $path = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
-                        if (!is_dir($path)) {
-                            @mkdir($path, 0777, true);
-                        }
-
-                        $_SESSION["ver_id"] = $newUserId;
-                        $_SESSION["email"]  = $email;
-
-                        db_exec($conn,"INSERT INTO registration_code_uses (user_id, reg_code, used_ip, user_agent)VALUES (?, ?, ?, ?)","isss",[$newUserId, $regCode, $ip, $ua]);
-                        db_exec($conn, "UPDATE users SET used_reg_code=?, used_reg_code_at=NOW() WHERE id=?", "si", [$regCode, $newUserId]);
-
-                        rl_clear($rlRegKey);
-                        flash_set('success', 'Sikeres regisztráció! Nemsokára kapsz egy aktiváló e-mailt. Nézd meg a SPAM mappát is.');
-                        go("assets/php/mail-regver.php");
+            if (empty($errors)) {
+                $security_answer = password_hash($security_answer_plain, PASSWORD_DEFAULT);
+                $hashed = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = db_stmt($conn, "INSERT INTO users (lastname, firstname, username, birthdate, gender, email, password, security_question, security_answer, registration_date, admin, teacher) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?)", "ssssssssssi", [$lastname, $firstname, $username, $birthdate, $gender, $email, $hashed, $security_question, $security_answer, $registration_date, $isTeacher]);
+                $stmt->close();
+                $newUserId = (int)$conn->insert_id;
+                if ($newUserId <= 0) {
+                    $errors[] = "Hiba történt a regisztráció során.";
+                } else {
+                    // $codeRow = $codeRes->fetch_assoc();
+                    // db_stmt($conn, "UPDATE reg_codes SET used = used + 1, active = CASE WHEN max_uses IS NOT NULL AND used + 1 >= max_uses THEN 0 ELSE active END WHERE id = ?", "i", [$codeRow['id']])->close();
+                    $folder = getcwd();
+                    $path = $folder . DIRECTORY_SEPARATOR . 'users' . DIRECTORY_SEPARATOR . $username;
+                    if (!is_dir($path)) {
+                        @mkdir($path, 0777, true);
                     }
+                    $_SESSION["ver_id"] = $newUserId;
+                    $_SESSION["email"]  = $email;
+                    // db_exec($conn,"INSERT INTO registration_code_uses (user_id, reg_code, used_ip, user_agent)VALUES (?, ?, ?, ?)","isss",[$newUserId, $regCode, $ip, $ua]);
+                    // db_exec($conn, "UPDATE users SET used_reg_code=?, used_reg_code_at=NOW() WHERE id=?", "si", [$regCode, $newUserId]);
+                    rl_clear($rlRegKey);
+                    flash_set('success', 'Sikeres regisztráció! Nemsokára kapsz egy aktiváló e-mailt. Nézd meg a SPAM mappát is.');
+                    go("assets/php/mail-regver.php");
                 }
             }
         }
+
 
         if (!empty($errors)) {
             rl_hit($rlRegKey);
@@ -333,10 +329,10 @@
                         <input class="input w-full text-sm md:text-base" type="email" name="email" id="email"
                                value="<?= htmlspecialchars($prefillEmail, ENT_QUOTES, 'UTF-8') ?>" required>
                     </div>
-                    <div class="md:col-span-2">
+                    <!-- <div class="md:col-span-2">
                         <label for="reg_code" class="text-sm md:text-base font-semibold">Regisztrációs kód</label>
                         <input class="input w-full text-sm md:text-base" type="text" name="reg_code" id="reg_code" required>
-                    </div>
+                    </div> -->
                     <div class="md:col-span-2">
                         <label for="role" class="text-sm md:text-base font-semibold"><?= t('label_role') ?></label>
                         <div class="grid grid-cols-2 gap-3 mt-1">

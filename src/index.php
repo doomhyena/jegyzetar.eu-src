@@ -147,6 +147,23 @@
             <section class="content-main flex-1 min-w-0">
             <?php if ($latest_result && $latest_result->num_rows > 0): ?>
                 <div class="home-grid">
+                    <aside class="content-aside w-full lg:w-80 min-w-0">
+                        <div class="section-titlebar mb-4">
+                            <h3 class="text-xl md:text-2xl"><?= t('sidebar_top_rated') ?></h3>
+                        </div>
+                        <?php if ($popular_result && $popular_result->num_rows > 0): ?>
+                            <div class="list-compact flex flex-col gap-3">
+                                <?php while ($file = $popular_result->fetch_assoc()): ?>
+                                    <a href="note.php?id=<?= $file['id'] ?>" class="popular-item-link block p-3 rounded-xl bg-white/5 hover:bg-white/10 border">
+                                        <div class="flex justify-between">
+                                            <span class="truncate"><?= htmlspecialchars($file['name']) ?></span>
+                                            <span>⭐ <?= number_format((float)$file['avg_rating'], 2) ?></span>
+                                        </div>
+                                    </a>
+                                <?php endwhile; ?>
+                            </div>
+                        <?php endif; ?>
+                    </aside>
                     <section class="content-main flex-1 min-w-0">
                         <div class="section-titlebar flex justify-between items-center mb-4">
                             <h3 class="text-xl md:text-2xl"><?= t('home_new_uploads') ?></h3>
@@ -176,7 +193,6 @@
                             ?>
                             <article class="card note-card" id="file-<?= $file_id ?>">
                                 <header class="note-header">
-
                                     <?php if ($contentType === 'link' && !empty($externalUrl)): ?>
                                         <div class="note-media" style="margin-top:10px;">
                                             <a href="<?= htmlspecialchars($externalUrl) ?>" target="_blank">Megnyitás</a>
@@ -212,23 +228,6 @@
                             <?php endwhile; ?>
                         </div>
                     </section>
-                    <aside class="content-aside w-full lg:w-80 min-w-0">
-                        <div class="section-titlebar mb-4">
-                            <h3 class="text-xl md:text-2xl"><?= t('sidebar_top_rated') ?></h3>
-                        </div>
-                        <?php if ($popular_result && $popular_result->num_rows > 0): ?>
-                            <div class="list-compact flex flex-col gap-3">
-                                <?php while ($file = $popular_result->fetch_assoc()): ?>
-                                    <a href="note.php?id=<?= $file['id'] ?>" class="popular-item-link block p-3 rounded-xl bg-white/5 hover:bg-white/10 border">
-                                        <div class="flex justify-between">
-                                            <span class="truncate"><?= htmlspecialchars($file['name']) ?></span>
-                                            <span>⭐ <?= number_format((float)$file['avg_rating'], 2) ?></span>
-                                        </div>
-                                    </a>
-                                <?php endwhile; ?>
-                            </div>
-                        <?php endif; ?>
-                    </aside>
                 </div>
             <?php else: ?>
                 <div class="flex flex-col items-center justify-center min-h-[400px] text-center">

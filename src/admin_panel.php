@@ -40,14 +40,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="assets/js/script.js" defer></script>
-    <style>
-        table { width: 100%; border-collapse: collapse; margin: 18px 0; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--stroke); }
-        th { background: rgba(255,255,255,.06); font-weight: 800; color: var(--primary); }
-        tr:hover { background: rgba(255,255,255,.03); }
-        a { color: var(--accent); text-decoration: none; font-weight: 700; }
-        a:hover { text-decoration: underline; }
-    </style>
 </head>
 <body class="no-ads admin-page">
 <?php
@@ -171,13 +163,7 @@
                         $premRow  = $premRes ? $premRes->fetch_assoc() : null;
                         $wasPrem  = (!empty($premRow['p']) && strtotime($premRow['p']) >= time()) ? 1 : 0;
 
-                        db_exec($conn,
-                            "INSERT INTO deleted_users
-                                (original_id, username, email, firstname, lastname, birthdate,
-                                 registration_date, was_admin, was_teacher, was_premium,
-                                 upload_count, download_count, deleted_by, deleted_at)
-                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
-                            "issssssiiiiii",
+                        db_exec($conn, "INSERT INTO deleted_users (original_id, username, email, firstname, lastname, birthdate, registration_date, was_admin, was_teacher, was_premium, upload_count, download_count, deleted_by, deleted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())", "issssssiiiiii",
                             [
                                 (int)$uRow['id'],
                                 (string)($uRow['username'] ?? ''),

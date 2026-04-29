@@ -36,7 +36,7 @@
         </button>
         <div class="brand">
             <span>Jegyzetár</span>
-            <span class="brand-badge">beta</span>
+            <!-- <span class="brand-badge">beta</span> -->
         </div>
         <ul class="nav-links">
             <li><a href="index.php"><?= t('nav_home') ?></a></li>

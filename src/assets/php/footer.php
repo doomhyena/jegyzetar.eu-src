@@ -6,7 +6,7 @@
         <div class="footer-left">
             <div class="footer-brand">
                 <span class="footer-logo">Jegyzetár</span>
-                <span class="footer-beta">BETA</span>
+                <!-- <span class="footer-beta">BETA</span> -->
             </div>
             <p class="footer-copy">
                 &copy; 2025 - <?= date('Y') ?> Jegyzetár
@@ -23,6 +23,7 @@
                 <a href="partners.php"><?= t('footer_link_partners') ?></a>
                 <a href="faq.php"><?= t('footer_link_faq') ?></a>
                 <a href="rules.php"><?= t('footer_link_rules') ?></a>
+                <a href="contact.php"><?= t('footer_link_contact') ?></a>
                 <a href="report.php"><?= t('footer_link_report') ?></a>
             </div>
         </div>
@@ -31,7 +32,6 @@
                 <span><?= t('footer_group_legal') ?></span>
                 <a href="privacy.php"><?= t('footer_link_privacy') ?></a>
                 <a href="terms.php"><?= t('footer_link_terms') ?></a>
-                <a href="contact.php"><?= t('footer_link_contact') ?></a>
             </div>
         </div>
         <div class="footer-right">

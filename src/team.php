@@ -43,7 +43,7 @@
                 <p class="entry-meta"><?= t('team_norbert_bio') ?></p>
             </section>
             <section class="card flex flex-col items-center text-center gap-3">
-                <img src="assets/img/vergil_profile_picture.jpg"
+                <img src="assets/img/cska_logo.png"
                     alt="<?= t('team_anastasia_alt') ?>"
                     class="w-28 h-28 rounded-full object-cover border-2 border-neutral-200">
                 <h3>Anastasia</h3>

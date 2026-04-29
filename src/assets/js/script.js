@@ -706,3 +706,26 @@ document.addEventListener('DOMContentLoaded', () => {
     tutorial.addEventListener('toggle', syncTutorialMode);
     syncTutorialMode();
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    if (window.innerWidth > 640) return;
+    var skipSelectors = ['#deleted-users table', '.badge-list-table', '.overflow-x-auto table', '.regcodes-table'];
+    document.querySelectorAll('section.card table').forEach(function (table) {
+        var skip = skipSelectors.some(function(sel) {
+            return table.matches(sel) || table.closest(sel.split(' ')[0]);
+        });
+        if (skip) return;
+        var headers = [];
+        var headerRow = table.querySelector('thead tr, tr:first-child');
+        if (!headerRow) return;
+        headerRow.querySelectorAll('th').forEach(function (th) {
+            headers.push(th.innerText.trim());
+        });
+        if (headers.length === 0) return;
+        table.querySelectorAll('tbody tr, tr:not(:first-child)').forEach(function (row) {
+            row.querySelectorAll('td').forEach(function (td, i) {
+                if (headers[i]) td.setAttribute('data-label', headers[i]);
+            });
+        });
+    });
+});
