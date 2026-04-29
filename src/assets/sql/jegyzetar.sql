@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Gép: localhost
--- Létrehozás ideje: 2026. Ápr 14. 08:17
+-- Létrehozás ideje: 2026. Ápr 29. 14:34
 -- Kiszolgáló verziója: 10.11.14-MariaDB-0+deb12u2
 -- PHP verzió: 8.2.30
 
@@ -18,8 +18,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Adatbázis: `c64039jegyzetar`
+-- Adatbázis: `jegyzetar`
 --
+CREATE DATABASE IF NOT EXISTS `jegyzetar` DEFAULT CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci;
+USE `jegyzetar`;
 
 -- --------------------------------------------------------
 
@@ -32,16 +34,6 @@ CREATE TABLE `2fa_codes` (
   `userid` int(11) NOT NULL,
   `code` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_hungarian_ci;
-
---
--- A tábla adatainak kiíratása `2fa_codes`
---
-
-INSERT INTO `2fa_codes` (`id`, `userid`, `code`) VALUES
-(6, 4, 82329),
-(8, 4, 26092),
-(9, 4, 87859),
-(13, 5, 90064);
 
 -- --------------------------------------------------------
 
@@ -116,13 +108,6 @@ CREATE TABLE `comments` (
   `text` varchar(1000) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
---
--- A tábla adatainak kiíratása `comments`
---
-
-INSERT INTO `comments` (`id`, `userid`, `postid`, `text`) VALUES
-(1, 20, 5, 'Nagyon jó tananyag! Köszönöm!');
-
 -- --------------------------------------------------------
 
 --
@@ -142,11 +127,27 @@ CREATE TABLE `contact_messages` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 --
+-- A tábla adatainak kiíratása `contact_messages`
+--
+
+INSERT INTO `contact_messages` (`id`, `user_id`, `sender_name`, `sender_email`, `subject`, `message`, `ip_address`, `created_at`, `read_by_admin`) VALUES
+(1, NULL, 'RaymondPraic', 'no.reply.JacobSvensson@gmail.com', 'We promise to deliver your emails.', 'Hey! jegyzetar.hu \r\n \r\nDid you know that it is possible to send proposal lawfully and absolutely? \r\nWhen such proposals are submitted, no personal information is utilized, and messages are routed to forms specifically configured to receive messages and appeals securely. Communication Forms help to ensure that messages sent through them are not treated as spam, as they are seen as important. \r\nYou have the chance to use our service without having to pay anything. \r\nWe can send up to 50,000 messages on your command. \r\n \r\nThe cost of sending one million messages is $59. \r\n \r\nThis offer is automatically generated. \r\n \r\nContact us. \r\nTelegram - https://t.me/FeedbackFormEU \r\nWhatsApp - +375259112693 \r\nWhatsApp  https://wa.me/+375259112693 \r\nWe only use chat for communication.', '37.19.223.227', '2026-03-08 20:56:17', 0),
+(2, NULL, '138531686', 'davidwilliams28798@gmail.com', 'Improve Search Visibility with SEO.', 'Hi,\r\n\r\nI can help you rank higher on Google! With over 10 years of SEO and digital marketing experience, I\'ve helped business just like yours land on the 1st page pf Google for higly competitive keywords.\r\n\r\nI specialize in:\r\n\r\nKeyword research, On-Page & Off-Page SEO, SEO content writing, Technical SEO.\r\n\r\nIf you\'re ready to get started, I\'d love to send you our SEO packages and pricing!\r\n\r\nBest regards,\r\n\r\nDavid', '223.233.76.62', '2026-03-15 05:25:22', 0),
+(3, NULL, 'Davididock', 'no.reply.GerhardtDavies@gmail.com', 'Stand out with the best advertising for your products and services!', 'Salutations! jegyzetar.hu, \r\nI discovered jegyzetar.hu while exploring websites. \r\nWe offer automated contact form messaging for marketing. \r\nOur platform helps businesses reach relevant websites online. \r\nOur pricing structure is designed to remain transparent. \r\n  \r\nIf this useful, you can contact us. \r\n \r\nThanks for your attention. \r\nContact us. \r\nTelegram - https://t.me/FeedbackFormEU \r\nWhatsApp - +375259112693 \r\nWhatsApp  https://wa.me/+375259112693', '37.19.223.11', '2026-03-17 00:09:08', 0),
+(4, NULL, 'Davididock', 'no.reply.HugoLarsson@gmail.com', 'Sharing feedback through the feedback form.', 'Greetings! jegyzetar.hu, \r\nWhile exploring the web I noticed your website. \r\nOur platform easily enables website outreach. \r\nMany businesses use platforms like this to connect with website owners online. \r\n  \r\nA free demo is available so you can see how the platform works. \r\nIf this approach seems useful, feel free to reach out. \r\n \r\nThanks and have a great day. \r\nContact us. \r\nTelegram - https://t.me/FeedbackFormEU \r\nWhatsApp - +375259112693 \r\nWhatsApp  https://wa.me/+375259112693', '181.214.206.16', '2026-04-12 21:58:11', 0),
+(5, NULL, 'asd', 'asd@asd.com', 'asd', '\' \' OR 1=1 --', '176.77.129.51', '2026-04-20 08:57:59', 0),
+(6, NULL, 'asd', 'asd@asd.com', 'sad', '\'\' OR 1=1 --', '84.225.151.28', '2026-04-20 08:59:50', 0),
+(7, NULL, 'asd', 'asd@asd.com', 'sad', '\'\' OR 1=1 --', '84.225.151.28', '2026-04-20 09:00:11', 0),
+(8, NULL, 'JamesCar', 'michal.endler00@gmail.com', 'Potrebujete rýchlu pôžičku, okamžitú odpoveď, bezplatnú aplikáciu', 'Potrebujete rýchlu pôžičku? Či už ide o núdzovú situáciu (liečebné náklady, náklady na výmenu vozidla, Náklady na opravu atď.) alebo pre menej dôležitý projekt (možnosť ísť na \r\ncestovanie, dovolenka,investičná príležitosť do nehnuteľností, ojazdené auto na zabavenie atď.) \r\n \r\nPonúkame rôzne úverové riešenia od 5 000 do 5 000 000 € (s nízkou sadzbou 2-3%) na financovanie všetkých projektov, ktoré vás zaujímajú \r\nstarajte sa o svoje srdce... \r\n- Rýchla odozva za menej ako 24 / H \r\n- Bez záväzku \r\n- Bezplatná žiadosť \r\nKontakt: contactgedescop@gmail.com', '185.136.160.217', '2026-04-25 19:29:09', 0);
+
+-- --------------------------------------------------------
+
+--
 -- Tábla szerkezet ehhez a táblához `deleted_users`
 --
 
 CREATE TABLE `deleted_users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `original_id` int(11) NOT NULL,
   `username` varchar(64) NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -177,15 +178,6 @@ CREATE TABLE `favorites` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
---
--- A tábla adatainak kiíratása `favorites`
---
-
-INSERT INTO `favorites` (`id`, `user_id`, `file_id`, `created_at`) VALUES
-(1, 4, 1, '2025-12-02 10:54:38'),
-(3, 1, 2, '2026-01-17 16:36:51'),
-(5, 20, 4, '2026-03-31 08:54:15'),
-(6, 20, 3, '2026-03-31 08:54:17');
 
 -- --------------------------------------------------------
 
@@ -213,16 +205,6 @@ CREATE TABLE `files` (
   `note_excerpt` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
---
--- A tábla adatainak kiíratása `files`
---
-
-INSERT INTO `files` (`id`, `uploaded_by`, `name`, `file_name`, `description`, `file_path`, `tags`, `tn_name`, `file_size`, `download_count`, `content_text`, `edu_stage`, `edu_level`, `external_url`, `content_type`, `note_markdown`, `note_excerpt`) VALUES
-(2, 1, 'Java zero to hero', 'JavaNotesForProfessionals.pdf', 'Ezzel a csodával megtanulsz javaul. Garantált siker!', 'C:xampphtdocsjegyzetar.eu-srcsrc/users/csontoskincso05/JavaNotesForProfessionals.pdf', 'Tankönyv', NULL, NULL, 0, NULL, 'hs', 13, '', 'file', '', ''),
-(3, 1, 'SQL gyakorló feladat', '0526Feladat.docx', 'SQL gyakorló feladat amit tavaly kaptunk ki', '/var/www/clients/client733/web2445/web/jegyzetar.eu/users/doomhyena/0526Feladat.docx', 'Budapesti Műszaki SZC Bláthy Ottó Titusz Informatikai Technikum, Adatbázis-kezelés I., Schola Europa Akadémia Technikum, Gimnázium és Alapfokú Művészeti Iskola', NULL, 13599, 0, NULL, NULL, NULL, '', 'file', '', ''),
-(4, 1, 'A videókártyák fejlődése a 2D-től a ray tracingig', 'A videókártyák fejlődése a 2D-től a ray tracingig.docx', 'A videókártyák fejlődése a 2D-től a ray tracingig', '/var/www/clients/client733/web2445/web/jegyzetar.eu/users/doomhyena/A videókártyák fejlődése a 2D-től a ray tracingig.docx', 'Webprogramozás I.', NULL, 25059, 0, NULL, 'hs', 12, '', 'file', '', ''),
-(5, 1, 'Java Full Course', 'link', 'This is a course video from Bro code', '', 'Asztali alkalmazások fejlesztése II.', NULL, 0, 0, NULL, 'hs', 11, 'https://www.youtube.com/watch?v=xTtL8E4LzTQ', '', '', '');
-
 -- --------------------------------------------------------
 
 --
@@ -239,39 +221,6 @@ CREATE TABLE `file_events` (
   `user_agent` varchar(255) DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
-
---
--- A tábla adatainak kiíratása `file_events`
---
-
-INSERT INTO `file_events` (`id`, `file_id`, `user_id`, `event_type`, `rating`, `ip`, `user_agent`, `created_at`) VALUES
-(1, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-17 15:50:28'),
-(2, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-17 16:04:33'),
-(3, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-17 16:34:47'),
-(4, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36', '2026-01-17 18:09:20'),
-(5, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36', '2026-01-17 18:19:57'),
-(6, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-17 19:58:01'),
-(7, 2, 1, 'view', NULL, 0x00000000000000000000000000000001, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-01-24 23:09:54'),
-(8, 2, 1, 'view', NULL, 0x4dea4985, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', '2026-02-04 22:06:03'),
-(9, 2, 1, 'view', NULL, 0xd4285f0f, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-18 23:42:10'),
-(10, 2, 1, 'view', NULL, 0x54ec76ad, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-22 18:02:34'),
-(11, 2, 1, 'view', NULL, 0x54ec76ad, 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36', '2026-02-22 23:55:32'),
-(12, 2, 17, 'view', NULL, 0x54ec76ad, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-02-26 20:56:52'),
-(13, 2, 1, 'view', NULL, 0x4dea5279, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', '2026-03-09 10:30:51'),
-(14, 2, 1, 'view', NULL, 0x5e1582d7, 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36', '2026-03-13 13:34:42'),
-(15, 2, 1, 'view', NULL, 0x97005226, 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36', '2026-03-14 07:39:46'),
-(16, 3, 1, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-16 11:12:25'),
-(17, 5, 20, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 08:54:26'),
-(18, 5, 20, 'comment', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 08:55:17'),
-(19, 5, 20, 'rate', 5, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 08:56:08'),
-(20, 5, 20, 'favorite_remove', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:05:54'),
-(21, 5, 20, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:05:54'),
-(22, 2, 20, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:06:37'),
-(23, 2, 20, 'rate', 4, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:06:42'),
-(24, 2, 20, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:29:20'),
-(25, 5, 1, 'view', NULL, 0x822bd417, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:45:05'),
-(26, 4, 1, 'view', NULL, 0x822bd417, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', '2026-03-31 09:50:00'),
-(27, 4, 20, 'view', NULL, 0x59877979, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36 Edg/146.0.0.0', '2026-03-31 10:53:24');
 
 -- --------------------------------------------------------
 
@@ -348,9 +297,6 @@ CREATE TABLE `group_comments` (
 -- A tábla adatainak kiíratása `group_comments`
 --
 
-INSERT INTO `group_comments` (`id`, `group_id`, `user_id`, `comment_text`, `created_at`) VALUES
-(0, 1, 1, 'Helló holnap dolgozat (05.03)', '2026-03-24 10:32:19'),
-(0, 2, 20, 'asd', '2026-03-31 09:52:57');
 
 -- --------------------------------------------------------
 
@@ -424,19 +370,6 @@ CREATE TABLE `group_members` (
   `joined_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
---
--- A tábla adatainak kiíratása `group_members`
---
-
-INSERT INTO `group_members` (`id`, `group_id`, `user_id`, `role`, `status`, `joined_at`) VALUES
-(0, 0, 1, 'owner', 'accepted', '2026-03-19 20:07:21');
-
--- --------------------------------------------------------
-
---
--- Tábla szerkezet ehhez a táblához `group_polls`
---
-
 CREATE TABLE `group_polls` (
   `id` int(11) NOT NULL,
   `group_id` int(11) NOT NULL,
@@ -505,13 +438,6 @@ CREATE TABLE `messages` (
   `content` text NOT NULL,
   `sent_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
-
---
--- A tábla adatainak kiíratása `messages`
---
-
-INSERT INTO `messages` (`id`, `fromid`, `toid`, `content`, `sent_at`) VALUES
-(1, 1, 8, 'Szia', '2026-01-25 19:04:32');
 
 -- --------------------------------------------------------
 
@@ -914,13 +840,6 @@ CREATE TABLE `notifys` (
 -- A tábla adatainak kiíratása `notifys`
 --
 
-INSERT INTO `notifys` (`id`, `fromid`, `toid`, `notifytype`, `readed`) VALUES
-(1, 8, 1, 'friend', 1),
-(2, 14, 1, 'friend', 1),
-(3, 1, 17, 'friend', 1),
-(4, 1, 18, 'friend', 0),
-(5, 20, 1, 'friend', 1);
-
 -- --------------------------------------------------------
 
 --
@@ -950,13 +869,6 @@ CREATE TABLE `premium_users` (
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- A tábla adatainak kiíratása `premium_users`
---
-
-INSERT INTO `premium_users` (`id`, `user_id`, `premium_until`, `premium_ig`, `created_at`, `updated_at`) VALUES
-(2, 20, '0000-00-00 00:00:00', '2026-04-30 09:37:11', '2026-03-31 09:37:11', '2026-03-31 09:37:11');
 
 -- --------------------------------------------------------
 
@@ -1050,15 +962,6 @@ CREATE TABLE `ratings` (
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
---
--- A tábla adatainak kiíratása `ratings`
---
-
-INSERT INTO `ratings` (`id`, `file_id`, `user_id`, `rating`, `created_at`, `updated_at`) VALUES
-(1, 1, 4, 5, '2025-12-02 10:55:24', '2025-12-02 10:55:24'),
-(2, 2, 1, 5, '2025-12-16 01:00:56', '2026-01-17 20:16:40'),
-(3, 5, 20, 5, '2026-03-31 08:56:08', '2026-03-31 08:56:08'),
-(4, 2, 20, 4, '2026-03-31 09:06:42', '2026-03-31 09:06:42');
 
 -- --------------------------------------------------------
 
@@ -1075,16 +978,6 @@ CREATE TABLE `registration_code_uses` (
   `user_agent` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- A tábla adatainak kiíratása `registration_code_uses`
---
-
-INSERT INTO `registration_code_uses` (`id`, `user_id`, `reg_code`, `used_at`, `used_ip`, `user_agent`) VALUES
-(6, 19, 'TEST-BETA-CODE-2026', '2026-03-30 12:17:48', '89.135.121.121', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36'),
-(7, 20, 'SCHOLA-2026', '2026-03-31 08:52:42', '89.135.121.121', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36'),
-(8, 21, 'SCHOLA-2026', '2026-03-31 10:37:16', '176.77.149.36', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36');
-
--- --------------------------------------------------------
 
 --
 -- Tábla szerkezet ehhez a táblához `reg_codes`
@@ -1101,15 +994,6 @@ CREATE TABLE `reg_codes` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
---
--- A tábla adatainak kiíratása `reg_codes`
---
-
-INSERT INTO `reg_codes` (`id`, `code`, `description`, `max_uses`, `used`, `expires_at`, `active`, `created_at`) VALUES
-(1, 'EARLY-BETA-2025', 'Nagyon korai béta tesztelő kód', 10, 8, NULL, 0, '2025-12-07 14:31:16'),
-(4, 'TEST-BETA-CODE-2026', 'Béta kód teszteléshez', NULL, 5, '2027-01-01 00:00:00', 1, '2026-02-12 11:35:38'),
-(7, 'BMSZC-BLATHY-2026', 'Ez a regisztrációs kód kizárólag a BMSZC Bláthy Ottó iskolához tartozó diákok és munkatársak számára érvényes.', NULL, 0, NULL, 1, '2026-03-16 22:25:50'),
-(8, 'SCHOLA-2026', 'Ez a regisztrációs kód kizárólag a Schola Europa Akadémia iskolához tartozó diákok és munkatársak számára érvényes.', NULL, 2, NULL, 1, '2026-03-16 22:26:43');
 
 -- --------------------------------------------------------
 
@@ -1129,15 +1013,6 @@ CREATE TABLE `reports` (
   `handled_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
---
--- A tábla adatainak kiíratása `reports`
---
-
-INSERT INTO `reports` (`id`, `reporter_id`, `target_type`, `target_id`, `reason`, `status`, `created_at`, `handled_by`, `handled_at`) VALUES
-(1, 4, 'note', 2, 'Nincs megadott indok.', 'dismissed', '2025-12-07 13:43:45', 4, '2025-12-07 13:44:03'),
-(2, 8, 'note', 2, 'Ez egy teszt', 'dismissed', '2025-12-16 00:21:29', 1, '2026-01-25 18:56:51'),
-(3, 1, 'user', 8, 'Ez egy teszt jelentés egy user felé', 'dismissed', '2025-12-16 00:31:04', 1, '2026-01-25 18:58:34');
-
 -- --------------------------------------------------------
 
 --
@@ -1151,13 +1026,6 @@ CREATE TABLE `saved_searches` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `last_seen_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
-
---
--- A tábla adatainak kiíratása `saved_searches`
---
-
-INSERT INTO `saved_searches` (`id`, `user_id`, `params_json`, `created_at`, `last_seen_at`) VALUES
-(1, 20, '{\"scope\":\"files\",\"type\":\"mp4\"}', '2026-03-31 09:30:40', NULL);
 
 -- --------------------------------------------------------
 
@@ -1280,8 +1148,7 @@ CREATE TABLE `translations` (
   `id` int(11) NOT NULL,
   `t_key` varchar(100) NOT NULL,
   `lang_code` varchar(5) NOT NULL,
-  `text` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`)
+  `text` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_hungarian_ci;
 
 --
@@ -2693,9 +2560,9 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (1401, 'upload_label_markdown', 'hu', 'Markdown jegyzet:'),
 (1402, 'upload_label_markdown', 'en', 'Markdown note:'),
 (1403, 'upload_label_markdown', 'de', 'Markdown-Notiz:'),
-(1404, 'upload_placeholder_markdown', 'hu', '# Cím&#10;&#10;Szöveg **félkövéren** vagy *dőlten*.&#10;&#10;- Lista elem&#10;- Másik elem&#10;&#10;```&#10;kód blokk&#10;```'),
-(1405, 'upload_placeholder_markdown', 'en', '# Heading&#10;&#10;Text **bold** or *italic*.&#10;&#10;- List item&#10;- Another item&#10;&#10;```&#10;code block&#10;```'),
-(1406, 'upload_placeholder_markdown', 'de', '# Überschrift&#10;&#10;Text **fett** oder *kursiv*.&#10;&#10;- Listenelement&#10;- Ein weiteres Element&#10;&#10;```&#10;Code-Block&#10;```'),
+(1404, 'upload_placeholder_markdown', 'hu', '# Cím\n\nSzöveg **félkövéren** vagy *dőlten*.\n\n- Lista elem\n- Másik elem\n\n```\nkód blokk\n```'),
+(1405, 'upload_placeholder_markdown', 'en', '# Heading\n\nText **bold** or *italic*.\n\n- List item\n- Another item\n\n```\ncode block\n```'),
+(1406, 'upload_placeholder_markdown', 'de', '# Überschrift\n\nText **fett** oder *kursiv*.\n\n- Listenelement\n- Ein weiteres Element\n\n```\nCode-Block\n```'),
 (1407, 'upload_markdown_tip', 'hu', 'Tipp: Markdown szintaxis (#, **félkövér**, - lista, `kód` stb.). Max 2MB.'),
 (1408, 'upload_markdown_tip', 'en', 'Tip: Markdown syntax (#, **bold**, - list, `code`, etc.). Max 2MB.'),
 (1409, 'upload_markdown_tip', 'de', 'Tipp: Markdown-Syntax (#, **fett**, - Liste, `Code` usw.). Max. 2MB.'),
@@ -2989,9 +2856,9 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (1697, 'about_principle_4', 'de', 'Gemeinschaftliches Wissenssharing'),
 (1698, 'about_principle_5', 'hu', 'Biztonságos, felelős működés'),
 (1699, 'about_principle_5', 'en', 'Safe and responsible operation'),
-(1700, 'about_principle_5', 'de', 'Sicherer und verantwortungsvoller Betrieb'),
-(1701, 'about_features_title', 'hu', 'Fő funkciók');
+(1700, 'about_principle_5', 'de', 'Sicherer und verantwortungsvoller Betrieb');
 INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
+(1701, 'about_features_title', 'hu', 'Fő funkciók'),
 (1702, 'about_features_title', 'en', 'Key features'),
 (1703, 'about_features_title', 'de', 'Hauptfunktionen'),
 (1704, 'about_feature_notes_title', 'hu', 'Jegyzetkezelés'),
@@ -3482,9 +3349,9 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (2192, 'contact_placeholder_subject', 'en', 'What would you like to write about?'),
 (2193, 'contact_placeholder_subject', 'de', 'Worüber möchtest du schreiben?'),
 (2194, 'contact_label_message', 'hu', 'Üzenet *'),
-(2195, 'contact_label_message', 'en', 'Message *'),
-(2196, 'contact_label_message', 'de', 'Nachricht *');
+(2195, 'contact_label_message', 'en', 'Message *');
 INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
+(2196, 'contact_label_message', 'de', 'Nachricht *'),
 (2197, 'contact_placeholder_message', 'hu', 'Írd ide az üzenedet...'),
 (2198, 'contact_placeholder_message', 'en', 'Write your message here...'),
 (2199, 'contact_placeholder_message', 'de', 'Schreib hier deine Nachricht...'),
@@ -4579,14 +4446,17 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (3290, 'partner_rangerbot_s1_title', 'en', 'The beginnings'),
 (3291, 'partner_rangerbot_s1_title', 'de', 'Die Anfänge'),
 (3292, 'partner_rangerbot_s1_text', 'hu', 'Kezdetben Aki26 és MasterofAll, Aki26 apukája kezdte el a Botot csinálgatni. Eleinte csak maguknak, hogy Aki26 tanulhasson, majd később Aki26 felhozta, hogy lehetne publikus a Bot. Ezzel kezdődött minden.'),
-(3293, 'partner_rangerbot_s1_text', 'en', "Initially Aki26 and MasterofAll, Aki26\'s father, started building the bot. At first just for themselves so Aki26 could learn, then Aki26 suggested making it public. That is how it all began."),
+(3293, 'partner_rangerbot_s1_text', 'en', 'Initially Aki26 and MasterofAll, Aki26\'s father, started building the bot. At first just for themselves so Aki26 could learn, then Aki26 suggested making it public. That is how it all began.'),
 (3294, 'partner_rangerbot_s1_text', 'de', 'Zunächst begannen Aki26 und MasterofAll, Aki26s Vater, den Bot zu bauen. Zuerst nur für sich selbst, damit Aki26 lernen konnte, dann schlug Aki26 vor, ihn öffentlich zu machen. So fing alles an.'),
 (3295, 'partner_rangerbot_s2_title', 'hu', 'Később...'),
 (3296, 'partner_rangerbot_s2_title', 'en', 'Later on...'),
 (3297, 'partner_rangerbot_s2_title', 'de', 'Später...'),
 (3298, 'partner_rangerbot_s2_text', 'hu', '2020. 10. 14-én Aki26-t, a Bot fejlesztőjét feltörték, ezáltal a RangerBot-nak megszerezték a Token-jét, és elkezdtek vele, illetve Aki26 fiókjával hirdetni. A RangerBot-ot kidobták a szerverekről, mert károkat is okozott bőven. A Support szerver törlődöt'),
-(3299, 'partner_rangerbot_s2_text', 'en', "On 14 October 2020 Aki26, the bot developer, was hacked. The attacker obtained RangerBot\'s token and began spamming with it and Aki26\'s account. RangerBot was removed from servers due to the damage it caused, and the support server was deleted by the hack"),
+(3299, 'partner_rangerbot_s2_text', 'en', 'On 14 October 2020 Aki26, the bot developer, was hacked. The attacker obtained RangerBot\'s token and began spamming with it and Aki26\'s account. RangerBot was removed from servers due to the damage it caused, and the support server was deleted by the hack'),
 (3300, 'partner_rangerbot_s2_text', 'de', 'Am 14. Oktober 2020 wurde Aki26, der Bot-Entwickler, gehackt. Der Angreifer erlangte RangerBots Token und begann, damit und mit Aki26s Konto zu werben. RangerBot wurde von Servern entfernt, da er erheblichen Schaden anrichtete, und der Support-Server wurd'),
+(3301, 'partner_rangerbot_s3_title', 'hu', 'AvokádóZ hatására'),
+(3302, 'partner_rangerbot_s3_title', 'en', 'Thanks to AvokádóZ'),
+(3303, 'partner_rangerbot_s3_title', 'de', 'Dank AvokádóZ'),
 (3304, 'partner_rangerbot_s3_text', 'hu', 'AvokádóZ kiírta a Discord Állapotába, hogy Bot fejlesztőket keres. MesterDavid írt Aki26-nak, hogy ezt látta. Aki26 ezáltal felkereste AvokádóZ-t. Avo azt találta ki, hogy kezdjenek el fejleszteni egy új Botot, viszont Aki26-nak ötlete támadt: mi lenne, h'),
 (3305, 'partner_rangerbot_s3_text', 'en', 'AvokádóZ posted in their Discord status that they were looking for bot developers. MesterDavid told Aki26 about it, and Aki26 reached out to AvokádóZ. Avo suggested starting a new bot, but Aki26 had an idea: what if they continued RangerBot? Aki26 rewrote'),
 (3306, 'partner_rangerbot_s3_text', 'de', 'AvokádóZ postete in seinem Discord-Status, dass er Bot-Entwickler suche. MesterDavid informierte Aki26 darüber, und Aki26 wandte sich an AvokádóZ. Avo schlug vor, einen neuen Bot zu entwickeln, doch Aki26 hatte eine Idee: Was, wenn sie RangerBot fortsetze'),
@@ -4626,13 +4496,12 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (3340, 'upload_err_file_move_failed', 'hu', 'A fájl mozgatása a célmappába nem sikerült.'),
 (3341, 'upload_err_file_move_failed', 'en', 'Moving the file to the destination folder failed.'),
 (3342, 'upload_err_file_move_failed', 'de', 'Das Verschieben der Datei in den Zielordner ist fehlgeschlagen.'),
-(3343, 'upload_markdown_help_html', 'hu', '<details class="css-tutorial" style="margin: 8px 0 10px;"><summary>Mi az a Markdown és hogyan kell használni?</summary><div class="css-tutorial-body"><p>A <strong>Markdown</strong> egy egyszerű szövegformázási nyelv — sima szövegként írod, és az oldal szépen formázva jeleníti meg. Nem kell HTML-t tudni hozzá.</p><p><strong>Legfontosabb elemek:</strong></p><pre><code># Nagy cím (H1)\n## Közepes cím (H2)\n### Kis cím (H3)\n\n**félkövér szöveg**\n*dőlt szöveg*\n\n- felsorolás első elem\n- felsorolás második elem\n\n1. számozott lista\n2. második elem\n\n> idézet / kiemelt szöveg\n\n`kódrészlet` egy sorban\n\n```\ntöbbsoros\nkódblokk\n```\n\n[link szövege](https://url.hu)\n</code></pre><p><strong>Tipp:</strong> Használj címsorokat (<code>#</code>, <code>##</code>) a fejezetek tagolásához, és felsorolásokat a tételek listázásához. A kész jegyzet pontosan úgy jelenik meg, ahogy a Markdown előírja.</p></div></details>'),
-(3344, 'upload_markdown_help_html', 'en', '<details class="css-tutorial" style="margin: 8px 0 10px;"><summary>What is Markdown and how do I use it?</summary><div class="css-tutorial-body"><p><strong>Markdown</strong> is a simple formatting language — you write plain text and the page renders it nicely. No HTML knowledge is required.</p><p><strong>Key elements:</strong></p><pre><code># Heading 1\n## Heading 2\n### Heading 3\n\n**bold text**\n*italic text*\n\n- first list item\n- second list item\n\n1. numbered list\n2. second item\n\n> quote / highlight\n\n`inline code`\n\n```\nmultiline\ncode block\n```\n\n[link text](https://example.com)\n</code></pre><p><strong>Tip:</strong> Use headings (<code>#</code>, <code>##</code>) to structure sections and lists for itemized content. The note will render as Markdown.</p></div></details>'),
-(3345, 'upload_markdown_help_html', 'de', '<details class="css-tutorial" style="margin: 8px 0 10px;"><summary>Was ist Markdown und wie verwendet man es?</summary><div class="css-tutorial-body"><p><strong>Markdown</strong> ist eine einfache Auszeichnungssprache — du schreibst normalen Text und die Seite stellt ihn formatiert dar. HTML-Kenntnisse sind nicht erforderlich.</p><p><strong>Wichtige Elemente:</strong></p><pre><code># Überschrift 1\n## Überschrift 2\n### Überschrift 3\n\n**fetter Text**\n*kursiver Text*\n\n- erstes Listen-Element\n- zweites Element\n\n1. nummerierte Liste\n2. zweites Element\n\n> Zitat / Hervorhebung\n\n`Inline-Code`\n\n```\nmehrzeiliger\nCodeblock\n```\n\n[Linktext](https://example.com)\n</code></pre><p><strong>Tipp:</strong> Verwende Überschriften (<code>#</code>, <code>##</code>), um Abschnitte zu strukturieren und Listen zum Auflisten von Punkten. Die Notiz wird als Markdown gerendert.</p></div></details>');
-INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
-(3346, 'groups_page_title',    'hu', 'Tanuló csoportok'),
-(3347, 'groups_page_title',    'en', 'Study Groups'),
-(3348, 'groups_page_title',    'de', 'Lerngruppen'),
+(3343, 'upload_markdown_help_html', 'hu', '<details class=\"css-tutorial\" style=\"margin: 8px 0 10px;\"><summary>Mi az a Markdown és hogyan kell használni?</summary><div class=\"css-tutorial-body\"><p>A <strong>Markdown</strong> egy egyszerű szövegformázási nyelv — sima szövegként írod, és az oldal szé'),
+(3344, 'upload_markdown_help_html', 'en', '<details class=\"css-tutorial\" style=\"margin: 8px 0 10px;\"><summary>What is Markdown and how do I use it?</summary><div class=\"css-tutorial-body\"><p><strong>Markdown</strong> is a simple formatting language — you write plain text and the page renders it ni'),
+(3345, 'upload_markdown_help_html', 'de', '<details class=\"css-tutorial\" style=\"margin: 8px 0 10px;\"><summary>Was ist Markdown und wie verwendet man es?</summary><div class=\"css-tutorial-body\"><p><strong>Markdown</strong> ist eine einfache Auszeichnungssprache — du schreibst normalen Text und die '),
+(3346, 'groups_page_title', 'hu', 'Tanuló csoportok'),
+(3347, 'groups_page_title', 'en', 'Study Groups'),
+(3348, 'groups_page_title', 'de', 'Lerngruppen'),
 (3349, 'groups_page_subtitle', 'hu', 'Itt találod az összes elérhető tanuló csoportot.'),
 (3350, 'groups_page_subtitle', 'en', 'Here you can find all available study groups.'),
 (3351, 'groups_page_subtitle', 'de', 'Hier findest du alle verfügbaren Lerngruppen.'),
@@ -4642,264 +4511,265 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (3355, 'groups_private_label', 'hu', 'Privát csoport'),
 (3356, 'groups_private_label', 'en', 'Private group'),
 (3357, 'groups_private_label', 'de', 'Private Gruppe'),
-(3358, 'groups_public_label',  'hu', 'Nyilvános csoport'),
-(3359, 'groups_public_label',  'en', 'Public group'),
-(3360, 'groups_public_label',  'de', 'Öffentliche Gruppe'),
+(3358, 'groups_public_label', 'hu', 'Nyilvános csoport'),
+(3359, 'groups_public_label', 'en', 'Public group'),
+(3360, 'groups_public_label', 'de', 'Öffentliche Gruppe'),
 (3361, 'groups_pending_label', 'hu', 'Jóváhagyásra vár'),
 (3362, 'groups_pending_label', 'en', 'Awaiting approval'),
 (3363, 'groups_pending_label', 'de', 'Wartet auf Genehmigung'),
-(3364, 'groups_no_description','hu', 'Ehhez a csoporthoz még nincs leírás megadva.'),
-(3365, 'groups_no_description','en', 'No description has been added to this group yet.'),
-(3366, 'groups_no_description','de', 'Für diese Gruppe wurde noch keine Beschreibung angegeben.'),
-(3367, 'groups_open_button',   'hu', 'Csoport megnyitása'),
-(3368, 'groups_open_button',   'en', 'Open group'),
-(3369, 'groups_open_button',   'de', 'Gruppe öffnen'),
+(3364, 'groups_no_description', 'hu', 'Ehhez a csoporthoz még nincs leírás megadva.'),
+(3365, 'groups_no_description', 'en', 'No description has been added to this group yet.'),
+(3366, 'groups_no_description', 'de', 'Für diese Gruppe wurde noch keine Beschreibung angegeben.'),
+(3367, 'groups_open_button', 'hu', 'Csoport megnyitása'),
+(3368, 'groups_open_button', 'en', 'Open group'),
+(3369, 'groups_open_button', 'de', 'Gruppe öffnen'),
 (3370, 'groups_not_available', 'hu', 'A csoport még nem elérhető'),
 (3371, 'groups_not_available', 'en', 'The group is not available yet'),
 (3372, 'groups_not_available', 'de', 'Die Gruppe ist noch nicht verfügbar'),
-(3373, 'groups_none',          'hu', 'Nincs megjeleníthető csoport.'),
-(3374, 'groups_none',          'en', 'No groups to display.'),
-(3375, 'groups_none',          'de', 'Keine Gruppen vorhanden.'),
-(3376, 'group_error_not_approved',   'hu', 'Ez a csoport még nem lett jóváhagyva.'),
-(3377, 'group_error_not_approved',   'en', 'This group has not been approved yet.'),
-(3378, 'group_error_not_approved',   'de', 'Diese Gruppe wurde noch nicht genehmigt.'),
-(3379, 'group_private_message',      'hu', 'Ez egy privát csoport. Csatlakozáshoz kérd a tagságodat.'),
-(3380, 'group_private_message',      'en', 'This is a private group. Request membership to join.'),
-(3381, 'group_private_message',      'de', 'Dies ist eine private Gruppe. Beantrage die Mitgliedschaft, um beizutreten.'),
-(3382, 'group_status_private',       'hu', 'Privát csoport'),
-(3383, 'group_status_private',       'en', 'Private group'),
-(3384, 'group_status_private',       'de', 'Private Gruppe'),
-(3385, 'group_status_public',        'hu', 'Nyilvános csoport'),
-(3386, 'group_status_public',        'en', 'Public group'),
-(3387, 'group_status_public',        'de', 'Öffentliche Gruppe'),
-(3388, 'group_no_description',       'hu', 'Ehhez a csoporthoz nincs leírás megadva.'),
-(3389, 'group_no_description',       'en', 'No description provided for this group.'),
-(3390, 'group_no_description',       'de', 'Für diese Gruppe wurde keine Beschreibung angegeben.'),
-(3391, 'group_join_button',          'hu', 'Csatlakozás'),
-(3392, 'group_join_button',          'en', 'Join'),
-(3393, 'group_join_button',          'de', 'Beitreten'),
-(3394, 'group_join_pending',         'hu', 'Csatlakozási kérésed elbírálás alatt áll.'),
-(3395, 'group_join_pending',         'en', 'Your join request is pending approval.'),
-(3396, 'group_join_pending',         'de', 'Deine Beitrittsanfrage wird geprüft.'),
-(3397, 'group_leave_button',         'hu', 'Kilépés a csoportból'),
-(3398, 'group_leave_button',         'en', 'Leave group'),
-(3399, 'group_leave_button',         'de', 'Gruppe verlassen'),
-(3400, 'group_report_summary',       'hu', 'Csoport jelentése'),
-(3401, 'group_report_summary',       'en', 'Report group'),
-(3402, 'group_report_summary',       'de', 'Gruppe melden'),
-(3403, 'group_report_label',         'hu', 'Miért szeretnéd jelenteni ezt a csoportot?'),
-(3404, 'group_report_label',         'en', 'Why do you want to report this group?'),
-(3405, 'group_report_label',         'de', 'Warum möchtest du diese Gruppe melden?'),
-(3406, 'group_members_title',        'hu', 'Tagok'),
-(3407, 'group_members_title',        'en', 'Members'),
-(3408, 'group_members_title',        'de', 'Mitglieder'),
-(3409, 'group_role_owner',           'hu', 'Tulajdonos'),
-(3410, 'group_role_owner',           'en', 'Owner'),
-(3411, 'group_role_owner',           'de', 'Eigentümer'),
-(3412, 'group_role_moderator',       'hu', 'Moderátor'),
-(3413, 'group_role_moderator',       'en', 'Moderator'),
-(3414, 'group_role_moderator',       'de', 'Moderator'),
-(3415, 'group_role_member',          'hu', 'Tag'),
-(3416, 'group_role_member',          'en', 'Member'),
-(3417, 'group_role_member',          'de', 'Mitglied'),
-(3418, 'group_make_moderator',       'hu', 'Moderátorrá tétel'),
-(3419, 'group_make_moderator',       'en', 'Make moderator'),
-(3420, 'group_make_moderator',       'de', 'Zum Moderator machen'),
-(3421, 'group_remove_moderator',     'hu', 'Moderátor elvétele'),
-(3422, 'group_remove_moderator',     'en', 'Remove moderator'),
-(3423, 'group_remove_moderator',     'de', 'Moderator entfernen'),
-(3424, 'group_remove_member',        'hu', 'Eltávolítás'),
-(3425, 'group_remove_member',        'en', 'Remove'),
-(3426, 'group_remove_member',        'de', 'Entfernen'),
-(3427, 'group_no_members',           'hu', 'Nincsenek tagok.'),
-(3428, 'group_no_members',           'en', 'No members yet.'),
-(3429, 'group_no_members',           'de', 'Noch keine Mitglieder.'),
-(3430, 'group_members_hidden_message','hu', 'A tagok listája csak csoporttagok számára látható.'),
-(3431, 'group_members_hidden_message','en', 'The member list is only visible to group members.'),
-(3432, 'group_members_hidden_message','de', 'Die Mitgliederliste ist nur für Gruppenmitglieder sichtbar.'),
-(3433, 'group_pending_requests_title','hu', 'Függőben lévő kérések'),
-(3434, 'group_pending_requests_title','en', 'Pending requests'),
-(3435, 'group_pending_requests_title','de', 'Ausstehende Anfragen'),
-(3436, 'group_pending_status',       'hu', 'Függőben'),
-(3437, 'group_pending_status',       'en', 'Pending'),
-(3438, 'group_pending_status',       'de', 'Ausstehend'),
-(3439, 'group_pending_accept',       'hu', 'Elfogadás'),
-(3440, 'group_pending_accept',       'en', 'Accept'),
-(3441, 'group_pending_accept',       'de', 'Akzeptieren'),
-(3442, 'group_pending_reject',       'hu', 'Elutasítás'),
-(3443, 'group_pending_reject',       'en', 'Reject'),
-(3444, 'group_pending_reject',       'de', 'Ablehnen'),
-(3445, 'group_pending_none',         'hu', 'Nincsenek függőben lévő kérések.'),
-(3446, 'group_pending_none',         'en', 'No pending requests.'),
-(3447, 'group_pending_none',         'de', 'Keine ausstehenden Anfragen.'),
-(3448, 'group_chat_title',           'hu', 'Csoport fal'),
-(3449, 'group_chat_title',           'en', 'Group wall'),
-(3450, 'group_chat_title',           'de', 'Gruppenwand'),
-(3451, 'group_chat_placeholder',     'hu', 'Írj valamit a falra...'),
-(3452, 'group_chat_placeholder',     'en', 'Write something on the wall...'),
-(3453, 'group_chat_placeholder',     'de', 'Schreibe etwas an die Wand...'),
-(3454, 'group_chat_send',            'hu', 'Küldés'),
-(3455, 'group_chat_send',            'en', 'Send'),
-(3456, 'group_chat_send',            'de', 'Senden'),
-(3457, 'group_no_wall_messages',     'hu', 'Még nincs üzenet a falon.'),
-(3458, 'group_no_wall_messages',     'en', 'No messages on the wall yet.'),
-(3459, 'group_no_wall_messages',     'de', 'Noch keine Nachrichten an der Wand.'),
-(3460, 'group_comment_delete',       'hu', 'Törlés'),
-(3461, 'group_comment_delete',       'en', 'Delete'),
-(3462, 'group_comment_delete',       'de', 'Löschen'),
-(3463, 'group_comment_delete_confirm','hu', 'Biztosan törlöd ezt a hozzászólást?'),
-(3464, 'group_comment_delete_confirm','en', 'Are you sure you want to delete this comment?'),
-(3465, 'group_comment_delete_confirm','de', 'Bist du sicher, dass du diesen Kommentar löschen möchtest?'),
-(3466, 'group_notes_title',          'hu', 'Csoportos jegyzetek'),
-(3467, 'group_notes_title',          'en', 'Group notes'),
-(3468, 'group_notes_title',          'de', 'Gruppennotizen'),
-(3469, 'group_new_note_summary',     'hu', 'Új jegyzet feltöltése'),
-(3470, 'group_new_note_summary',     'en', 'Upload new note'),
-(3471, 'group_new_note_summary',     'de', 'Neue Notiz hochladen'),
-(3472, 'group_note_name_label',      'hu', 'Név'),
-(3473, 'group_note_name_label',      'en', 'Name'),
-(3474, 'group_note_name_label',      'de', 'Name'),
-(3475, 'group_note_file_label',      'hu', 'Fájl'),
-(3476, 'group_note_file_label',      'en', 'File'),
-(3477, 'group_note_file_label',      'de', 'Datei'),
-(3478, 'group_note_description_label','hu', 'Leírás'),
-(3479, 'group_note_description_label','en', 'Description'),
-(3480, 'group_note_description_label','de', 'Beschreibung'),
-(3481, 'group_note_upload_button',   'hu', 'Feltöltés'),
-(3482, 'group_note_upload_button',   'en', 'Upload'),
-(3483, 'group_note_upload_button',   'de', 'Hochladen'),
-(3484, 'group_uploaded_notes',       'hu', 'Feltöltött jegyzetek'),
-(3485, 'group_uploaded_notes',       'en', 'Uploaded notes'),
-(3486, 'group_uploaded_notes',       'de', 'Hochgeladene Notizen'),
-(3487, 'group_download',             'hu', 'Letöltés'),
-(3488, 'group_download',             'en', 'Download'),
-(3489, 'group_download',             'de', 'Herunterladen'),
-(3490, 'group_comments_title',       'hu', 'Hozzászólások'),
-(3491, 'group_comments_title',       'en', 'Comments'),
-(3492, 'group_comments_title',       'de', 'Kommentare'),
-(3493, 'group_note_comment_placeholder','hu', 'Írj hozzászólást...'),
-(3494, 'group_note_comment_placeholder','en', 'Write a comment...'),
-(3495, 'group_note_comment_placeholder','de', 'Kommentar schreiben...'),
+(3373, 'groups_none', 'hu', 'Nincs megjeleníthető csoport.'),
+(3374, 'groups_none', 'en', 'No groups to display.'),
+(3375, 'groups_none', 'de', 'Keine Gruppen vorhanden.'),
+(3376, 'group_error_not_approved', 'hu', 'Ez a csoport még nem lett jóváhagyva.'),
+(3377, 'group_error_not_approved', 'en', 'This group has not been approved yet.'),
+(3378, 'group_error_not_approved', 'de', 'Diese Gruppe wurde noch nicht genehmigt.'),
+(3379, 'group_private_message', 'hu', 'Ez egy privát csoport. Csatlakozáshoz kérd a tagságodat.'),
+(3380, 'group_private_message', 'en', 'This is a private group. Request membership to join.'),
+(3381, 'group_private_message', 'de', 'Dies ist eine private Gruppe. Beantrage die Mitgliedschaft, um beizutreten.'),
+(3382, 'group_status_private', 'hu', 'Privát csoport'),
+(3383, 'group_status_private', 'en', 'Private group'),
+(3384, 'group_status_private', 'de', 'Private Gruppe'),
+(3385, 'group_status_public', 'hu', 'Nyilvános csoport'),
+(3386, 'group_status_public', 'en', 'Public group'),
+(3387, 'group_status_public', 'de', 'Öffentliche Gruppe'),
+(3388, 'group_no_description', 'hu', 'Ehhez a csoporthoz nincs leírás megadva.'),
+(3389, 'group_no_description', 'en', 'No description provided for this group.'),
+(3390, 'group_no_description', 'de', 'Für diese Gruppe wurde keine Beschreibung angegeben.'),
+(3391, 'group_join_button', 'hu', 'Csatlakozás'),
+(3392, 'group_join_button', 'en', 'Join'),
+(3393, 'group_join_button', 'de', 'Beitreten'),
+(3394, 'group_join_pending', 'hu', 'Csatlakozási kérésed elbírálás alatt áll.'),
+(3395, 'group_join_pending', 'en', 'Your join request is pending approval.'),
+(3396, 'group_join_pending', 'de', 'Deine Beitrittsanfrage wird geprüft.'),
+(3397, 'group_leave_button', 'hu', 'Kilépés a csoportból'),
+(3398, 'group_leave_button', 'en', 'Leave group'),
+(3399, 'group_leave_button', 'de', 'Gruppe verlassen'),
+(3400, 'group_report_summary', 'hu', 'Csoport jelentése'),
+(3401, 'group_report_summary', 'en', 'Report group'),
+(3402, 'group_report_summary', 'de', 'Gruppe melden'),
+(3403, 'group_report_label', 'hu', 'Miért szeretnéd jelenteni ezt a csoportot?'),
+(3404, 'group_report_label', 'en', 'Why do you want to report this group?'),
+(3405, 'group_report_label', 'de', 'Warum möchtest du diese Gruppe melden?'),
+(3406, 'group_members_title', 'hu', 'Tagok'),
+(3407, 'group_members_title', 'en', 'Members'),
+(3408, 'group_members_title', 'de', 'Mitglieder'),
+(3409, 'group_role_owner', 'hu', 'Tulajdonos'),
+(3410, 'group_role_owner', 'en', 'Owner'),
+(3411, 'group_role_owner', 'de', 'Eigentümer'),
+(3412, 'group_role_moderator', 'hu', 'Moderátor'),
+(3413, 'group_role_moderator', 'en', 'Moderator');
+INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
+(3414, 'group_role_moderator', 'de', 'Moderator'),
+(3415, 'group_role_member', 'hu', 'Tag'),
+(3416, 'group_role_member', 'en', 'Member'),
+(3417, 'group_role_member', 'de', 'Mitglied'),
+(3418, 'group_make_moderator', 'hu', 'Moderátorrá tétel'),
+(3419, 'group_make_moderator', 'en', 'Make moderator'),
+(3420, 'group_make_moderator', 'de', 'Zum Moderator machen'),
+(3421, 'group_remove_moderator', 'hu', 'Moderátor elvétele'),
+(3422, 'group_remove_moderator', 'en', 'Remove moderator'),
+(3423, 'group_remove_moderator', 'de', 'Moderator entfernen'),
+(3424, 'group_remove_member', 'hu', 'Eltávolítás'),
+(3425, 'group_remove_member', 'en', 'Remove'),
+(3426, 'group_remove_member', 'de', 'Entfernen'),
+(3427, 'group_no_members', 'hu', 'Nincsenek tagok.'),
+(3428, 'group_no_members', 'en', 'No members yet.'),
+(3429, 'group_no_members', 'de', 'Noch keine Mitglieder.'),
+(3430, 'group_members_hidden_message', 'hu', 'A tagok listája csak csoporttagok számára látható.'),
+(3431, 'group_members_hidden_message', 'en', 'The member list is only visible to group members.'),
+(3432, 'group_members_hidden_message', 'de', 'Die Mitgliederliste ist nur für Gruppenmitglieder sichtbar.'),
+(3433, 'group_pending_requests_title', 'hu', 'Függőben lévő kérések'),
+(3434, 'group_pending_requests_title', 'en', 'Pending requests'),
+(3435, 'group_pending_requests_title', 'de', 'Ausstehende Anfragen'),
+(3436, 'group_pending_status', 'hu', 'Függőben'),
+(3437, 'group_pending_status', 'en', 'Pending'),
+(3438, 'group_pending_status', 'de', 'Ausstehend'),
+(3439, 'group_pending_accept', 'hu', 'Elfogadás'),
+(3440, 'group_pending_accept', 'en', 'Accept'),
+(3441, 'group_pending_accept', 'de', 'Akzeptieren'),
+(3442, 'group_pending_reject', 'hu', 'Elutasítás'),
+(3443, 'group_pending_reject', 'en', 'Reject'),
+(3444, 'group_pending_reject', 'de', 'Ablehnen'),
+(3445, 'group_pending_none', 'hu', 'Nincsenek függőben lévő kérések.'),
+(3446, 'group_pending_none', 'en', 'No pending requests.'),
+(3447, 'group_pending_none', 'de', 'Keine ausstehenden Anfragen.'),
+(3448, 'group_chat_title', 'hu', 'Csoport fal'),
+(3449, 'group_chat_title', 'en', 'Group wall'),
+(3450, 'group_chat_title', 'de', 'Gruppenwand'),
+(3451, 'group_chat_placeholder', 'hu', 'Írj valamit a falra...'),
+(3452, 'group_chat_placeholder', 'en', 'Write something on the wall...'),
+(3453, 'group_chat_placeholder', 'de', 'Schreibe etwas an die Wand...'),
+(3454, 'group_chat_send', 'hu', 'Küldés'),
+(3455, 'group_chat_send', 'en', 'Send'),
+(3456, 'group_chat_send', 'de', 'Senden'),
+(3457, 'group_no_wall_messages', 'hu', 'Még nincs üzenet a falon.'),
+(3458, 'group_no_wall_messages', 'en', 'No messages on the wall yet.'),
+(3459, 'group_no_wall_messages', 'de', 'Noch keine Nachrichten an der Wand.'),
+(3460, 'group_comment_delete', 'hu', 'Törlés'),
+(3461, 'group_comment_delete', 'en', 'Delete'),
+(3462, 'group_comment_delete', 'de', 'Löschen'),
+(3463, 'group_comment_delete_confirm', 'hu', 'Biztosan törlöd ezt a hozzászólást?'),
+(3464, 'group_comment_delete_confirm', 'en', 'Are you sure you want to delete this comment?'),
+(3465, 'group_comment_delete_confirm', 'de', 'Bist du sicher, dass du diesen Kommentar löschen möchtest?'),
+(3466, 'group_notes_title', 'hu', 'Csoportos jegyzetek'),
+(3467, 'group_notes_title', 'en', 'Group notes'),
+(3468, 'group_notes_title', 'de', 'Gruppennotizen'),
+(3469, 'group_new_note_summary', 'hu', 'Új jegyzet feltöltése'),
+(3470, 'group_new_note_summary', 'en', 'Upload new note'),
+(3471, 'group_new_note_summary', 'de', 'Neue Notiz hochladen'),
+(3472, 'group_note_name_label', 'hu', 'Név'),
+(3473, 'group_note_name_label', 'en', 'Name'),
+(3474, 'group_note_name_label', 'de', 'Name'),
+(3475, 'group_note_file_label', 'hu', 'Fájl'),
+(3476, 'group_note_file_label', 'en', 'File'),
+(3477, 'group_note_file_label', 'de', 'Datei'),
+(3478, 'group_note_description_label', 'hu', 'Leírás'),
+(3479, 'group_note_description_label', 'en', 'Description'),
+(3480, 'group_note_description_label', 'de', 'Beschreibung'),
+(3481, 'group_note_upload_button', 'hu', 'Feltöltés'),
+(3482, 'group_note_upload_button', 'en', 'Upload'),
+(3483, 'group_note_upload_button', 'de', 'Hochladen'),
+(3484, 'group_uploaded_notes', 'hu', 'Feltöltött jegyzetek'),
+(3485, 'group_uploaded_notes', 'en', 'Uploaded notes'),
+(3486, 'group_uploaded_notes', 'de', 'Hochgeladene Notizen'),
+(3487, 'group_download', 'hu', 'Letöltés'),
+(3488, 'group_download', 'en', 'Download'),
+(3489, 'group_download', 'de', 'Herunterladen'),
+(3490, 'group_comments_title', 'hu', 'Hozzászólások'),
+(3491, 'group_comments_title', 'en', 'Comments'),
+(3492, 'group_comments_title', 'de', 'Kommentare'),
+(3493, 'group_note_comment_placeholder', 'hu', 'Írj hozzászólást...'),
+(3494, 'group_note_comment_placeholder', 'en', 'Write a comment...'),
+(3495, 'group_note_comment_placeholder', 'de', 'Kommentar schreiben...'),
 (3496, 'group_no_comments_for_note', 'hu', 'Ehhez a jegyzethez még nincs hozzászólás.'),
 (3497, 'group_no_comments_for_note', 'en', 'No comments for this note yet.'),
 (3498, 'group_no_comments_for_note', 'de', 'Noch keine Kommentare zu dieser Notiz.'),
-(3499, 'group_no_approved_notes',    'hu', 'Nincsenek jóváhagyott jegyzetek.'),
-(3500, 'group_no_approved_notes',    'en', 'No approved notes.'),
-(3501, 'group_no_approved_notes',    'de', 'Keine genehmigten Notizen.'),
-(3502, 'group_note_pending_review',  'hu', 'Jóváhagyásra vár'),
-(3503, 'group_note_pending_review',  'en', 'Awaiting review'),
-(3504, 'group_note_pending_review',  'de', 'Wartet auf Überprüfung'),
-(3505, 'group_note_open',            'hu', 'Megnyitás'),
-(3506, 'group_note_open',            'en', 'Open'),
-(3507, 'group_note_open',            'de', 'Öffnen'),
-(3508, 'group_note_reject_confirm',  'hu', 'Biztosan elutasítod ezt a jegyzetet?'),
-(3509, 'group_note_reject_confirm',  'en', 'Are you sure you want to reject this note?'),
-(3510, 'group_note_reject_confirm',  'de', 'Bist du sicher, dass du diese Notiz ablehnen möchtest?'),
-(3511, 'group_no_pending_notes',     'hu', 'Nincsenek jóváhagyásra váró jegyzetek.'),
-(3512, 'group_no_pending_notes',     'en', 'No notes awaiting approval.'),
-(3513, 'group_no_pending_notes',     'de', 'Keine Notizen warten auf Genehmigung.'),
-(3514, 'group_events_title',         'hu', 'Események'),
-(3515, 'group_events_title',         'en', 'Events'),
-(3516, 'group_events_title',         'de', 'Veranstaltungen'),
-(3517, 'group_no_events',            'hu', 'Nincsenek közelgő események.'),
-(3518, 'group_no_events',            'en', 'No upcoming events.'),
-(3519, 'group_no_events',            'de', 'Keine bevorstehenden Veranstaltungen.'),
-(3520, 'group_event_add_summary',    'hu', 'Új esemény hozzáadása'),
-(3521, 'group_event_add_summary',    'en', 'Add new event'),
-(3522, 'group_event_add_summary',    'de', 'Neue Veranstaltung hinzufügen'),
-(3523, 'group_event_title_placeholder','hu', 'Esemény neve'),
-(3524, 'group_event_title_placeholder','en', 'Event title'),
-(3525, 'group_event_title_placeholder','de', 'Veranstaltungstitel'),
-(3526, 'group_event_description_placeholder','hu', 'Leírás (opcionális)'),
-(3527, 'group_event_description_placeholder','en', 'Description (optional)'),
-(3528, 'group_event_description_placeholder','de', 'Beschreibung (optional)'),
-(3529, 'group_event_save',           'hu', 'Mentés'),
-(3530, 'group_event_save',           'en', 'Save'),
-(3531, 'group_event_save',           'de', 'Speichern'),
-(3532, 'group_flashcard_title',      'hu', 'Flashkártyák'),
-(3533, 'group_flashcard_title',      'en', 'Flashcards'),
-(3534, 'group_flashcard_title',      'de', 'Lernkarten'),
-(3535, 'group_flashcard_add_summary','hu', 'Új flashkártya hozzáadása'),
-(3536, 'group_flashcard_add_summary','en', 'Add new flashcard'),
-(3537, 'group_flashcard_add_summary','de', 'Neue Lernkarte hinzufügen'),
+(3499, 'group_no_approved_notes', 'hu', 'Nincsenek jóváhagyott jegyzetek.'),
+(3500, 'group_no_approved_notes', 'en', 'No approved notes.'),
+(3501, 'group_no_approved_notes', 'de', 'Keine genehmigten Notizen.'),
+(3502, 'group_note_pending_review', 'hu', 'Jóváhagyásra vár'),
+(3503, 'group_note_pending_review', 'en', 'Awaiting review'),
+(3504, 'group_note_pending_review', 'de', 'Wartet auf Überprüfung'),
+(3505, 'group_note_open', 'hu', 'Megnyitás'),
+(3506, 'group_note_open', 'en', 'Open'),
+(3507, 'group_note_open', 'de', 'Öffnen'),
+(3508, 'group_note_reject_confirm', 'hu', 'Biztosan elutasítod ezt a jegyzetet?'),
+(3509, 'group_note_reject_confirm', 'en', 'Are you sure you want to reject this note?'),
+(3510, 'group_note_reject_confirm', 'de', 'Bist du sicher, dass du diese Notiz ablehnen möchtest?'),
+(3511, 'group_no_pending_notes', 'hu', 'Nincsenek jóváhagyásra váró jegyzetek.'),
+(3512, 'group_no_pending_notes', 'en', 'No notes awaiting approval.'),
+(3513, 'group_no_pending_notes', 'de', 'Keine Notizen warten auf Genehmigung.'),
+(3514, 'group_events_title', 'hu', 'Események'),
+(3515, 'group_events_title', 'en', 'Events'),
+(3516, 'group_events_title', 'de', 'Veranstaltungen'),
+(3517, 'group_no_events', 'hu', 'Nincsenek közelgő események.'),
+(3518, 'group_no_events', 'en', 'No upcoming events.'),
+(3519, 'group_no_events', 'de', 'Keine bevorstehenden Veranstaltungen.'),
+(3520, 'group_event_add_summary', 'hu', 'Új esemény hozzáadása'),
+(3521, 'group_event_add_summary', 'en', 'Add new event'),
+(3522, 'group_event_add_summary', 'de', 'Neue Veranstaltung hinzufügen'),
+(3523, 'group_event_title_placeholder', 'hu', 'Esemény neve'),
+(3524, 'group_event_title_placeholder', 'en', 'Event title'),
+(3525, 'group_event_title_placeholder', 'de', 'Veranstaltungstitel'),
+(3526, 'group_event_description_placeholder', 'hu', 'Leírás (opcionális)'),
+(3527, 'group_event_description_placeholder', 'en', 'Description (optional)'),
+(3528, 'group_event_description_placeholder', 'de', 'Beschreibung (optional)'),
+(3529, 'group_event_save', 'hu', 'Mentés'),
+(3530, 'group_event_save', 'en', 'Save'),
+(3531, 'group_event_save', 'de', 'Speichern'),
+(3532, 'group_flashcard_title', 'hu', 'Flashkártyák'),
+(3533, 'group_flashcard_title', 'en', 'Flashcards'),
+(3534, 'group_flashcard_title', 'de', 'Lernkarten'),
+(3535, 'group_flashcard_add_summary', 'hu', 'Új flashkártya hozzáadása'),
+(3536, 'group_flashcard_add_summary', 'en', 'Add new flashcard'),
+(3537, 'group_flashcard_add_summary', 'de', 'Neue Lernkarte hinzufügen'),
 (3538, 'group_flash_question_label', 'hu', 'Kérdés'),
 (3539, 'group_flash_question_label', 'en', 'Question'),
 (3540, 'group_flash_question_label', 'de', 'Frage'),
-(3541, 'group_flash_question_placeholder','hu', 'Írd be a kérdést...'),
-(3542, 'group_flash_question_placeholder','en', 'Enter the question...'),
-(3543, 'group_flash_question_placeholder','de', 'Frage eingeben...'),
-(3544, 'group_flash_answer_label',   'hu', 'Válasz'),
-(3545, 'group_flash_answer_label',   'en', 'Answer'),
-(3546, 'group_flash_answer_label',   'de', 'Antwort'),
-(3547, 'group_flash_answer_placeholder','hu', 'Írd be a választ...'),
-(3548, 'group_flash_answer_placeholder','en', 'Enter the answer...'),
-(3549, 'group_flash_answer_placeholder','de', 'Antwort eingeben...'),
-(3550, 'group_flash_save',           'hu', 'Kártya mentése'),
-(3551, 'group_flash_save',           'en', 'Save card'),
-(3552, 'group_flash_save',           'de', 'Karte speichern'),
-(3553, 'group_flash_show_answer',    'hu', 'Mutasd a választ'),
-(3554, 'group_flash_show_answer',    'en', 'Show answer'),
-(3555, 'group_flash_show_answer',    'de', 'Antwort anzeigen'),
-(3556, 'group_flash_next',           'hu', 'Következő'),
-(3557, 'group_flash_next',           'en', 'Next'),
-(3558, 'group_flash_next',           'de', 'Weiter'),
-(3559, 'group_flash_mark_known',     'hu', 'Tudom ✔'),
-(3560, 'group_flash_mark_known',     'en', 'I know it ✔'),
-(3561, 'group_flash_mark_known',     'de', 'Ich weiß es ✔'),
-(3562, 'group_flash_mark_unknown',   'hu', 'Nem tudom ✖'),
-(3563, 'group_flash_mark_unknown',   'en', 'I don''t know ✖'),
-(3564, 'group_flash_mark_unknown',   'de', 'Ich weiß es nicht ✖'),
-(3565, 'group_flash_none',           'hu', 'Nincsenek flashkártyák.'),
-(3566, 'group_flash_none',           'en', 'No flashcards yet.'),
-(3567, 'group_flash_none',           'de', 'Noch keine Lernkarten.'),
-(3568, 'group_poll_title',           'hu', 'Szavazás'),
-(3569, 'group_poll_title',           'en', 'Poll'),
-(3570, 'group_poll_title',           'de', 'Abstimmung'),
-(3571, 'group_poll_create_summary',  'hu', 'Új szavazás létrehozása'),
-(3572, 'group_poll_create_summary',  'en', 'Create new poll'),
-(3573, 'group_poll_create_summary',  'de', 'Neue Abstimmung erstellen'),
-(3574, 'group_poll_question_placeholder','hu', 'Kérdés...'),
-(3575, 'group_poll_question_placeholder','en', 'Question...'),
-(3576, 'group_poll_question_placeholder','de', 'Frage...'),
-(3577, 'group_poll_option_placeholder_1','hu', '1. lehetőség'),
-(3578, 'group_poll_option_placeholder_1','en', 'Option 1'),
-(3579, 'group_poll_option_placeholder_1','de', 'Option 1'),
-(3580, 'group_poll_option_placeholder_2','hu', '2. lehetőség'),
-(3581, 'group_poll_option_placeholder_2','en', 'Option 2'),
-(3582, 'group_poll_option_placeholder_2','de', 'Option 2'),
-(3583, 'group_poll_option_placeholder_3','hu', '3. lehetőség'),
-(3584, 'group_poll_option_placeholder_3','en', 'Option 3'),
-(3585, 'group_poll_option_placeholder_3','de', 'Option 3'),
-(3586, 'group_poll_create_button',   'hu', 'Szavazás indítása'),
-(3587, 'group_poll_create_button',   'en', 'Start poll'),
-(3588, 'group_poll_create_button',   'de', 'Abstimmung starten'),
-(3589, 'group_poll_already_voted',   'hu', 'Már szavaztál'),
-(3590, 'group_poll_already_voted',   'en', 'Already voted'),
-(3591, 'group_poll_already_voted',   'de', 'Bereits abgestimmt'),
-(3592, 'group_poll_total_votes',     'hu', 'Összes szavazat: '),
-(3593, 'group_poll_total_votes',     'en', 'Total votes: '),
-(3594, 'group_poll_total_votes',     'de', 'Gesamtstimmen: '),
-(3595, 'group_poll_votes_label',     'hu', 'szavazat'),
-(3596, 'group_poll_votes_label',     'en', 'votes'),
-(3597, 'group_poll_votes_label',     'de', 'Stimmen'),
-(3598, 'group_poll_closed_label',    'hu', 'A szavazás lezárva.'),
-(3599, 'group_poll_closed_label',    'en', 'Poll closed.'),
-(3600, 'group_poll_closed_label',    'de', 'Abstimmung geschlossen.'),
-(3601, 'group_poll_close',           'hu', 'Szavazás lezárása'),
-(3602, 'group_poll_close',           'en', 'Close poll'),
-(3603, 'group_poll_close',           'de', 'Abstimmung schließen'),
-(3604, 'group_poll_none',            'hu', 'Nincs aktív szavazás.'),
-(3605, 'group_poll_none',            'en', 'No active poll.'),
-(3606, 'group_poll_none',            'de', 'Keine aktive Abstimmung.'),
-(3607, 'group_back_to_groups',       'hu', 'Vissza a csoportokhoz'),
-(3608, 'group_back_to_groups',       'en', 'Back to groups'),
-(3609, 'group_back_to_groups',       'de', 'Zurück zu den Gruppen'),
-(3610, 'group_delete_confirm',       'hu', 'Biztosan törlöd a csoportot? Ez nem visszavonható!'),
-(3611, 'group_delete_confirm',       'en', 'Are you sure you want to delete this group? This cannot be undone!'),
-(3612, 'group_delete_confirm',       'de', 'Bist du sicher, dass du die Gruppe löschen möchtest? Dies kann nicht rückgängig gemacht werden!'),
-(3613, 'group_delete_button',        'hu', 'Csoport törlése'),
-(3614, 'group_delete_button',        'en', 'Delete group'),
-(3615, 'group_delete_button',        'de', 'Gruppe löschen'),
+(3541, 'group_flash_question_placeholder', 'hu', 'Írd be a kérdést...'),
+(3542, 'group_flash_question_placeholder', 'en', 'Enter the question...'),
+(3543, 'group_flash_question_placeholder', 'de', 'Frage eingeben...'),
+(3544, 'group_flash_answer_label', 'hu', 'Válasz'),
+(3545, 'group_flash_answer_label', 'en', 'Answer'),
+(3546, 'group_flash_answer_label', 'de', 'Antwort'),
+(3547, 'group_flash_answer_placeholder', 'hu', 'Írd be a választ...'),
+(3548, 'group_flash_answer_placeholder', 'en', 'Enter the answer...'),
+(3549, 'group_flash_answer_placeholder', 'de', 'Antwort eingeben...'),
+(3550, 'group_flash_save', 'hu', 'Kártya mentése'),
+(3551, 'group_flash_save', 'en', 'Save card'),
+(3552, 'group_flash_save', 'de', 'Karte speichern'),
+(3553, 'group_flash_show_answer', 'hu', 'Mutasd a választ'),
+(3554, 'group_flash_show_answer', 'en', 'Show answer'),
+(3555, 'group_flash_show_answer', 'de', 'Antwort anzeigen'),
+(3556, 'group_flash_next', 'hu', 'Következő'),
+(3557, 'group_flash_next', 'en', 'Next'),
+(3558, 'group_flash_next', 'de', 'Weiter'),
+(3559, 'group_flash_mark_known', 'hu', 'Tudom ✔'),
+(3560, 'group_flash_mark_known', 'en', 'I know it ✔'),
+(3561, 'group_flash_mark_known', 'de', 'Ich weiß es ✔'),
+(3562, 'group_flash_mark_unknown', 'hu', 'Nem tudom ✖'),
+(3563, 'group_flash_mark_unknown', 'en', 'I don\'t know ✖'),
+(3564, 'group_flash_mark_unknown', 'de', 'Ich weiß es nicht ✖'),
+(3565, 'group_flash_none', 'hu', 'Nincsenek flashkártyák.'),
+(3566, 'group_flash_none', 'en', 'No flashcards yet.'),
+(3567, 'group_flash_none', 'de', 'Noch keine Lernkarten.'),
+(3568, 'group_poll_title', 'hu', 'Szavazás'),
+(3569, 'group_poll_title', 'en', 'Poll'),
+(3570, 'group_poll_title', 'de', 'Abstimmung'),
+(3571, 'group_poll_create_summary', 'hu', 'Új szavazás létrehozása'),
+(3572, 'group_poll_create_summary', 'en', 'Create new poll'),
+(3573, 'group_poll_create_summary', 'de', 'Neue Abstimmung erstellen'),
+(3574, 'group_poll_question_placeholder', 'hu', 'Kérdés...'),
+(3575, 'group_poll_question_placeholder', 'en', 'Question...'),
+(3576, 'group_poll_question_placeholder', 'de', 'Frage...'),
+(3577, 'group_poll_option_placeholder_1', 'hu', '1. lehetőség'),
+(3578, 'group_poll_option_placeholder_1', 'en', 'Option 1'),
+(3579, 'group_poll_option_placeholder_1', 'de', 'Option 1'),
+(3580, 'group_poll_option_placeholder_2', 'hu', '2. lehetőség'),
+(3581, 'group_poll_option_placeholder_2', 'en', 'Option 2'),
+(3582, 'group_poll_option_placeholder_2', 'de', 'Option 2'),
+(3583, 'group_poll_option_placeholder_3', 'hu', '3. lehetőség'),
+(3584, 'group_poll_option_placeholder_3', 'en', 'Option 3'),
+(3585, 'group_poll_option_placeholder_3', 'de', 'Option 3'),
+(3586, 'group_poll_create_button', 'hu', 'Szavazás indítása'),
+(3587, 'group_poll_create_button', 'en', 'Start poll'),
+(3588, 'group_poll_create_button', 'de', 'Abstimmung starten'),
+(3589, 'group_poll_already_voted', 'hu', 'Már szavaztál'),
+(3590, 'group_poll_already_voted', 'en', 'Already voted'),
+(3591, 'group_poll_already_voted', 'de', 'Bereits abgestimmt'),
+(3592, 'group_poll_total_votes', 'hu', 'Összes szavazat: '),
+(3593, 'group_poll_total_votes', 'en', 'Total votes: '),
+(3594, 'group_poll_total_votes', 'de', 'Gesamtstimmen: '),
+(3595, 'group_poll_votes_label', 'hu', 'szavazat'),
+(3596, 'group_poll_votes_label', 'en', 'votes'),
+(3597, 'group_poll_votes_label', 'de', 'Stimmen'),
+(3598, 'group_poll_closed_label', 'hu', 'A szavazás lezárva.'),
+(3599, 'group_poll_closed_label', 'en', 'Poll closed.'),
+(3600, 'group_poll_closed_label', 'de', 'Abstimmung geschlossen.'),
+(3601, 'group_poll_close', 'hu', 'Szavazás lezárása'),
+(3602, 'group_poll_close', 'en', 'Close poll'),
+(3603, 'group_poll_close', 'de', 'Abstimmung schließen'),
+(3604, 'group_poll_none', 'hu', 'Nincs aktív szavazás.'),
+(3605, 'group_poll_none', 'en', 'No active poll.'),
+(3606, 'group_poll_none', 'de', 'Keine aktive Abstimmung.'),
+(3607, 'group_back_to_groups', 'hu', 'Vissza a csoportokhoz'),
+(3608, 'group_back_to_groups', 'en', 'Back to groups'),
+(3609, 'group_back_to_groups', 'de', 'Zurück zu den Gruppen'),
+(3610, 'group_delete_confirm', 'hu', 'Biztosan törlöd a csoportot? Ez nem visszavonható!'),
+(3611, 'group_delete_confirm', 'en', 'Are you sure you want to delete this group? This cannot be undone!'),
+(3612, 'group_delete_confirm', 'de', 'Bist du sicher, dass du die Gruppe löschen möchtest? Dies kann nicht rückgängig gemacht werden!'),
+(3613, 'group_delete_button', 'hu', 'Csoport törlése'),
+(3614, 'group_delete_button', 'en', 'Delete group'),
+(3615, 'group_delete_button', 'de', 'Gruppe löschen'),
 (3616, 'exam_sw_title', 'en', 'Software developer and tester – Exams'),
 (3617, 'exam_sw_title', 'de', 'Softwareentwickler und Tester – Prüfungen'),
 (3618, 'exam_sw_subtitle', 'en', 'Overview of the sectoral basic exam and the professional exam, with measurement and evaluation criteria.'),
@@ -4931,14 +4801,246 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (3644, 'exam_sys_title', 'en', 'IT systems and application administrator – Exams'),
 (3645, 'exam_sys_title', 'de', 'IT-System- und Anwendungsadministrator – Prüfungen'),
 (3646, 'exam_sys_subtitle', 'en', 'Overview of the sectoral basic exam and the professional exam, with the main evaluation criteria.'),
-(3647, 'exam_sys_subtitle', 'de', 'Überblick über die Branchen-Grundprüfung und die Fachprüfung mit den wichtigsten Bewertungskriterien.');
-INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
+(3647, 'exam_sys_subtitle', 'de', 'Überblick über die Branchen-Grundprüfung und die Fachprüfung mit den wichtigsten Bewertungskriterien.'),
+(3648, 'nav_premium', 'hu', 'Prémium'),
+(3649, 'nav_premium', 'en', 'Premium'),
+(3650, 'nav_premium', 'de', 'Premium'),
+(3651, 'btn_back_to_exams', 'hu', 'Vissza a vizsgákhoz'),
+(3652, 'btn_back_to_exams', 'en', 'Back to exams'),
+(3653, 'btn_back_to_exams', 'de', 'Zurück zu den Prüfungen'),
+(3654, 'exam_sw_title', 'en', 'Software Developer and Tester – Exams'),
+(3655, 'exam_sw_title', 'de', 'Softwareentwickler und Tester – Prüfungen'),
+(3656, 'exam_sw_subtitle', 'en', 'Overview of the sectoral basic exam and the professional exam, including assessment criteria.'),
+(3657, 'exam_sw_subtitle', 'de', 'Übersicht über die Fachgrundprüfung und die Berufsabschlussprüfung, einschließlich Bewertungskriterien.'),
+(3658, 'exam_sw_section1_heading', 'en', 'Sectoral Basic Exam – Written Exam (Interactive Test)'),
+(3659, 'exam_sw_section1_heading', 'de', 'Fachgrundprüfung – Schriftliche Prüfung (Interaktiver Test)'),
+(3660, 'exam_sw_section1_item1', 'en', 'Title: \"IT and Telecommunications Fundamentals – Interactive Test\".'),
+(3661, 'exam_sw_section1_item1', 'de', 'Bezeichnung: „Grundlagen der Informatik und Telekommunikation – Interaktiver Test\".'),
+(3662, 'exam_sw_section1_item2', 'en', 'Consists of 15 computer-based test tasks.'),
+(3663, 'exam_sw_section1_item2', 'de', 'Besteht aus 15 am Computer zu lösenden Testaufgaben.'),
+(3664, 'exam_sw_section1_item3', 'en', 'Task types: single-choice, multiple-choice, matching, and short-answer fill-in.'),
+(3665, 'exam_sw_section1_item3', 'de', 'Aufgabentypen: Einfachauswahl, Mehrfachauswahl, Zuordnung und Kurzantwort.'),
+(3666, 'exam_sw_section1_item4', 'en', 'The test scoring must be automatable.'),
+(3667, 'exam_sw_section1_item4', 'de', 'Die Auswertung des Tests muss automatisierbar sein.'),
+(3668, 'exam_sw_section1_item5', 'en', 'No aids are permitted.'),
+(3669, 'exam_sw_section1_item5', 'de', 'Hilfsmittel sind nicht erlaubt.'),
+(3670, 'exam_sw_section1_item6', 'en', 'Duration: 30 minutes.'),
+(3671, 'exam_sw_section1_item6', 'de', 'Dauer: 30 Minuten.'),
+(3672, 'exam_sw_section1_item7', 'en', 'Weight within the sectoral basic exam: 10%.'),
+(3673, 'exam_sw_section1_item7', 'de', 'Anteil an der Fachgrundprüfung: 10 %.'),
+(3674, 'exam_sw_section2_heading', 'en', 'Sectoral Basic Exam – Written Assessment'),
+(3675, 'exam_sw_section2_heading', 'de', 'Fachgrundprüfung – Schriftliche Bewertung'),
+(3676, 'exam_sw_section2_item1', 'en', 'Each task is worth 2 points.'),
+(3677, 'exam_sw_section2_item1', 'de', 'Jede Aufgabe ist 2 Punkte wert.'),
+(3678, 'exam_sw_section2_item2', 'en', 'Partial credit may be awarded for partially correct answers.'),
+(3679, 'exam_sw_section2_item2', 'de', 'Für Teilantworten können Teilpunkte vergeben werden.'),
+(3680, 'exam_sw_section2_item3', 'en', 'Full marks cannot be awarded if the answer also contains incorrect responses.'),
+(3681, 'exam_sw_section2_item3', 'de', 'Die volle Punktzahl kann nicht vergeben werden, wenn die Antwort auch falsche Angaben enthält.'),
+(3682, 'exam_sw_section2_item4', 'en', 'Results are expressed as a percentage.'),
+(3683, 'exam_sw_section2_item4', 'de', 'Die Auswertung erfolgt in Prozent.'),
+(3684, 'exam_sw_section2_item5', 'en', 'Passed if the student achieves at least 40% of the total possible points.'),
+(3685, 'exam_sw_section2_item5', 'de', 'Bestanden, wenn der Schüler mindestens 40 % der erreichbaren Gesamtpunktzahl erzielt.'),
+(3686, 'exam_sw_section3_heading', 'en', 'Sectoral Basic Exam – Practical Exam (Task Set)'),
+(3687, 'exam_sw_section3_heading', 'de', 'Fachgrundprüfung – Praktische Prüfung (Aufgabenreihe)'),
+(3688, 'exam_sw_section3_item1', 'en', 'Title: \"Web Coding, Programming, and Networking – Practical\".'),
+(3689, 'exam_sw_section3_item1', 'de', 'Bezeichnung: „Webseiten-Kodierung, Programmierung, Netzwerke – Praxis\".'),
+(3690, 'exam_sw_section3_item2', 'en', 'The written and practical exam activities are held on separate days.'),
+(3691, 'exam_sw_section3_item2', 'de', 'Die schriftliche und die praktische Prüfung finden an getrennten Tagen statt.'),
+(3692, 'exam_sw_section3_item3', 'en', 'Duration: 180 consecutive minutes; the recommended time for each of the 3 parts is 60 minutes (the allocation is up to the candidate).'),
+(3693, 'exam_sw_section3_item3', 'de', 'Dauer: 180 zusammenhängende Minuten; die empfohlene Zeit für jeden der 3 Teile beträgt 60 Minuten (die Einteilung liegt beim Prüfling).'),
+(3694, 'exam_sw_section3_item4', 'en', 'Internet access may be provided, but only for general searches; it cannot be used for communication or targeted downloads (may be restricted according to the task instructions).'),
+(3695, 'exam_sw_section3_item4', 'de', 'Internetzugang kann bereitgestellt werden, jedoch nur für allgemeine Suchen; er darf nicht für Kommunikation oder gezielte Downloads verwendet werden (kann gemäß den Aufgabenanweisungen eingeschränkt sein).'),
+(3696, 'exam_sw_section3_item5', 'en', 'The practical exam consists of 3 task parts.'),
+(3697, 'exam_sw_section3_item5', 'de', 'Die praktische Prüfung besteht aus 3 Aufgabenteilen.'),
+(3698, 'exam_sw_section4_heading', 'en', 'Sectoral Basic Exam – Practical A) Web Coding (What to Do)'),
+(3699, 'exam_sw_section4_heading', 'de', 'Fachgrundprüfung – Praktisch A) Webseiten-Kodierung (Was zu tun ist)'),
+(3700, 'exam_sw_section4_item1', 'en', 'Create a simple but responsive web page.'),
+(3701, 'exam_sw_section4_item1', 'de', 'Erstelle eine einfache, aber responsive Webseite.'),
+(3702, 'exam_sw_section4_item2', 'en', 'Provided materials: wireframe, source texts, images, and a formatting requirements list.'),
+(3703, 'exam_sw_section4_item2', 'de', 'Bereitgestellte Materialien: Wireframe, Quelltexte, Bilder und eine Formatierungsanforderungsliste.'),
+(3704, 'exam_sw_section4_item3', 'en', 'The HTML page must include the required basic and semantic HTML elements.'),
+(3705, 'exam_sw_section4_item3', 'de', 'Die HTML-Seite muss die vorgeschriebenen grundlegenden und semantischen HTML-Elemente enthalten.'),
+(3706, 'exam_sw_section4_item4', 'en', 'Formatting is done via an attached CSS file.'),
+(3707, 'exam_sw_section4_item4', 'de', 'Die Formatierung erfolgt über eine angehängte CSS-Datei.'),
+(3708, 'exam_sw_section4_item5', 'en', 'The finished page must be validated with an HTML validator.'),
+(3709, 'exam_sw_section4_item5', 'de', 'Die fertige Seite muss mit einem HTML-Validator überprüft werden.'),
+(3710, 'exam_sw_section5_heading', 'en', 'Sectoral Basic Exam – Practical A) Web Coding (Skills Measured – Examples)'),
+(3711, 'exam_sw_section5_heading', 'de', 'Fachgrundprüfung – Praktisch A) Webseiten-Kodierung (Gemessene Kompetenzen – Beispiele)'),
+(3712, 'exam_sw_section5_item1', 'en', 'HTML5 page structure (!DOCTYPE, html, head, body, meta) and semantic elements (header, nav, main, section, footer).'),
+(3713, 'exam_sw_section5_item1', 'de', 'HTML5-Seitenstruktur (!DOCTYPE, html, head, body, meta) und semantische Elemente (header, nav, main, section, footer).'),
+(3714, 'exam_sw_section5_item2', 'en', 'Structural elements (p, title, h1–h6, img, a, link, strong, em, figure, figcaption, div, span).'),
+(3715, 'exam_sw_section5_item2', 'de', 'Strukturelemente (p, title, h1–h6, img, a, link, strong, em, figure, figcaption, div, span).'),
+(3716, 'exam_sw_section5_item3', 'en', 'Attributes (href, target, src, alt, lang, charset, etc.).'),
+(3717, 'exam_sw_section5_item3', 'de', 'Attribute (href, target, src, alt, lang, charset usw.).'),
+(3718, 'exam_sw_section5_item4', 'en', 'Creating lists and tables.'),
+(3719, 'exam_sw_section5_item4', 'de', 'Erstellen von Listen und Tabellen.'),
+(3720, 'exam_sw_section5_item5', 'en', 'CSS: inline/internal/external; selectors; basic CSS3 properties; media queries, breakpoints; units (em/rem/%/vw/vh).'),
+(3721, 'exam_sw_section5_item5', 'de', 'CSS: inline/internal/external; Selektoren; grundlegende CSS3-Eigenschaften; Media Queries, Breakpoints; Einheiten (em/rem/%/vw/vh).'),
+(3722, 'exam_sw_section5_item6', 'en', 'Bootstrap basics (if included in the given task).'),
+(3723, 'exam_sw_section5_item6', 'de', 'Bootstrap-Grundlagen (sofern in der Aufgabe enthalten).'),
+(3724, 'exam_sw_section6_heading', 'en', 'Professional Exam – Purpose of the Exam'),
+(3725, 'exam_sw_section6_heading', 'de', 'Berufsabschlussprüfung – Prüfungsziel'),
+(3726, 'exam_sw_section6_paragraph', 'en', 'The aim of the professional exam is to demonstrate that the candidate is capable of independently solving professional tasks, understands the principles of software development and testing, and can apply them in a practical environment. This exam involves'),
+(3727, 'exam_sw_section6_paragraph', 'de', 'Das Ziel der Berufsabschlussprüfung ist es nachzuweisen, dass der Prüfling in der Lage ist, Fachaufgaben selbstständig zu lösen, die Grundsätze der Softwareentwicklung und des Testens versteht und diese in einer praktischen Umgebung anwenden kann. Diese P'),
+(3728, 'exam_sw_section7_heading', 'en', 'Professional Exam – Parts of the Exam'),
+(3729, 'exam_sw_section7_heading', 'de', 'Berufsabschlussprüfung – Prüfungsteile'),
+(3730, 'exam_sw_section7_item1', 'en', 'Central interactive exam part (more theoretical in nature, in test or task format).'),
+(3731, 'exam_sw_section7_item1', 'de', 'Zentraler interaktiver Prüfungsteil (eher theoretischer Natur, als Test oder Aufgabenreihe).'),
+(3732, 'exam_sw_section7_item2', 'en', 'Practical exam part or project task, where a more complex problem must be solved.'),
+(3733, 'exam_sw_section7_item2', 'de', 'Praktischer Prüfungsteil oder Projektaufgabe, bei dem/der ein komplexeres Problem gelöst werden muss.'),
+(3734, 'exam_sw_section7_item3', 'en', 'The practical part often also requires the preparation of documentation.'),
+(3735, 'exam_sw_section7_item3', 'de', 'Zum praktischen Teil gehört häufig auch die Erstellung einer Dokumentation.'),
+(3736, 'exam_sw_section8_heading', 'en', 'Professional Exam – What Does the Exam Measure?'),
+(3737, 'exam_sw_section8_heading', 'de', 'Berufsabschlussprüfung – Was misst die Prüfung?'),
+(3738, 'exam_sw_section8_item1', 'en', 'Fundamental software development skills (design, implementation, testing).'),
+(3739, 'exam_sw_section8_item1', 'de', 'Grundlegende Kenntnisse der Softwareentwicklung (Planung, Umsetzung, Testen).'),
+(3740, 'exam_sw_section8_item2', 'en', 'Programming and data management knowledge.'),
+(3741, 'exam_sw_section8_item2', 'de', 'Programmier- und Datenverwaltungskenntnisse.'),
+(3742, 'exam_sw_section8_item3', 'en', 'Debugging and testing skills.'),
+(3743, 'exam_sw_section8_item3', 'de', 'Fehlerbehebungs- und Testfähigkeiten.'),
+(3744, 'exam_sw_section8_item4', 'en', 'Documentation skills.'),
+(3745, 'exam_sw_section8_item4', 'de', 'Dokumentationsfähigkeiten.'),
+(3746, 'exam_sw_section8_item5', 'en', 'Adherence to professional standards and best practices.'),
+(3747, 'exam_sw_section8_item5', 'de', 'Einhaltung von Fachstandards und bewährten Praktiken.'),
+(3748, 'exam_sw_section9_heading', 'en', 'Professional Exam – Assessment Criteria'),
+(3749, 'exam_sw_section9_heading', 'de', 'Berufsabschlussprüfung – Bewertungskriterien'),
+(3750, 'exam_sw_section9_item1', 'en', 'Technical correctness of the solution.'),
+(3751, 'exam_sw_section9_item1', 'de', 'Fachliche Korrektheit der Lösung.'),
+(3752, 'exam_sw_section9_item2', 'en', 'Functionality of the program or application.'),
+(3753, 'exam_sw_section9_item2', 'de', 'Funktionsfähigkeit des Programms oder der Anwendung.'),
+(3754, 'exam_sw_section9_item3', 'en', 'Complete fulfilment of the task requirements.'),
+(3755, 'exam_sw_section9_item3', 'de', 'Vollständige Erfüllung der Aufgabenanforderungen.'),
+(3756, 'exam_sw_section9_item4', 'en', 'Clarity and structure of the code and solution.'),
+(3757, 'exam_sw_section9_item4', 'de', 'Übersichtlichkeit und Struktur des Codes und der Lösung.'),
+(3758, 'exam_sw_section9_item5', 'en', 'Quality of the documentation.'),
+(3759, 'exam_sw_section9_item5', 'de', 'Qualität der Dokumentation.'),
+(3760, 'exam_sw_section9_item6', 'en', 'The candidate\'s working method and problem-solving approach.'),
+(3761, 'exam_sw_section9_item6', 'de', 'Arbeitsweise und Problemlösungsansatz des Prüflings.'),
+(3762, 'exam_sys_title', 'en', 'IT Systems and Applications Administrator – Exams'),
+(3763, 'exam_sys_title', 'de', 'IT-System- und Anwendungsbetreuer – Prüfungen'),
+(3764, 'exam_sys_subtitle', 'en', 'Overview of the sectoral basic exam and the professional exam, including main assessment criteria.'),
+(3765, 'exam_sys_subtitle', 'de', 'Übersicht über die Fachgrundprüfung und die Berufsabschlussprüfung, einschließlich der wichtigsten Bewertungskriterien.'),
+(3766, 'exam_sys_section1_heading', 'en', 'Sectoral Basic Exam – Admission Requirement'),
+(3767, 'exam_sys_section1_heading', 'de', 'Fachgrundprüfung – Zulassungsvoraussetzung'),
+(3768, 'exam_sys_section1_paragraph', 'en', 'Requirement for admission to the sectoral basic exam: successful completion of all prescribed training years.'),
+(3769, 'exam_sys_section1_paragraph', 'de', 'Voraussetzung für die Zulassung zur Fachgrundprüfung: erfolgreicher Abschluss aller vorgeschriebenen Ausbildungsjahre.'),
+(3770, 'exam_sys_section2_heading', 'en', 'Sectoral Basic Exam – Written Exam (Interactive Test)'),
+(3771, 'exam_sys_section2_heading', 'de', 'Fachgrundprüfung – Schriftliche Prüfung (Interaktiver Test)'),
+(3772, 'exam_sys_section2_item1', 'en', 'Title: \"IT and Telecommunications Fundamentals – Interactive Test\".'),
+(3773, 'exam_sys_section2_item1', 'de', 'Bezeichnung: „Grundlagen der Informatik und Telekommunikation – Interaktiver Test\".'),
+(3774, 'exam_sys_section2_item2', 'en', 'Consists of 15 computer-based test tasks.'),
+(3775, 'exam_sys_section2_item2', 'de', 'Besteht aus 15 am Computer zu lösenden Testaufgaben.'),
+(3776, 'exam_sys_section2_item3', 'en', 'Task types: single-choice, multiple-choice, matching, and short-answer fill-in.'),
+(3777, 'exam_sys_section2_item3', 'de', 'Aufgabentypen: Einfachauswahl, Mehrfachauswahl, Zuordnung und Kurzantwort.'),
+(3778, 'exam_sys_section2_item4', 'en', 'The test scoring must be automatable.'),
+(3779, 'exam_sys_section2_item4', 'de', 'Die Auswertung des Tests muss automatisierbar sein.'),
+(3780, 'exam_sys_section2_item5', 'en', 'No aids are permitted.'),
+(3781, 'exam_sys_section2_item5', 'de', 'Hilfsmittel sind nicht erlaubt.'),
+(3782, 'exam_sys_section2_item6', 'en', 'Duration: 30 minutes.'),
+(3783, 'exam_sys_section2_item6', 'de', 'Dauer: 30 Minuten.'),
+(3784, 'exam_sys_section2_item7', 'en', 'Weight within the sectoral basic exam: 10%.'),
+(3785, 'exam_sys_section2_item7', 'de', 'Anteil an der Fachgrundprüfung: 10 %.'),
+(3786, 'exam_sys_section3_heading', 'en', 'Sectoral Basic Exam – Written Assessment'),
+(3787, 'exam_sys_section3_heading', 'de', 'Fachgrundprüfung – Schriftliche Bewertung'),
+(3788, 'exam_sys_section3_item1', 'en', 'Each task is worth 2 points.'),
+(3789, 'exam_sys_section3_item1', 'de', 'Jede Aufgabe ist 2 Punkte wert.'),
+(3790, 'exam_sys_section3_item2', 'en', 'Partial credit may be awarded for partially correct answers.'),
+(3791, 'exam_sys_section3_item2', 'de', 'Für Teilantworten können Teilpunkte vergeben werden.'),
+(3792, 'exam_sys_section3_item3', 'en', 'Full marks cannot be awarded if the answer also contains incorrect responses.'),
+(3793, 'exam_sys_section3_item3', 'de', 'Die volle Punktzahl kann nicht vergeben werden, wenn die Antwort auch falsche Angaben enthält.'),
+(3794, 'exam_sys_section3_item4', 'en', 'Results are expressed as a percentage.'),
+(3795, 'exam_sys_section3_item4', 'de', 'Die Auswertung erfolgt in Prozent.'),
+(3796, 'exam_sys_section3_item5', 'en', 'Passed if the student achieves at least 40% of the total possible points.'),
+(3797, 'exam_sys_section3_item5', 'de', 'Bestanden, wenn der Schüler mindestens 40 % der erreichbaren Gesamtpunktzahl erzielt.'),
+(3798, 'exam_sys_section4_heading', 'en', 'Sectoral Basic Exam – Practical Exam (Task Set)'),
+(3799, 'exam_sys_section4_heading', 'de', 'Fachgrundprüfung – Praktische Prüfung (Aufgabenreihe)'),
+(3800, 'exam_sys_section4_item1', 'en', 'Title: \"Web Coding, Programming, and Networking – Practical\".'),
+(3801, 'exam_sys_section4_item1', 'de', 'Bezeichnung: „Webseiten-Kodierung, Programmierung, Netzwerke – Praxis\".'),
+(3802, 'exam_sys_section4_item2', 'en', 'The written and practical exam activities are held on separate days.'),
+(3803, 'exam_sys_section4_item2', 'de', 'Die schriftliche und die praktische Prüfung finden an getrennten Tagen statt.'),
+(3804, 'exam_sys_section4_item3', 'en', 'Duration: 180 consecutive minutes; the recommended time for each of the 3 parts is 60 minutes (the allocation is up to the candidate).'),
+(3805, 'exam_sys_section4_item3', 'de', 'Dauer: 180 zusammenhängende Minuten; die empfohlene Zeit für jeden der 3 Teile beträgt 60 Minuten (die Einteilung liegt beim Prüfling).'),
+(3806, 'exam_sys_section4_item4', 'en', 'Internet access may be provided, but only for general searches; it cannot be used for communication or targeted downloads (may be restricted according to the task instructions).'),
+(3807, 'exam_sys_section4_item4', 'de', 'Internetzugang kann bereitgestellt werden, jedoch nur für allgemeine Suchen; er darf nicht für Kommunikation oder gezielte Downloads verwendet werden (kann gemäß den Aufgabenanweisungen eingeschränkt sein).'),
+(3808, 'exam_sys_section4_item5', 'en', 'The practical exam consists of 3 task parts.'),
+(3809, 'exam_sys_section4_item5', 'de', 'Die praktische Prüfung besteht aus 3 Aufgabenteilen.'),
+(3810, 'exam_sys_section5_heading', 'en', 'Sectoral Basic Exam – Practical A) Web Coding (What to Do)'),
+(3811, 'exam_sys_section5_heading', 'de', 'Fachgrundprüfung – Praktisch A) Webseiten-Kodierung (Was zu tun ist)'),
+(3812, 'exam_sys_section5_item1', 'en', 'Create a simple but responsive web page.'),
+(3813, 'exam_sys_section5_item1', 'de', 'Erstelle eine einfache, aber responsive Webseite.'),
+(3814, 'exam_sys_section5_item2', 'en', 'Provided materials: wireframe, source texts, images, and a formatting requirements list.'),
+(3815, 'exam_sys_section5_item2', 'de', 'Bereitgestellte Materialien: Wireframe, Quelltexte, Bilder und eine Formatierungsanforderungsliste.'),
+(3816, 'exam_sys_section5_item3', 'en', 'The HTML page must include the required basic and semantic HTML elements.'),
+(3817, 'exam_sys_section5_item3', 'de', 'Die HTML-Seite muss die vorgeschriebenen grundlegenden und semantischen HTML-Elemente enthalten.'),
+(3818, 'exam_sys_section5_item4', 'en', 'Formatting is done via an attached CSS file.'),
+(3819, 'exam_sys_section5_item4', 'de', 'Die Formatierung erfolgt über eine angehängte CSS-Datei.'),
+(3820, 'exam_sys_section5_item5', 'en', 'The finished page must be validated with an HTML validator.'),
+(3821, 'exam_sys_section5_item5', 'de', 'Die fertige Seite muss mit einem HTML-Validator überprüft werden.'),
+(3822, 'exam_sys_section6_heading', 'en', 'Sectoral Basic Exam – Practical A) Web Coding (Skills Measured – Examples)'),
+(3823, 'exam_sys_section6_heading', 'de', 'Fachgrundprüfung – Praktisch A) Webseiten-Kodierung (Gemessene Kompetenzen – Beispiele)'),
+(3824, 'exam_sys_section6_item1', 'en', 'HTML5 page structure (!DOCTYPE, html, head, body, meta) and semantic elements (header, nav, main, section, footer).'),
+(3825, 'exam_sys_section6_item1', 'de', 'HTML5-Seitenstruktur (!DOCTYPE, html, head, body, meta) und semantische Elemente (header, nav, main, section, footer).'),
+(3826, 'exam_sys_section6_item2', 'en', 'Structural elements (p, title, h1–h6, img, a, link, strong, em, figure, figcaption, div, span).'),
+(3827, 'exam_sys_section6_item2', 'de', 'Strukturelemente (p, title, h1–h6, img, a, link, strong, em, figure, figcaption, div, span).'),
+(3828, 'exam_sys_section6_item3', 'en', 'Attributes (href, target, src, alt, lang, charset, etc.).'),
+(3829, 'exam_sys_section6_item3', 'de', 'Attribute (href, target, src, alt, lang, charset usw.).'),
+(3830, 'exam_sys_section6_item4', 'en', 'Creating lists and tables.'),
+(3831, 'exam_sys_section6_item4', 'de', 'Erstellen von Listen und Tabellen.'),
+(3832, 'exam_sys_section6_item5', 'en', 'CSS: inline/internal/external; selectors; basic CSS3 properties; media queries, breakpoints; units (em/rem/%/vw/vh).'),
+(3833, 'exam_sys_section6_item5', 'de', 'CSS: inline/internal/external; Selektoren; grundlegende CSS3-Eigenschaften; Media Queries, Breakpoints; Einheiten (em/rem/%/vw/vh).'),
+(3834, 'exam_sys_section6_item6', 'en', 'Bootstrap basics (if included in the given task).'),
+(3835, 'exam_sys_section6_item6', 'de', 'Bootstrap-Grundlagen (sofern in der Aufgabe enthalten).'),
+(3836, 'exam_sys_section7_heading', 'en', 'Professional Exam – Overview'),
+(3837, 'exam_sys_section7_heading', 'de', 'Berufsabschlussprüfung – Übersicht'),
+(3838, 'exam_sys_section7_paragraph', 'en', 'The aim of the professional exam is to assess whether the candidate can independently, professionally, and with documentation perform system and application administration tasks (configuration, operation, troubleshooting, network settings, security princi'),
+(3839, 'exam_sys_section7_paragraph', 'de', 'Das Ziel der Berufsabschlussprüfung ist es zu messen, ob der Prüfling System- und Anwendungsbetriebsaufgaben selbstständig, fachgerecht und dokumentiert durchführen kann (Konfiguration, Betrieb, Fehlerbehebung, Netzwerkeinstellungen, Sicherheitsprinzipien'),
+(3840, 'exam_sys_section8_heading', 'en', 'Professional Exam – What Is Typically Measured?'),
+(3841, 'exam_sys_section8_heading', 'de', 'Berufsabschlussprüfung – Was wird typischerweise gemessen?'),
+(3842, 'exam_sys_section8_item1', 'en', 'Correctness and functionality of system and network settings.'),
+(3843, 'exam_sys_section8_item1', 'de', 'Korrektheit und Funktionsfähigkeit von System- und Netzwerkeinstellungen.'),
+(3844, 'exam_sys_section8_item2', 'en', 'Systematic approach to troubleshooting (logs, diagnostics, documenting steps).'),
+(3845, 'exam_sys_section8_item2', 'de', 'Systematisches Vorgehen bei der Fehlerbehebung (Protokolle, Diagnose, Dokumentation der Schritte).'),
+(3846, 'exam_sys_section8_item3', 'en', 'Secure configuration (permissions, passwords, basic security principles).'),
+(3847, 'exam_sys_section8_item3', 'de', 'Sichere Konfiguration (Berechtigungen, Passwörter, grundlegende Sicherheitsprinzipien).'),
+(3848, 'exam_sys_section8_item4', 'en', 'Quality of documentation (what, why, and how was configured).'),
+(3849, 'exam_sys_section8_item4', 'de', 'Qualität der Dokumentation (was, warum und wie konfiguriert wurde).'),
+(3850, 'exam_sys_section9_heading', 'en', 'Professional Exam – Main Assessment Criteria'),
+(3851, 'exam_sys_section9_heading', 'de', 'Berufsabschlussprüfung – Wichtigste Bewertungskriterien'),
+(3852, 'exam_sys_section9_item1', 'en', 'Functionality of the solution (does the service/network actually work).'),
+(3853, 'exam_sys_section9_item1', 'de', 'Funktionsfähigkeit der Lösung (funktioniert der Dienst/das Netzwerk tatsächlich).'),
+(3854, 'exam_sys_section9_item2', 'en', 'Completeness of the task (are all required parts present).'),
+(3855, 'exam_sys_section9_item2', 'de', 'Vollständigkeit der Aufgabe (sind alle erforderlichen Teile vorhanden).'),
+(3856, 'exam_sys_section9_item3', 'en', 'Professionalism (best practices, transparent configuration).'),
+(3857, 'exam_sys_section9_item3', 'de', 'Fachgerechtigkeit (bewährte Praktiken, übersichtliche Konfiguration).'),
+(3858, 'exam_sys_section9_item4', 'en', 'Documentation and verification (show/commands, tests, logging).'),
+(3859, 'exam_sys_section9_item4', 'de', 'Dokumentation und Überprüfungen (Show-/Befehle, Tests, Protokollierung).'),
+(3860, 'exams_page_title', 'hu', 'Vizsgák'),
+(3861, 'exams_page_title', 'en', 'Exams'),
+(3862, 'exams_page_title', 'de', 'Prüfungen'),
+(3863, 'exams_page_subtitle', 'hu', 'Itt találod röviden és érthetően, hogyan zajlanak a vizsgák.'),
+(3864, 'exams_page_subtitle', 'en', 'Here you can find a brief and clear overview of how exams work.'),
+(3865, 'exams_page_subtitle', 'de', 'Hier findest du eine kurze und verständliche Übersicht darüber, wie die Prüfungen ablaufen.'),
+(3866, 'exams_sw_title', 'hu', 'Szoftverfejlesztő vizsga'),
+(3867, 'exams_sw_title', 'en', 'Software Developer Exam'),
+(3868, 'exams_sw_title', 'de', 'Softwareentwickler-Prüfung'),
+(3869, 'exams_sw_subtitle', 'hu', 'Felépítés, menetrend, mire figyelj, tippek.'),
+(3870, 'exams_sw_subtitle', 'en', 'Structure, schedule, what to watch out for, tips.'),
+(3871, 'exams_sw_subtitle', 'de', 'Aufbau, Ablauf, worauf du achten solltest, Tipps.'),
+(3872, 'exams_sys_title', 'hu', 'Rendszerüzemeltető vizsga'),
+(3873, 'exams_sys_title', 'en', 'System Administrator Exam'),
+(3874, 'exams_sys_title', 'de', 'Systemadministrator-Prüfung'),
+(3875, 'exams_sys_subtitle', 'hu', 'Felépítés, menetrend, tipikus feladatok, tippek.'),
+(3876, 'exams_sys_subtitle', 'en', 'Structure, schedule, typical tasks, tips.'),
+(3877, 'exams_sys_subtitle', 'de', 'Aufbau, Ablauf, typische Aufgaben, Tipps.'),
+(3878, 'exams_open_button', 'hu', 'Megnyitás'),
+(3879, 'exams_open_button', 'en', 'Open'),
+(3880, 'exams_open_button', 'de', 'Öffnen'),
 (3881, 'markdown_tutorial_title', 'hu', 'Markdown súgó'),
 (3882, 'markdown_tutorial_title', 'en', 'Markdown tutorial'),
 (3883, 'markdown_tutorial_title', 'de', 'Markdown-Anleitung'),
 (3884, 'markdown_tutorial_subtitle', 'hu', 'Markdown egy egyszerű jelölőnyelv, amivel formázhatod a szöveges jegyzetedet. Használhatsz címsorokat, félkövér vagy dőlt szöveget, listákat, kódblokkokat és még sok mást! A jegyzet oldalán a markdown tartalom szépen formázva fog megjelenni.'),
 (3885, 'markdown_tutorial_subtitle', 'en', 'Markdown is a simple markup language that lets you format your text notes. You can use headings, bold or italic text, lists, code blocks, and much more! Your Markdown content will appear neatly formatted on the note page.'),
-(3886, 'markdown_tutorial_subtitle', 'de', 'Markdown ist eine einfache Auszeichnungssprache, mit der du deine Textnotizen formatieren kannst. Du kannst Überschriften, fettgedruckten vagy kursiven Text, Listen, Code-Blöcke és vieles mehr verwenden! Auf der Notizseite wird der Markdown-Inhalt dann ansprechend formatiert angezeigt.'),
+(3886, 'markdown_tutorial_subtitle', 'de', 'Markdown ist eine einfache Auszeichnungssprache, mit der du deine Textnotizen formatieren kannst. Du kannst Überschriften, fettgedruckten vagy kursiven Text, Listen, Code-Blöcke és vieles mehr verwenden! Auf der Notizseite wird der Markdown-Inhalt dann an'),
 (3887, 'upload_label_video_link', 'hu', 'Videó link'),
 (3888, 'upload_label_video_link', 'en', 'Video link'),
 (3889, 'upload_label_video_link', 'de', 'Video-Link'),
@@ -4971,7 +5073,12 @@ INSERT INTO `translations` (`id`, `t_key`, `lang_code`, `text`) VALUES
 (3916, '2fa_disabled', 'de', 'Deaktiviert'),
 (3917, '2fa_help_text', 'hu', 'Bejelentkezéskor e-mailben kapsz egy egyszer használatos kódot.'),
 (3918, '2fa_help_text', 'en', 'You will receive a one-time code via email upon login.'),
-(3919, '2fa_help_text', 'de', 'Du erhältst einen Einmalcode per E-Mail beim Einloggen.');
+(3919, '2fa_help_text', 'de', 'Du erhältst einen Einmalcode per E-Mail beim Einloggen.'),
+(3921, 'profile_report_user', 'hu', 'Felhasználó jelentése'),
+(3922, 'profile_report_user', 'en', 'Report user'),
+(3923, 'profile_report_user', 'de', 'Benutzerbericht');
+
+-- --------------------------------------------------------
 
 --
 -- Tábla szerkezet ehhez a táblához `users`
@@ -5011,7 +5118,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `lastname`, `firstname`, `username`, `birthdate`, `gender`, `email`, `profile_picture`, `password`, `security_question`, `security_answer`, `admin`, `teacher`, `registration_date`, `language`, `oauth_provider`, `oauth_sub`, `email_verified`, `bio`, `profile_theme`, `twofa_enabled`, `used_reg_code`, `used_reg_code_at`, `show_fullname`, `show_email`, `show_birthdate`) VALUES
-(1, 'Csontos', 'Kincső Anasztázia', 'doomhyena', '2005-04-04', 'female', 'contact@doomhyena.hu', 'Rudo Surebrec.jpg', '$2y$10$pSCPNVMs2htrcyZGRGLIOO2.aMYL41iKbnWl2YXXSn2GJ1uq8EzLG', 'Mi a kedvenc könyved?', 'Harry Potter', 1, 0, '2025-12-02 08:52:05', 'hu', NULL, NULL, 1, 'Software & Systems Engineer Student', 'light', 0, NULL, NULL, 0, 0, 1),
+(1, 'Csontos', 'Kincső Anasztázia', 'doomhyena', '2005-04-04', 'female', 'contact@doomhyena.hu', 'circular+background.png', '$2y$10$pSCPNVMs2htrcyZGRGLIOO2.aMYL41iKbnWl2YXXSn2GJ1uq8EzLG', 'Mi a kedvenc könyved?', 'Harry Potter', 1, 0, '2025-12-02 08:52:05', 'hu', NULL, NULL, 1, 'I currently live and study in Hungary, Budapest. In September 2019, I started working more actively with JavaScript, writing a Discord bot using the Discord API and creating smaller static websites. JavaScript was my main focus until December 2021, when I met my friend, who introduced me to C#. Later, in 2022, I learned Python in a high school elective course.\r\n\r\nI\'m continuing my studies a software engineer at Schola Europa Academy since September 2024, and since November 2025, I have also been a student at Bláthy Otto Titus IT Secondary School, where I am studying systems engineering.', 'light', 0, NULL, NULL, 0, 0, 1),
+(20, 'Szekeres', 'Levente', 'Paladin', '2001-03-20', 'male', 'szekilevi035@gmail.com', 'cat-catfish.gif', '$2y$12$CnkV87lvb8AzwhyedKX8geogAYNcpxsu3f2HKHfwq4n4E7aD4XxlW', 'Mi a kedvenc könyved?', '$2y$12$iycVVWZENmUHiFWimnfiHuFl/HYa0DLX/M/.SIg/qkuQmObXxGdgS', 1, 0, '2026-03-31 06:52:41', 'hu', NULL, NULL, 1, NULL, 'default', 1, 'SCHOLA-2026', '2026-03-31 08:52:42', 1, 1, 1),
+(21, 'Hujber', 'Balázs', 'Humbi', '2001-07-28', 'male', 'hujber.balazs28@gmail.com', NULL, '$2y$12$SLw2/JqbX4cukaFlT20T1uXwCDtVHxHn/ne7.HkBoDxRtGL4GGkFi', 'Mi az édesanyád leánykori neve?', '$2y$12$we.h.ghrfSUHS3D2N4XNkeFl1/tjtY2oJ98lHJF5aVF455SfI.ktS', 0, 1, '2026-03-31 08:37:16', 'hu', NULL, NULL, 1, NULL, 'default', 0, 'SCHOLA-2026', '2026-03-31 10:37:16', 1, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -5346,7 +5455,7 @@ ALTER TABLE `comments`
 -- AUTO_INCREMENT a táblához `contact_messages`
 --
 ALTER TABLE `contact_messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT a táblához `favorites`
@@ -5364,7 +5473,7 @@ ALTER TABLE `files`
 -- AUTO_INCREMENT a táblához `file_events`
 --
 ALTER TABLE `file_events`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT a táblához `friends`
@@ -5454,7 +5563,7 @@ ALTER TABLE `tokens`
 -- AUTO_INCREMENT a táblához `translations`
 --
 ALTER TABLE `translations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3319;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3924;
 
 --
 -- AUTO_INCREMENT a táblához `users`
